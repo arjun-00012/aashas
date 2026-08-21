@@ -22,7 +22,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Mobile adjustments */
+        /* Mobile specific adjustments */
         @media (max-width: 767.98px) {
             .page-container {
                 padding: 1rem 0.75rem !important;
@@ -57,15 +57,43 @@
                 height: 34px !important;
             }
 
+            /* Responsive stacking for card headers and buttons */
+            .card-header-actions {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+
+            .card-header-actions .btn-add-action {
+                width: 100% !important;
+                text-align: center;
+            }
+
             .product-filter-bar {
                 flex-direction: column;
                 align-items: stretch !important;
+                gap: 0.5rem !important;
+                width: 100%;
             }
 
-            .product-filter-bar .form-select,
-            .product-filter-bar .btn {
+            .product-filter-bar .input-group,
+            .product-filter-bar .btn-add-action {
                 width: 100% !important;
             }
+        }
+
+        /* Extra-small screens: stack table rows into card-like blocks for readability */
+        @media (max-width: 575.98px) {
+            .table thead { display: none; }
+            .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+            .table tr { margin-bottom: 0.75rem; border: 1px solid #e9ecef; border-radius: 0.5rem; padding: 0.6rem; background: #fff; }
+            .table td { padding: 0.35rem 0; text-align: left; vertical-align: middle; }
+            .table td::before { content: attr(data-label) ": "; font-weight: 600; display: inline-block; width: 36%; max-width: 120px; color: #495057; }
+            .table td img.img-thumb { width: 48px !important; height: 48px !important; margin-right: 0.5rem; vertical-align: middle; }
+            .text-end.text-nowrap { text-align: left !important; }
+            .product-filter-bar { width: 100%; flex-direction: column; gap: 0.5rem; }
+            .card { padding: 0.75rem !important; }
+            .portal-header { font-size: 1.15rem; }
         }
     </style>
 </head>
@@ -91,9 +119,11 @@
         <!-- Categories Section -->
         <div class="col-12 col-lg-5">
             <div class="card p-3 p-md-4 shadow-sm border-0 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 card-header-actions">
                     <h5 class="m-0 fw-bold">Categories</h5>
-                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-dark">+ Add Category</a>
+                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-dark btn-add-action">
+                        <i class="bi bi-plus-lg me-1"></i> Add Category
+                    </a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -107,15 +137,15 @@
                         <tbody>
                             {% for cat in categories %}
                             <tr>
-                                <td>
+                                <td data-label="Photo">
                                     <img src="{{ cat.image.url }}" width="40" height="40" style="object-fit: cover;" class="rounded border img-thumb" alt="{{ cat.name }}">
                                 </td>
-                                <td class="fw-semibold">{{ cat.name }}</td>
-                                <td class="text-end text-nowrap">
-                                    <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1">
+                                <td data-label="Name" class="fw-semibold">{{ cat.name }}</td>
+                                <td data-label="Actions" class="text-end text-nowrap">
+                                    <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'category_delete' cat.pk %}" onclick="return confirm('Delete category: {{ cat.name }}?')" class="btn btn-outline-danger btn-sm btn-action">
+                                    <a href="{% url 'category_delete' cat.pk %}" onclick="return confirm('Delete category: {{ cat.name }}?')" class="btn btn-outline-danger btn-sm btn-action" title="Delete">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
@@ -134,20 +164,22 @@
         <!-- Products Section with Category Selector -->
         <div class="col-12 col-lg-7">
             <div class="card p-3 p-md-4 shadow-sm border-0 h-100">
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 card-header-actions">
                     <h5 class="m-0 fw-bold">Products</h5>
                     <div class="d-flex align-items-center gap-2 product-filter-bar">
                         <!-- Category Dropdown Filter -->
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light"><i class="bi bi-funnel"></i></span>
-                            <select id="productCategoryFilter" class="form-select form-select-sm" style="min-width: 150px;">
+                            <select id="productCategoryFilter" class="form-select form-select-sm" style="min-width: 140px;">
                                 <option value="all">All Categories</option>
                                 {% for cat in categories %}
                                     <option value="{{ cat.name }}">{{ cat.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-dark text-nowrap">+ Add Product</a>
+                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-dark text-nowrap btn-add-action">
+                            <i class="bi bi-plus-lg me-1"></i> Add Product
+                        </a>
                     </div>
                 </div>
 
@@ -165,20 +197,20 @@
                         <tbody id="productTableBody">
                             {% for p in products %}
                             <tr class="product-row" data-category="{{ p.category.name }}">
-                                <td>
+                                <td data-label="Product">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ p.image.url }}" width="36" height="36" style="object-fit: cover;" class="rounded border img-thumb" alt="{{ p.name }}">
                                         <span class="fw-semibold text-truncate" style="max-width: 140px;">{{ p.name }}</span>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-secondary">{{ p.category.name }}</span></td>
-                                <td class="text-nowrap">₹{{ p.current_price }}</td>
-                                <td>{{ p.stock }}</td>
-                                <td class="text-end text-nowrap">
-                                    <a href="{% url 'product_edit' p.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1">
+                                <td data-label="Category"><span class="badge bg-secondary">{{ p.category.name }}</span></td>
+                                <td data-label="Price" class="text-nowrap">₹{{ p.current_price }}</td>
+                                <td data-label="Stock">{{ p.stock }}</td>
+                                <td data-label="Actions" class="text-end text-nowrap">
+                                    <a href="{% url 'product_edit' p.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'product_delete' p.pk %}" onclick="return confirm('Delete product: {{ p.name }}?')" class="btn btn-outline-danger btn-sm btn-action">
+                                    <a href="{% url 'product_delete' p.pk %}" onclick="return confirm('Delete product: {{ p.name }}?')" class="btn btn-outline-danger btn-sm btn-action" title="Delete">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
@@ -215,11 +247,11 @@
                 <tbody>
                     {% for m in messages %}
                     <tr>
-                        <td class="text-muted small text-nowrap">{{ m.created_at|date:"d M Y H:i" }}</td>
-                        <td class="fw-semibold text-nowrap">{{ m.name }}</td>
-                        <td class="text-nowrap"><a href="mailto:{{ m.email }}" class="text-decoration-none">{{ m.email }}</a></td>
-                        <td>{{ m.subject }}</td>
-                        <td class="small" style="min-width: 180px;">{{ m.message }}</td>
+                        <td data-label="Date" class="text-muted small text-nowrap">{{ m.created_at|date:"d M Y H:i" }}</td>
+                        <td data-label="Name" class="fw-semibold text-nowrap">{{ m.name }}</td>
+                        <td data-label="Email" class="text-nowrap"><a href="mailto:{{ m.email }}" class="text-decoration-none">{{ m.email }}</a></td>
+                        <td data-label="Subject">{{ m.subject }}</td>
+                        <td data-label="Message" class="small" style="min-width: 180px;">{{ m.message }}</td>
                     </tr>
                     {% empty %}
                     <tr>
