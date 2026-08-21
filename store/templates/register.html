@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Join | AASHAS STORE{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="p-4 border border-secondary rounded bg-dark w-100 shadow-sm" style="max-width: 420px;">
+        <h4 class="text-center fw-bold tracking-wider mb-1">JOIN AASHAS</h4>
+        <p class="text-secondary text-center small mb-4">Create your account to start curating styles</p>
+
+        {% if form.errors %}
+        <div class="alert alert-danger py-2 small mb-3">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}<div>{{ error }}</div>{% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Username</label>
+                <input type="text" name="username" class="form-control" required value="{{ form.username.value|default:'' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Phone Number</label>
+                <input type="text" name="phone_number" class="form-control" required value="{{ form.phone_number.value|default:'' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small text-secondary">Confirm Password</label>
+                <input type="password" name="confirm_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-light w-100 py-2 fw-semibold">Create Account</button>
+        </form>
+
+        <p class="small text-center mt-3 text-secondary mb-0">
+            Already a member? <a href="{% url 'login' %}" class="text-white text-decoration-underline">Sign In</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

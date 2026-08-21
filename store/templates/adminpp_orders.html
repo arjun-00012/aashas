@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AASHAS | Filtered Orders Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light p-4">
+<div class="container-fluid">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h3 class="m-0 fw-bold">Orders Management</h3>
+            <a href="{% url 'adminpp_dashboard' %}" class="small text-decoration-none text-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Return to Admin Dashboard
+            </a>
+        </div>
+        <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Filtered Dataset (.xlsx)
+        </a>
+    </div>
+
+    <!-- Multi-variable Filter Bar -->
+    <form method="GET" class="row g-3 bg-white p-3 rounded shadow-sm mb-4 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">CATEGORY</label>
+            <select name="category" class="form-select form-select-sm">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted">FROM DATE</label>
+            <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted">TO DATE</label>
+            <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark btn-sm w-100">Apply Filters</button>
+        </div>
+    </form>
+
+    <!-- Orders Output Table -->
+    <div class="table-responsive bg-white rounded shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark small">
+                <tr>
+                    <th>ORDER ID</th>
+                    <th>CUSTOMER</th>
+                    <th>PHONE</th>
+                    <th>DELIVERY ADDRESS</th>
+                    <th>PURCHASED ITEMS</th>
+                    <th>TOTAL</th>
+                    <th>DATE</th>
+                    <th>PAYMENT REFERENCE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>#{{ order.id }}</strong></td>
+                    <td>{{ order.full_name }}</td>
+                    <td>{{ order.phone_number }}</td>
+                    <td><small class="text-muted">{{ order.shipping_address }}</small></td>
+                    <td>
+                        {% for item in order.items.all %}
+                            <span class="badge bg-secondary mb-1">{{ item.product.name }} (x{{ item.quantity }})</span><br>
+                        {% endfor %}
+                    </td>
+                    <td><strong>₹{{ order.total_price }}</strong></td>
+                    <td><small>{{ order.created_at|date:"M d, Y H:i" }}</small></td>
+                    <td><code>{{ order.razorpay_payment_id }}</code></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        No completed transactions found matching the specified parameters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

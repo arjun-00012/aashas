@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Bag | AASHAS STORE{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+        <h4 class="fw-bold tracking-wider m-0">YOUR SHOPPING BAG</h4>
+        <a href="{% url 'home' %}" class="text-secondary text-decoration-none small">
+            <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+        </a>
+    </div>
+
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table table-dark align-middle">
+            <thead>
+                <tr class="text-secondary small border-secondary">
+                    <th scope="col" style="width: 45%;">PRODUCT</th>
+                    <th scope="col">PRICE</th>
+                    <th scope="col" class="text-center">QTY</th>
+                    <th scope="col">SUBTOTAL</th>
+                    <th scope="col" class="text-end">REMOVE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr class="border-secondary">
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ item.product.image.url }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border border-secondary" alt="{{ item.product.name }}">
+                            <div>
+                                <h6 class="m-0 fw-semibold">{{ item.product.name }}</h6>
+                                <small class="text-secondary">{{ item.product.category.name }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>₹{{ item.product.current_price }}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm border border-secondary rounded" role="group">
+                            <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-dark text-white px-2 py-0">-</a>
+                            <span class="btn btn-dark text-white disabled px-3 py-0 border-0">{{ item.quantity }}</span>
+                            <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-dark text-white px-2 py-0">+</a>
+                        </div>
+                    </td>
+                    <td>₹{{ item.subtotal }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'update_cart' item.product.id 'remove' %}" class="text-danger text-decoration-none px-2" title="Remove item">
+                            <i class="bi bi-trash fs-5"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mt-4 pt-3 border-top border-secondary gap-3">
+        <div>
+            <span class="text-secondary small text-uppercase">Total Payable</span>
+            <h4 class="m-0 fw-bold">₹{{ total }}</h4>
+        </div>
+        <a href="{% url 'checkout' %}" class="btn btn-light px-4 py-2 fw-semibold">Proceed to Checkout</a>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-bag-x text-secondary" style="font-size: 3rem;"></i>
+        <p class="text-secondary mt-3 mb-4">Your shopping bag is currently empty.</p>
+        <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm px-4">Discover Accessories</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

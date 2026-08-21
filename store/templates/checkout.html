@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout | AASHAS STORE{% endblock %}
+
+{% block extra_css %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 550px;">
+    <div class="p-4 border border-secondary rounded bg-dark shadow-sm">
+        <h4 class="fw-bold tracking-wider text-center mb-1">SHIPPING & PAYMENT</h4>
+        <p class="text-secondary small text-center mb-4">Complete your purchase with Razorpay</p>
+
+        <form id="checkoutForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Full Name</label>
+                <input type="text" id="full_name" class="form-control" value="{{ default_name }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Phone Number</label>
+                <input type="text" id="phone_number" class="form-control" value="{{ default_phone }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Shipping Address</label>
+                <textarea id="shipping_address" rows="3" class="form-control" required>{{ default_address }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center py-3 my-3 border-top border-bottom border-secondary">
+                <span class="text-secondary">Amount Payable:</span>
+                <span class="fs-5 fw-bold">₹{{ total }}</span>
+            </div>
+
+            <button type="submit" id="payButton" class="btn btn-light w-100 py-2 fw-semibold">
+                Proceed to Payment
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('payButton');
+    btn.disabled = true;
+    btn.innerText = 'Initializing Payment...';
+
+    const formData = new FormData();
+    formData.append('full_name', document.getElementById('full_name').value);
+    formData.append('phone_number', document.getElementById('phone_number').value);
+    formData.append('shipping_address', document.getElementById('shipping_address').value);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    try {
+        const res = await fetch("{% url 'checkout' %}", { method: 'POST', body: formData });
+        const data = await res.json();
+
+        const options = {
+            key: data.razorpay_key,
+            amount: data.amount,
+            currency: "INR",
+            name: "AASHAS STORE",
+            description: "Accessorize Your Story",
+            order_id: data.razorpay_order_id,
+            handler: async function (response) {
+                const verifyRes = await fetch("{% url 'payment_verify' %}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        db_order_id: data.db_order_id
+                    })
+                });
+                const verifyData = await verifyRes.json();
+                if (verifyData.status === 'success') {
+                    window.location.href = "{% url 'profile' %}";
+                } else {
+                    alert("Payment verification failed.");
+                    btn.disabled = false;
+                    btn.innerText = 'Proceed to Payment';
+                }
+            },
+            modal: {
+                ondismiss: function() {
+                    btn.disabled = false;
+                    btn.innerText = 'Proceed to Payment';
+                }
+            }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch (err) {
+        alert("An error occurred during order initialization.");
+        btn.disabled = false;
+        btn.innerText = 'Proceed to Payment';
+    }
+});
+</script>
+{% endblock %}

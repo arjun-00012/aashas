@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile | AASHAS STORE{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+        <div>
+            <h4 class="m-0 fw-bold tracking-wider">{{ request.user.username|upper }}'S PROFILE</h4>
+            <small class="text-secondary">Manage delivery information and review order history</small>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm px-3">Sign Out</a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Delivery Defaults Form -->
+        <div class="col-md-5">
+            <div class="p-3 border border-secondary rounded bg-dark">
+                <h6 class="fw-bold tracking-wide mb-3">DEFAULT SHIPPING DETAILS</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Phone Number</label>
+                        <input type="text" name="phone_number" value="{{ profile.phone_number|default:'' }}" class="form-control form-control-sm" placeholder="e.g. +91 9876543210">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Saved Address</label>
+                        <textarea name="address" rows="3" class="form-control form-control-sm" placeholder="Street, City, Pincode...">{{ profile.address|default:'' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-light w-100 py-2">Update Details</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Records -->
+        <div class="col-md-7">
+            <div class="p-3 border border-secondary rounded bg-dark">
+                <h6 class="fw-bold tracking-wide mb-3">PAST PURCHASES</h6>
+                {% for order in orders %}
+                <div class="border-bottom border-secondary py-3 {% if forloop.last %}border-0{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-semibold">Order #{{ order.id }}</span>
+                        <span class="badge {% if order.payment_status == 'Completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ order.payment_status }}
+                        </span>
+                    </div>
+                    <div class="text-secondary small mb-2">{{ order.created_at|date:"d M Y, h:i A" }}</div>
+                    <div class="small">
+                        {% for item in order.items.all %}
+                            <div>• {{ item.product.name }} <span class="text-secondary">(x{{ item.quantity }})</span></div>
+                        {% endfor %}
+                    </div>
+                    <div class="fw-bold mt-2">₹{{ order.total_price }}</div>
+                </div>
+                {% empty %}
+                <p class="text-secondary small m-0 py-3 text-center">No orders registered under this profile.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

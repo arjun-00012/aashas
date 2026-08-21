@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AASHAS STORE | Accessorize Your Story{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Stage Layout */
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+
+    .hero-title {
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        letter-spacing: 0.15em;
+    }
+
+    .hero-tagline {
+        font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+        letter-spacing: 0.25em;
+    }
+
+    /* Mannequin Container */
+    .mannequin-container {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #050505;
+        border: 1px solid var(--border-subtle);
+        touch-action: manipulation;
+        aspect-ratio: 3 / 4;
+    }
+
+    .mannequin-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+        transform-origin: 50% 50%;
+        transform: scale(1);
+    }
+
+    /* Sleek, Minimal Small Hotspots */
+    .hotspot {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        border: 1.5px solid #ffffff;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+        animation: pulse-ring 2s infinite;
+        z-index: 15;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .hotspot::after {
+        content: '';
+        width: 4px;
+        height: 4px;
+        background: #ffffff;
+        border-radius: 50%;
+        display: block;
+    }
+
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+        70% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+
+    /* Floating Item Card at the Bottom */
+    .hover-card {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(12, 12, 12, 0.94);
+        border: 1px solid var(--border-subtle);
+        backdrop-filter: blur(12px);
+        padding: 10px 18px;
+        border-radius: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        width: 88%;
+        text-align: center;
+        z-index: 25;
+    }
+
+    .hover-card.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Product Grid Card */
+    .product-img-wrapper {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        border-radius: 6px;
+        background: #181818;
+    }
+
+    @media (max-width: 575.98px) {
+        .product-img-wrapper {
+            height: 140px;
+        }
+
+        .product-card {
+            padding: 0.75rem !important;
+        }
+
+        .product-name {
+            font-size: 0.85rem;
+        }
+
+        .product-price {
+            font-size: 0.9rem;
+        }
+
+        .btn-add-cart {
+            font-size: 0.75rem !important;
+            padding: 6px 0 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Interactive Hero Stage -->
+<section class="hero-section text-center">
+    <div class="mb-3 mb-md-4">
+        <h1 class="hero-title fw-bold mb-2">AASHAS STORE</h1>
+        <p class="hero-tagline text-secondary text-uppercase mb-0">Accessorize Your Story</p>
+    </div>
+
+    <div class="mannequin-container" id="mannequinContainer">
+        <!-- Main Model Image -->
+        <img src="{% static 'images/men1.jpg' %}" alt="Aesthetic Model Wearing Accessories" class="mannequin-img" id="mannequinImg">
+
+        <!-- 5 Small Targeted Hotspots mapped precisely to men1.jpg -->
+        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Vintage Green Cap" data-x="56%" data-y="45%"></div>
+        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Dark Noir Shades" data-x="54%" data-y="48%"></div>
+        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Pendant Gold Chain" data-x="50%" data-y="61%"></div>
+        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Beaded Stone Bracelet" data-x="21%" data-y="35%"></div>
+        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Gold & Obsidian Rings" data-x="24%" data-y="58%"></div>
+
+        <!-- Floating Popover Bottom Message -->
+        <div class="hover-card" id="hoverCard">
+            <h6 class="m-0 fw-semibold text-white fs-6" id="cardTitle">Accessory</h6>
+            <button class="btn btn-sm btn-light mt-2 px-3 py-1 rounded-pill fw-semibold" id="cardActionBtn">
+                Explore Collection <i class="bi bi-arrow-down-short"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Dynamic Category & Product Grids -->
+<div class="container-fluid container-lg px-3 px-md-4 py-2">
+    {% for category in categories %}
+    <section id="section-{{ category.slug }}" class="mb-5 pt-3">
+        <div class="d-flex justify-content-between align-items-end border-bottom border-secondary pb-2 mb-3 mb-md-4">
+            <div>
+                <h4 class="m-0 text-uppercase tracking-wide fw-bold fs-5 fs-md-4">{{ category.name }}</h4>
+                {% if category.description %}
+                    <small class="text-secondary d-none d-sm-block">{{ category.description }}</small>
+                {% endif %}
+            </div>
+            <span class="badge bg-dark border border-secondary text-secondary">{{ category.products.count }} Items</span>
+        </div>
+
+        <div class="row g-2 g-sm-3 g-md-4">
+            {% for product in category.products.all %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card p-3 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="product-img-wrapper mb-2 mb-md-3">
+                            <img src="{{ product.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}" loading="lazy">
+                            {% if product.discount_price %}
+                                <span class="position-absolute top-0 end-0 badge bg-danger m-1 m-md-2" style="font-size: 0.65rem;">SALE</span>
+                            {% endif %}
+                        </div>
+                        <h6 class="product-name fw-semibold text-truncate mb-1">{{ product.name }}</h6>
+                        <div class="d-flex align-items-center gap-2 mb-2 mb-md-3">
+                            <span class="product-price fw-bold">₹{{ product.current_price }}</span>
+                            {% if product.discount_price %}
+                                <span class="text-secondary small text-decoration-line-through">₹{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-sm btn-outline-light btn-add-cart w-100">
+                        <i class="bi bi-bag-plus me-1"></i> Add to Cart
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-secondary small">No accessories currently listed in {{ category.name }}.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const container = document.getElementById('mannequinContainer');
+    const mannequinImg = document.getElementById('mannequinImg');
+    const spots = document.querySelectorAll('.hotspot');
+    const hoverCard = document.getElementById('hoverCard');
+    const cardTitle = document.getElementById('cardTitle');
+    const cardActionBtn = document.getElementById('cardActionBtn');
+
+    let isZoomed = false;
+    let activeCategory = null;
+
+    function applyZoom(x, y, name, cat) {
+        isZoomed = true;
+        activeCategory = cat;
+
+        // Dynamic scale adjustment based on viewport width
+        const scaleVal = window.innerWidth < 576 ? 2.1 : 2.4;
+        
+        mannequinImg.style.transformOrigin = `${x} ${y}`;
+        mannequinImg.style.transform = `scale(${scaleVal})`;
+
+        cardTitle.innerText = name;
+        hoverCard.classList.add('active');
+
+        cardActionBtn.onclick = (e) => {
+            e.stopPropagation();
+            scrollToSection(cat);
+        };
+    }
+
+    function resetZoom() {
+        isZoomed = false;
+        activeCategory = null;
+        mannequinImg.style.transform = 'scale(1)';
+        hoverCard.classList.remove('active');
+    }
+
+    spots.forEach(spot => {
+        const cat = spot.getAttribute('data-cat');
+        const name = spot.getAttribute('data-name');
+        const x = spot.getAttribute('data-x');
+        const y = spot.getAttribute('data-y');
+
+        // Desktop Hover
+        spot.addEventListener('mouseenter', () => {
+            applyZoom(x, y, name, cat);
+        });
+
+        // Mobile Touch & Click Handling
+        spot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isZoomed && activeCategory === cat) {
+                scrollToSection(cat);
+            } else {
+                applyZoom(x, y, name, cat);
+            }
+        });
+    });
+
+    // Reset when cursor leaves the frame on desktop
+    container.addEventListener('mouseleave', () => {
+        resetZoom();
+    });
+
+    // Reset on mobile when tapping outside the interactive container
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            resetZoom();
+        }
+    });
+
+    function scrollToSection(slug) {
+        const target = document.getElementById('section-' + slug);
+        if (target) {
+            const yOffset = -70;
+            const yPosition = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: yPosition, behavior: 'smooth' });
+        }
+    }
+</script>
+{% endblock %}

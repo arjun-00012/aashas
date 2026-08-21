@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>{% block title %}AASHAS STORE | Accessorize Your Story{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-surface: #121212;
+            --accent-silver: #d1d5db;
+            --border-subtle: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Desktop Sidebar (> 768px) */
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 70px;
+                background: var(--bg-surface);
+                border-right: 1px solid var(--border-subtle);
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                z-index: 1040;
+            }
+
+            .sidebar a {
+                color: var(--accent-silver);
+                margin: 16px 0;
+                font-size: 1.2rem;
+                transition: color 0.2s ease, transform 0.2s ease;
+                text-decoration: none;
+            }
+
+            .sidebar a:hover {
+                color: #ffffff;
+                transform: scale(1.2);
+            }
+
+            .main-wrapper {
+                margin-left: 70px;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+        }
+
+        /* Mobile Category Bar (<= 767.98px) */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                width: 100%;
+                background: var(--bg-surface);
+                border-bottom: 1px solid var(--border-subtle);
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 10px 14px;
+                gap: 18px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .sidebar::-webkit-scrollbar {
+                display: none;
+            }
+
+            .sidebar a {
+                color: var(--accent-silver);
+                font-size: 1.15rem;
+                text-decoration: none;
+                padding: 4px 6px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+        }
+
+        /* Top Sticky Navbar */
+        .top-navbar {
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 20px;
+        }
+
+        /* Global Reusable Product Card */
+        .product-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Dark Theme Inputs */
+        .form-control, .form-select {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--border-subtle) !important;
+            color: #ffffff !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: #ffffff !important;
+        }
+
+        .form-control::placeholder {
+            color: #6b7280;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="main-wrapper">
+    <!-- Top Sticky Header -->
+    <header class="top-navbar d-flex justify-content-between align-items-center sticky-top">
+        <a href="{% url 'home' %}" class="text-white text-decoration-none fw-bold tracking-wider fs-5">AASHAS STORE</a>
+        
+        <div class="d-flex align-items-center gap-3 gap-md-4">
+            <a href="{% url 'home' %}#contact-section" class="text-secondary text-decoration-none small d-none d-md-inline">LOCATION</a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="text-white text-decoration-none small text-truncate" style="max-width: 110px;">
+                    <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                </a>
+                {% if user.is_staff %}
+                    <a href="{% url 'adminpp_dashboard' %}" class="btn btn-sm btn-outline-warning py-1 px-2 d-none d-sm-inline">Admin</a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="text-secondary text-decoration-none small">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-white text-decoration-none small">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-sm btn-light px-3 py-1">Join</a>
+            {% endif %}
+
+            <a href="{% url 'cart' %}" class="text-white position-relative text-decoration-none">
+                <i class="bi bi-bag fs-5"></i>
+                {% if cart_item_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-dark" style="font-size: 0.65rem;">
+                        {{ cart_item_count }}
+                    </span>
+                {% endif %}
+            </a>
+        </div>
+    </header>
+
+    <!-- Category Nav (Fixed Left on Desktop / Scrollable Row on Mobile) -->
+    <aside class="sidebar">
+        <a href="{% url 'home' %}" class="mb-md-3 text-white" title="Home"><i class="bi bi-gem fs-4"></i></a>
+        <a href="{% url 'home' %}#section-caps" title="Caps"><i class="bi bi-person"></i></a>
+        <a href="{% url 'home' %}#section-shades" title="Shades"><i class="bi bi-sunglasses"></i></a>
+        <a href="{% url 'home' %}#section-chains" title="Chains"><i class="bi bi-link-45deg"></i></a>
+        <a href="{% url 'home' %}#section-watches" title="Watches"><i class="bi bi-clock"></i></a>
+        <a href="{% url 'home' %}#section-earrings" title="Earrings"><i class="bi bi-soundwave"></i></a>
+        <a href="{% url 'home' %}#section-bracelets" title="Bracelets"><i class="bi bi-infinity"></i></a>
+        <a href="{% url 'home' %}#section-rings" title="Rings"><i class="bi bi-circle"></i></a>
+        <a href="{% url 'home' %}#section-wallets" title="Wallets"><i class="bi bi-wallet2"></i></a>
+    </aside>
+
+    <!-- Dynamic Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="border-top border-secondary bg-black py-4 py-md-5 px-3 px-md-4 mt-auto" id="contact-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12 col-md-6">
+                    <h6 class="fw-bold tracking-widest text-uppercase mb-2">FLAGSHIP STORE</h6>
+                    <p class="text-secondary small mb-3">Road No. 36, Jubilee Hills, Hyderabad, Telangana, India.</p>
+                    <a href="https://maps.google.com/?q=Jubilee+Hills+Hyderabad" target="_blank" class="btn btn-outline-light btn-sm px-3">
+                        <i class="bi bi-geo-alt me-1"></i> Open in Google Maps
+                    </a>
+                </div>
+                <div class="col-12 col-md-6">
+                    <h6 class="fw-bold tracking-widest text-uppercase mb-2">CONTACT US</h6>
+                    <form id="contactForm" method="POST" action="{% url 'contact_submit' %}">
+                        {% csrf_token %}
+                        <input type="text" name="name" class="form-control form-control-sm mb-2" placeholder="Your Name" required>
+                        <input type="email" name="email" class="form-control form-control-sm mb-2" placeholder="Your Email" required>
+                        <input type="text" name="subject" class="form-control form-control-sm mb-2" placeholder="Subject" required>
+                        <textarea name="message" class="form-control form-control-sm mb-2" rows="2" placeholder="Message" required></textarea>
+                        <button type="submit" class="btn btn-light btn-sm px-4">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

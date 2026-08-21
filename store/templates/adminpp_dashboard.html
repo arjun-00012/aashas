@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AASHAS Store Management</title>
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .portal-header {
+            font-size: clamp(1.25rem, 4vw, 1.75rem);
+        }
+
+        .table-responsive {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 767.98px) {
+            .page-container {
+                padding: 1rem 0.75rem !important;
+            }
+
+            .header-actions {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+            }
+
+            .card {
+                padding: 1rem !important;
+            }
+
+            .table {
+                font-size: 0.85rem;
+            }
+
+            .btn-action {
+                padding: 0.25rem 0.45rem !important;
+                font-size: 0.75rem !important;
+            }
+
+            .img-thumb {
+                width: 34px !important;
+                height: 34px !important;
+            }
+
+            .product-filter-bar {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .product-filter-bar .form-select,
+            .product-filter-bar .btn {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-2 p-md-4 page-container">
+<div class="container-fluid">
+    <!-- Top Action Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="portal-header fw-bold m-0">AASHAS STORE — Management Portal</h2>
+            <span class="text-muted small">Catalog, inventory, and inquiries control</span>
+        </div>
+        <div class="header-actions d-flex flex-wrap gap-2">
+            <a href="{% url 'adminpp_orders' %}" class="btn btn-primary d-inline-flex align-items-center justify-content-center">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Orders & Export
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-dark d-inline-flex align-items-center justify-content-center">
+                <i class="bi bi-shop me-1"></i> View Live Store
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 g-md-4">
+        <!-- Categories Section -->
+        <div class="col-12 col-lg-5">
+            <div class="card p-3 p-md-4 shadow-sm border-0 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 fw-bold">Categories</h5>
+                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-dark">+ Add Category</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in categories %}
+                            <tr>
+                                <td>
+                                    <img src="{{ cat.image.url }}" width="40" height="40" style="object-fit: cover;" class="rounded border img-thumb" alt="{{ cat.name }}">
+                                </td>
+                                <td class="fw-semibold">{{ cat.name }}</td>
+                                <td class="text-end text-nowrap">
+                                    <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'category_delete' cat.pk %}" onclick="return confirm('Delete category: {{ cat.name }}?')" class="btn btn-outline-danger btn-sm btn-action">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3 small">No categories registered yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section with Category Selector -->
+        <div class="col-12 col-lg-7">
+            <div class="card p-3 p-md-4 shadow-sm border-0 h-100">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                    <h5 class="m-0 fw-bold">Products</h5>
+                    <div class="d-flex align-items-center gap-2 product-filter-bar">
+                        <!-- Category Dropdown Filter -->
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-funnel"></i></span>
+                            <select id="productCategoryFilter" class="form-select form-select-sm" style="min-width: 150px;">
+                                <option value="all">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-dark text-nowrap">+ Add Product</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                            {% for p in products %}
+                            <tr class="product-row" data-category="{{ p.category.name }}">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ p.image.url }}" width="36" height="36" style="object-fit: cover;" class="rounded border img-thumb" alt="{{ p.name }}">
+                                        <span class="fw-semibold text-truncate" style="max-width: 140px;">{{ p.name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ p.category.name }}</span></td>
+                                <td class="text-nowrap">₹{{ p.current_price }}</td>
+                                <td>{{ p.stock }}</td>
+                                <td class="text-end text-nowrap">
+                                    <a href="{% url 'product_edit' p.pk %}" class="btn btn-outline-secondary btn-sm btn-action me-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'product_delete' p.pk %}" onclick="return confirm('Delete product: {{ p.name }}?')" class="btn btn-outline-danger btn-sm btn-action">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr id="emptyProductRow">
+                                <td colspan="5" class="text-center text-muted py-3 small">No products available in database.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr id="noFilterMatchRow" style="display: none;">
+                                <td colspan="5" class="text-center text-muted py-3 small">No products found in this category.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Inquiries Table -->
+    <div class="card p-3 p-md-4 shadow-sm border-0 mt-4">
+        <h5 class="fw-bold mb-3">Customer Inquiries</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small">
+                    <tr>
+                        <th class="text-nowrap">Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in messages %}
+                    <tr>
+                        <td class="text-muted small text-nowrap">{{ m.created_at|date:"d M Y H:i" }}</td>
+                        <td class="fw-semibold text-nowrap">{{ m.name }}</td>
+                        <td class="text-nowrap"><a href="mailto:{{ m.email }}" class="text-decoration-none">{{ m.email }}</a></td>
+                        <td>{{ m.subject }}</td>
+                        <td class="small" style="min-width: 180px;">{{ m.message }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-muted text-center py-4 small">No inquiry messages submitted yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Category Filtering Script -->
+<script>
+    document.getElementById('productCategoryFilter').addEventListener('change', function () {
+        const selectedCategory = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.product-row');
+        const noMatchRow = document.getElementById('noFilterMatchRow');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const rowCategory = (row.getAttribute('data-category') || '').toLowerCase().trim();
+            if (selectedCategory === 'all' || rowCategory === selectedCategory) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (noMatchRow) {
+            noMatchRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+        }
+    });
+</script>
+</body>
+</html>
