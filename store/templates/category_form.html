@@ -2,13 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Category Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --card-max: 700px; }
+        body { -webkit-font-smoothing:antialiased; }
+        .form-card {
+            max-width: var(--card-max);
+            margin: 0 auto;
+        }
+        .card h4 { font-size: 1.125rem; }
+        /* Ensure Django's paragraph-rendered form fields align and space nicely */
+        .card form p { margin-bottom: .75rem; }
+        .card form label { font-weight: 600; display: block; margin-bottom: .25rem; }
+        .helptext { font-size: .85rem; color: #6c757d; margin-top: .25rem; }
+
+        @media (max-width: 576px) {
+            .card { padding: 1rem !important; }
+            .form-card { padding: 0 0.5rem; }
+            .card h4 { font-size: 1rem; }
+            .btn { font-size: .95rem; }
+        }
+    </style>
 </head>
-<body class="bg-light p-4">
-<div class="container" style="max-width: 500px;">
+<body class="bg-light py-4">
+<div class="container form-card px-2">
     <div class="card p-4 shadow-sm">
-        <h4>{% if category %}Edit{% else %}Add{% endif %} Category</h4>
+        <h4 class="mb-3">{% if category %}Edit{% else %}Add{% endif %} Category</h4>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
@@ -17,5 +38,22 @@
         </form>
     </div>
 </div>
+
+<!-- Small script: add Bootstrap form classes to inputs rendered by Django form.as_p -->
+<script>
+    (function(){
+        const form = document.querySelector('form');
+        if (!form) return;
+        const textInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="url"], input[type="file"], textarea');
+        textInputs.forEach(i => i.classList.add('form-control'));
+        const selects = form.querySelectorAll('select');
+        selects.forEach(s => s.classList.add('form-select'));
+        const checkboxes = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        checkboxes.forEach(c => c.classList.add('form-check-input'));
+        // Style Django's help text if present
+        const helptexts = form.querySelectorAll('.helptext, .help');
+        helptexts.forEach(h => h.classList.add('helptext'));
+    })();
+</script>
 </body>
 </html>
