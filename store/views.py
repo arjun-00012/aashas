@@ -32,7 +32,7 @@ def register_view(request):
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password']
             )
-            profile, _ = Profile.objects.get_or_create(user=user)
+            profile = user.profile
             profile.phone_number = form.cleaned_data['phone_number']
             profile.save()
             login(request, user)
