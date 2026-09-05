@@ -2,6 +2,7 @@ import os
 import shutil
 from pathlib import Path
 from django.core.management.base import BaseCommand
+from django.core.management import call_command
 from django.conf import settings
 from store.models import Category, Product
 
@@ -32,6 +33,16 @@ class Command(BaseCommand):
 
         # 3. Seed Categories if empty
         if not Category.objects.exists():
+            fixture_file = Path(settings.BASE_DIR) / 'store' / 'fixtures' / 'catalog.json'
+            if fixture_file.exists():
+                try:
+                    self.stdout.write(f"Loading catalog records from {fixture_file}...")
+                    call_command('loaddata', str(fixture_file))
+                    self.stdout.write(self.style.SUCCESS("Successfully seeded catalog from fixture!"))
+                    return
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f"Could not load fixture: {e}. Falling back to default seed."))
+
             self.stdout.write("Catalog is empty. Seeding initial categories and products...")
 
             cat_ring, _ = Category.objects.get_or_create(

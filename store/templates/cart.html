@@ -33,8 +33,8 @@
                 <tr class="border-secondary border-opacity-25">
                     <td>
                         <div class="d-flex align-items-center gap-3">
-                            {% if item.product.image %}
-                                <img src="{{ item.product.image.url }}" style="width: 58px; height: 58px; object-fit: cover;" class="rounded border border-secondary border-opacity-50" alt="{{ item.product.name }}">
+                            {% if item.product.display_image %}
+                                <img src="{{ item.product.display_image }}" style="width: 58px; height: 58px; object-fit: cover;" class="rounded border border-secondary border-opacity-50" alt="{{ item.product.name }}">
                             {% else %}
                                 <div style="width: 58px; height: 58px;" class="rounded border border-secondary border-opacity-50 bg-dark d-flex align-items-center justify-content-center">
                                     <i class="bi bi-image text-secondary fs-5"></i>
@@ -71,8 +71,8 @@
         {% for item in cart_items %}
         <div class="p-3 bg-dark bg-opacity-75 border border-secondary border-opacity-25 rounded-3">
             <div class="d-flex gap-3 align-items-start">
-                {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" style="width: 64px; height: 64px; object-fit: cover;" class="rounded border border-secondary border-opacity-50 flex-shrink-0" alt="{{ item.product.name }}">
+                {% if item.product.display_image %}
+                    <img src="{{ item.product.display_image }}" style="width: 64px; height: 64px; object-fit: cover;" class="rounded border border-secondary border-opacity-50 flex-shrink-0" alt="{{ item.product.name }}">
                 {% else %}
                     <div style="width: 64px; height: 64px;" class="rounded border border-secondary border-opacity-50 bg-dark d-flex align-items-center justify-content-center flex-shrink-0">
                         <i class="bi bi-image text-secondary fs-5"></i>

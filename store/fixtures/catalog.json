@@ -1,0 +1,69 @@
+[
+{
+  "model": "store.category",
+  "pk": 1,
+  "fields": {
+    "name": "Ring",
+    "slug": "ring",
+    "image": "categories/shopping.webp",
+    "image_url": null,
+    "description": ""
+  }
+},
+{
+  "model": "store.category",
+  "pk": 2,
+  "fields": {
+    "name": "Shades",
+    "slug": "shades",
+    "image": "categories/images_1.jpg",
+    "image_url": null,
+    "description": ""
+  }
+},
+{
+  "model": "store.product",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "Wolf Ring",
+    "image": "products/21-1-men-s-wolf-head-ring-vintage-animal-rings-for-men-ring-the-original-imahf_jCodmlE.webp",
+    "image_url": null,
+    "price": "1000.00",
+    "discount_price": "899.00",
+    "description": "Wolf rings are bold, symbolic accessories that traditionally represent strength, loyalty, and freedom.",
+    "stock": 5,
+    "created_at": "2026-08-21T06:11:31.255Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 2,
+  "fields": {
+    "category": 2,
+    "name": "Dark WOST Mc Stan Rimless Sunglasses",
+    "image": "products/shopping_1.webp",
+    "image_url": null,
+    "price": "400.00",
+    "discount_price": "250.00",
+    "description": "",
+    "stock": 3,
+    "created_at": "2026-08-21T06:15:44.907Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 3,
+  "fields": {
+    "category": 2,
+    "name": "ARZONAI Futuristic Series Wraparound Y2K Sunglasses For Men & Women | UV Protected | Full Rim Trending & Stylish Shades | Free Size (Silver-Black)",
+    "image": "products/shopping_2.webp",
+    "image_url": null,
+    "price": "250.00",
+    "discount_price": "199.00",
+    "description": "",
+    "stock": 3,
+    "created_at": "2026-08-21T06:46:28.427Z"
+  }
+}
+]

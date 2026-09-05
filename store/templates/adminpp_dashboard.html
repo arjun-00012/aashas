@@ -218,8 +218,8 @@
                             {% for cat in categories %}
                             <tr>
                                 <td class="text-nowrap">
-                                    {% if cat.image %}
-                                        <img src="{{ cat.image.url }}" class="img-thumb" alt="{{ cat.name }}">
+                                    {% if cat.display_image %}
+                                        <img src="{{ cat.display_image }}" class="img-thumb" alt="{{ cat.name }}">
                                     {% else %}
                                         <div class="img-thumb d-inline-flex align-items-center justify-content-center text-secondary">
                                             <i class="bi bi-image"></i>
@@ -291,8 +291,8 @@
                             <tr class="product-row" data-category="{{ p.category.name }}">
                                 <td>
                                     <div class="d-flex align-items-center gap-2" style="min-width: 140px;">
-                                        {% if p.image %}
-                                            <img src="{{ p.image.url }}" class="img-thumb flex-shrink-0" alt="{{ p.name }}">
+                                        {% if p.display_image %}
+                                            <img src="{{ p.display_image }}" class="img-thumb flex-shrink-0" alt="{{ p.name }}">
                                         {% else %}
                                             <div class="img-thumb flex-shrink-0 d-inline-flex align-items-center justify-content-center text-secondary">
                                                 <i class="bi bi-image"></i>

@@ -120,19 +120,24 @@
                     <label class="form-label-custom">Discount Price (Optional)</label>
                     {{ form.discount_price }}
                 </div>
-                <div class="col-12">
-                    <label class="form-label-custom">Product Image {% if not product %}*{% endif %}</label>
+                <div class="col-12 col-md-6">
+                    <label class="form-label-custom">Upload Image File</label>
                     {% if product and product.image %}
                     <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded-3 border border-secondary border-opacity-25" style="background: var(--bg-surface-elevated);">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" width="54" height="54" style="object-fit: cover;" class="rounded border border-secondary border-opacity-50">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" width="48" height="48" style="object-fit: cover;" class="rounded border border-secondary border-opacity-50">
                         <div class="min-w-0">
-                            <span class="small text-white fw-semibold d-block">Current:</span>
+                            <span class="small text-white fw-semibold d-block">Current Upload:</span>
                             <span class="small text-secondary text-truncate d-block">{{ product.image.name }}</span>
                         </div>
                     </div>
                     {% endif %}
                     {{ form.image }}
-                    <div class="form-text small text-secondary">Upload clear product image (WebP, JPG, or PNG).</div>
+                    <div class="form-text small text-secondary">Upload WebP, JPG, or PNG file.</div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label-custom">OR Direct Image URL (Cloud-Safe)</label>
+                    {{ form.image_url }}
+                    <div class="form-text small text-secondary">Direct link to image (e.g. from Imgur, CDN, or web link).</div>
                 </div>
                 <div class="col-12">
                     <label class="form-label-custom">Description (Optional)</label>

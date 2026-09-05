@@ -388,8 +388,8 @@
                 <div class="product-card h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="product-img-wrapper mb-2 mb-md-3">
-                            {% if product.image %}
-                                <img src="{{ product.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}" loading="lazy">
+                            {% if product.display_image %}
+                                <img src="{{ product.display_image }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}" loading="lazy">
                             {% else %}
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark text-secondary">
                                     <i class="bi bi-image fs-3"></i>
