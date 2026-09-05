@@ -131,6 +131,73 @@
         transform: translateX(-50%) translateY(0);
     }
 
+    /* Horizontal Product Carousel Track (Scrolls Right) */
+    .product-scroll-track {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 12px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        padding: 6px 2px 14px 2px;
+    }
+
+    .product-scroll-track::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+
+    .product-scroll-item {
+        flex: 0 0 clamp(165px, 46vw, 210px);
+        max-width: 210px;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 576px) {
+        .product-scroll-item {
+            flex: 0 0 clamp(200px, 32vw, 240px);
+            max-width: 240px;
+        }
+        .product-scroll-track {
+            gap: 16px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .product-scroll-item {
+            flex: 0 0 clamp(220px, 22vw, 260px);
+            max-width: 260px;
+        }
+        .product-scroll-track {
+            gap: 20px;
+        }
+    }
+
+    /* Scroll Navigation Buttons */
+    .scroll-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        color: #d1d5db !important;
+        background: rgba(255, 255, 255, 0.04);
+        transition: all 0.2s ease;
+    }
+
+    .scroll-btn:hover, .scroll-btn:active {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border-color: #ffffff !important;
+        transform: scale(1.06);
+    }
+
     /* Product Card Specifications */
     .product-img-wrapper {
         position: relative;
@@ -270,7 +337,7 @@
     </div>
 </section>
 
-<!-- Dynamic Category & Product Grids -->
+<!-- Dynamic Category Sections with Horizontal Scroll Right Tracks -->
 <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2">
     {% for category in categories %}
     <section id="section-{{ category.slug }}" class="mb-4 mb-md-5 pt-3">
@@ -281,12 +348,28 @@
                     <small class="text-secondary d-none d-sm-block mt-1">{{ category.description }}</small>
                 {% endif %}
             </div>
-            <span class="section-count">{{ category.products.count }} Item{{ category.products.count|pluralize }}</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-secondary small d-inline d-md-none" style="font-size: 0.72rem;">
+                    <i class="bi bi-arrow-right"></i> Scroll
+                </span>
+                <span class="section-count">{{ category.products.count }} Item{{ category.products.count|pluralize }}</span>
+                {% if category.products.count > 1 %}
+                <div class="scroll-nav-btns d-flex gap-1 ms-1">
+                    <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', -1)" aria-label="Scroll left" title="Scroll left">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', 1)" aria-label="Scroll right" title="Scroll right">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="row g-2 g-sm-3 g-md-4">
+        <!-- Horizontal Scroll Right Track -->
+        <div class="product-scroll-track" id="scrollTrack-{{ category.slug }}">
             {% for product in category.products.all %}
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-scroll-item">
                 <div class="product-card h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="product-img-wrapper mb-2 mb-md-3">
@@ -315,8 +398,8 @@
                 </div>
             </div>
             {% empty %}
-            <div class="col-12">
-                <div class="p-4 border border-secondary border-opacity-25 rounded-3 text-center text-secondary small bg-dark">
+            <div class="w-100">
+                <div class="p-4 border border-secondary border-opacity-25 rounded-3 text-center text-secondary small bg-dark w-100">
                     <i class="bi bi-box-seam fs-3 d-block mb-2 text-muted"></i>
                     No accessories listed in {{ category.name }} yet.
                 </div>
@@ -395,6 +478,7 @@
         }
     });
 
+    // Vertical smooth scroll to category section with tab sync
     function scrollToSection(slug) {
         let target = document.getElementById('section-' + slug);
         if (!target) {
@@ -423,6 +507,19 @@
                 }
             });
         }
+    }
+
+    // Horizontal Scroll Right / Left function for product carousel
+    function scrollSection(slug, direction) {
+        const track = document.getElementById('scrollTrack-' + slug);
+        if (!track) return;
+        const item = track.querySelector('.product-scroll-item');
+        const itemWidth = item ? item.offsetWidth : 200;
+        const scrollDelta = (itemWidth + 14) * 2 * direction;
+        track.scrollBy({
+            left: scrollDelta,
+            behavior: 'smooth'
+        });
     }
 </script>
 {% endblock %}
