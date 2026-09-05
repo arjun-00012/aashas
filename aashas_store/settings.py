@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,6 +26,21 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'store',
 ]
+
+# Cloudinary Storage for Media if configured in Environment
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+if CLOUDINARY_CLOUD_NAME or CLOUDINARY_URL:
+    INSTALLED_APPS += [
+        'cloudinary_storage',
+        'cloudinary',
+    ]
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,13 +74,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'aashas_store.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Persistent Storage directory (Render Persistent Disk or local fallback)
+PERSISTENT_DATA_DIR = os.environ.get('RENDER_DISK_PATH') or os.environ.get('DATA_DIR')
+if PERSISTENT_DATA_DIR and os.path.exists(PERSISTENT_DATA_DIR):
+    db_file = Path(PERSISTENT_DATA_DIR) / 'db.sqlite3'
+    media_dir = os.path.join(PERSISTENT_DATA_DIR, 'media')
+else:
+    db_file = BASE_DIR / 'db.sqlite3'
+    media_dir = os.path.join(BASE_DIR, 'media')
+
+# Database: PostgreSQL via DATABASE_URL (Render Postgres, Neon, Supabase) with SQLite fallback
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_file,
+        }
+    }
 
 # Password Validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -88,7 +123,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media Files (Uploaded images)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = media_dir
+
+# Session Settings - Long-lived session persistence
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

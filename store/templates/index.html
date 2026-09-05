@@ -221,7 +221,13 @@
                 <div class="product-card h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="product-img-wrapper mb-2 mb-md-3">
+                            {% if product.image %}
                             <img src="{{ product.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                            <div class="w-100 h-100 bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center">
+                                <i class="bi bi-image text-secondary fs-3"></i>
+                            </div>
+                            {% endif %}
                             {% if product.discount_price %}
                                 <span class="position-absolute top-0 end-0 badge bg-danger m-1 m-md-2" style="font-size: 0.65rem;">SALE</span>
                             {% endif %}
@@ -318,7 +324,11 @@
     });
 
     function scrollToSection(slug) {
-        const target = document.getElementById('section-' + slug);
+        let target = document.getElementById('section-' + slug);
+        if (!target) {
+            const altSlug = slug.endsWith('s') ? slug.slice(0, -1) : slug + 's';
+            target = document.getElementById('section-' + altSlug);
+        }
         if (target) {
             const yOffset = window.innerWidth < 768 ? -100 : -70;
             const yPosition = target.getBoundingClientRect().top + window.pageYOffset + yOffset;

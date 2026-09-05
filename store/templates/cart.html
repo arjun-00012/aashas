@@ -28,7 +28,13 @@
                 <tr class="border-secondary">
                     <td>
                         <div class="d-flex align-items-center gap-3">
+                            {% if item.product.image %}
                             <img src="{{ item.product.image.url }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border border-secondary" alt="{{ item.product.name }}">
+                            {% else %}
+                            <div style="width: 60px; height: 60px;" class="rounded border border-secondary bg-dark d-flex align-items-center justify-content-center">
+                                <i class="bi bi-image text-secondary fs-5"></i>
+                            </div>
+                            {% endif %}
                             <div>
                                 <h6 class="m-0 fw-semibold">{{ item.product.name }}</h6>
                                 <small class="text-secondary">{{ item.product.category.name }}</small>

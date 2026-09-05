@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Category, Product, Order, OrderItem, Profile, ContactMessage
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
 
@@ -82,11 +83,21 @@ def cart_view(request):
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
-    for pid, qty in cart.items():
-        product = get_object_or_404(Product, id=pid)
+    stale_pids = []
+    for pid, qty in list(cart.items()):
+        product = Product.objects.filter(id=pid).first()
+        if not product:
+            stale_pids.append(pid)
+            continue
         subtotal = float(product.current_price) * qty
         total += subtotal
         cart_items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
+    
+    if stale_pids:
+        for pid in stale_pids:
+            cart.pop(pid, None)
+        request.session['cart'] = cart
+
     return render(request, 'cart.html', {'cart_items': cart_items, 'total': total})
 
 def update_cart(request, product_id, action):
@@ -110,7 +121,24 @@ def checkout_view(request):
     if not cart:
         return redirect('home')
     
-    total = sum(float(get_object_or_404(Product, id=pid).current_price) * qty for pid, qty in cart.items())
+    valid_items = {}
+    total = 0
+    stale_pids = []
+    for pid, qty in list(cart.items()):
+        product = Product.objects.filter(id=pid).first()
+        if product:
+            valid_items[pid] = (product, qty)
+            total += float(product.current_price) * qty
+        else:
+            stale_pids.append(pid)
+
+    if stale_pids:
+        for pid in stale_pids:
+            cart.pop(pid, None)
+        request.session['cart'] = cart
+
+    if not valid_items:
+        return redirect('home')
     
     default_address = ''
     default_phone = ''
@@ -142,8 +170,7 @@ def checkout_view(request):
             payment_status='Pending'
         )
 
-        for pid, qty in cart.items():
-            product = get_object_or_404(Product, id=pid)
+        for pid, (product, qty) in valid_items.items():
             OrderItem.objects.create(
                 order=order,
                 product=product,
@@ -278,28 +305,42 @@ def adminpp_orders(request):
 def category_create_or_edit(request, pk=None):
     category = get_object_or_404(Category, pk=pk) if pk else None
     form = CategoryForm(request.POST or None, request.FILES or None, instance=category)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('adminpp_dashboard')
+    if request.method == 'POST':
+        if form.is_valid():
+            cat = form.save()
+            action_text = "updated" if pk else "created"
+            messages.success(request, f'Category "{cat.name}" has been {action_text} successfully!')
+            return redirect('adminpp_dashboard')
+        else:
+            messages.error(request, 'Please correct the form errors below.')
     return render(request, 'category_form.html', {'form': form, 'category': category})
 
 @staff_required
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
+    cat_name = category.name
     category.delete()
+    messages.success(request, f'Category "{cat_name}" deleted successfully.')
     return redirect('adminpp_dashboard')
 
 @staff_required
 def product_create_or_edit(request, pk=None):
     product = get_object_or_404(Product, pk=pk) if pk else None
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('adminpp_dashboard')
+    if request.method == 'POST':
+        if form.is_valid():
+            p = form.save()
+            action_text = "updated" if pk else "created"
+            messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
+            return redirect('adminpp_dashboard')
+        else:
+            messages.error(request, 'Please correct the form errors below.')
     return render(request, 'product_form.html', {'form': form, 'product': product})
 
 @staff_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    p_name = product.name
     product.delete()
+    messages.success(request, f'Product "{p_name}" deleted successfully.')
     return redirect('adminpp_dashboard')

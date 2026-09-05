@@ -5,29 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Form | AASHAS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center py-5">
-<div class="container" style="max-width: 600px;">
+<div class="container" style="max-width: 650px;">
     <div class="card border-0 shadow-sm p-4">
-        <h4 class="fw-bold mb-3">{% if product %}Update{% else %}Create New{% endif %} Product</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold m-0">{% if product %}Update{% else %}Create New{% endif %} Product</h4>
+            <a href="{% url 'adminpp_dashboard' %}" class="btn-close" aria-label="Close"></a>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger py-2 small">
+            <strong><i class="bi bi-exclamation-circle me-1"></i>Please fix the following:</strong>
+            <ul class="mb-0 ps-3 mt-1">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|capfirst }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label small fw-bold">Category</label>
+                    <label class="form-label small fw-bold">Category *</label>
                     {{ form.category }}
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label small fw-bold">Stock Quantity</label>
+                    <label class="form-label small fw-bold">Stock Quantity *</label>
                     {{ form.stock }}
                 </div>
                 <div class="col-12">
-                    <label class="form-label small fw-bold">Product Name</label>
+                    <label class="form-label small fw-bold">Product Name *</label>
                     {{ form.name }}
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label small fw-bold">Regular Price (INR)</label>
+                    <label class="form-label small fw-bold">Regular Price (INR) *</label>
                     {{ form.price }}
                 </div>
                 <div class="col-md-6">
@@ -35,8 +53,15 @@
                     {{ form.discount_price }}
                 </div>
                 <div class="col-12">
-                    <label class="form-label small fw-bold">Product Image</label>
+                    <label class="form-label small fw-bold">Product Image {% if not product %}*{% endif %}</label>
+                    {% if product and product.image %}
+                    <div class="d-flex align-items-center gap-3 mb-2 p-2 bg-white border rounded">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" width="50" height="50" style="object-fit: cover;" class="rounded border">
+                        <span class="small text-muted text-truncate">Current: {{ product.image.name }}</span>
+                    </div>
+                    {% endif %}
                     {{ form.image }}
+                    <div class="form-text small">Upload clear product image (WebP, JPG, or PNG).</div>
                 </div>
                 <div class="col-12">
                     <label class="form-label small fw-bold">Description (Optional)</label>
@@ -44,10 +69,13 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-dark w-100 py-2 mt-4">Save Product</button>
+            <button type="submit" class="btn btn-dark w-100 py-2 mt-4 fw-semibold">
+                <i class="bi bi-check2-circle me-1"></i> Save Product
+            </button>
             <a href="{% url 'adminpp_dashboard' %}" class="btn btn-link w-100 text-secondary mt-1 text-decoration-none">Cancel</a>
         </form>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
