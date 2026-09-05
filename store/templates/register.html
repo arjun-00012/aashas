@@ -3,42 +3,46 @@
 {% block title %}Join | AASHAS STORE{% endblock %}
 
 {% block content %}
-<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="p-4 border border-secondary rounded bg-dark w-100 shadow-sm" style="max-width: 420px;">
-        <h4 class="text-center fw-bold tracking-wider mb-1">JOIN AASHAS</h4>
-        <p class="text-secondary text-center small mb-4">Create your account to start curating styles</p>
+<div class="container py-4 py-md-5 d-flex justify-content-center align-items-center" style="min-height: 72vh;">
+    <div class="p-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75 w-100 shadow-lg" style="max-width: 440px;">
+        <div class="text-center mb-4">
+            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase" style="letter-spacing: 0.1em;">JOIN AASHAS</h1>
+            <p class="text-secondary small mb-0">Create an account to curate your personal style</p>
+        </div>
 
         {% if form.errors %}
-        <div class="alert alert-danger py-2 small mb-3">
-            {% for field, errors in form.errors.items %}
-                {% for error in errors %}<div>{{ error }}</div>{% endfor %}
-            {% endfor %}
+        <div class="alert alert-danger py-2 small mb-3 rounded-2">
+            <ul class="mb-0 ps-3">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                {% endfor %}
+            </ul>
         </div>
         {% endif %}
 
         <form method="POST">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label small text-secondary">Username</label>
-                <input type="text" name="username" class="form-control" required value="{{ form.username.value|default:'' }}">
+                <label class="form-label small fw-semibold text-secondary mb-1">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Choose username" required value="{{ form.username.value|default:'' }}">
             </div>
             <div class="mb-3">
-                <label class="form-label small text-secondary">Phone Number</label>
-                <input type="text" name="phone_number" class="form-control" required value="{{ form.phone_number.value|default:'' }}">
+                <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
+                <input type="tel" name="phone_number" class="form-control" placeholder="10-digit phone number" required value="{{ form.phone_number.value|default:'' }}">
             </div>
             <div class="mb-3">
-                <label class="form-label small text-secondary">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label class="form-label small fw-semibold text-secondary mb-1">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Choose a password" required>
             </div>
             <div class="mb-4">
-                <label class="form-label small text-secondary">Confirm Password</label>
-                <input type="password" name="confirm_password" class="form-control" required>
+                <label class="form-label small fw-semibold text-secondary mb-1">Confirm Password</label>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
             </div>
-            <button type="submit" class="btn btn-light w-100 py-2 fw-semibold">Create Account</button>
+            <button type="submit" class="btn btn-light w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em;">Create Account</button>
         </form>
 
-        <p class="small text-center mt-3 text-secondary mb-0">
-            Already a member? <a href="{% url 'login' %}" class="text-white text-decoration-underline">Sign In</a>
+        <p class="small text-center mt-4 text-secondary mb-0">
+            Already a member? <a href="{% url 'login' %}" class="text-white text-decoration-underline fw-semibold">Sign In</a>
         </p>
     </div>
 </div>

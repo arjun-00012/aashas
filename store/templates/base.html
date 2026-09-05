@@ -7,165 +7,338 @@
 
     <!-- Bootstrap 5 CSS & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-dark: #0a0a0a;
+            --bg-dark: #080808;
             --bg-surface: #121212;
+            --bg-surface-hover: #1a1a1a;
             --accent-silver: #d1d5db;
-            --border-subtle: rgba(255, 255, 255, 0.1);
+            --accent-gold: #e5b869;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.22);
+            --nav-height: 58px;
+            --tab-height: 48px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             background-color: var(--bg-dark);
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Desktop Sidebar (> 768px) */
-        @media (min-width: 768px) {
-            .sidebar {
-                width: 70px;
-                background: var(--bg-surface);
-                border-right: 1px solid var(--border-subtle);
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 20px 0;
-                z-index: 1040;
-            }
-
-            .sidebar a {
-                color: var(--accent-silver);
-                margin: 16px 0;
-                font-size: 1.2rem;
-                transition: color 0.2s ease, transform 0.2s ease;
-                text-decoration: none;
-            }
-
-            .sidebar a:hover {
-                color: #ffffff;
-                transform: scale(1.2);
-            }
-
-            .main-wrapper {
-                margin-left: 70px;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-        }
-
-        /* Mobile Category Bar (<= 767.98px) */
-        @media (max-width: 767.98px) {
-            .sidebar {
-                width: 100%;
-                background: var(--bg-surface);
-                border-bottom: 1px solid var(--border-subtle);
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                overflow-x: auto;
-                white-space: nowrap;
-                padding: 8px 10px;
-                gap: 14px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .sidebar::-webkit-scrollbar {
-                display: none;
-            }
-
-            .sidebar a {
-                color: var(--accent-silver);
-                font-size: 1.1rem;
-                text-decoration: none;
-                padding: 4px 6px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .main-wrapper {
-                margin-left: 0;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-
-            /* Responsive Navbar adjustments */
-            .top-navbar {
-                padding: 8px 12px !important;
-            }
-
-            .brand-logo {
-                font-size: 0.95rem !important;
-                letter-spacing: 0.05em !important;
-            }
-
-            .nav-actions {
-                gap: 6px !important;
-            }
-
-            .btn-admin {
-                font-size: 0.72rem !important;
-                padding: 2px 7px !important;
-            }
-
-            .user-tag {
-                font-size: 0.75rem !important;
-                max-width: 65px !important;
-            }
-
-            .nav-link-btn {
-                font-size: 0.75rem !important;
-                padding: 2px 6px !important;
-            }
+        /* Full-width clean container (No awkward left rail offset) */
+        .main-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         /* Top Sticky Navbar */
         .top-navbar {
-            background: rgba(10, 10, 10, 0.92);
-            backdrop-filter: blur(12px);
+            height: var(--nav-height);
+            background: rgba(8, 8, 8, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-subtle);
-            padding: 12px 18px;
+            padding: 0 1rem;
+            z-index: 1030;
+            position: sticky;
+            top: 0;
+            transition: all 0.25s ease;
         }
 
-        /* Global Reusable Product Card */
+        @media (min-width: 768px) {
+            .top-navbar {
+                padding: 0 1.75rem;
+            }
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            font-size: 1.1rem;
+            color: #ffffff;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .brand-logo:hover {
+            color: #ffffff;
+            opacity: 0.85;
+        }
+
+        @media (max-width: 575.98px) {
+            .brand-logo {
+                font-size: 0.95rem;
+                letter-spacing: 0.12em;
+            }
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (min-width: 576px) {
+            .nav-actions {
+                gap: 0.85rem;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .nav-actions {
+                gap: 1.25rem;
+            }
+        }
+
+        .nav-link-subtle {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link-subtle:hover {
+            color: #ffffff;
+        }
+
+        .btn-nav-auth {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-nav-admin {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 9999px;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-admin:hover {
+            background: #f59e0b;
+            color: #000000;
+            border-color: #f59e0b;
+        }
+
+        .user-tag-pill {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #e5e7eb;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-subtle);
+            padding: 3px 10px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            max-width: 120px;
+            transition: all 0.2s ease;
+        }
+
+        .user-tag-pill:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-highlight);
+        }
+
+        .cart-icon-btn {
+            position: relative;
+            color: #ffffff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .cart-icon-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-highlight);
+            transform: scale(1.04);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ffffff;
+            color: #000000;
+            font-size: 0.65rem;
+            font-weight: 800;
+            min-width: 17px;
+            height: 17px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        /* Modern Category Navigation Tab Bar */
+        .category-tab-bar {
+            position: sticky;
+            top: var(--nav-height);
+            background: rgba(10, 10, 10, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 6px 0;
+            z-index: 1020;
+        }
+
+        .category-tabs-track {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 3px 0.75rem;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (min-width: 768px) {
+            .category-tabs-track {
+                gap: 8px;
+                padding: 3px 1.5rem;
+                justify-content: center;
+            }
+        }
+
+        .category-tabs-track::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .category-tab-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #9ca3af;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            text-decoration: none;
+            transition: all 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+            flex-shrink: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .category-tab-pill i {
+            font-size: 0.85rem;
+            margin-right: 5px;
+            opacity: 0.85;
+        }
+
+        .category-tab-pill:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .category-tab-pill.active {
+            color: #000000;
+            background: #ffffff;
+            border-color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.22);
+            transform: scale(1.02);
+        }
+
+        .category-tab-pill.active i {
+            color: #000000;
+            opacity: 1;
+        }
+
+        /* Product Card System */
         .product-card {
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            border-radius: 12px;
+            padding: 0.75rem !important;
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .product-card {
+                padding: 1rem !important;
+                border-radius: 14px;
+            }
         }
 
         .product-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(255, 255, 255, 0.35);
+            border-color: var(--border-highlight);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.8);
         }
 
-        /* Dark Theme Inputs */
+        /* Dark Theme Form Controls */
         .form-control, .form-select {
             background-color: var(--bg-surface) !important;
             border-color: var(--border-subtle) !important;
             color: #ffffff !important;
+            border-radius: 8px;
+            min-height: 42px;
         }
 
         .form-control:focus, .form-select:focus {
-            box-shadow: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
             border-color: #ffffff !important;
         }
 
         .form-control::placeholder {
             color: #6b7280;
+        }
+
+        /* Subtle Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--nav-height) + var(--tab-height) + 12px);
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -174,36 +347,36 @@
 
 <div class="main-wrapper">
     <!-- Top Sticky Header -->
-    <header class="top-navbar d-flex justify-content-between align-items-center sticky-top">
-        <a href="{% url 'home' %}" class="text-white text-decoration-none fw-bold tracking-wider fs-5 text-nowrap brand-logo">
+    <header class="top-navbar d-flex justify-content-between align-items-center">
+        <a href="{% url 'home' %}" class="brand-logo" title="AASHAS STORE — Home">
             AASHAS STORE
         </a>
         
-        <div class="d-flex align-items-center nav-actions gap-2 gap-md-3">
-            <a href="{% url 'home' %}#contact-section" class="text-secondary text-decoration-none small d-none d-lg-inline">LOCATION</a>
+        <div class="nav-actions">
+            <a href="{% url 'home' %}#contact-section" class="nav-link-subtle d-none d-lg-inline">LOCATION</a>
             
             {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="text-white text-decoration-none small text-truncate user-tag" style="max-width: 90px;" title="{{ user.username }}">
-                    <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                <a href="{% url 'profile' %}" class="user-tag-pill" title="{{ user.username }}">
+                    <i class="bi bi-person me-1"></i>
+                    <span class="text-truncate">{{ user.username }}</span>
                 </a>
                 
-                <!-- Admin Button: Visible on ALL devices -->
                 {% if user.is_staff %}
-                    <a href="{% url 'adminpp_dashboard' %}" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center btn-admin" title="Admin Portal">
+                    <a href="{% url 'adminpp_dashboard' %}" class="btn-nav-admin" title="Management Dashboard">
                         <i class="bi bi-shield-lock me-1"></i><span>Admin</span>
                     </a>
                 {% endif %}
                 
-                <a href="{% url 'logout' %}" class="text-secondary text-decoration-none small nav-link-btn">Logout</a>
+                <a href="{% url 'logout' %}" class="nav-link-subtle small px-1">Logout</a>
             {% else %}
-                <a href="{% url 'login' %}" class="text-white text-decoration-none small nav-link-btn">Login</a>
-                <a href="{% url 'register' %}" class="btn btn-sm btn-light px-2 px-md-3 py-1 nav-link-btn">Join</a>
+                <a href="{% url 'login' %}" class="nav-link-subtle small px-1">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-sm btn-light btn-nav-auth">Join</a>
             {% endif %}
 
-            <a href="{% url 'cart' %}" class="text-white position-relative text-decoration-none ms-1 p-1" title="Shopping Cart">
-                <i class="bi bi-bag fs-5"></i>
+            <a href="{% url 'cart' %}" class="cart-icon-btn" title="Shopping Bag" aria-label="Shopping Bag">
+                <i class="bi bi-bag"></i>
                 {% if cart_item_count > 0 %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-dark" style="font-size: 0.65rem;">
+                    <span class="cart-badge">
                         {{ cart_item_count }}
                     </span>
                 {% endif %}
@@ -211,46 +384,71 @@
         </div>
     </header>
 
-    <!-- Category Nav (Fixed Left on Desktop / Scrollable Row on Mobile) -->
-    <aside class="sidebar">
-        <a href="{% url 'home' %}" class="mb-md-3 text-white d-none d-md-block" title="Home"><i class="bi bi-gem fs-4"></i></a>
-        <a href="{% url 'home' %}#section-caps" title="Caps"><i class="bi bi-person"></i></a>
-        <a href="{% url 'home' %}#section-shades" title="Shades"><i class="bi bi-sunglasses"></i></a>
-        <a href="{% url 'home' %}#section-chains" title="Chains"><i class="bi bi-link-45deg"></i></a>
-        <a href="{% url 'home' %}#section-watches" title="Watches"><i class="bi bi-clock"></i></a>
-        <a href="{% url 'home' %}#section-earrings" title="Earrings"><i class="bi bi-soundwave"></i></a>
-        <a href="{% url 'home' %}#section-bracelets" title="Bracelets"><i class="bi bi-infinity"></i></a>
-        <a href="{% url 'home' %}#section-rings" title="Rings"><i class="bi bi-circle"></i></a>
-        <a href="{% url 'home' %}#section-wallets" title="Wallets"><i class="bi bi-wallet2"></i></a>
-    </aside>
+    <!-- Clean Sticky Category Tab Bar (Replaces awkward fixed icon sidebar) -->
+    <nav class="category-tab-bar" aria-label="Product Categories Navigation">
+        <div class="category-tabs-track" id="categoryTabsTrack">
+            <a href="{% url 'home' %}" class="category-tab-pill active" data-cat="all">
+                <i class="bi bi-grid-fill"></i> All Items
+            </a>
+            {% for cat in all_categories %}
+            <a href="{% url 'home' %}#section-{{ cat.slug }}" class="category-tab-pill" data-cat="{{ cat.slug }}">
+                {% if "ring" in cat.slug %}
+                    <i class="bi bi-circle"></i>
+                {% elif "shade" in cat.slug or "glass" in cat.slug %}
+                    <i class="bi bi-sunglasses"></i>
+                {% elif "cap" in cat.slug or "hat" in cat.slug %}
+                    <i class="bi bi-person"></i>
+                {% elif "chain" in cat.slug or "neck" in cat.slug %}
+                    <i class="bi bi-link-45deg"></i>
+                {% elif "bracelet" in cat.slug or "wrist" in cat.slug %}
+                    <i class="bi bi-infinity"></i>
+                {% elif "watch" in cat.slug %}
+                    <i class="bi bi-clock"></i>
+                {% else %}
+                    <i class="bi bi-tag"></i>
+                {% endif %}
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </nav>
 
-    <!-- Dynamic Content -->
-    <main>
+    <!-- Dynamic Content Stage -->
+    <main class="flex-grow-1">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Global Footer -->
-    <footer class="border-top border-secondary bg-black py-4 py-md-5 px-3 px-md-4 mt-auto" id="contact-section">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-12 col-md-6">
-                    <h6 class="fw-bold tracking-widest text-uppercase mb-2">FLAGSHIP STORE</h6>
-                    <p class="text-secondary small mb-3">Road No. 36, Jubilee Hills, Hyderabad, Telangana, India.</p>
-                    <a href="https://maps.google.com/?q=Jubilee+Hills+Hyderabad" target="_blank" class="btn btn-outline-light btn-sm px-3">
-                        <i class="bi bi-geo-alt me-1"></i> Open in Google Maps
+    <!-- Global Minimalist Footer -->
+    <footer class="border-top border-secondary border-opacity-25 bg-black py-4 py-md-5 px-3 px-md-4 mt-auto" id="contact-section">
+        <div class="container" style="max-width: 1100px;">
+            <div class="row g-4 justify-content-between">
+                <div class="col-12 col-md-5">
+                    <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-white" style="letter-spacing: 0.15em;">FLAGSHIP STORE</h6>
+                    <p class="text-secondary small mb-3 line-height-base">Road No. 36, Jubilee Hills, Hyderabad, Telangana, India.</p>
+                    <a href="https://maps.google.com/?q=Jubilee+Hills+Hyderabad" target="_blank" class="btn btn-outline-light btn-sm px-3 rounded-pill">
+                        <i class="bi bi-geo-alt me-1"></i> Open in Maps
                     </a>
                 </div>
-                <div class="col-12 col-md-6">
-                    <h6 class="fw-bold tracking-widest text-uppercase mb-2">CONTACT US</h6>
+                <div class="col-12 col-md-6 col-lg-5">
+                    <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-white" style="letter-spacing: 0.15em;">INQUIRIES & SUPPORT</h6>
                     <form id="contactForm" method="POST" action="{% url 'contact_submit' %}">
                         {% csrf_token %}
-                        <input type="text" name="name" class="form-control form-control-sm mb-2" placeholder="Your Name" required>
-                        <input type="email" name="email" class="form-control form-control-sm mb-2" placeholder="Your Email" required>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <input type="text" name="name" class="form-control form-control-sm" placeholder="Your Name" required>
+                            </div>
+                            <div class="col-6">
+                                <input type="email" name="email" class="form-control form-control-sm" placeholder="Email" required>
+                            </div>
+                        </div>
                         <input type="text" name="subject" class="form-control form-control-sm mb-2" placeholder="Subject" required>
                         <textarea name="message" class="form-control form-control-sm mb-2" rows="2" placeholder="Message" required></textarea>
-                        <button type="submit" class="btn btn-light btn-sm px-4">Send Message</button>
+                        <button type="submit" class="btn btn-light btn-sm px-4 fw-semibold rounded-pill">Send Message</button>
                     </form>
                 </div>
+            </div>
+            <div class="border-top border-secondary border-opacity-25 mt-4 pt-3 text-center text-secondary small">
+                © {% now "Y" %} AASHAS STORE. All rights reserved. Accessorize Your Story.
             </div>
         </div>
     </footer>
@@ -258,6 +456,55 @@
 
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Category Tabs Auto-Highlight Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.category-tab-pill');
+    const track = document.getElementById('categoryTabsTrack');
+    if (!tabs.length || !track) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            // Scroll tab pill into view horizontally
+            const pillLeft = this.offsetLeft;
+            const pillWidth = this.offsetWidth;
+            const trackWidth = track.offsetWidth;
+            track.scrollTo({
+                left: pillLeft - (trackWidth / 2) + (pillWidth / 2),
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Auto-detect active section on scroll if sections exist
+    const sections = document.querySelectorAll('section[id^="section-"]');
+    if (sections.length && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const slug = entry.target.id.replace('section-', '');
+                    tabs.forEach(tab => {
+                        const tabCat = tab.getAttribute('data-cat');
+                        if (tabCat === slug || (tabCat && (tabCat + 's' === slug || tabCat === slug + 's'))) {
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tab.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, {
+            rootMargin: '-20% 0px -60% 0px',
+            threshold: 0
+        });
+
+        sections.forEach(s => observer.observe(s));
+    }
+});
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

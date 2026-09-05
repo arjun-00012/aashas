@@ -3,30 +3,34 @@
 {% block title %}Sign In | AASHAS STORE{% endblock %}
 
 {% block content %}
-<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="p-4 border border-secondary rounded bg-dark w-100 shadow-sm" style="max-width: 400px;">
-        <h4 class="text-center fw-bold tracking-wider mb-1">MEMBER ACCESS</h4>
-        <p class="text-secondary text-center small mb-4">Enter your credentials to continue</p>
+<div class="container py-4 py-md-5 d-flex justify-content-center align-items-center" style="min-height: 72vh;">
+    <div class="p-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75 w-100 shadow-lg" style="max-width: 420px;">
+        <div class="text-center mb-4">
+            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase" style="letter-spacing: 0.1em;">MEMBER ACCESS</h1>
+            <p class="text-secondary small mb-0">Sign in to manage your bag and orders</p>
+        </div>
 
         {% if error %}
-        <div class="alert alert-danger py-2 small mb-3">{{ error }}</div>
+        <div class="alert alert-danger py-2 small mb-3 rounded-2">
+            <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+        </div>
         {% endif %}
 
         <form method="POST">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label small text-secondary">Username</label>
-                <input type="text" name="username" class="form-control" required>
+                <label class="form-label small fw-semibold text-secondary mb-1">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Your username" required autofocus>
             </div>
             <div class="mb-4">
-                <label class="form-label small text-secondary">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label class="form-label small fw-semibold text-secondary mb-1">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Your password" required>
             </div>
-            <button type="submit" class="btn btn-light w-100 py-2 fw-semibold">Sign In</button>
+            <button type="submit" class="btn btn-light w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em;">Sign In</button>
         </form>
 
-        <p class="small text-center mt-3 text-secondary mb-0">
-            New here? <a href="{% url 'register' %}" class="text-white text-decoration-underline">Create Account</a>
+        <p class="small text-center mt-4 text-secondary mb-0">
+            New to AASHAS? <a href="{% url 'register' %}" class="text-white text-decoration-underline fw-semibold">Create Account</a>
         </p>
     </div>
 </div>

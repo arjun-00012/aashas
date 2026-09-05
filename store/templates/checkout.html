@@ -7,35 +7,46 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 550px;">
-    <div class="p-4 border border-secondary rounded bg-dark shadow-sm">
-        <h4 class="fw-bold tracking-wider text-center mb-1">SHIPPING & PAYMENT</h4>
-        <p class="text-secondary small text-center mb-4">Complete your purchase with Razorpay</p>
+<div class="container py-4 py-md-5" style="max-width: 580px;">
+    <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75 shadow-lg">
+        <div class="text-center mb-4">
+            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase" style="letter-spacing: 0.1em;">SHIPPING & PAYMENT</h1>
+            <p class="text-secondary small mb-0">Complete your order securely with Razorpay</p>
+        </div>
 
         <form id="checkoutForm">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label small text-secondary">Full Name</label>
-                <input type="text" id="full_name" class="form-control" value="{{ default_name }}" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label small text-secondary">Phone Number</label>
-                <input type="text" id="phone_number" class="form-control" value="{{ default_phone }}" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label small text-secondary">Shipping Address</label>
-                <textarea id="shipping_address" rows="3" class="form-control" required>{{ default_address }}</textarea>
+                <label class="form-label small fw-semibold text-secondary mb-1">Full Name</label>
+                <input type="text" id="full_name" class="form-control" value="{{ default_name }}" placeholder="Recipient Full Name" required>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center py-3 my-3 border-top border-bottom border-secondary">
-                <span class="text-secondary">Amount Payable:</span>
-                <span class="fs-5 fw-bold">₹{{ total }}</span>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
+                <input type="tel" id="phone_number" class="form-control" value="{{ default_phone }}" placeholder="10-digit mobile number" required>
             </div>
 
-            <button type="submit" id="payButton" class="btn btn-light w-100 py-2 fw-semibold">
-                Proceed to Payment
+            <div class="mb-4">
+                <label class="form-label small fw-semibold text-secondary mb-1">Delivery Address</label>
+                <textarea id="shipping_address" rows="3" class="form-control" placeholder="House/Flat No., Street, City, State, Pincode" required>{{ default_address }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-2 bg-black border border-secondary border-opacity-25">
+                <span class="text-secondary small text-uppercase">Amount Payable</span>
+                <span class="fs-4 fw-bold text-white">₹{{ total }}</span>
+            </div>
+
+            <button type="submit" id="payButton" class="btn btn-light w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" style="letter-spacing: 0.05em;">
+                <i class="bi bi-shield-lock-fill"></i>
+                <span>Proceed to Payment</span>
             </button>
         </form>
+
+        <div class="text-center mt-3">
+            <small class="text-muted d-inline-flex align-items-center gap-1">
+                <i class="bi bi-shield-check text-success"></i> 256-bit SSL Encrypted & Secure Razorpay Checkout
+            </small>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -46,7 +57,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     e.preventDefault();
     const btn = document.getElementById('payButton');
     btn.disabled = true;
-    btn.innerText = 'Initializing Payment...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Initializing Payment...';
 
     const formData = new FormData();
     formData.append('full_name', document.getElementById('full_name').value);
@@ -63,12 +74,12 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
             amount: data.amount,
             currency: "INR",
             name: "AASHAS STORE",
-            description: "Accessorize Your Story",
+            description: "Curated Statement Accessories",
             order_id: data.razorpay_order_id,
             handler: async function (response) {
                 const verifyRes = await fetch("{% url 'payment_verify' %}", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
@@ -76,28 +87,34 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
                         db_order_id: data.db_order_id
                     })
                 });
-                const verifyData = await verifyRes.json();
-                if (verifyData.status === 'success') {
+
+                if (verifyRes.ok) {
                     window.location.href = "{% url 'profile' %}";
                 } else {
-                    alert("Payment verification failed.");
+                    alert("Payment verification issue encountered. Please contact support.");
                     btn.disabled = false;
-                    btn.innerText = 'Proceed to Payment';
+                    btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
                 }
             },
+            prefill: {
+                name: document.getElementById('full_name').value,
+                contact: document.getElementById('phone_number').value
+            },
+            theme: { color: "#000000" },
             modal: {
                 ondismiss: function() {
                     btn.disabled = false;
-                    btn.innerText = 'Proceed to Payment';
+                    btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
                 }
             }
         };
+
         const rzp = new Razorpay(options);
         rzp.open();
     } catch (err) {
-        alert("An error occurred during order initialization.");
+        alert("Failed to initialize checkout. Please check your network and try again.");
         btn.disabled = false;
-        btn.innerText = 'Proceed to Payment';
+        btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
     }
 });
 </script>

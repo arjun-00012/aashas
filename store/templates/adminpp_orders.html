@@ -6,25 +6,47 @@
     <title>AASHAS | Filtered Orders Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @media (max-width: 767.98px) {
+            .page-padding {
+                padding: 1rem 0.75rem !important;
+            }
+            .header-actions {
+                width: 100%;
+            }
+            .header-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light p-4">
-<div class="container-fluid">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+<body class="p-2 p-sm-3 p-md-4 page-padding">
+<div class="container-fluid" style="max-width: 1300px;">
+    <!-- Top Action Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-2 border-bottom">
         <div>
-            <h3 class="m-0 fw-bold">Orders Management</h3>
-            <a href="{% url 'adminpp_dashboard' %}" class="small text-decoration-none text-secondary">
+            <h2 class="h4 m-0 fw-bold">Orders Management</h2>
+            <a href="{% url 'adminpp_dashboard' %}" class="small text-decoration-none text-secondary d-inline-flex align-items-center mt-1">
                 <i class="bi bi-arrow-left me-1"></i> Return to Admin Dashboard
             </a>
         </div>
-        <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success">
-            <i class="bi bi-file-earmark-excel me-1"></i> Export Filtered Dataset (.xlsx)
-        </a>
+        <div class="header-actions">
+            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success d-inline-flex align-items-center justify-content-center shadow-sm">
+                <i class="bi bi-file-earmark-excel me-2"></i> Export Dataset (.xlsx)
+            </a>
+        </div>
     </div>
 
     <!-- Multi-variable Filter Bar -->
-    <form method="GET" class="row g-3 bg-white p-3 rounded shadow-sm mb-4 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label small fw-bold text-muted">CATEGORY</label>
+    <form method="GET" class="row g-2 g-md-3 bg-white p-3 rounded-3 shadow-sm mb-4 align-items-end border">
+        <div class="col-12 col-sm-6 col-md-4">
+            <label class="form-label small fw-bold text-muted mb-1">CATEGORY</label>
             <select name="category" class="form-select form-select-sm">
                 <option value="">All Categories</option>
                 {% for cat in categories %}
@@ -32,53 +54,56 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
-            <label class="form-label small fw-bold text-muted">FROM DATE</label>
+        <div class="col-6 col-sm-3 col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">FROM DATE</label>
             <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
         </div>
-        <div class="col-md-3">
-            <label class="form-label small fw-bold text-muted">TO DATE</label>
+        <div class="col-6 col-sm-3 col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">TO DATE</label>
             <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-dark btn-sm w-100">Apply Filters</button>
+        <div class="col-12 col-md-2">
+            <button type="submit" class="btn btn-dark btn-sm w-100 py-1 fw-semibold">
+                <i class="bi bi-funnel me-1"></i> Filter
+            </button>
         </div>
     </form>
 
     <!-- Orders Output Table -->
-    <div class="table-responsive bg-white rounded shadow-sm">
+    <div class="table-responsive bg-white rounded-3 shadow-sm border">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-dark small">
                 <tr>
-                    <th>ORDER ID</th>
-                    <th>CUSTOMER</th>
-                    <th>PHONE</th>
+                    <th class="text-nowrap">ORDER ID</th>
+                    <th class="text-nowrap">CUSTOMER</th>
+                    <th class="text-nowrap">PHONE</th>
                     <th>DELIVERY ADDRESS</th>
                     <th>PURCHASED ITEMS</th>
-                    <th>TOTAL</th>
-                    <th>DATE</th>
-                    <th>PAYMENT REFERENCE</th>
+                    <th class="text-nowrap">TOTAL</th>
+                    <th class="text-nowrap">DATE</th>
+                    <th class="text-nowrap">PAYMENT REFERENCE</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
                 <tr>
                     <td><strong>#{{ order.id }}</strong></td>
-                    <td>{{ order.full_name }}</td>
-                    <td>{{ order.phone_number }}</td>
-                    <td><small class="text-muted">{{ order.shipping_address }}</small></td>
+                    <td class="fw-semibold text-nowrap">{{ order.full_name }}</td>
+                    <td class="text-nowrap">{{ order.phone_number }}</td>
+                    <td><small class="text-muted" style="min-width: 160px; display: inline-block;">{{ order.shipping_address }}</small></td>
                     <td>
                         {% for item in order.items.all %}
-                            <span class="badge bg-secondary mb-1">{{ item.product.name }} (x{{ item.quantity }})</span><br>
+                            <span class="badge bg-secondary mb-1 fw-normal">{{ item.product.name }} (x{{ item.quantity }})</span><br>
                         {% endfor %}
                     </td>
-                    <td><strong>₹{{ order.total_price }}</strong></td>
-                    <td><small>{{ order.created_at|date:"M d, Y H:i" }}</small></td>
-                    <td><code>{{ order.razorpay_payment_id }}</code></td>
+                    <td class="text-nowrap"><strong>₹{{ order.total_price }}</strong></td>
+                    <td class="text-nowrap"><small>{{ order.created_at|date:"M d, Y H:i" }}</small></td>
+                    <td class="text-nowrap"><code>{{ order.razorpay_payment_id|default:"-" }}</code></td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center py-5 text-muted">
+                    <td colspan="8" class="text-center py-5 text-muted small">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                         No completed transactions found matching the specified parameters.
                     </td>
                 </tr>
@@ -87,5 +112,7 @@
         </table>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

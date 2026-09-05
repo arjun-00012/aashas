@@ -18,7 +18,10 @@ razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZOR
 def cart_context_processor(request):
     cart = request.session.get('cart', {})
     total_qty = sum(cart.values()) if cart else 0
-    return {'cart_item_count': total_qty}
+    return {
+        'cart_item_count': total_qty,
+        'all_categories': Category.objects.all(),
+    }
 
 def home(request):
     categories = Category.objects.prefetch_related('products').all()
