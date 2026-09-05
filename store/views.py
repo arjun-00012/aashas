@@ -243,7 +243,7 @@ def adminpp_dashboard(request):
     return render(request, 'adminpp_dashboard.html', {
         'categories': Category.objects.all(),
         'products': Product.objects.all(),
-        'messages': ContactMessage.objects.all().order_by('-created_at')
+        'inquiries': ContactMessage.objects.all().order_by('-created_at')
     })
 
 @staff_required

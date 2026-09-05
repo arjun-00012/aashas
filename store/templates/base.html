@@ -453,11 +453,13 @@
     {% if messages %}
     <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 pt-3">
         {% for message in messages %}
+            {% if "category" not in message.message|lower and "product" not in message.message|lower %}
             <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show py-2 small shadow-sm rounded-3 d-flex align-items-center mb-2" role="alert">
                 <i class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill text-danger{% else %}bi-check-circle-fill text-success{% endif %} me-2 fs-6"></i>
                 <span class="flex-grow-1">{{ message }}</span>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.75rem;"></button>
             </div>
+            {% endif %}
         {% endfor %}
     </div>
     {% endif %}
