@@ -2,15 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AASHAS | Filtered Orders Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Orders Management | AASHAS Admin</title>
+    <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Plus Jakarta Sans Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --bg-dark: #080808;
+            --bg-surface: #121212;
+            --bg-surface-elevated: #181818;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .card-dark {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.7);
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bg-surface-elevated) !important;
+            border-color: var(--border-subtle) !important;
+            color: #ffffff !important;
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #ffffff !important;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: #f3f4f6;
+            margin-bottom: 0;
+        }
+
+        .table-dark-custom thead {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .table-dark-custom thead th {
+            color: #9ca3af;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.75rem 1rem;
+            border-bottom: none;
+        }
+
+        .table-dark-custom tbody tr {
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s ease;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .table-dark-custom tbody td {
+            padding: 0.85rem 1rem;
+            vertical-align: middle;
         }
 
         @media (max-width: 767.98px) {
@@ -24,92 +95,150 @@
                 width: 100%;
             }
         }
+
+        @media (max-width: 575.98px) {
+            .table-responsive {
+                overflow-x: visible;
+            }
+
+            .table-dark-custom thead {
+                display: none;
+            }
+
+            .table-dark-custom, 
+            .table-dark-custom tbody, 
+            .table-dark-custom tr, 
+            .table-dark-custom td {
+                display: block;
+                width: 100%;
+            }
+
+            .table-dark-custom tr {
+                margin-bottom: 0.85rem;
+                border: 1px solid var(--border-subtle);
+                border-radius: 12px;
+                padding: 0.85rem;
+                background: var(--bg-surface-elevated);
+            }
+
+            .table-dark-custom td {
+                padding: 0.35rem 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border: none;
+            }
+
+            .table-dark-custom td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.72rem;
+                color: #9ca3af;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .table-dark-custom td[data-label="Address"],
+            .table-dark-custom td[data-label="Items"] {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body class="p-2 p-sm-3 p-md-4 page-padding">
-<div class="container-fluid" style="max-width: 1300px;">
+<div class="container-fluid" style="max-width: 1400px;">
     <!-- Top Action Bar -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
         <div>
-            <h2 class="h4 m-0 fw-bold">Orders Management</h2>
-            <a href="{% url 'adminpp_dashboard' %}" class="small text-decoration-none text-secondary d-inline-flex align-items-center mt-1">
+            <h1 class="h4 m-0 fw-bold text-white text-uppercase" style="letter-spacing: 0.08em;">ORDERS MANAGEMENT</h1>
+            <a href="{% url 'adminpp_dashboard' %}" class="small text-secondary text-decoration-none d-inline-flex align-items-center mt-1 hover-white">
                 <i class="bi bi-arrow-left me-1"></i> Return to Admin Dashboard
             </a>
         </div>
         <div class="header-actions">
-            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success d-inline-flex align-items-center justify-content-center shadow-sm">
+            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold">
                 <i class="bi bi-file-earmark-excel me-2"></i> Export Dataset (.xlsx)
             </a>
         </div>
     </div>
 
     <!-- Multi-variable Filter Bar -->
-    <form method="GET" class="row g-2 g-md-3 bg-white p-3 rounded-3 shadow-sm mb-4 align-items-end border">
-        <div class="col-12 col-sm-6 col-md-4">
-            <label class="form-label small fw-bold text-muted mb-1">CATEGORY</label>
-            <select name="category" class="form-select form-select-sm">
-                <option value="">All Categories</option>
-                {% for cat in categories %}
-                <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-6 col-sm-3 col-md-3">
-            <label class="form-label small fw-bold text-muted mb-1">FROM DATE</label>
-            <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
-        </div>
-        <div class="col-6 col-sm-3 col-md-3">
-            <label class="form-label small fw-bold text-muted mb-1">TO DATE</label>
-            <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
-        </div>
-        <div class="col-12 col-md-2">
-            <button type="submit" class="btn btn-dark btn-sm w-100 py-1 fw-semibold">
-                <i class="bi bi-funnel me-1"></i> Filter
-            </button>
+    <form method="GET" class="card-dark p-3 p-md-4 mb-4">
+        <div class="row g-2 g-md-3 align-items-end">
+            <div class="col-12 col-sm-6 col-md-4">
+                <label class="form-label small fw-bold text-secondary mb-1">CATEGORY</label>
+                <select name="category" class="form-select form-select-sm">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-sm-3 col-md-3">
+                <label class="form-label small fw-bold text-secondary mb-1">FROM DATE</label>
+                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+            </div>
+            <div class="col-6 col-sm-3 col-md-3">
+                <label class="form-label small fw-bold text-secondary mb-1">TO DATE</label>
+                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-light btn-sm w-100 py-2 fw-semibold rounded-pill">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+            </div>
         </div>
     </form>
 
     <!-- Orders Output Table -->
-    <div class="table-responsive bg-white rounded-3 shadow-sm border">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-dark small">
-                <tr>
-                    <th class="text-nowrap">ORDER ID</th>
-                    <th class="text-nowrap">CUSTOMER</th>
-                    <th class="text-nowrap">PHONE</th>
-                    <th>DELIVERY ADDRESS</th>
-                    <th>PURCHASED ITEMS</th>
-                    <th class="text-nowrap">TOTAL</th>
-                    <th class="text-nowrap">DATE</th>
-                    <th class="text-nowrap">PAYMENT REFERENCE</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td><strong>#{{ order.id }}</strong></td>
-                    <td class="fw-semibold text-nowrap">{{ order.full_name }}</td>
-                    <td class="text-nowrap">{{ order.phone_number }}</td>
-                    <td><small class="text-muted" style="min-width: 160px; display: inline-block;">{{ order.shipping_address }}</small></td>
-                    <td>
-                        {% for item in order.items.all %}
-                            <span class="badge bg-secondary mb-1 fw-normal">{{ item.product.name }} (x{{ item.quantity }})</span><br>
-                        {% endfor %}
-                    </td>
-                    <td class="text-nowrap"><strong>₹{{ order.total_price }}</strong></td>
-                    <td class="text-nowrap"><small>{{ order.created_at|date:"M d, Y H:i" }}</small></td>
-                    <td class="text-nowrap"><code>{{ order.razorpay_payment_id|default:"-" }}</code></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" class="text-center py-5 text-muted small">
-                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                        No completed transactions found matching the specified parameters.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card-dark p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 m-0 fw-bold text-white">Transactions</h2>
+            <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 rounded-pill px-2 py-1">{{ orders|length }} Orders</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-dark-custom align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-nowrap">ORDER ID</th>
+                        <th class="text-nowrap">CUSTOMER</th>
+                        <th class="text-nowrap">PHONE</th>
+                        <th>DELIVERY ADDRESS</th>
+                        <th>PURCHASED ITEMS</th>
+                        <th class="text-nowrap">TOTAL</th>
+                        <th class="text-nowrap">DATE</th>
+                        <th class="text-nowrap">PAYMENT REF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td data-label="Order ID"><span class="badge bg-dark border border-secondary border-opacity-50 text-white">#{{ order.id }}</span></td>
+                        <td data-label="Customer" class="fw-semibold text-white text-nowrap">{{ order.full_name }}</td>
+                        <td data-label="Phone" class="text-secondary text-nowrap">{{ order.phone_number }}</td>
+                        <td data-label="Address"><small class="text-secondary" style="min-width: 180px; display: inline-block;">{{ order.shipping_address }}</small></td>
+                        <td data-label="Items">
+                            {% for item in order.items.all %}
+                                <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25 mb-1 fw-normal">{{ item.product.name }} (x{{ item.quantity }})</span><br>
+                            {% endfor %}
+                        </td>
+                        <td data-label="Total" class="text-nowrap"><strong class="text-white">₹{{ order.total_price }}</strong></td>
+                        <td data-label="Date" class="text-nowrap text-secondary small">{{ order.created_at|date:"d M Y, H:i" }}</td>
+                        <td data-label="Payment Ref" class="text-nowrap"><code class="text-info">{{ order.razorpay_payment_id|default:"-" }}</code></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-secondary small">
+                            <i class="bi bi-inbox fs-3 d-block mb-2 text-muted"></i>
+                            No completed transactions found matching the specified parameters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
