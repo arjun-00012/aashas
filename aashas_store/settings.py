@@ -78,6 +78,12 @@ WSGI_APPLICATION = 'aashas_store.wsgi.application'
 PERSISTENT_DATA_DIR = os.environ.get('RENDER_DISK_PATH') or os.environ.get('DATA_DIR')
 if PERSISTENT_DATA_DIR and os.path.exists(PERSISTENT_DATA_DIR):
     db_file = Path(PERSISTENT_DATA_DIR) / 'db.sqlite3'
+    if not db_file.exists() and (BASE_DIR / 'db.sqlite3').exists():
+        try:
+            import shutil
+            shutil.copy2(BASE_DIR / 'db.sqlite3', db_file)
+        except Exception:
+            pass
     media_dir = os.path.join(PERSISTENT_DATA_DIR, 'media')
 else:
     db_file = BASE_DIR / 'db.sqlite3'
