@@ -37,6 +37,29 @@
             box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.7);
         }
 
+        /* Scrollable and clean table-responsive */
+        .table-responsive {
+            -webkit-overflow-scrolling: touch;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        /* Sleek custom scrollbar for dark admin tables */
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
         .form-control, .form-select {
             background-color: var(--bg-surface-elevated) !important;
             border-color: var(--border-subtle) !important;
@@ -53,6 +76,7 @@
             --bs-table-bg: transparent;
             --bs-table-color: #f3f4f6;
             margin-bottom: 0;
+            white-space: normal;
         }
 
         .table-dark-custom thead {
@@ -68,6 +92,7 @@
             text-transform: uppercase;
             padding: 0.75rem 1rem;
             border-bottom: none;
+            white-space: nowrap;
         }
 
         .table-dark-custom tbody tr {
@@ -84,64 +109,21 @@
             vertical-align: middle;
         }
 
+        .hover-white:hover {
+            color: #ffffff !important;
+        }
+
         @media (max-width: 767.98px) {
             .page-padding {
                 padding: 1rem 0.75rem !important;
             }
-            .header-actions {
-                width: 100%;
+            .table-dark-custom thead th {
+                padding: 0.6rem 0.75rem;
+                font-size: 0.68rem;
             }
-            .header-actions .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .table-responsive {
-                overflow-x: visible;
-            }
-
-            .table-dark-custom thead {
-                display: none;
-            }
-
-            .table-dark-custom, 
-            .table-dark-custom tbody, 
-            .table-dark-custom tr, 
-            .table-dark-custom td {
-                display: block;
-                width: 100%;
-            }
-
-            .table-dark-custom tr {
-                margin-bottom: 0.85rem;
-                border: 1px solid var(--border-subtle);
-                border-radius: 12px;
-                padding: 0.85rem;
-                background: var(--bg-surface-elevated);
-            }
-
-            .table-dark-custom td {
-                padding: 0.35rem 0;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border: none;
-            }
-
-            .table-dark-custom td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                font-size: 0.72rem;
-                color: #9ca3af;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-
-            .table-dark-custom td[data-label="Address"],
-            .table-dark-custom td[data-label="Items"] {
-                flex-direction: column;
-                align-items: flex-start;
+            .table-dark-custom tbody td {
+                padding: 0.65rem 0.75rem;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -149,15 +131,15 @@
 <body class="p-2 p-sm-3 p-md-4 page-padding">
 <div class="container-fluid" style="max-width: 1400px;">
     <!-- Top Action Bar -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
         <div>
             <h1 class="h4 m-0 fw-bold text-white text-uppercase" style="letter-spacing: 0.08em;">ORDERS MANAGEMENT</h1>
             <a href="{% url 'adminpp_dashboard' %}" class="small text-secondary text-decoration-none d-inline-flex align-items-center mt-1 hover-white">
                 <i class="bi bi-arrow-left me-1"></i> Return to Admin Dashboard
             </a>
         </div>
-        <div class="header-actions">
-            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold">
+        <div>
+            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap">
                 <i class="bi bi-file-earmark-excel me-2"></i> Export Dataset (.xlsx)
             </a>
         </div>
@@ -193,8 +175,11 @@
 
     <!-- Orders Output Table -->
     <div class="card-dark p-3 p-md-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 m-0 fw-bold text-white">Transactions</h2>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h2 class="h5 m-0 fw-bold text-white">Transactions</h2>
+                <small class="text-secondary">Customer orders processed via Razorpay gateway</small>
+            </div>
             <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 rounded-pill px-2 py-1">{{ orders|length }} Orders</span>
         </div>
 
@@ -215,18 +200,20 @@
                 <tbody>
                     {% for order in orders %}
                     <tr>
-                        <td data-label="Order ID"><span class="badge bg-dark border border-secondary border-opacity-50 text-white">#{{ order.id }}</span></td>
-                        <td data-label="Customer" class="fw-semibold text-white text-nowrap">{{ order.full_name }}</td>
-                        <td data-label="Phone" class="text-secondary text-nowrap">{{ order.phone_number }}</td>
-                        <td data-label="Address"><small class="text-secondary" style="min-width: 180px; display: inline-block;">{{ order.shipping_address }}</small></td>
-                        <td data-label="Items">
+                        <td class="text-nowrap"><span class="badge bg-dark border border-secondary border-opacity-50 text-white">#{{ order.id }}</span></td>
+                        <td class="fw-semibold text-white text-nowrap">{{ order.full_name }}</td>
+                        <td class="text-secondary text-nowrap">{{ order.phone_number }}</td>
+                        <td><small class="text-secondary" style="min-width: 160px; max-width: 250px; display: inline-block; word-break: break-word;">{{ order.shipping_address }}</small></td>
+                        <td style="min-width: 160px;">
                             {% for item in order.items.all %}
-                                <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25 mb-1 fw-normal">{{ item.product.name }} (x{{ item.quantity }})</span><br>
+                                <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25 mb-1 fw-normal text-wrap text-start">{{ item.product.name }} (x{{ item.quantity }})</span><br>
+                            {% empty %}
+                                <span class="text-secondary small">-</span>
                             {% endfor %}
                         </td>
-                        <td data-label="Total" class="text-nowrap"><strong class="text-white">₹{{ order.total_price }}</strong></td>
-                        <td data-label="Date" class="text-nowrap text-secondary small">{{ order.created_at|date:"d M Y, H:i" }}</td>
-                        <td data-label="Payment Ref" class="text-nowrap"><code class="text-info">{{ order.razorpay_payment_id|default:"-" }}</code></td>
+                        <td class="text-nowrap"><strong class="text-white">₹{{ order.total_price }}</strong></td>
+                        <td class="text-nowrap text-secondary small">{{ order.created_at|date:"d M Y, H:i" }}</td>
+                        <td class="text-nowrap"><code class="text-info">{{ order.razorpay_payment_id|default:"-" }}</code></td>
                     </tr>
                     {% empty %}
                     <tr>

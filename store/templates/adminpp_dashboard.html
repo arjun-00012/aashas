@@ -44,14 +44,34 @@
             box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.7);
         }
 
+        /* Scrollable and clean table-responsive */
         .table-responsive {
             -webkit-overflow-scrolling: touch;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        /* Sleek custom scrollbar for dark admin tables */
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.35);
         }
 
         .table-dark-custom {
             --bs-table-bg: transparent;
             --bs-table-color: #f3f4f6;
             margin-bottom: 0;
+            white-space: normal;
         }
 
         .table-dark-custom thead {
@@ -67,6 +87,7 @@
             text-transform: uppercase;
             padding: 0.75rem 1rem;
             border-bottom: none;
+            white-space: nowrap;
         }
 
         .table-dark-custom tbody tr {
@@ -81,6 +102,23 @@
         .table-dark-custom tbody td {
             padding: 0.85rem 1rem;
             vertical-align: middle;
+        }
+
+        @media (max-width: 767.98px) {
+            .table-dark-custom thead th {
+                padding: 0.6rem 0.75rem;
+                font-size: 0.68rem;
+            }
+            .table-dark-custom tbody td {
+                padding: 0.65rem 0.75rem;
+                font-size: 0.85rem;
+            }
+            .portal-header {
+                font-size: 1.2rem;
+            }
+            .page-container {
+                padding: 1rem 0.75rem !important;
+            }
         }
 
         .form-control, .form-select {
@@ -102,8 +140,8 @@
         }
 
         .img-thumb {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             object-fit: cover;
             border-radius: 8px;
             border: 1px solid var(--border-subtle);
@@ -117,135 +155,24 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 8px;
             transition: all 0.2s ease;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 767.98px) {
-            .page-container {
-                padding: 1rem 0.75rem !important;
-            }
-
-            .header-actions {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .header-actions .btn {
-                width: 100%;
-            }
-
-            .card-header-actions {
-                flex-direction: column;
-                align-items: stretch !important;
-                gap: 0.75rem !important;
-            }
-
-            .card-header-actions .btn-add-action {
-                width: 100% !important;
-                text-align: center;
-            }
-
-            .product-filter-bar {
-                flex-direction: column;
-                align-items: stretch !important;
-                gap: 0.5rem !important;
-                width: 100%;
-            }
-
-            .product-filter-bar .input-group,
-            .product-filter-bar .btn-add-action {
-                width: 100% !important;
-            }
-        }
-
-        /* Extra-small screens: Card view for table rows */
-        @media (max-width: 575.98px) {
-            .table-responsive {
-                overflow-x: visible;
-            }
-
-            .table-dark-custom thead {
-                display: none;
-            }
-
-            .table-dark-custom, 
-            .table-dark-custom tbody, 
-            .table-dark-custom tr, 
-            .table-dark-custom td {
-                display: block;
-                width: 100%;
-            }
-
-            .table-dark-custom tr {
-                margin-bottom: 0.85rem;
-                border: 1px solid var(--border-subtle);
-                border-radius: 12px;
-                padding: 0.75rem;
-                background: var(--bg-surface-elevated);
-            }
-
-            .table-dark-custom td {
-                padding: 0.35rem 0;
-                text-align: left;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border: none;
-            }
-
-            .table-dark-custom td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                font-size: 0.75rem;
-                color: #9ca3af;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-
-            .table-dark-custom td[data-label="Product"] {
-                flex-direction: column;
-                align-items: flex-start;
-                border-bottom: 1px solid var(--border-subtle);
-                padding-bottom: 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .table-dark-custom td[data-label="Photo"] {
-                justify-content: flex-start;
-                gap: 0.75rem;
-            }
-
-            .table-dark-custom td[data-label="Actions"] {
-                border-top: 1px solid var(--border-subtle);
-                padding-top: 0.5rem;
-                margin-top: 0.5rem;
-                justify-content: flex-end;
-            }
-
-            .img-thumb {
-                width: 44px;
-                height: 44px;
-            }
         }
     </style>
 </head>
-<body class="p-2 p-md-4 page-container">
+<body class="p-2 p-sm-3 p-md-4 page-container">
 <div class="container-fluid" style="max-width: 1400px;">
     <!-- Top Action Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
         <div>
             <h1 class="portal-header m-0 text-uppercase">AASHAS STORE — PORTAL</h1>
             <span class="text-secondary small">Inventory, categories, customer orders & inquiry management</span>
         </div>
-        <div class="header-actions d-flex flex-wrap gap-2">
-            <a href="{% url 'adminpp_orders' %}" class="btn btn-primary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'adminpp_orders' %}" class="btn btn-primary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm text-nowrap">
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i> Orders & Export
             </a>
-            <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center">
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center text-nowrap">
                 <i class="bi bi-shop me-1"></i> View Live Store
             </a>
         </div>
@@ -258,7 +185,7 @@
                 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show py-2 small shadow-sm rounded-3 d-flex align-items-center" role="alert">
                     <i class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill text-danger{% else %}bi-check-circle-fill text-success{% endif %} me-2 fs-6"></i>
                     <span class="flex-grow-1">{{ message }}</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.75rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.75rem;"></button>
                 </div>
             {% endfor %}
         </div>
@@ -268,12 +195,12 @@
         <!-- Categories Section -->
         <div class="col-12 col-lg-5">
             <div class="card-dark p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-3 card-header-actions">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
                     <div>
                         <h2 class="h5 m-0 fw-bold text-white">Categories</h2>
                         <small class="text-secondary">{{ categories|length }} Total</small>
                     </div>
-                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-semibold btn-add-action">
+                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-semibold text-nowrap">
                         <i class="bi bi-plus-lg me-1"></i> Add Category
                     </a>
                 </div>
@@ -282,15 +209,15 @@
                     <table class="table table-dark-custom align-middle">
                         <thead>
                             <tr>
-                                <th>Photo</th>
+                                <th class="text-nowrap" style="width: 56px;">Photo</th>
                                 <th>Name</th>
-                                <th class="text-end">Actions</th>
+                                <th class="text-end text-nowrap" style="width: 90px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for cat in categories %}
                             <tr>
-                                <td data-label="Photo">
+                                <td class="text-nowrap">
                                     {% if cat.image %}
                                         <img src="{{ cat.image.url }}" class="img-thumb" alt="{{ cat.name }}">
                                     {% else %}
@@ -299,8 +226,8 @@
                                         </div>
                                     {% endif %}
                                 </td>
-                                <td data-label="Name" class="fw-semibold text-white">{{ cat.name }}</td>
-                                <td data-label="Actions" class="text-end text-nowrap">
+                                <td class="fw-semibold text-white">{{ cat.name }}</td>
+                                <td class="text-end text-nowrap">
                                     <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-light btn-sm btn-action me-1" title="Edit Category">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -326,23 +253,23 @@
         <!-- Products Section with Category Filter -->
         <div class="col-12 col-lg-7">
             <div class="card-dark p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3 card-header-actions">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
                     <div>
                         <h2 class="h5 m-0 fw-bold text-white">Products</h2>
                         <small class="text-secondary">{{ products|length }} Listed</small>
                     </div>
-                    <div class="d-flex align-items-center gap-2 product-filter-bar">
+                    <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto">
                         <!-- Category Filter Dropdown -->
-                        <div class="input-group input-group-sm">
+                        <div class="input-group input-group-sm flex-grow-1 flex-sm-grow-0" style="min-width: 140px;">
                             <span class="input-group-text"><i class="bi bi-funnel"></i></span>
-                            <select id="productCategoryFilter" class="form-select form-select-sm" style="min-width: 140px;">
+                            <select id="productCategoryFilter" class="form-select form-select-sm">
                                 <option value="all">All Categories</option>
                                 {% for cat in categories %}
                                     <option value="{{ cat.name }}">{{ cat.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-semibold text-nowrap btn-add-action">
+                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-semibold text-nowrap">
                             <i class="bi bi-plus-lg me-1"></i> Add Product
                         </a>
                     </div>
@@ -353,44 +280,44 @@
                         <thead>
                             <tr>
                                 <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th class="text-end">Actions</th>
+                                <th class="text-nowrap">Category</th>
+                                <th class="text-nowrap">Price</th>
+                                <th class="text-nowrap">Stock</th>
+                                <th class="text-end text-nowrap" style="width: 90px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody">
                             {% for p in products %}
                             <tr class="product-row" data-category="{{ p.category.name }}">
-                                <td data-label="Product">
-                                    <div class="d-flex align-items-center gap-2">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2" style="min-width: 140px;">
                                         {% if p.image %}
-                                            <img src="{{ p.image.url }}" class="img-thumb" alt="{{ p.name }}">
+                                            <img src="{{ p.image.url }}" class="img-thumb flex-shrink-0" alt="{{ p.name }}">
                                         {% else %}
-                                            <div class="img-thumb d-inline-flex align-items-center justify-content-center text-secondary">
+                                            <div class="img-thumb flex-shrink-0 d-inline-flex align-items-center justify-content-center text-secondary">
                                                 <i class="bi bi-image"></i>
                                             </div>
                                         {% endif %}
-                                        <div>
-                                            <div class="fw-semibold text-white text-truncate" style="max-width: 180px;">{{ p.name }}</div>
+                                        <div class="min-w-0">
+                                            <div class="fw-semibold text-white text-truncate" style="max-width: 180px;" title="{{ p.name }}">{{ p.name }}</div>
                                             {% if p.discount_price %}
                                                 <small class="badge bg-danger" style="font-size: 0.6rem;">SALE</small>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Category">
+                                <td class="text-nowrap">
                                     <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 rounded-pill px-2 py-1 small">
                                         {{ p.category.name }}
                                     </span>
                                 </td>
-                                <td data-label="Price" class="text-nowrap fw-bold text-white">₹{{ p.current_price }}</td>
-                                <td data-label="Stock">
+                                <td class="text-nowrap fw-bold text-white">₹{{ p.current_price }}</td>
+                                <td class="text-nowrap">
                                     <span class="badge {% if p.stock > 0 %}bg-success bg-opacity-25 text-success border border-success border-opacity-50{% else %}bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50{% endif %} rounded-pill px-2 py-1">
                                         {{ p.stock }}
                                     </span>
                                 </td>
-                                <td data-label="Actions" class="text-end text-nowrap">
+                                <td class="text-end text-nowrap">
                                     <a href="{% url 'product_edit' p.pk %}" class="btn btn-outline-light btn-sm btn-action me-1" title="Edit Product">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -421,7 +348,7 @@
 
     <!-- Customer Inquiries Table -->
     <div class="card-dark p-3 p-md-4 mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <h2 class="h5 m-0 fw-bold text-white">Customer Inquiries</h2>
                 <small class="text-secondary">Messages submitted via website contact form</small>
@@ -434,20 +361,20 @@
                 <thead>
                     <tr>
                         <th class="text-nowrap">Date</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Subject</th>
+                        <th class="text-nowrap">Name</th>
+                        <th class="text-nowrap">Email</th>
+                        <th class="text-nowrap">Subject</th>
                         <th>Message</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for m in messages %}
                     <tr>
-                        <td data-label="Date" class="text-secondary small text-nowrap">{{ m.created_at|date:"d M Y H:i" }}</td>
-                        <td data-label="Name" class="fw-semibold text-white text-nowrap">{{ m.name }}</td>
-                        <td data-label="Email" class="text-nowrap"><a href="mailto:{{ m.email }}" class="text-info text-decoration-none">{{ m.email }}</a></td>
-                        <td data-label="Subject" class="text-white">{{ m.subject }}</td>
-                        <td data-label="Message" class="small text-secondary" style="min-width: 200px;">{{ m.message }}</td>
+                        <td class="text-secondary small text-nowrap">{{ m.created_at|date:"d M Y, H:i" }}</td>
+                        <td class="fw-semibold text-white text-nowrap">{{ m.name }}</td>
+                        <td class="text-nowrap"><a href="mailto:{{ m.email }}" class="text-info text-decoration-none">{{ m.email }}</a></td>
+                        <td class="text-white text-nowrap">{{ m.subject }}</td>
+                        <td class="small text-secondary" style="min-width: 220px; max-width: 420px; word-break: break-word;">{{ m.message }}</td>
                     </tr>
                     {% empty %}
                     <tr>
