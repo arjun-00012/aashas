@@ -224,7 +224,10 @@ def contact_submit(request):
             subject=request.POST.get('subject'),
             message=request.POST.get('message')
         )
-        return JsonResponse({'status': 'success'})
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success'})
+        messages.success(request, "Your message has been sent successfully!")
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
     return JsonResponse({'status': 'invalid'}, status=400)
 
 # --- AdminPP Custom Dashboard ---

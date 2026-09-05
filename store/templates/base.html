@@ -31,22 +31,34 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            max-width: 100vw;
+            width: 100%;
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--nav-height) + var(--tab-height) + 12px);
+        }
+
         body {
             background-color: var(--bg-dark);
             color: #ffffff;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow-x: hidden;
+            max-width: 100vw;
+            width: 100%;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Full-width clean container (No awkward left rail offset) */
+        /* Full-width clean container with zero overflow leak */
         .main-wrapper {
             width: 100%;
+            max-width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow-x: hidden;
         }
 
         /* Top Sticky Navbar */
@@ -56,10 +68,12 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-subtle);
-            padding: 0 1rem;
+            padding: 0 0.75rem;
             z-index: 1030;
             position: sticky;
             top: 0;
+            width: 100%;
+            max-width: 100%;
             transition: all 0.25s ease;
         }
 
@@ -86,8 +100,8 @@
 
         @media (max-width: 575.98px) {
             .brand-logo {
-                font-size: 0.95rem;
-                letter-spacing: 0.12em;
+                font-size: 0.92rem;
+                letter-spacing: 0.08em;
             }
         }
 
@@ -214,6 +228,29 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
 
+        @media (max-width: 575.98px) {
+            .nav-actions {
+                gap: 0.35rem;
+            }
+            .user-tag-pill {
+                max-width: 80px;
+                font-size: 0.7rem;
+                padding: 2px 6px;
+            }
+            .btn-nav-admin {
+                font-size: 0.7rem;
+                padding: 2px 6px;
+            }
+            .nav-link-subtle.small {
+                font-size: 0.75rem;
+                padding: 0 2px !important;
+            }
+            .cart-icon-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
         /* Modern Category Navigation Tab Bar */
         .category-tab-bar {
             position: sticky;
@@ -224,6 +261,9 @@
             border-bottom: 1px solid var(--border-subtle);
             padding: 6px 0;
             z-index: 1020;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .category-tabs-track {
@@ -236,6 +276,8 @@
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE/Edge */
             -webkit-overflow-scrolling: touch;
+            width: 100%;
+            max-width: 100%;
         }
 
         @media (min-width: 768px) {
@@ -334,12 +376,6 @@
         .form-control::placeholder {
             color: #6b7280;
         }
-
-        /* Subtle Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: calc(var(--nav-height) + var(--tab-height) + 12px);
-        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -413,13 +449,26 @@
         </div>
     </nav>
 
+    <!-- Alert Messages Banner -->
+    {% if messages %}
+    <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 pt-3">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show py-2 small shadow-sm rounded-3 d-flex align-items-center mb-2" role="alert">
+                <i class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill text-danger{% else %}bi-check-circle-fill text-success{% endif %} me-2 fs-6"></i>
+                <span class="flex-grow-1">{{ message }}</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.75rem;"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Dynamic Content Stage -->
-    <main class="flex-grow-1">
+    <main class="flex-grow-1 w-100" style="max-width: 100%; min-width: 0; overflow-x: hidden;">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Global Minimalist Footer -->
-    <footer class="border-top border-secondary border-opacity-25 bg-black py-4 py-md-5 px-3 px-md-4 mt-auto" id="contact-section">
+    <footer class="border-top border-secondary border-opacity-25 bg-black py-4 py-md-5 px-3 px-md-4 mt-auto w-100" style="max-width: 100%; overflow-x: hidden;" id="contact-section">
         <div class="container" style="max-width: 1100px;">
             <div class="row g-4 justify-content-between">
                 <div class="col-12 col-md-5">
@@ -431,6 +480,7 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-5">
                     <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-white" style="letter-spacing: 0.15em;">INQUIRIES & SUPPORT</h6>
+                    <div id="contactFeedback"></div>
                     <form id="contactForm" method="POST" action="{% url 'contact_submit' %}">
                         {% csrf_token %}
                         <div class="row g-2 mb-2">
@@ -457,51 +507,87 @@
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Category Tabs Auto-Highlight Script -->
+<!-- Category Tabs Auto-Highlight Script & Contact Form AJAX -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const tabs = document.querySelectorAll('.category-tab-pill');
     const track = document.getElementById('categoryTabsTrack');
-    if (!tabs.length || !track) return;
+    if (tabs.length && track) {
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-
-            // Scroll tab pill into view horizontally
-            const pillLeft = this.offsetLeft;
-            const pillWidth = this.offsetWidth;
-            const trackWidth = track.offsetWidth;
-            track.scrollTo({
-                left: pillLeft - (trackWidth / 2) + (pillWidth / 2),
-                behavior: 'smooth'
+                // Scroll tab pill into view horizontally
+                const pillLeft = this.offsetLeft;
+                const pillWidth = this.offsetWidth;
+                const trackWidth = track.offsetWidth;
+                track.scrollTo({
+                    left: pillLeft - (trackWidth / 2) + (pillWidth / 2),
+                    behavior: 'smooth'
+                });
             });
         });
-    });
 
-    // Auto-detect active section on scroll if sections exist
-    const sections = document.querySelectorAll('section[id^="section-"]');
-    if (sections.length && 'IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const slug = entry.target.id.replace('section-', '');
-                    tabs.forEach(tab => {
-                        const tabCat = tab.getAttribute('data-cat');
-                        if (tabCat === slug || (tabCat && (tabCat + 's' === slug || tabCat === slug + 's'))) {
-                            tabs.forEach(t => t.classList.remove('active'));
-                            tab.classList.add('active');
-                        }
-                    });
+        // Auto-detect active section on scroll if sections exist
+        const sections = document.querySelectorAll('section[id^="section-"]');
+        if (sections.length && 'IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const slug = entry.target.id.replace('section-', '');
+                        tabs.forEach(tab => {
+                            const tabCat = tab.getAttribute('data-cat');
+                            if (tabCat === slug || (tabCat && (tabCat + 's' === slug || tabCat === slug + 's'))) {
+                                tabs.forEach(t => t.classList.remove('active'));
+                                tab.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            });
+
+            sections.forEach(s => observer.observe(s));
+        }
+    }
+
+    // Contact form AJAX submission
+    const contactForm = document.getElementById('contactForm');
+    const contactFeedback = document.getElementById('contactFeedback');
+    if (contactForm && contactFeedback) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = contactForm.querySelector('button[type="submit"]');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Sending...';
+
+            try {
+                const formData = new FormData(contactForm);
+                const res = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (res.ok) {
+                    contactFeedback.innerHTML = '<div class="alert alert-success py-2 small mb-3 rounded-3 text-start"><i class="bi bi-check-circle-fill me-2"></i>Thank you! Your message has been received. Our team will get back to you shortly.</div>';
+                    contactForm.reset();
+                } else {
+                    contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-exclamation-circle-fill me-2"></i>Failed to send message. Please try again.</div>';
                 }
-            });
-        }, {
-            rootMargin: '-20% 0px -60% 0px',
-            threshold: 0
+            } catch (err) {
+                contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-wifi-off me-2"></i>Network error. Please try again.</div>';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
         });
-
-        sections.forEach(s => observer.observe(s));
     }
 });
 </script>
