@@ -18,5 +18,5 @@ python manage.py migrate
 # Seed initial store catalog if database is empty
 python manage.py seed_catalog
 
-# Auto-create superuser (admin / admin@123) if not exists
-python manage.py shell -c "from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@aashas.com', 'admin@123')"
+# Ensure superuser (admin / admin@123) exists with verified password
+python manage.py shell -c "from django.contrib.auth.models import User; u, _ = User.objects.get_or_create(username='admin', defaults={'email': 'admin@aashas.com', 'is_staff': True, 'is_superuser': True}); u.is_staff = True; u.is_superuser = True; u.set_password('admin@123'); u.save()"
