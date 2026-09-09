@@ -36,15 +36,35 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+        # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
+        if self.image and not self.image_url:
+            try:
+                import os
+                import cloudinary.uploader
+                if hasattr(self.image, 'path') and os.path.exists(self.image.path):
+                    res = cloudinary.uploader.upload(
+                        self.image.path,
+                        folder="ashas/categories",
+                        public_id=self.slug,
+                        overwrite=True
+                    )
+                    secure_url = res.get('secure_url')
+                    if secure_url:
+                        self.image_url = secure_url
+                        super().save(update_fields=['image_url'])
+            except Exception:
+                pass
+
     @property
     def display_image(self):
+        # Prioritize direct cloud link if available
+        if self.image_url:
+            return self.image_url
         if self.image:
             try:
                 return self.image.url
             except Exception:
                 pass
-        if self.image_url:
-            return self.image_url
         return ''
 
     def __str__(self):
@@ -62,19 +82,42 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
+        if self.image and not self.image_url:
+            try:
+                import os
+                import cloudinary.uploader
+                if hasattr(self.image, 'path') and os.path.exists(self.image.path):
+                    res = cloudinary.uploader.upload(
+                        self.image.path,
+                        folder="ashas/products",
+                        public_id=f"product_{self.id}",
+                        overwrite=True
+                    )
+                    secure_url = res.get('secure_url')
+                    if secure_url:
+                        self.image_url = secure_url
+                        super().save(update_fields=['image_url'])
+            except Exception:
+                pass
+
     @property
     def current_price(self):
         return self.discount_price if self.discount_price else self.price
 
     @property
     def display_image(self):
+        # Prioritize direct cloud link if available
+        if self.image_url:
+            return self.image_url
         if self.image:
             try:
                 return self.image.url
             except Exception:
                 pass
-        if self.image_url:
-            return self.image_url
         return ''
 
     def __str__(self):
