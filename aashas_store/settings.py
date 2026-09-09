@@ -27,20 +27,22 @@ INSTALLED_APPS = [
     'store',
 ]
 
-# Cloudinary Storage for Media if configured in Environment
-CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
-if CLOUDINARY_CLOUD_NAME or CLOUDINARY_URL:
-    INSTALLED_APPS += [
-        'cloudinary_storage',
-        'cloudinary',
-    ]
+# Cloudinary Storage Configuration
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', 'dwk9pw2ol')
+CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '715241379841871')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', 'wPtabcIXDXDJnrfeWpZtBC2RK_U')
+
+if CLOUDINARY_CLOUD_NAME:
+    if 'cloudinary_storage' not in INSTALLED_APPS:
+        INSTALLED_APPS += [
+            'cloudinary_storage',
+            'cloudinary',
+        ]
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
     }
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

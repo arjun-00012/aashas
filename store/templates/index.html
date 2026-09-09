@@ -5,51 +5,126 @@
 
 {% block extra_css %}
 <style>
-    /* Hero Stage Layout */
+    /* =========================================================
+       ASHAS Monochromatic High-Fashion Design System
+       ========================================================= */
+
+    /* Lateral Floating Brand Watermarks ("Logos in sides") */
+    .side-brand-strip {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        pointer-events: none;
+        opacity: 0.45;
+        transition: opacity 0.3s ease;
+    }
+
+    .side-brand-strip:hover {
+        opacity: 0.85;
+    }
+
+    .side-left {
+        left: 18px;
+    }
+
+    .side-right {
+        right: 18px;
+    }
+
+    .side-logo-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 2px;
+        filter: grayscale(100%);
+    }
+
+    .side-brand-vertical-text {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.32em;
+        color: #71717a;
+        text-transform: uppercase;
+    }
+
+    /* Hero Section */
     .hero-section {
-        padding: clamp(1.2rem, 3.5vw, 2.5rem) 0.75rem;
+        padding: clamp(1.2rem, 3vw, 2.2rem) 0.75rem 1rem;
         width: 100%;
         max-width: 100%;
-        overflow: hidden;
+        position: relative;
+    }
+
+    .hero-brand-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 9999px;
+        font-size: 0.68rem;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        color: #9ca3af;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-brand-eyebrow img {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
     }
 
     .hero-title {
-        font-size: clamp(1.6rem, 5.5vw, 2.8rem);
-        letter-spacing: 0.18em;
-        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.8rem, 6vw, 3.2rem);
+        letter-spacing: 0.22em;
+        font-weight: 900;
+        color: #ffffff;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.1;
     }
 
     .hero-tagline {
-        font-size: clamp(0.72rem, 2vw, 0.88rem);
-        letter-spacing: 0.28em;
-        color: #9ca3af;
+        font-size: clamp(0.72rem, 1.8vw, 0.85rem);
+        letter-spacing: 0.3em;
+        color: #71717a;
+        margin-top: 0.4rem;
+        font-weight: 500;
     }
 
     /* Mannequin Interactive Container */
     .mannequin-container {
         position: relative;
         width: 100%;
-        max-width: 430px;
-        margin: 0 auto;
+        max-width: 420px;
+        margin: 1.5rem auto 0;
         border-radius: 16px;
         overflow: hidden;
-        background: #050505;
-        border: 1px solid var(--border-subtle);
+        background: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.12);
         touch-action: manipulation;
         aspect-ratio: 3 / 4;
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.95);
     }
 
     @media (max-width: 575.98px) {
         .mannequin-container {
             max-width: 320px;
             border-radius: 14px;
-        }
-    }
-
-    @media (min-width: 576px) and (max-width: 991.98px) {
-        .mannequin-container {
-            max-width: 400px;
         }
     }
 
@@ -63,7 +138,7 @@
         transform: scale(1);
     }
 
-    /* Hotspots with Large Ergonomic Tap Zone (36px min for mobile touch) */
+    /* Mannequin Hotspots */
     .hotspot {
         position: absolute;
         width: 36px;
@@ -82,13 +157,13 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.6);
         border: 1.5px solid #ffffff;
         animation: pulse-ring 2.2s infinite;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        box-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
 
     .hotspot-dot::after {
@@ -112,20 +187,20 @@
         bottom: 12px;
         left: 50%;
         transform: translateX(-50%) translateY(20px);
-        background: rgba(12, 12, 12, 0.94);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        padding: 10px 14px;
+        background: rgba(8, 8, 8, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 10px 16px;
         border-radius: 12px;
         opacity: 0;
         pointer-events: none;
         transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         width: calc(100% - 24px);
-        max-width: 300px;
+        max-width: 310px;
         text-align: center;
         z-index: 25;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.85);
     }
 
     .hover-card.active {
@@ -134,46 +209,183 @@
         transform: translateX(-50%) translateY(0);
     }
 
-    /* Category Section Container */
+    /* =========================================================
+       Blactify-Style Minimalist Category Grid
+       ========================================================= */
+    .blactify-category-showcase {
+        width: 100%;
+        max-width: 1100px;
+        margin: 2.5rem auto 3rem;
+        padding: 0 1rem;
+    }
+
+    .category-showcase-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .category-showcase-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.28em;
+        color: #888888;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(14px, 3.5vw, 36px) clamp(10px, 2.5vw, 24px);
+        justify-content: center;
+        align-items: start;
+    }
+
+    @media (min-width: 768px) {
+        .category-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px 28px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .category-grid {
+            grid-template-columns: repeat(7, 1fr);
+            gap: 28px 18px;
+        }
+    }
+
+    .category-item-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        group: true;
+        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .category-item-link:hover {
+        transform: translateY(-4px);
+    }
+
+    /* Isolated Product Thumbnail Card (Matching Blactify exact style) */
+    .category-thumb-wrapper {
+        width: clamp(76px, 22vw, 110px);
+        height: clamp(76px, 22vw, 110px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .category-item-link:hover .category-thumb-wrapper {
+        box-shadow: 0 10px 26px rgba(255, 255, 255, 0.18);
+        border-color: #ffffff;
+        transform: scale(1.04);
+    }
+
+    .category-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .category-item-link:hover .category-thumb-img {
+        transform: scale(1.08);
+    }
+
+    /* Spaced Uppercase Typography */
+    .category-label {
+        margin-top: 10px;
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.68rem, 2vw, 0.78rem);
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: #8e8e93;
+        text-transform: uppercase;
+        text-align: center;
+        transition: color 0.2s ease, letter-spacing 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .category-item-link:hover .category-label {
+        color: #ffffff;
+        letter-spacing: 0.24em;
+    }
+
+    .category-item-link.active .category-label {
+        color: #ffffff;
+        font-weight: 800;
+    }
+
+    .category-item-link.active .category-thumb-wrapper {
+        border-color: #ffffff;
+        box-shadow: 0 0 0 2px #ffffff, 0 8px 24px rgba(255, 255, 255, 0.25);
+    }
+
+    /* =========================================================
+       Category Sections & Horizontal Scroll Tracks
+       ========================================================= */
     .category-section {
         width: 100%;
         max-width: 100%;
         min-width: 0;
+        scroll-margin-top: calc(var(--nav-height) + 20px);
     }
 
-    /* Section Header */
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 0.6rem;
-        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.25rem;
         gap: 0.5rem;
-        width: 100%;
-        max-width: 100%;
+    }
+
+    .section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .section-title {
-        font-size: clamp(0.95rem, 2.8vw, 1.35rem);
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1rem, 3vw, 1.4rem);
         font-weight: 800;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.16em;
         margin: 0;
         text-transform: uppercase;
+        color: #ffffff;
     }
 
     .section-count {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         color: #9ca3af;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-subtle);
-        padding: 3px 9px;
+        padding: 3px 10px;
         border-radius: 9999px;
         font-weight: 600;
         white-space: nowrap;
     }
 
-    /* Horizontal Product Carousel Track (Scrolls Right with Zero Page Overflow) */
+    /* Horizontal Product Carousel Track */
     .product-scroll-track {
         display: flex;
         flex-wrap: nowrap;
@@ -181,23 +393,23 @@
         width: 100%;
         max-width: 100%;
         min-width: 0;
-        gap: 12px;
+        gap: 14px;
         scroll-snap-type: x mandatory;
         scroll-padding: 0 12px;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
-        padding: 6px 2px 14px 2px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 6px 2px 16px 2px;
     }
 
     .product-scroll-track::-webkit-scrollbar {
-        display: none; /* Chrome/Safari */
+        display: none;
     }
 
     .product-scroll-item {
-        flex: 0 0 clamp(160px, 44vw, 210px);
-        max-width: 210px;
-        min-width: 150px;
+        flex: 0 0 clamp(165px, 44vw, 220px);
+        max-width: 220px;
+        min-width: 155px;
         scroll-snap-align: start;
         display: flex;
         flex-direction: column;
@@ -205,11 +417,11 @@
 
     @media (min-width: 576px) {
         .product-scroll-item {
-            flex: 0 0 clamp(200px, 32vw, 240px);
+            flex: 0 0 clamp(200px, 30vw, 240px);
             max-width: 240px;
         }
         .product-scroll-track {
-            gap: 16px;
+            gap: 18px;
         }
     }
 
@@ -219,14 +431,14 @@
             max-width: 260px;
         }
         .product-scroll-track {
-            gap: 20px;
+            gap: 22px;
         }
     }
 
     /* Scroll Navigation Buttons */
     .scroll-btn {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         padding: 0;
         display: inline-flex;
         align-items: center;
@@ -238,7 +450,7 @@
         font-size: 0.8rem;
     }
 
-    .scroll-btn:hover, .scroll-btn:active {
+    .scroll-btn:hover {
         background: #ffffff !important;
         color: #000000 !important;
         border-color: #ffffff !important;
@@ -252,20 +464,26 @@
         width: 100%;
         overflow: hidden;
         border-radius: 8px;
-        background: #141414;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
     }
 
     .product-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
         transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .product-card:hover .product-img-wrapper img {
-        transform: scale(1.05);
+        transform: scale(1.08);
     }
 
-    /* 2-line clamping for product title alignment */
     .product-name {
-        font-size: clamp(0.78rem, 2vw, 0.9rem);
+        font-size: clamp(0.78rem, 2vw, 0.88rem);
         font-weight: 600;
         line-height: 1.35;
         display: -webkit-box;
@@ -278,33 +496,38 @@
     }
 
     .product-price {
-        font-size: clamp(0.85rem, 2.2vw, 1rem);
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.9rem, 2.2vw, 1.05rem);
         font-weight: 700;
+        color: #ffffff;
     }
 
     .badge-sale {
         position: absolute;
         top: 8px;
         right: 8px;
-        background: #dc2626;
+        background: #000000;
         color: #ffffff;
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         font-weight: 800;
-        letter-spacing: 0.06em;
-        padding: 2px 7px;
+        letter-spacing: 0.08em;
+        padding: 3px 8px;
         border-radius: 9999px;
-        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .btn-add-cart {
+        font-family: 'Outfit', sans-serif;
         font-size: 0.78rem !important;
         font-weight: 600 !important;
-        padding: 7px 0 !important;
+        padding: 8px 0 !important;
         border-radius: 9999px !important;
-        letter-spacing: 0.02em;
-        border-color: rgba(255, 255, 255, 0.22) !important;
+        letter-spacing: 0.06em;
+        border: 1px solid rgba(255, 255, 255, 0.22) !important;
         color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.04) !important;
         transition: all 0.2s ease !important;
+        text-transform: uppercase;
     }
 
     .btn-add-cart:hover, .btn-add-cart:active {
@@ -317,35 +540,49 @@
 {% endblock %}
 
 {% block content %}
+<!-- Lateral Fixed Brand Watermarks ("Logos in sides") -->
+<div class="side-brand-strip side-left d-none d-xl-flex" aria-hidden="true">
+    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Badge" class="side-logo-icon">
+    <span class="side-brand-vertical-text">ASHAS ARCHIVE • COLLECTION 2026</span>
+</div>
+
+<div class="side-brand-strip side-right d-none d-xl-flex" aria-hidden="true">
+    <span class="side-brand-vertical-text">HYDERABAD FLAGSHIP • TELANGANA</span>
+    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Badge" class="side-logo-icon">
+</div>
+
 <!-- Interactive Hero Stage -->
 <section class="hero-section text-center">
-    <div class="mb-3 mb-md-4">
-        <h1 class="hero-title mb-1">AASHAS STORE</h1>
-        <p class="hero-tagline text-uppercase mb-0">Accessorize Your Story</p>
+    <div class="hero-brand-eyebrow">
+        <img src="{% static 'images/ashas_badge.png' %}" alt="Logo">
+        <span>ASHAS™ OFFICIAL</span>
     </div>
 
+    <h1 class="hero-title">ASHAS STORE</h1>
+    <p class="hero-tagline text-uppercase">Accessorize Your Story</p>
+
+    <!-- Interactive Mannequin Stage -->
     <div class="mannequin-container" id="mannequinContainer" role="region" aria-label="Interactive Accessories Model">
-        <!-- Main Model Image -->
         <img src="{% static 'images/men1.jpg' %}" alt="Model wearing curated accessories" class="mannequin-img" id="mannequinImg">
 
-        <!-- 5 Targeted Hotspots mapped directly to men1.jpg -->
-        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Vintage Streetwear Cap" data-x="56%" data-y="45%" title="Vintage Cap">
+        <!-- 5 Interactive Hotspots -->
+        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Streetwear Matte Black Cap" data-x="56%" data-y="45%" title="Vintage Cap">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Dark Noir Sunglasses" data-x="54%" data-y="48%" title="Sunglasses">
+        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Aero Y2K Noir Sunglasses" data-x="54%" data-y="48%" title="Sunglasses">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Pendant Neck Chain" data-x="50%" data-y="61%" title="Neck Chain">
+        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Geometric Pendant Cuban Chain" data-x="50%" data-y="61%" title="Neck Chain">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Beaded Stone Bracelet" data-x="21%" data-y="35%" title="Bracelet">
+        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Matte Obsidian Stone Bracelet" data-x="21%" data-y="35%" title="Bracelet">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Wolf & Obsidian Rings" data-x="24%" data-y="58%" title="Statement Rings">
+        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Obsidian Silver Signet Ring" data-x="24%" data-y="58%" title="Statement Rings">
             <div class="hotspot-dot"></div>
         </div>
 
-        <!-- Floating Popover Bottom Message -->
+        <!-- Floating Popover -->
         <div class="hover-card" id="hoverCard">
             <h6 class="m-0 fw-semibold text-white" id="cardTitle">Accessory</h6>
             <button class="btn btn-sm btn-light mt-2 px-3 rounded-pill fw-semibold" id="cardActionBtn">
@@ -355,30 +592,59 @@
     </div>
 </section>
 
-<!-- Dynamic Category Sections with Horizontal Scroll Right Tracks -->
+<!-- =========================================================
+     Blactify-Style Minimalist Category Grid
+     ========================================================= -->
+<section class="blactify-category-showcase" aria-label="Browse Categories">
+    <div class="category-showcase-header">
+        <div class="category-showcase-badge">
+            <i class="bi bi-diamond-fill" style="font-size: 0.5rem;"></i>
+            <span>CURATED COLLECTIONS</span>
+            <i class="bi bi-diamond-fill" style="font-size: 0.5rem;"></i>
+        </div>
+    </div>
+
+    <!-- Category Grid: Watches, Belts, Shades, Caps, Rings, Chains, Bracelets -->
+    <div class="category-grid" id="blactifyCategoryGrid">
+        {% for cat in categories %}
+        <a href="#section-{{ cat.slug }}" class="category-item-link" data-cat="{{ cat.slug }}">
+            <div class="category-thumb-wrapper">
+                {% if cat.display_image %}
+                    <img src="{{ cat.display_image }}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy">
+                {% else %}
+                    <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy">
+                {% endif %}
+            </div>
+            <span class="category-label">{{ cat.name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Dynamic Category Sections with Products -->
 <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px; overflow-x: hidden;">
     {% for category in categories %}
-    <section id="section-{{ category.slug }}" class="category-section mb-4 mb-md-5 pt-3">
+    <section id="section-{{ category.slug }}" class="category-section mb-5 pt-3">
         <div class="section-header">
             <div class="min-w-0 flex-grow-1 pe-2">
-                <h2 class="section-title text-truncate">{{ category.name }}</h2>
+                <div class="section-title-wrap">
+                    <h2 class="section-title text-truncate">{{ category.name }}</h2>
+                    <span class="section-count">{{ category.products.count }} Item{{ category.products.count|pluralize }}</span>
+                </div>
                 {% if category.description %}
                     <small class="text-secondary d-none d-sm-block mt-1 text-truncate">{{ category.description }}</small>
                 {% endif %}
             </div>
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <span class="section-count">{{ category.products.count }} Item{{ category.products.count|pluralize }}</span>
-                {% if category.products.count > 1 %}
-                <div class="scroll-nav-btns d-flex gap-1 ms-1">
-                    <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', -1)" aria-label="Scroll left" title="Scroll left">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', 1)" aria-label="Scroll right" title="Scroll right">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-                {% endif %}
+            {% if category.products.count > 1 %}
+            <div class="scroll-nav-btns d-flex gap-1 ms-1">
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', -1)" aria-label="Scroll left" title="Scroll left">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('{{ category.slug }}', 1)" aria-label="Scroll right" title="Scroll right">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
+            {% endif %}
         </div>
 
         <!-- Horizontal Scroll Right Track -->
@@ -389,7 +655,7 @@
                     <div>
                         <div class="product-img-wrapper mb-2 mb-md-3">
                             {% if product.display_image %}
-                                <img src="{{ product.display_image }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}" loading="lazy">
+                                <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy">
                             {% else %}
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark text-secondary">
                                     <i class="bi bi-image fs-3"></i>
@@ -401,7 +667,7 @@
                         </div>
                         <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
                         <div class="d-flex align-items-center gap-2 mb-2 mb-md-3">
-                            <span class="product-price text-white">₹{{ product.current_price }}</span>
+                            <span class="product-price">₹{{ product.current_price }}</span>
                             {% if product.discount_price %}
                                 <span class="text-secondary small text-decoration-line-through">₹{{ product.price }}</span>
                             {% endif %}
@@ -428,6 +694,49 @@
 
 {% block extra_js %}
 <script>
+    // Smooth scrolling & active highlight for Blactify Category Grid
+    const categoryLinks = document.querySelectorAll('.category-item-link');
+    if (categoryLinks.length) {
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    e.preventDefault();
+                    categoryLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const targetElem = document.querySelector(targetId);
+                    if (targetElem) {
+                        targetElem.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        // IntersectionObserver to highlight category icons as user scrolls
+        const catSections = document.querySelectorAll('section[id^="section-"]');
+        if (catSections.length && 'IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const slug = entry.target.id.replace('section-', '');
+                        categoryLinks.forEach(link => {
+                            if (link.getAttribute('data-cat') === slug) {
+                                categoryLinks.forEach(l => l.classList.remove('active'));
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            });
+            catSections.forEach(s => observer.observe(s));
+        }
+    }
+
+    // Interactive Mannequin Hotspot Zoom Logic
     const container = document.getElementById('mannequinContainer');
     const mannequinImg = document.getElementById('mannequinImg');
     const spots = document.querySelectorAll('.hotspot');
@@ -449,14 +758,10 @@
 
         cardTitle.innerText = name;
         hoverCard.classList.add('active');
-
-        cardActionBtn.onclick = (e) => {
-            e.stopPropagation();
-            scrollToSection(cat);
-        };
     }
 
     function resetZoom() {
+        if (!isZoomed) return;
         isZoomed = false;
         activeCategory = null;
         mannequinImg.style.transform = 'scale(1)';
@@ -464,77 +769,59 @@
     }
 
     spots.forEach(spot => {
-        const cat = spot.getAttribute('data-cat');
-        const name = spot.getAttribute('data-name');
         const x = spot.getAttribute('data-x');
         const y = spot.getAttribute('data-y');
+        const name = spot.getAttribute('data-name');
+        const cat = spot.getAttribute('data-cat');
 
         spot.addEventListener('mouseenter', () => {
-            applyZoom(x, y, name, cat);
+            if (window.matchMedia('(hover: hover)').matches) {
+                applyZoom(x, y, name, cat);
+            }
         });
 
         spot.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (isZoomed && activeCategory === cat) {
-                scrollToSection(cat);
-            } else {
-                applyZoom(x, y, name, cat);
-            }
+            applyZoom(x, y, name, cat);
         });
     });
 
-    container.addEventListener('mouseleave', () => {
-        resetZoom();
-    });
+    if (container) {
+        container.addEventListener('mouseleave', () => {
+            if (window.matchMedia('(hover: hover)').matches) {
+                resetZoom();
+            }
+        });
+    }
 
     document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
+        if (container && !container.contains(e.target)) {
             resetZoom();
         }
     });
 
-    // Vertical smooth scroll to category section with tab sync
-    function scrollToSection(slug) {
-        let target = document.getElementById('section-' + slug);
-        if (!target) {
-            const altSlug = slug.endsWith('s') ? slug.slice(0, -1) : slug + 's';
-            target = document.getElementById('section-' + altSlug);
-        }
-        if (target) {
-            const yOffset = -120;
-            const yPosition = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: yPosition, behavior: 'smooth' });
-
-            // Also highlight matching pill in the category tabs track
-            const tabs = document.querySelectorAll('.category-tab-pill');
-            const track = document.getElementById('categoryTabsTrack');
-            tabs.forEach(tab => {
-                const tabCat = tab.getAttribute('data-cat');
-                if (tabCat === slug || (tabCat && (tabCat + 's' === slug || tabCat === slug + 's'))) {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    if (track) {
-                        track.scrollTo({
-                            left: tab.offsetLeft - (track.offsetWidth / 2) + (tab.offsetWidth / 2),
-                            behavior: 'smooth'
-                        });
-                    }
+    if (cardActionBtn) {
+        cardActionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeCategory) {
+                let targetSec = document.getElementById(`section-${activeCategory}`);
+                if (!targetSec) {
+                    const singular = activeCategory.replace(/s$/, '');
+                    targetSec = document.getElementById(`section-${singular}`);
                 }
-            });
-        }
+                if (targetSec) {
+                    targetSec.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
     }
 
-    // Horizontal Scroll Right / Left function for product carousel
+    // Horizontal Scroll Function
     function scrollSection(slug, direction) {
-        const track = document.getElementById('scrollTrack-' + slug);
+        const track = document.getElementById(`scrollTrack-${slug}`);
         if (!track) return;
-        const item = track.querySelector('.product-scroll-item');
-        const itemWidth = item ? item.offsetWidth : 200;
-        const scrollDelta = (itemWidth + 14) * 2 * direction;
-        track.scrollBy({
-            left: scrollDelta,
-            behavior: 'smooth'
-        });
+        const scrollAmount = track.offsetWidth * 0.75 * direction;
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
 </script>
 {% endblock %}
