@@ -240,23 +240,23 @@
 
     .category-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: clamp(14px, 3.5vw, 36px) clamp(10px, 2.5vw, 24px);
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px 8px;
         justify-content: center;
         align-items: start;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 576px) and (max-width: 991.98px) {
         .category-grid {
             grid-template-columns: repeat(4, 1fr);
-            gap: 40px 28px;
+            gap: 32px 20px;
         }
     }
 
     @media (min-width: 992px) {
         .category-grid {
-            grid-template-columns: repeat(7, 1fr);
-            gap: 28px 18px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 24px 14px;
         }
     }
 
@@ -574,6 +574,35 @@
 
     #backToTopBtn:hover i {
         color: #000000 !important;
+    }
+
+    /* Mobile Modal & Layout Enhancements */
+    @media (max-width: 576px) {
+        #productQuickViewModal .modal-dialog {
+            margin: 0.75rem auto;
+            max-width: calc(100% - 1.5rem);
+        }
+        #productQuickViewModal .modal-body {
+            padding: 1.25rem 1rem !important;
+        }
+        #qvImageWrapper {
+            max-height: 220px !important;
+        }
+        #qvImage {
+            max-height: 220px !important;
+        }
+        .hero-section {
+            padding: 1rem 0.5rem 0.75rem;
+        }
+        .mannequin-container {
+            max-width: 300px;
+        }
+        #backToTopBtn {
+            bottom: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+        }
     }
 </style>
 {% endblock %}
