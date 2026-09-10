@@ -382,6 +382,44 @@
             border-left: 2px solid #ffffff;
         }
 
+        /* Floating WhatsApp Enquiry Button */
+        .floating-whatsapp-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 1020;
+            background-color: #25D366;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+        }
+
+        .floating-whatsapp-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 28px rgba(37, 211, 102, 0.65);
+            color: #ffffff !important;
+        }
+
+        @media (max-width: 575.98px) {
+            .floating-whatsapp-btn {
+                bottom: 18px;
+                left: 18px;
+                padding: 10px;
+                width: 44px;
+                height: 44px;
+                justify-content: center;
+            }
+        }
+
         /* Offcanvas Side Drawer (Left Menu with ASHAS Branding) */
         .offcanvas-ashas {
             background-color: #080808 !important;
@@ -656,6 +694,10 @@
             {% endfor %}
 
             <div class="drawer-section-title">STORE & SUPPORT</div>
+            <a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Store%2C%20I%20have%20an%20enquiry%20regarding%20accessories." target="_blank" rel="noopener noreferrer" class="drawer-link text-white mb-2" style="background: rgba(37, 211, 102, 0.12); border: 1px solid rgba(37, 211, 102, 0.35);">
+                <span><i class="bi bi-whatsapp text-success me-2 fs-6"></i> WhatsApp Enquiry</span>
+                <span class="badge bg-success rounded-pill small" style="font-size: 0.65rem;">+91 9074277754</span>
+            </a>
             <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
                 <span><i class="bi bi-geo-alt me-2"></i> Flagship Store</span>
                 <span class="small text-muted">Hyderabad</span>
@@ -741,6 +783,10 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-5">
                     <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-white" style="letter-spacing: 0.16em; font-size: 0.82rem;">INQUIRIES & SUPPORT</h6>
+                    <a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Store%2C%20I%20have%20an%20enquiry%20regarding%20accessories." target="_blank" rel="noopener noreferrer" class="btn btn-sm w-100 mb-3 py-2 fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2 text-white" style="background-color: #25D366; border: none; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);">
+                        <i class="bi bi-whatsapp fs-5"></i>
+                        <span>Direct WhatsApp Enquiry (+91 9074277754)</span>
+                    </a>
                     <div id="contactFeedback"></div>
                     <form id="contactForm" method="POST" action="{% url 'contact_submit' %}">
                         {% csrf_token %}
@@ -765,6 +811,12 @@
         </div>
     </footer>
 </div>
+
+<!-- Floating WhatsApp Quick Enquiry Button -->
+<a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Store%2C%20I%20have%20an%20enquiry%20regarding%20accessories." target="_blank" rel="noopener noreferrer" class="floating-whatsapp-btn shadow-lg" title="WhatsApp Enquiry (+91 9074277754)" aria-label="WhatsApp Enquiry">
+    <i class="bi bi-whatsapp fs-5"></i>
+    <span class="d-none d-sm-inline ms-2">WhatsApp Enquiry</span>
+</a>
 
 <!-- Toast Notification Container -->
 <div id="ashasToastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2100; pointer-events: none;"></div>

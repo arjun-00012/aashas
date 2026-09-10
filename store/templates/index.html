@@ -763,9 +763,12 @@
                 <div class="d-flex align-items-center justify-content-center gap-2 mb-4 p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 small text-secondary">
                     <i class="bi bi-shield-check text-success"></i> 100% Authentic • Hyderabad Flagship • Dispatch in 24h
                 </div>
-                <button type="button" class="btn btn-light w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" id="qvAddBagBtn">
+                <button type="button" class="btn btn-light w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2" id="qvAddBagBtn">
                     <i class="bi bi-bag-plus-fill"></i> <span>Add to Bag</span>
                 </button>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success w-100 py-2 fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2" id="qvWhatsappBtn" style="font-size: 0.82rem; border-color: rgba(37, 211, 102, 0.45); color: #25D366; text-decoration: none;">
+                    <i class="bi bi-whatsapp"></i> <span>Enquire on WhatsApp</span>
+                </a>
             </div>
         </div>
     </div>
@@ -948,6 +951,12 @@
                 qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
             }
             if (qvDesc) qvDesc.innerText = desc;
+
+            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
+            if (qvWhatsappBtn) {
+                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
+                qvWhatsappBtn.href = `https://wa.me/919074277754?text=${text}`;
+            }
 
             if (bsQvModal) bsQvModal.show();
         }
