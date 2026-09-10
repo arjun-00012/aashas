@@ -23,7 +23,16 @@ def cart_context_processor(request):
         'all_categories': Category.objects.all(),
     }
 
+def ping_view(request):
+    """Ultra-lightweight endpoint for cron-job.org, uptime monitors, and keep-alive pings (returns 2 bytes 'OK')"""
+    return HttpResponse("OK", content_type="text/plain", status=200)
+
 def home(request):
+    if request.method == 'HEAD':
+        return HttpResponse('', content_type='text/plain', status=200)
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    if 'cron-job' in user_agent or 'cronjob' in user_agent or 'uptimerobot' in user_agent or request.GET.get('ping'):
+        return HttpResponse("OK", content_type="text/plain", status=200)
     categories = Category.objects.prefetch_related('products').all()
     return render(request, 'index.html', {'categories': categories})
 
