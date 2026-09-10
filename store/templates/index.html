@@ -605,19 +605,19 @@
         <img src="{% static 'images/men1.jpg' %}" alt="Model wearing curated accessories" class="mannequin-img" id="mannequinImg">
 
         <!-- 5 Interactive Hotspots -->
-        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Streetwear Matte Black Cap" data-x="56%" data-y="45%" title="Vintage Cap">
+        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Caps" data-x="56%" data-y="45%" title="Caps">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Aero Y2K Noir Sunglasses" data-x="54%" data-y="48%" title="Sunglasses">
+        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Shades" data-x="54%" data-y="48%" title="Shades">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Geometric Pendant Cuban Chain" data-x="50%" data-y="61%" title="Neck Chain">
+        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Chains" data-x="50%" data-y="61%" title="Chains">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Matte Obsidian Stone Bracelet" data-x="21%" data-y="35%" title="Bracelet">
+        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Bracelets" data-x="21%" data-y="35%" title="Bracelets">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Obsidian Silver Signet Ring" data-x="24%" data-y="58%" title="Statement Rings">
+        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Rings" data-x="24%" data-y="58%" title="Rings">
             <div class="hotspot-dot"></div>
         </div>
 
@@ -1063,6 +1063,9 @@
         mannequinImg.style.transform = `scale(${scaleVal})`;
 
         cardTitle.innerText = name;
+        if (cardActionBtn) {
+            cardActionBtn.innerHTML = `Explore ${name} <i class="bi bi-arrow-down-short"></i>`;
+        }
         hoverCard.classList.add('active');
     }
 
@@ -1072,6 +1075,9 @@
         activeCategory = null;
         mannequinImg.style.transform = 'scale(1)';
         hoverCard.classList.remove('active');
+        if (cardActionBtn) {
+            cardActionBtn.innerHTML = `Explore Collection <i class="bi bi-arrow-down-short"></i>`;
+        }
     }
 
     spots.forEach(spot => {
