@@ -41,9 +41,23 @@ class Category(models.Model):
             try:
                 import os
                 import cloudinary.uploader
-                if hasattr(self.image, 'path') and os.path.exists(self.image.path):
+                if hasattr(self.image, 'url') and str(self.image.url).startswith(('http://', 'https://')):
+                    self.image_url = self.image.url
+                    super().save(update_fields=['image_url'])
+                elif hasattr(self.image, 'path') and os.path.exists(self.image.path):
                     res = cloudinary.uploader.upload(
                         self.image.path,
+                        folder="ashas/categories",
+                        public_id=self.slug,
+                        overwrite=True
+                    )
+                    secure_url = res.get('secure_url')
+                    if secure_url:
+                        self.image_url = secure_url
+                        super().save(update_fields=['image_url'])
+                elif hasattr(self.image, 'file'):
+                    res = cloudinary.uploader.upload(
+                        self.image.file,
                         folder="ashas/categories",
                         public_id=self.slug,
                         overwrite=True
@@ -90,9 +104,23 @@ class Product(models.Model):
             try:
                 import os
                 import cloudinary.uploader
-                if hasattr(self.image, 'path') and os.path.exists(self.image.path):
+                if hasattr(self.image, 'url') and str(self.image.url).startswith(('http://', 'https://')):
+                    self.image_url = self.image.url
+                    super().save(update_fields=['image_url'])
+                elif hasattr(self.image, 'path') and os.path.exists(self.image.path):
                     res = cloudinary.uploader.upload(
                         self.image.path,
+                        folder="ashas/products",
+                        public_id=f"product_{self.id}",
+                        overwrite=True
+                    )
+                    secure_url = res.get('secure_url')
+                    if secure_url:
+                        self.image_url = secure_url
+                        super().save(update_fields=['image_url'])
+                elif hasattr(self.image, 'file'):
+                    res = cloudinary.uploader.upload(
+                        self.image.file,
                         folder="ashas/products",
                         public_id=f"product_{self.id}",
                         overwrite=True
