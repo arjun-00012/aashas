@@ -536,6 +536,45 @@
         border-color: #ffffff !important;
         transform: translateY(-1px);
     }
+
+    /* Product card interactive image preview */
+    .product-clickable-area {
+        cursor: pointer;
+        outline: none;
+    }
+
+    .product-clickable-area:hover .product-img-wrapper img {
+        transform: scale(1.06);
+    }
+
+    .product-img-wrapper img {
+        transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Drag to scroll */
+    .product-scroll-track {
+        user-select: none;
+    }
+
+    .product-scroll-track.is-dragging {
+        cursor: grabbing !important;
+        scroll-snap-type: none !important;
+    }
+
+    /* Back to top floating button */
+    #backToTopBtn {
+        transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease !important;
+    }
+
+    #backToTopBtn:hover {
+        background-color: #ffffff !important;
+        border-color: #ffffff !important;
+        transform: translateY(-3px);
+    }
+
+    #backToTopBtn:hover i {
+        color: #000000 !important;
+    }
 </style>
 {% endblock %}
 
@@ -651,8 +690,16 @@
         <div class="product-scroll-track" id="scrollTrack-{{ category.slug }}">
             {% for product in category.products.all %}
             <div class="product-scroll-item">
-                <div class="product-card h-100 d-flex flex-column justify-content-between">
-                    <div>
+                <div class="product-card h-100 d-flex flex-column justify-content-between"
+                     data-id="{{ product.id }}"
+                     data-name="{{ product.name }}"
+                     data-price="₹{{ product.current_price }}"
+                     data-orig-price="{% if product.discount_price %}₹{{ product.price }}{% endif %}"
+                     data-desc="{{ product.description|default:'Curated archival streetwear accessory crafted with precision and premium durability.' }}"
+                     data-cat="{{ category.name }}"
+                     data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                     data-add-url="{% url 'add_to_cart' product.id %}">
+                    <div class="product-clickable-area" role="button" tabindex="0" title="Click to view {{ product.name }} details">
                         <div class="product-img-wrapper mb-2 mb-md-3">
                             {% if product.display_image %}
                                 <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy">
@@ -673,9 +720,13 @@
                             {% endif %}
                         </div>
                     </div>
-                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-add-cart" aria-label="Add {{ product.name }} to cart">
-                        <i class="bi bi-bag-plus me-1"></i> Add to Bag
-                    </a>
+                    <button type="button" class="btn btn-add-cart ajax-add-to-bag"
+                            data-product-id="{{ product.id }}"
+                            data-product-name="{{ product.name }}"
+                            data-add-url="{% url 'add_to_cart' product.id %}"
+                            aria-label="Add {{ product.name }} to cart">
+                        <i class="bi bi-bag-plus me-1"></i> <span>Add to Bag</span>
+                    </button>
                 </div>
             </div>
             {% empty %}
@@ -690,6 +741,40 @@
     </section>
     {% endfor %}
 </div>
+
+<!-- Product Quick View Modal -->
+<div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border border-secondary border-opacity-50" style="background: rgba(14, 14, 14, 0.98); backdrop-filter: blur(20px); border-radius: 16px; color: #ffffff;">
+            <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
+                <span class="badge bg-dark border border-secondary border-opacity-50 text-secondary" id="qvCategoryBadge">COLLECTION</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2 pb-4 px-4 text-center">
+                <div style="width: 100%; height: 240px; border-radius: 12px; overflow: hidden; background: #070707; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.25rem;">
+                    <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <h4 class="fw-bold tracking-wide mb-2 text-white" id="qvTitle"></h4>
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                    <span class="fs-4 fw-bold text-white" id="qvPrice"></span>
+                    <span class="text-secondary small text-decoration-line-through" id="qvOrigPrice"></span>
+                </div>
+                <p class="text-secondary small mb-4" id="qvDesc" style="line-height: 1.6;"></p>
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-4 p-2 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 small text-secondary">
+                    <i class="bi bi-shield-check text-success"></i> 100% Authentic • Hyderabad Flagship • Dispatch in 24h
+                </div>
+                <button type="button" class="btn btn-light w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" id="qvAddBagBtn">
+                    <i class="bi bi-bag-plus-fill"></i> <span>Add to Bag</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Back to Top Button -->
+<button type="button" id="backToTopBtn" class="btn btn-dark border border-secondary border-opacity-50 rounded-circle position-fixed" style="bottom: 24px; right: 24px; width: 44px; height: 44px; z-index: 1020; display: none; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8);" title="Back to Top" aria-label="Back to Top">
+    <i class="bi bi-arrow-up text-white fs-5"></i>
+</button>
 {% endblock %}
 
 {% block extra_js %}
@@ -707,7 +792,13 @@
 
                     const targetElem = document.querySelector(targetId);
                     if (targetElem) {
-                        targetElem.scrollIntoView({ behavior: 'smooth' });
+                        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                        const offsetPosition = targetElem.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                        window.scrollTo({
+                            top: Math.max(0, offsetPosition),
+                            behavior: 'smooth'
+                        });
+                        history.pushState(null, null, targetId);
                     }
                 }
             });
@@ -736,7 +827,213 @@
         }
     }
 
+    // Smooth Scroll on Load if Hash Present (e.g. from sidebar or other page)
+    if (window.location.hash) {
+        setTimeout(() => {
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                window.scrollTo({
+                    top: Math.max(0, offsetPosition),
+                    behavior: 'smooth'
+                });
+
+                const slug = window.location.hash.replace('#section-', '');
+                categoryLinks.forEach(link => {
+                    if (link.getAttribute('data-cat') === slug) {
+                        categoryLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            }
+        }, 300);
+    }
+
+    // =========================================================
+    // AJAX Add to Bag Handler
+    // =========================================================
+    async function handleAjaxAddToCart(btn) {
+        const url = btn.getAttribute('data-add-url');
+        const productName = btn.getAttribute('data-product-name') || 'Item';
+        if (!url) return;
+
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Adding...';
+
+        try {
+            const res = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (window.updateNavbarCartCount && data.cart_item_count !== undefined) {
+                    window.updateNavbarCartCount(data.cart_item_count);
+                }
+
+                btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Added ✓';
+                btn.style.backgroundColor = '#ffffff';
+                btn.style.color = '#000000';
+                btn.style.borderColor = '#ffffff';
+
+                if (window.showAshasToast) {
+                    window.showAshasToast('Added to Bag', `${productName} is in your shopping bag.`, '<i class="bi bi-bag-check-fill text-success"></i>', '{% url "cart" %}', 'View Bag');
+                }
+
+                setTimeout(() => {
+                    btn.innerHTML = origContent;
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                    btn.disabled = false;
+                }, 2000);
+            } else {
+                window.location.href = url;
+            }
+        } catch (err) {
+            window.location.href = url;
+        }
+    }
+
+    document.querySelectorAll('.ajax-add-to-bag').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleAjaxAddToCart(this);
+        });
+    });
+
+    // =========================================================
+    // Product Quick View Modal Interactivity
+    // =========================================================
+    const qvModalEl = document.getElementById('productQuickViewModal');
+    const bsQvModal = qvModalEl ? bootstrap.Modal.getOrCreateInstance(qvModalEl) : null;
+    const qvBadge = document.getElementById('qvCategoryBadge');
+    const qvImage = document.getElementById('qvImage');
+    const qvTitle = document.getElementById('qvTitle');
+    const qvPrice = document.getElementById('qvPrice');
+    const qvOrigPrice = document.getElementById('qvOrigPrice');
+    const qvDesc = document.getElementById('qvDesc');
+    const qvAddBagBtn = document.getElementById('qvAddBagBtn');
+
+    let currentQvProduct = null;
+
+    document.querySelectorAll('.product-clickable-area').forEach(trigger => {
+        const card = trigger.closest('.product-card');
+        if (!card) return;
+
+        function openModal() {
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = card.getAttribute('data-price');
+            const origPrice = card.getAttribute('data-orig-price') || '';
+            const desc = card.getAttribute('data-desc') || '';
+            const cat = card.getAttribute('data-cat') || 'ACCESSORY';
+            const img = card.getAttribute('data-image') || '';
+            const addUrl = card.getAttribute('data-add-url');
+
+            currentQvProduct = { id, name, addUrl };
+
+            if (qvBadge) qvBadge.innerText = cat.toUpperCase();
+            if (qvImage) {
+                qvImage.src = img;
+                qvImage.alt = name;
+            }
+            if (qvTitle) qvTitle.innerText = name;
+            if (qvPrice) qvPrice.innerText = price;
+            if (qvOrigPrice) {
+                qvOrigPrice.innerText = origPrice;
+                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
+            }
+            if (qvDesc) qvDesc.innerText = desc;
+
+            if (bsQvModal) bsQvModal.show();
+        }
+
+        trigger.addEventListener('click', openModal);
+        trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openModal();
+            }
+        });
+    });
+
+    if (qvAddBagBtn) {
+        qvAddBagBtn.addEventListener('click', function() {
+            if (!currentQvProduct) return;
+            qvAddBagBtn.setAttribute('data-add-url', currentQvProduct.addUrl);
+            qvAddBagBtn.setAttribute('data-product-name', currentQvProduct.name);
+            handleAjaxAddToCart(qvAddBagBtn);
+        });
+    }
+
+    // =========================================================
+    // Desktop Mouse Drag-to-Scroll on Horizontal Tracks
+    // =========================================================
+    document.querySelectorAll('.product-scroll-track').forEach(track => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        track.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button') || e.target.closest('a')) return;
+            isDown = true;
+            track.classList.add('is-dragging');
+            startX = e.pageX - track.offsetLeft;
+            scrollLeft = track.scrollLeft;
+        });
+
+        track.addEventListener('mouseleave', () => {
+            isDown = false;
+            track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener('mouseup', () => {
+            isDown = false;
+            track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            track.scrollLeft = scrollLeft - walk;
+        });
+    });
+
+    // Horizontal Scroll Function
+    function scrollSection(slug, direction) {
+        const track = document.getElementById(`scrollTrack-${slug}`);
+        if (!track) return;
+        const scrollAmount = track.offsetWidth * 0.75 * direction;
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    // =========================================================
+    // Back to Top Button
+    // =========================================================
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 400) {
+                backToTopBtn.style.display = 'flex';
+            } else {
+                backToTopBtn.style.display = 'none';
+            }
+        }, { passive: true });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // =========================================================
     // Interactive Mannequin Hotspot Zoom Logic
+    // =========================================================
     const container = document.getElementById('mannequinContainer');
     const mannequinImg = document.getElementById('mannequinImg');
     const spots = document.querySelectorAll('.hotspot');
@@ -810,18 +1107,24 @@
                     targetSec = document.getElementById(`section-${singular}`);
                 }
                 if (targetSec) {
-                    targetSec.scrollIntoView({ behavior: 'smooth' });
+                    const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                    const offsetPosition = targetSec.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                    window.scrollTo({
+                        top: Math.max(0, offsetPosition),
+                        behavior: 'smooth'
+                    });
+
+                    // Sync category grid highlight
+                    categoryLinks.forEach(l => {
+                        if (l.getAttribute('data-cat') === activeCategory || l.getAttribute('data-cat') === targetSec.id.replace('section-', '')) {
+                            categoryLinks.forEach(x => x.classList.remove('active'));
+                            l.classList.add('active');
+                        }
+                    });
                 }
+                resetZoom();
             }
         });
-    }
-
-    // Horizontal Scroll Function
-    function scrollSection(slug, direction) {
-        const track = document.getElementById(`scrollTrack-${slug}`);
-        if (!track) return;
-        const scrollAmount = track.offsetWidth * 0.75 * direction;
-        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
 </script>
 {% endblock %}

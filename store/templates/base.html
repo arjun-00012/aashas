@@ -287,6 +287,101 @@
             font-size: 1rem;
         }
 
+        .search-kbd-badge {
+            position: absolute;
+            right: 36px;
+            font-size: 0.65rem;
+            color: #6b7280;
+            background: #1f1f1f;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        /* Search Live Suggestions Dropdown */
+        .search-suggestions-box {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: rgba(12, 12, 12, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-line);
+            border-radius: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+            z-index: 1050;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+            padding: 6px;
+        }
+
+        .search-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: background 0.18s ease;
+            cursor: pointer;
+        }
+
+        .search-suggestion-item:hover, .search-suggestion-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .search-suggestion-thumb {
+            width: 42px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #181818;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        /* Bag pulse bounce */
+        @keyframes bagBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); color: #4ade80; }
+            100% { transform: scale(1); }
+        }
+
+        .bag-pulse {
+            display: inline-block;
+            animation: bagBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Toast Notifications */
+        .ashas-toast {
+            background: rgba(14, 14, 14, 0.96) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+            pointer-events: auto;
+            max-width: 360px;
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateY(16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .drawer-link.active-section {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff !important;
+            border-left: 2px solid #ffffff;
+        }
+
         /* Offcanvas Side Drawer (Left Menu with ASHAS Branding) */
         .offcanvas-ashas {
             background-color: #080808 !important;
@@ -486,12 +581,12 @@
 
             <!-- Right: Search + bag (count) -->
             <div class="nav-right-group">
-                <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search" title="Search">
+                <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search" title="Search (Press / or Ctrl+K)">
                     <i class="bi bi-search"></i>
                 </button>
-                <a href="{% url 'cart' %}" class="nav-bag-link" aria-label="Shopping Bag">
+                <a href="{% url 'cart' %}" class="nav-bag-link" id="navBagLink" aria-label="Shopping Bag">
                     <span>bag</span>
-                    <span class="bag-count">({{ cart_item_count|default:0 }})</span>
+                    <span class="bag-count" id="navBagCount">({{ cart_item_count|default:0 }})</span>
                 </a>
             </div>
         </div>
@@ -499,10 +594,13 @@
         <!-- Dropdown Quick Search Bar -->
         <div class="search-slide-bar" id="searchSlideBar">
             <div class="search-input-wrap">
-                <input type="text" id="quickSearchInput" placeholder="Search accessories, watches, shades, rings..." autocomplete="off">
+                <input type="text" id="quickSearchInput" placeholder="Search accessories, watches, shades, rings... (Press Esc to close)" autocomplete="off">
+                <span class="search-kbd-badge d-none d-sm-inline">ESC</span>
                 <button type="button" class="search-close-btn" id="searchCloseBtn" aria-label="Close search">
                     <i class="bi bi-x-lg"></i>
                 </button>
+                <!-- Live Search Suggestions Container -->
+                <div class="search-suggestions-box" id="searchSuggestionsBox" style="display: none;"></div>
             </div>
         </div>
     </header>
@@ -525,12 +623,12 @@
         <div class="drawer-body">
             <!-- Navigation Sections -->
             <div class="drawer-section-title">COLLECTIONS</div>
-            <a href="{% url 'home' %}" class="drawer-link">
+            <a href="{% url 'home' %}" class="drawer-link" data-target-section="top">
                 <span><i class="bi bi-grid-fill me-2"></i> All Accessories</span>
                 <i class="bi bi-chevron-right small text-muted"></i>
             </a>
             {% for cat in all_categories %}
-            <a href="{% url 'home' %}#section-{{ cat.slug }}" class="drawer-link" data-bs-dismiss="offcanvas">
+            <a href="{% url 'home' %}#section-{{ cat.slug }}" class="drawer-link drawer-category-link" data-target-section="#section-{{ cat.slug }}" data-cat="{{ cat.slug }}">
                 <span>
                     {% if "watch" in cat.slug %}
                         <i class="bi bi-clock me-2"></i>
@@ -558,11 +656,11 @@
             {% endfor %}
 
             <div class="drawer-section-title">STORE & SUPPORT</div>
-            <a href="{% url 'home' %}#contact-section" class="drawer-link" data-bs-dismiss="offcanvas">
+            <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
                 <span><i class="bi bi-geo-alt me-2"></i> Flagship Store</span>
                 <span class="small text-muted">Hyderabad</span>
             </a>
-            <a href="{% url 'home' %}#contact-section" class="drawer-link" data-bs-dismiss="offcanvas">
+            <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
                 <span><i class="bi bi-chat-dots me-2"></i> Inquiries & Custom Orders</span>
             </a>
 
@@ -668,51 +766,327 @@
     </footer>
 </div>
 
+<!-- Toast Notification Container -->
+<div id="ashasToastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2100; pointer-events: none;"></div>
+
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Header & Search Interactivity -->
+<!-- Global ASHAS Interactivity & Navigation -->
 <script>
+// Global Toast Helper
+window.showAshasToast = function(title, message, iconHtml = '<i class="bi bi-check-circle-fill text-success"></i>', actionUrl = null, actionText = null) {
+    const container = document.getElementById('ashasToastContainer');
+    if (!container) return;
+
+    const toastId = 'toast_' + Date.now();
+    const toast = document.createElement('div');
+    toast.className = 'ashas-toast p-3 mb-2 d-flex align-items-start gap-3';
+    toast.id = toastId;
+
+    let actionBtnHtml = '';
+    if (actionUrl && actionText) {
+        actionBtnHtml = `<a href="${actionUrl}" class="btn btn-sm btn-light py-1 px-3 mt-2 rounded-pill fw-semibold" style="font-size: 0.72rem;">${actionText} <i class="bi bi-arrow-right ms-1"></i></a>`;
+    }
+
+    toast.innerHTML = `
+        <div class="fs-5 flex-shrink-0 mt-1">${iconHtml}</div>
+        <div class="flex-grow-1 min-w-0">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong class="text-white small tracking-wide">${title}</strong>
+                <button type="button" class="btn-close btn-close-white ms-2" style="font-size: 0.65rem;" onclick="document.getElementById('${toastId}')?.remove()"></button>
+            </div>
+            <p class="text-secondary small mb-0 line-height-sm">${message}</p>
+            ${actionBtnHtml}
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(16px)';
+        setTimeout(() => toast.remove(), 350);
+    }, 3600);
+};
+
+// Global Bag Counter Updater with Animation
+window.updateNavbarCartCount = function(count) {
+    const countEl = document.getElementById('navBagCount');
+    if (countEl) {
+        countEl.innerText = `(${count})`;
+        countEl.classList.remove('bag-pulse');
+        void countEl.offsetWidth; // Trigger reflow
+        countEl.classList.add('bag-pulse');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Quick Search Slide Bar Toggle
+    const drawerEl = document.getElementById('ashasSideDrawer');
+    const bsDrawer = drawerEl && window.bootstrap ? bootstrap.Offcanvas.getOrCreateInstance(drawerEl) : null;
+    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+
+    // =========================================================
+    // 1. Sidebar Navigation Handler (Rings & Collections Scroll)
+    // =========================================================
+    const drawerLinks = document.querySelectorAll('.drawer-link[data-target-section]');
+    drawerLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const targetSelector = this.getAttribute('data-target-section');
+            if (!targetSelector) return;
+
+            if (isHomePage) {
+                e.preventDefault();
+
+                // Suppress Bootstrap 5 refocusing the hamburger button (which snaps scroll to top)
+                const menuBtn = document.querySelector('.nav-menu-btn');
+                if (menuBtn) {
+                    menuBtn.blur();
+                    menuBtn.setAttribute('data-no-focus', 'true');
+                }
+
+                // Smooth scroll execution
+                const performScroll = () => {
+                    if (menuBtn) {
+                        menuBtn.blur();
+                    }
+
+                    if (targetSelector === 'top') {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        history.pushState(null, null, window.location.pathname);
+                    } else {
+                        const targetElem = document.querySelector(targetSelector);
+                        if (targetElem) {
+                            const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                            const elementTop = targetElem.getBoundingClientRect().top + window.pageYOffset;
+                            const offsetPosition = elementTop - navHeight - 14;
+
+                            window.scrollTo({
+                                top: Math.max(0, offsetPosition),
+                                behavior: 'smooth'
+                            });
+
+                            // Synchronize category grid icon active state
+                            const slug = targetSelector.replace('#section-', '');
+                            document.querySelectorAll('.category-item-link').forEach(catLink => {
+                                if (catLink.getAttribute('data-cat') === slug) {
+                                    document.querySelectorAll('.category-item-link').forEach(l => l.classList.remove('active'));
+                                    catLink.classList.add('active');
+                                }
+                            });
+
+                            // Highlight active drawer link
+                            document.querySelectorAll('.drawer-link').forEach(l => l.classList.remove('active-section'));
+                            link.classList.add('active-section');
+
+                            history.pushState(null, null, targetSelector);
+                        }
+                    }
+                };
+
+                // Close drawer cleanly
+                if (bsDrawer && drawerEl.classList.contains('show')) {
+                    const onHidden = () => {
+                        drawerEl.removeEventListener('hidden.bs.offcanvas', onHidden);
+                        performScroll();
+                    };
+                    drawerEl.addEventListener('hidden.bs.offcanvas', onHidden, { once: true });
+                    bsDrawer.hide();
+                } else {
+                    performScroll();
+                }
+            } else {
+                // If on another page, let the normal link href navigate to /#section-...
+                // index.html will handle smooth offset scroll upon landing.
+            }
+        });
+    });
+
+    // =========================================================
+    // 2. Dropdown Search Bar & Live Suggestions
+    // =========================================================
     const searchTrigger = document.getElementById('searchTriggerBtn');
     const searchBar = document.getElementById('searchSlideBar');
     const searchClose = document.getElementById('searchCloseBtn');
     const searchInput = document.getElementById('quickSearchInput');
+    const suggestionsBox = document.getElementById('searchSuggestionsBox');
 
-    if (searchTrigger && searchBar && searchClose) {
-        searchTrigger.addEventListener('click', () => {
-            searchBar.classList.toggle('active');
-            if (searchBar.classList.contains('active') && searchInput) {
+    function openSearch() {
+        if (searchBar) {
+            searchBar.classList.add('active');
+            if (searchInput) {
                 searchInput.focus();
+                searchInput.select();
             }
-        });
-
-        searchClose.addEventListener('click', () => {
-            searchBar.classList.remove('active');
-        });
-
-        // Filter products in real time when typing in search bar
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                const productCards = document.querySelectorAll('.product-scroll-item');
-                productCards.forEach(card => {
-                    const title = card.querySelector('.product-name')?.innerText.toLowerCase() || '';
-                    if (!query || title.includes(query)) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
         }
     }
 
-    // Contact form AJAX submission
+    function closeSearch() {
+        if (searchBar) {
+            searchBar.classList.remove('active');
+            if (suggestionsBox) suggestionsBox.style.display = 'none';
+        }
+    }
+
+    if (searchTrigger) searchTrigger.addEventListener('click', openSearch);
+    if (searchClose) searchClose.addEventListener('click', closeSearch);
+
+    // Collect products from page for client-side instant search
+    function getPageProducts() {
+        const items = [];
+        document.querySelectorAll('.product-scroll-item').forEach(card => {
+            const name = card.querySelector('.product-name')?.innerText.trim() || '';
+            const price = card.querySelector('.product-price')?.innerText.trim() || '';
+            const img = card.querySelector('img')?.getAttribute('src') || '';
+            const addBtn = card.querySelector('.btn-add-cart');
+            const addUrl = addBtn?.getAttribute('href') || '';
+            const section = card.closest('.category-section');
+            const catSlug = section?.id?.replace('section-', '') || '';
+            const catName = section?.querySelector('.section-title')?.innerText.trim() || catSlug;
+
+            if (name) {
+                items.push({ name, price, img, addUrl, catSlug, catName, element: card, section });
+            }
+        });
+        return items;
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const products = getPageProducts();
+
+            if (!query) {
+                if (suggestionsBox) suggestionsBox.style.display = 'none';
+                // Reset all products & sections
+                document.querySelectorAll('.product-scroll-item').forEach(c => c.style.display = 'flex');
+                document.querySelectorAll('.category-section').forEach(s => s.style.display = 'block');
+                const emptyFeedback = document.getElementById('searchNoResultsNotice');
+                if (emptyFeedback) emptyFeedback.remove();
+                return;
+            }
+
+            // Filter on-page products
+            let visibleCount = 0;
+            const matches = [];
+
+            products.forEach(p => {
+                const match = p.name.toLowerCase().includes(query) || p.catName.toLowerCase().includes(query);
+                if (match) {
+                    p.element.style.display = 'flex';
+                    matches.push(p);
+                    visibleCount++;
+                } else {
+                    p.element.style.display = 'none';
+                }
+            });
+
+            // Hide sections with no matching products on home page
+            document.querySelectorAll('.category-section').forEach(section => {
+                const visibleInSec = section.querySelectorAll('.product-scroll-item[style*="display: flex"]');
+                section.style.display = visibleInSec.length > 0 ? 'block' : 'none';
+            });
+
+            // Populate Live Suggestions Box
+            if (suggestionsBox) {
+                suggestionsBox.innerHTML = '';
+                if (matches.length > 0) {
+                    suggestionsBox.style.display = 'block';
+                    matches.slice(0, 5).forEach(m => {
+                        const itemLink = document.createElement('a');
+                        itemLink.className = 'search-suggestion-item';
+                        itemLink.href = `#section-${m.catSlug}`;
+                        itemLink.innerHTML = `
+                            <img src="${m.img || '{% static "images/ashas_badge.png" %}'}" class="search-suggestion-thumb" alt="${m.name}">
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="text-white small fw-semibold text-truncate">${m.name}</div>
+                                <div class="text-secondary" style="font-size: 0.72rem;">${m.catName} • <span class="text-white">${m.price}</span></div>
+                            </div>
+                            <i class="bi bi-arrow-right-short text-secondary fs-5"></i>
+                        `;
+                        itemLink.addEventListener('click', (ev) => {
+                            ev.preventDefault();
+                            closeSearch();
+                            const target = document.getElementById(`section-${m.catSlug}`);
+                            if (target) {
+                                const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                                const offset = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                                window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                            }
+                        });
+                        suggestionsBox.appendChild(itemLink);
+                    });
+                } else {
+                    suggestionsBox.style.display = 'block';
+                    suggestionsBox.innerHTML = `
+                        <div class="p-3 text-center text-secondary small">
+                            <i class="bi bi-search d-block mb-1 text-muted fs-5"></i>
+                            No accessories found matching "<strong>${query}</strong>"
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // Enter key scrolls to first match
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchInput.value.toLowerCase().trim();
+                const firstVisible = document.querySelector('.product-scroll-item[style*="display: flex"]');
+                if (firstVisible) {
+                    const sec = firstVisible.closest('.category-section');
+                    if (sec) {
+                        closeSearch();
+                        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                        const offset = sec.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                        window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                    }
+                }
+            }
+        });
+    }
+
+    // =========================================================
+    // 3. Global Keyboard Shortcuts (Escape, /, Ctrl+K)
+    // =========================================================
+    document.addEventListener('keydown', (e) => {
+        // Escape closes drawer, search, or modal
+        if (e.key === 'Escape') {
+            if (searchBar && searchBar.classList.contains('active')) {
+                closeSearch();
+                return;
+            }
+            if (bsDrawer && drawerEl.classList.contains('show')) {
+                bsDrawer.hide();
+                return;
+            }
+            const openModal = document.querySelector('.modal.show');
+            if (openModal) {
+                const bsModal = bootstrap.Modal.getInstance(openModal);
+                if (bsModal) bsModal.hide();
+            }
+        }
+
+        // / or Ctrl+K / Cmd+K opens quick search
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        const isTyping = activeTag === 'input' || activeTag === 'textarea';
+
+        if (!isTyping) {
+            if (e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+                e.preventDefault();
+                openSearch();
+            }
+        }
+    });
+
+    // =========================================================
+    // 4. Contact Form AJAX Submission with Toast
+    // =========================================================
     const contactForm = document.getElementById('contactForm');
     const contactFeedback = document.getElementById('contactFeedback');
-    if (contactForm && contactFeedback) {
+    if (contactForm) {
         contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = contactForm.querySelector('button[type="submit"]');
@@ -725,19 +1099,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch(contactForm.action, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
 
                 if (res.ok) {
-                    contactFeedback.innerHTML = '<div class="alert alert-success py-2 small mb-3 rounded-3 text-start"><i class="bi bi-check-circle-fill me-2"></i>Thank you! Your message has been received. Our team will get back to you shortly.</div>';
+                    if (contactFeedback) {
+                        contactFeedback.innerHTML = '<div class="alert alert-success py-2 small mb-3 rounded-3 text-start"><i class="bi bi-check-circle-fill me-2"></i>Thank you! Your message has been received. Our team will get back to you shortly.</div>';
+                    }
+                    window.showAshasToast('Message Sent', 'Thank you! We will get back to you shortly.', '<i class="bi bi-envelope-check text-success"></i>');
                     contactForm.reset();
                 } else {
-                    contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-exclamation-circle-fill me-2"></i>Failed to send message. Please try again.</div>';
+                    if (contactFeedback) {
+                        contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-exclamation-circle-fill me-2"></i>Failed to send message. Please try again.</div>';
+                    }
+                    window.showAshasToast('Submission Error', 'Failed to send message. Please try again.', '<i class="bi bi-exclamation-triangle-fill text-danger"></i>');
                 }
             } catch (err) {
-                contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-wifi-off me-2"></i>Network error. Please try again.</div>';
+                if (contactFeedback) {
+                    contactFeedback.innerHTML = '<div class="alert alert-danger py-2 small mb-3 rounded-3 text-start"><i class="bi bi-wifi-off me-2"></i>Network error. Please try again.</div>';
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origHtml;

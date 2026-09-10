@@ -80,6 +80,18 @@ def add_to_cart(request, product_id):
     pid = str(product_id)
     cart[pid] = cart.get(pid, 0) + 1
     request.session['cart'] = cart
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        product = Product.objects.filter(id=product_id).first()
+        product_name = product.name if product else "Item"
+        total_qty = sum(cart.values())
+        return JsonResponse({
+            'status': 'success',
+            'cart_item_count': total_qty,
+            'product_id': product_id,
+            'product_name': product_name,
+            'message': f"{product_name} added to your bag."
+        })
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 def cart_view(request):
