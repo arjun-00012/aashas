@@ -4,8 +4,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 
+from django.views.generic import RedirectView
+
 urlpatterns = [
-    path('django-admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('django-admin/', RedirectView.as_view(url='/admin/', permanent=False)),
     path('', include('store.urls')),
     # Production media fallback serving so uploaded media files never 404
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
