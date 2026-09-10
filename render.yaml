@@ -13,6 +13,12 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "dwk9pw2ol"
+      - key: CLOUDINARY_API_KEY
+        value: "934762869273294"
+      - key: CLOUDINARY_API_SECRET
+        value: "bu1cNNgmT6U29O9uPTIM2yyAqFs"
 
 databases:
   - name: aashas-db

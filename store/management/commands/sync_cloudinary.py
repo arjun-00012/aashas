@@ -48,11 +48,11 @@ class Command(BaseCommand):
                     secure_url = res.get('secure_url')
                     cat.image_url = secure_url
                     cat.save(update_fields=['image_url'])
-                    self.stdout.write(self.style.SUCCESS(f"✔ '{cat.name}' -> {secure_url}"))
+                    self.stdout.write(self.style.SUCCESS(f"[OK] '{cat.name}' -> {secure_url}"))
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f"✖ Failed uploading '{cat.name}': {e}"))
+                    self.stdout.write(self.style.ERROR(f"[ERROR] Failed uploading '{cat.name}': {e}"))
             else:
-                self.stdout.write(self.style.WARNING(f"⚠ No local image found for '{cat.name}'"))
+                self.stdout.write(self.style.WARNING(f"[SKIP] No local image found for '{cat.name}'"))
 
         # 2. Process Products
         products = Product.objects.all()
@@ -76,10 +76,10 @@ class Command(BaseCommand):
                     secure_url = res.get('secure_url')
                     prod.image_url = secure_url
                     prod.save(update_fields=['image_url'])
-                    self.stdout.write(self.style.SUCCESS(f"✔ '{prod.name}' -> {secure_url}"))
+                    self.stdout.write(self.style.SUCCESS(f"[OK] '{prod.name}' -> {secure_url}"))
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f"✖ Failed uploading '{prod.name}': {e}"))
+                    self.stdout.write(self.style.ERROR(f"[ERROR] Failed uploading '{prod.name}': {e}"))
             else:
-                self.stdout.write(self.style.WARNING(f"⚠ No local image found for product '{prod.name}'"))
+                self.stdout.write(self.style.WARNING(f"[SKIP] No local image found for product '{prod.name}'"))
 
         self.stdout.write(self.style.SUCCESS("Cloudinary sync process finished!"))
