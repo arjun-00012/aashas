@@ -229,6 +229,53 @@
             font-weight: 400;
         }
 
+        /* Top Navbar Admin Dashboard Button */
+        .nav-admin-dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff !important;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-admin-dashboard-btn:hover {
+            background: #ffffff;
+            color: #000000 !important;
+            border-color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(255, 255, 255, 0.25);
+        }
+
+        .nav-admin-dashboard-btn i {
+            color: #fbbf24;
+            font-size: 0.85rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-admin-dashboard-btn:hover i {
+            color: #000000;
+        }
+
+        @media (max-width: 576px) {
+            .nav-admin-dashboard-btn span {
+                display: none;
+            }
+            .nav-admin-dashboard-btn {
+                padding: 6px 9px;
+            }
+        }
+
         /* Minimal Dropdown Search Bar */
         .search-slide-bar {
             position: absolute;
@@ -619,6 +666,12 @@
 
             <!-- Right: Search + bag (count) -->
             <div class="nav-right-group">
+                {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                <a href="{% url 'adminpp_dashboard' %}" class="nav-admin-dashboard-btn" id="navAdminDashboardBtn" title="Open Management Dashboard">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                {% endif %}
                 <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search" title="Search (Press / or Ctrl+K)">
                     <i class="bi bi-search"></i>
                 </button>
