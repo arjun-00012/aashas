@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="container py-4 py-md-5 d-flex justify-content-center align-items-center" style="min-height: 72vh;">
-    <div class="p-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75 w-100 shadow-lg" style="max-width: 440px;">
+    <div class="p-4 border border-secondary border-opacity-25 rounded-3 bg-white w-100 shadow-sm" style="max-width: 440px;">
         <div class="text-center mb-4">
-            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase" style="letter-spacing: 0.1em;">JOIN AASHAS</h1>
+            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase text-dark" style="letter-spacing: 0.1em;">JOIN AASHAS</h1>
             <p class="text-secondary small mb-0">Create an account to curate your personal style</p>
         </div>
 
@@ -38,11 +38,11 @@
                 <label class="form-label small fw-semibold text-secondary mb-1">Confirm Password</label>
                 <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
             </div>
-            <button type="submit" class="btn btn-light w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em;">Create Account</button>
+            <button type="submit" class="btn btn-dark w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">Create Account</button>
         </form>
 
         <p class="small text-center mt-4 text-secondary mb-0">
-            Already a member? <a href="{% url 'login' %}" class="text-white text-decoration-underline fw-semibold">Sign In</a>
+            Already a member? <a href="{% url 'login' %}" class="text-dark text-decoration-underline fw-semibold">Sign In</a>
         </p>
     </div>
 </div>

@@ -7,25 +7,25 @@
     <!-- Bag Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
         <div>
-            <h1 class="h4 fw-bold tracking-wider m-0 text-uppercase" style="letter-spacing: 0.1em;">YOUR SHOPPING BAG</h1>
+            <h1 class="h4 fw-bold tracking-wider m-0 text-uppercase text-dark" style="letter-spacing: 0.1em;">YOUR SHOPPING BAG</h1>
             <span class="text-secondary small">{{ cart_items|length }} Item{{ cart_items|length|pluralize }}</span>
         </div>
-        <a href="{% url 'home' %}" class="text-secondary text-decoration-none small d-inline-flex align-items-center hover-white">
-            <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+        <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 fw-semibold" style="font-size: 0.8rem; letter-spacing: 0.03em;">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
         </a>
     </div>
 
     {% if cart_items %}
     <!-- Desktop & Tablet View (Table >= 768px) -->
-    <div class="d-none d-md-block table-responsive bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 p-3 mb-4">
-        <table class="table table-dark align-middle mb-0">
+    <div class="d-none d-md-block table-responsive bg-white border border-secondary border-opacity-25 rounded-3 p-3 mb-4 shadow-sm">
+        <table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
             <thead>
                 <tr class="text-secondary small border-secondary border-opacity-25">
-                    <th scope="col" style="width: 44%;">PRODUCT</th>
-                    <th scope="col">PRICE</th>
-                    <th scope="col" class="text-center">QUANTITY</th>
-                    <th scope="col">SUBTOTAL</th>
-                    <th scope="col" class="text-end">ACTION</th>
+                    <th scope="col" style="width: 44%;" class="fw-semibold">PRODUCT</th>
+                    <th scope="col" class="fw-semibold">PRICE</th>
+                    <th scope="col" class="text-center fw-semibold">QUANTITY</th>
+                    <th scope="col" class="fw-semibold">SUBTOTAL</th>
+                    <th scope="col" class="text-end fw-semibold">ACTION</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,27 +34,27 @@
                     <td>
                         <div class="d-flex align-items-center gap-3">
                             {% if item.product.display_image %}
-                                <img src="{{ item.product.display_image }}" style="width: 58px; height: 58px; object-fit: cover;" class="rounded border border-secondary border-opacity-50" alt="{{ item.product.name }}">
+                                <img src="{{ item.product.display_image }}" style="width: 58px; height: 58px; object-fit: cover; background: #F8F6F2;" class="rounded border border-secondary border-opacity-25" alt="{{ item.product.name }}">
                             {% else %}
-                                <div style="width: 58px; height: 58px;" class="rounded border border-secondary border-opacity-50 bg-dark d-flex align-items-center justify-content-center">
+                                <div style="width: 58px; height: 58px; background: #F4F0EB;" class="rounded border border-secondary border-opacity-25 d-flex align-items-center justify-content-center">
                                     <i class="bi bi-image text-secondary fs-5"></i>
                                 </div>
                             {% endif %}
                             <div>
-                                <h6 class="m-0 fw-semibold text-white">{{ item.product.name }}</h6>
+                                <h6 class="m-0 fw-semibold text-dark">{{ item.product.name }}</h6>
                                 <small class="text-secondary">{{ item.product.category.name }}</small>
                             </div>
                         </div>
                     </td>
-                    <td class="text-nowrap">₹{{ item.product.current_price }}</td>
+                    <td class="text-nowrap text-dark fw-semibold">₹{{ item.product.current_price }}</td>
                     <td class="text-center">
-                        <div class="btn-group btn-group-sm border border-secondary border-opacity-50 rounded-pill overflow-hidden" role="group">
-                            <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-dark text-white px-2 py-1" aria-label="Decrease quantity">-</a>
-                            <span class="btn btn-dark text-white disabled px-3 py-1 border-0 fw-semibold">{{ item.quantity }}</span>
-                            <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-dark text-white px-2 py-1" aria-label="Increase quantity">+</a>
+                        <div class="btn-group btn-group-sm border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white" role="group">
+                            <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Decrease quantity">-</a>
+                            <span class="btn btn-sm btn-light text-dark disabled px-3 py-1 border-0 fw-semibold bg-white">{{ item.quantity }}</span>
+                            <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Increase quantity">+</a>
                         </div>
                     </td>
-                    <td class="text-nowrap fw-bold text-white">₹{{ item.subtotal }}</td>
+                    <td class="text-nowrap fw-bold text-dark">₹{{ item.subtotal }}</td>
                     <td class="text-end">
                         <a href="{% url 'update_cart' item.product.id 'remove' %}" class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Remove item" aria-label="Remove {{ item.product.name }}">
                             <i class="bi bi-trash3 fs-6"></i>
@@ -69,19 +69,19 @@
     <!-- Mobile View (Clean Item Cards < 768px) -->
     <div class="d-md-none d-flex flex-column gap-3 mb-4">
         {% for item in cart_items %}
-        <div class="p-3 bg-dark bg-opacity-75 border border-secondary border-opacity-25 rounded-3">
+        <div class="p-3 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
             <div class="d-flex gap-3 align-items-start">
                 {% if item.product.display_image %}
-                    <img src="{{ item.product.display_image }}" style="width: 64px; height: 64px; object-fit: cover;" class="rounded border border-secondary border-opacity-50 flex-shrink-0" alt="{{ item.product.name }}">
+                    <img src="{{ item.product.display_image }}" style="width: 64px; height: 64px; object-fit: cover; background: #F8F6F2;" class="rounded border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}">
                 {% else %}
-                    <div style="width: 64px; height: 64px;" class="rounded border border-secondary border-opacity-50 bg-dark d-flex align-items-center justify-content-center flex-shrink-0">
+                    <div style="width: 64px; height: 64px; background: #F4F0EB;" class="rounded border border-secondary border-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0">
                         <i class="bi bi-image text-secondary fs-5"></i>
                     </div>
                 {% endif %}
                 
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex justify-content-between align-items-start gap-2">
-                        <h6 class="m-0 fw-semibold text-white text-truncate">{{ item.product.name }}</h6>
+                        <h6 class="m-0 fw-semibold text-dark text-truncate">{{ item.product.name }}</h6>
                         <a href="{% url 'update_cart' item.product.id 'remove' %}" class="text-danger text-decoration-none px-1" title="Remove item">
                             <i class="bi bi-trash3"></i>
                         </a>
@@ -92,14 +92,14 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25">
-                <div class="btn-group btn-group-sm border border-secondary border-opacity-50 rounded-pill overflow-hidden" role="group">
-                    <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-dark text-white px-2 py-0" aria-label="Decrease">-</a>
-                    <span class="btn btn-dark text-white disabled px-3 py-0 border-0 fw-semibold">{{ item.quantity }}</span>
-                    <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-dark text-white px-2 py-0" aria-label="Increase">+</a>
+                <div class="btn-group btn-group-sm border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white" role="group">
+                    <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-0" style="background: #F4F0EB;" aria-label="Decrease">-</a>
+                    <span class="btn btn-sm btn-light text-dark disabled px-3 py-0 border-0 fw-semibold bg-white">{{ item.quantity }}</span>
+                    <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-0" style="background: #F4F0EB;" aria-label="Increase">+</a>
                 </div>
                 <div>
                     <span class="text-secondary small me-1">Subtotal:</span>
-                    <span class="fw-bold text-white fs-6">₹{{ item.subtotal }}</span>
+                    <span class="fw-bold text-dark fs-6">₹{{ item.subtotal }}</span>
                 </div>
             </div>
         </div>
@@ -107,13 +107,13 @@
     </div>
 
     <!-- Total Checkout Bar -->
-    <div class="p-3 p-md-4 bg-dark bg-opacity-75 border border-secondary border-opacity-25 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+    <div class="p-3 p-md-4 bg-white border border-secondary border-opacity-25 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 shadow-sm">
         <div>
-            <span class="text-secondary small text-uppercase" style="letter-spacing: 0.08em;">Total Payable</span>
-            <div class="h3 m-0 fw-bold text-white">₹{{ total }}</div>
+            <span class="text-secondary small text-uppercase fw-semibold" style="letter-spacing: 0.08em;">Total Payable</span>
+            <div class="h3 m-0 fw-bold text-dark">₹{{ total }}</div>
             <small class="text-muted">Includes taxes and standard delivery</small>
         </div>
-        <a href="{% url 'checkout' %}" class="btn btn-light px-4 py-2 py-md-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" style="letter-spacing: 0.05em;">
+        <a href="{% url 'checkout' %}" class="btn btn-dark px-4 py-2 py-md-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">
             <span>Proceed to Checkout</span>
             <i class="bi bi-arrow-right"></i>
         </a>
@@ -121,11 +121,11 @@
 
     {% else %}
     <!-- Empty Bag State -->
-    <div class="text-center py-5 my-4 p-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3">
+    <div class="text-center py-5 my-4 p-4 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
         <i class="bi bi-bag-x text-secondary" style="font-size: 3.5rem;"></i>
-        <h5 class="fw-bold mt-3 mb-1">Your shopping bag is empty</h5>
+        <h5 class="fw-bold mt-3 mb-1 text-dark">Your shopping bag is empty</h5>
         <p class="text-secondary small mb-4">Discover our curated statement rings, futuristic shades, and neck chains.</p>
-        <a href="{% url 'home' %}" class="btn btn-light px-4 py-2 rounded-pill fw-semibold">
+        <a href="{% url 'home' %}" class="btn btn-dark px-4 py-2 rounded-pill fw-semibold" style="background: #171614; color: #FAF8F5;">
             Explore Collection
         </a>
     </div>

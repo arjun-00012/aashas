@@ -504,6 +504,39 @@
             border-right: 1px solid var(--border-line) !important;
             width: 320px !important;
             max-width: 85vw !important;
+            box-shadow: 12px 0 36px rgba(28, 25, 23, 0.12) !important;
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .offcanvas-backdrop {
+            background-color: rgba(23, 22, 20, 0.45) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: opacity 0.32s ease !important;
+        }
+
+        /* Subtle staggered micro-animation on drawer opening */
+        .offcanvas-ashas.show .drawer-header {
+            animation: drawerItemEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+        }
+
+        .offcanvas-ashas.show .drawer-section-title {
+            animation: drawerItemEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.09s both;
+        }
+
+        .offcanvas-ashas.show .drawer-link {
+            animation: drawerItemEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+        }
+
+        @keyframes drawerItemEntrance {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .drawer-header {

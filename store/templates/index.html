@@ -356,7 +356,14 @@
 
     .category-item-link.active .category-thumb-wrapper {
         border-color: #171614;
-        box-shadow: 0 0 0 2px #171614, 0 8px 22px rgba(28, 25, 23, 0.14);
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .category-item-link:focus,
+    .category-item-link:active,
+    .category-thumb-wrapper:focus {
+        outline: none !important;
     }
 
     /* =========================================================

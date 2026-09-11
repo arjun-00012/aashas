@@ -7,7 +7,7 @@
     <!-- Profile Header -->
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center border-bottom border-secondary border-opacity-25 pb-3 mb-4 gap-3">
         <div>
-            <h1 class="h4 m-0 fw-bold tracking-wider text-uppercase" style="letter-spacing: 0.08em;">{{ request.user.username }}'S PROFILE</h1>
+            <h1 class="h4 m-0 fw-bold tracking-wider text-uppercase text-dark" style="letter-spacing: 0.08em;">{{ request.user.username }}'S PROFILE</h1>
             <small class="text-secondary">Saved delivery details and purchase history</small>
         </div>
         <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm px-3 rounded-pill">
@@ -18,8 +18,8 @@
     <div class="row g-4">
         <!-- Delivery Defaults Form -->
         <div class="col-12 col-md-5">
-            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75">
-                <h6 class="fw-bold tracking-wider text-uppercase mb-3 small" style="letter-spacing: 0.06em;">SHIPPING PREFERENCES</h6>
+            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm">
+                <h6 class="fw-bold tracking-wider text-uppercase mb-3 small text-dark" style="letter-spacing: 0.06em;">SHIPPING PREFERENCES</h6>
                 <form method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
@@ -30,34 +30,34 @@
                         <label class="form-label small fw-semibold text-secondary mb-1">Saved Delivery Address</label>
                         <textarea name="address" rows="3" class="form-control form-control-sm" placeholder="Street, City, Pincode...">{{ profile.address|default:'' }}</textarea>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-light w-100 py-2 fw-semibold rounded-pill">Save Details</button>
+                    <button type="submit" class="btn btn-sm btn-dark w-100 py-2 fw-semibold rounded-pill" style="background: #171614; color: #FAF8F5;">Save Details</button>
                 </form>
             </div>
         </div>
 
         <!-- Order Records -->
         <div class="col-12 col-md-7">
-            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-dark bg-opacity-75">
+            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold tracking-wider text-uppercase m-0 small" style="letter-spacing: 0.06em;">ORDER HISTORY</h6>
-                    <span class="badge bg-secondary bg-opacity-50 text-white small">{{ orders|length }} Order{{ orders|length|pluralize }}</span>
+                    <h6 class="fw-bold tracking-wider text-uppercase m-0 small text-dark" style="letter-spacing: 0.06em;">ORDER HISTORY</h6>
+                    <span class="badge bg-light text-secondary border border-secondary border-opacity-25 small">{{ orders|length }} Order{{ orders|length|pluralize }}</span>
                 </div>
 
                 {% for order in orders %}
                 <div class="border-bottom border-secondary border-opacity-25 py-3 {% if forloop.last %}border-0 pb-0{% endif %}">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-white">Order #{{ order.id }}</span>
+                        <span class="fw-bold text-dark">Order #{{ order.id }}</span>
                         <span class="badge {% if order.payment_status == 'Completed' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill px-2 py-1 small">
                             {{ order.payment_status }}
                         </span>
                     </div>
                     <div class="text-secondary small mb-2">{{ order.created_at|date:"d M Y, h:i A" }}</div>
-                    <div class="small text-light">
+                    <div class="small text-dark">
                         {% for item in order.items.all %}
                             <div class="py-1">• {{ item.product.name }} <span class="text-secondary">(x{{ item.quantity }})</span></div>
                         {% endfor %}
                     </div>
-                    <div class="fw-bold text-white mt-2 fs-6">₹{{ order.total_price }}</div>
+                    <div class="fw-bold text-dark mt-2 fs-6">₹{{ order.total_price }}</div>
                 </div>
                 {% empty %}
                 <div class="text-center py-4 text-secondary small">
