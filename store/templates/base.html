@@ -266,6 +266,36 @@
             transition: color 0.2s ease;
         }
 
+        .nav-user-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(28, 25, 23, 0.05);
+            border: 1px solid rgba(28, 25, 23, 0.12);
+            color: #171614 !important;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.74rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-user-profile-btn:hover {
+            background: #171614;
+            border-color: #171614;
+            color: #FAF8F5 !important;
+            transform: translateY(-1px);
+        }
+
+        .nav-user-profile-btn i {
+            font-size: 0.85rem;
+        }
+
+
         @media (max-width: 576px) {
             .nav-container {
                 padding: 0 10px;
@@ -740,12 +770,24 @@
                 <span class="brand-tm">TM</span>
             </a>
 
-            <!-- Right: Search + bag (count) -->
+            <!-- Right: Account/Admin + Search + Bag (count) -->
             <div class="nav-right-group">
-                {% if user.is_authenticated and user.is_staff or user.is_superuser %}
-                <a href="{% url 'adminpp_dashboard' %}" class="nav-admin-dashboard-btn" id="navAdminDashboardBtn" title="Open Management Dashboard">
-                    <i class="bi bi-shield-lock-fill"></i>
-                    <span>Dashboard</span>
+                {% if user.is_authenticated %}
+                    {% if user.is_staff or user.is_superuser %}
+                    <a href="{% url 'adminpp_dashboard' %}" class="nav-admin-dashboard-btn" id="navAdminDashboardBtn" title="Open Management Dashboard">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'profile' %}" class="nav-user-profile-btn" id="navUserProfileBtn" title="My Profile ({{ user.username }})">
+                        <i class="bi bi-person-fill"></i>
+                        <span class="d-none d-sm-inline">{{ user.username }}</span>
+                    </a>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'login' %}" class="nav-user-profile-btn" id="navUserLoginBtn" title="Customer Sign In">
+                    <i class="bi bi-person"></i>
+                    <span class="d-none d-sm-inline">Sign In</span>
                 </a>
                 {% endif %}
                 <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search" title="Search (Press / or Ctrl+K)">

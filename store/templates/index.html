@@ -781,6 +781,7 @@
                      data-orig-price="{% if product.discount_price %}₹{{ product.price }}{% endif %}"
                      data-desc="{{ product.description|default:'Curated archival streetwear accessory crafted with precision and premium durability.' }}"
                      data-cat="{{ category.name }}"
+                     data-stock="{{ product.stock }}"
                      data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                      data-add-url="{% url 'add_to_cart' product.id %}">
                     <div class="product-clickable-area" role="button" tabindex="0" title="Click to view {{ product.name }} details">
@@ -804,6 +805,7 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% if product.stock > 0 %}
                     <button type="button" class="btn btn-add-cart ajax-add-to-bag"
                             data-product-id="{{ product.id }}"
                             data-product-name="{{ product.name }}"
@@ -811,6 +813,11 @@
                             aria-label="Add {{ product.name }} to cart">
                         <i class="bi bi-bag-plus me-1"></i> <span>Add to Bag</span>
                     </button>
+                    {% else %}
+                    <button type="button" class="btn btn-add-cart text-muted" disabled style="opacity: 0.65; cursor: not-allowed; background: #EAE6DF !important; color: #8C867E !important;" aria-label="{{ product.name }} is sold out">
+                        <i class="bi bi-x-circle me-1"></i> <span>Sold Out</span>
+                    </button>
+                    {% endif %}
                 </div>
             </div>
             {% empty %}
@@ -977,7 +984,16 @@
                     btn.disabled = false;
                 }, 2000);
             } else {
-                window.location.href = url;
+                const errData = await res.json().catch(() => ({}));
+                const errMsg = errData.message || 'Unable to add item to bag.';
+                btn.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Unavailable';
+                if (window.showAshasToast) {
+                    window.showAshasToast('Stock Limit', errMsg, '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
+                }
+                setTimeout(() => {
+                    btn.innerHTML = origContent;
+                    btn.disabled = false;
+                }, 2500);
             }
         } catch (err) {
             window.location.href = url;
@@ -1020,8 +1036,9 @@
             const cat = card.getAttribute('data-cat') || 'ACCESSORY';
             const img = card.getAttribute('data-image') || '';
             const addUrl = card.getAttribute('data-add-url');
+            const stock = parseInt(card.getAttribute('data-stock') || '1', 10);
 
-            currentQvProduct = { id, name, addUrl };
+            currentQvProduct = { id, name, addUrl, stock };
 
             if (qvBadge) qvBadge.innerText = cat.toUpperCase();
             if (qvImage) {
@@ -1035,6 +1052,20 @@
                 qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
             }
             if (qvDesc) qvDesc.innerText = desc;
+
+            if (qvAddBagBtn) {
+                if (stock <= 0) {
+                    qvAddBagBtn.disabled = true;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                    qvAddBagBtn.style.opacity = '0.65';
+                    qvAddBagBtn.style.cursor = 'not-allowed';
+                } else {
+                    qvAddBagBtn.disabled = false;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                    qvAddBagBtn.style.opacity = '';
+                    qvAddBagBtn.style.cursor = '';
+                }
+            }
 
             const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
             if (qvWhatsappBtn) {

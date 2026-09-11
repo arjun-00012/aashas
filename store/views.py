@@ -87,19 +87,38 @@ def profile_view(request):
 def add_to_cart(request, product_id):
     cart = request.session.get('cart', {})
     pid = str(product_id)
-    cart[pid] = cart.get(pid, 0) + 1
+    product = Product.objects.filter(id=product_id).first()
+
+    if not product:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': 'Product not found.'}, status=404)
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    # Check available inventory
+    if product.stock <= 0:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': f'"{product.name}" is currently sold out.'}, status=400)
+        messages.error(request, f'"{product.name}" is currently sold out.')
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    current_qty = cart.get(pid, 0)
+    if current_qty >= product.stock:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': f'Only {product.stock} available in stock.'}, status=400)
+        messages.warning(request, f'Only {product.stock} available in stock.')
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    cart[pid] = current_qty + 1
     request.session['cart'] = cart
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
-        product = Product.objects.filter(id=product_id).first()
-        product_name = product.name if product else "Item"
         total_qty = sum(cart.values())
         return JsonResponse({
             'status': 'success',
             'cart_item_count': total_qty,
             'product_id': product_id,
-            'product_name': product_name,
-            'message': f"{product_name} added to your bag."
+            'product_name': product.name,
+            'message': f"{product.name} added to your bag."
         })
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
@@ -108,28 +127,42 @@ def cart_view(request):
     cart_items = []
     total = 0
     stale_pids = []
+    stock_adjusted = False
+
     for pid, qty in list(cart.items()):
         product = Product.objects.filter(id=pid).first()
-        if not product:
+        if not product or product.stock <= 0:
             stale_pids.append(pid)
             continue
+        if qty > product.stock:
+            qty = product.stock
+            cart[pid] = qty
+            stock_adjusted = True
+
         subtotal = float(product.current_price) * qty
         total += subtotal
         cart_items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
     
-    if stale_pids:
+    if stale_pids or stock_adjusted:
         for pid in stale_pids:
             cart.pop(pid, None)
         request.session['cart'] = cart
+        if stock_adjusted:
+            messages.warning(request, "Some cart quantities were adjusted to match available inventory.")
 
     return render(request, 'cart.html', {'cart_items': cart_items, 'total': total})
 
 def update_cart(request, product_id, action):
     cart = request.session.get('cart', {})
     pid = str(product_id)
+    product = Product.objects.filter(id=product_id).first()
+
     if pid in cart:
         if action == 'increase':
-            cart[pid] += 1
+            if product and cart[pid] >= product.stock:
+                messages.warning(request, f'Cannot exceed available stock of {product.stock}.')
+            else:
+                cart[pid] += 1
         elif action == 'decrease':
             cart[pid] -= 1
             if cart[pid] <= 0:
@@ -148,20 +181,29 @@ def checkout_view(request):
     valid_items = {}
     total = 0
     stale_pids = []
+    stock_adjusted = False
+
     for pid, qty in list(cart.items()):
         product = Product.objects.filter(id=pid).first()
-        if product:
+        if product and product.stock > 0:
+            if qty > product.stock:
+                qty = product.stock
+                cart[pid] = qty
+                stock_adjusted = True
             valid_items[pid] = (product, qty)
             total += float(product.current_price) * qty
         else:
             stale_pids.append(pid)
 
-    if stale_pids:
+    if stale_pids or stock_adjusted:
         for pid in stale_pids:
             cart.pop(pid, None)
         request.session['cart'] = cart
+        if stock_adjusted:
+            messages.warning(request, "Item quantities adjusted based on current warehouse stock.")
 
     if not valid_items:
+        messages.error(request, "The items in your bag are currently out of stock.")
         return redirect('home')
     
     default_address = ''
@@ -232,6 +274,13 @@ def payment_verify(request):
             order.payment_status = 'Completed'
             order.razorpay_payment_id = data.get('razorpay_payment_id')
             order.save()
+
+            # Decrement product inventory safely
+            for item in order.items.all():
+                if item.product:
+                    item.product.stock = max(0, item.product.stock - item.quantity)
+                    item.product.save(update_fields=['stock'])
+
             request.session['cart'] = {}
             return JsonResponse({'status': 'success'})
         except Exception:
@@ -239,23 +288,38 @@ def payment_verify(request):
 
 def contact_submit(request):
     if request.method == 'POST':
-        ContactMessage.objects.create(
-            name=request.POST.get('name'),
-            email=request.POST.get('email'),
-            subject=request.POST.get('subject'),
-            message=request.POST.get('message')
-        )
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'success'})
-        messages.success(request, "Your message has been sent successfully!")
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        subject = request.POST.get('subject', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        if name and email and message:
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject or 'General Inquiry',
+                message=message
+            )
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success'})
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect(request.META.get('HTTP_REFERER', 'home'))
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'invalid', 'message': 'Please fill all required fields.'}, status=400)
+            messages.error(request, "Please fill in all required fields.")
+            return redirect(request.META.get('HTTP_REFERER', 'home'))
+
     return JsonResponse({'status': 'invalid'}, status=400)
 
 # --- AdminPP Custom Dashboard ---
 def staff_required(view_func):
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_staff:
+        if not request.user.is_authenticated:
             return redirect('/login/?next=' + request.path)
+        if not request.user.is_staff and not request.user.is_superuser:
+            messages.error(request, "Access restricted: Staff privileges are required to access the Admin Portal.")
+            return redirect('home')
         return view_func(request, *args, **kwargs)
     return wrapper
 
