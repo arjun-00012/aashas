@@ -351,13 +351,12 @@
 
     .category-item-link.active .category-label {
         color: #171614;
-        font-weight: 800;
+        font-weight: 700;
     }
 
     .category-item-link.active .category-thumb-wrapper {
-        border-color: #171614;
-        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.1);
-        transform: translateY(-2px);
+        border-color: rgba(28, 25, 23, 0.1);
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
     }
 
     .category-item-link:focus,
@@ -902,6 +901,10 @@
         const catSections = document.querySelectorAll('section[id^="section-"]');
         if (catSections.length && 'IntersectionObserver' in window) {
             const observer = new IntersectionObserver((entries) => {
+                if (window.pageYOffset < 250) {
+                    categoryLinks.forEach(l => l.classList.remove('active'));
+                    return;
+                }
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const slug = entry.target.id.replace('section-', '');
