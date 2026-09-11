@@ -371,3 +371,11 @@ def product_delete(request, pk):
     product.delete()
     messages.success(request, f'Product "{p_name}" deleted successfully.')
     return redirect('adminpp_dashboard')
+
+@staff_required
+def inquiry_delete(request, pk):
+    inquiry = get_object_or_404(ContactMessage, pk=pk)
+    sender = inquiry.name
+    inquiry.delete()
+    messages.success(request, f'Customer inquiry from "{sender}" was deleted successfully.')
+    return redirect('adminpp_dashboard')

@@ -26,4 +26,5 @@ urlpatterns = [
     path('adminpp/product/add/', views.product_create_or_edit, name='product_add'),
     path('adminpp/product/edit/<int:pk>/', views.product_create_or_edit, name='product_edit'),
     path('adminpp/product/delete/<int:pk>/', views.product_delete, name='product_delete'),
+    path('adminpp/inquiry/delete/<int:pk>/', views.inquiry_delete, name='inquiry_delete'),
 ]

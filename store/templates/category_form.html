@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,17 +16,21 @@
 
     <style>
         :root {
-            --bg-dark: #080808;
-            --bg-surface: #121212;
-            --bg-surface-elevated: #181818;
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-highlight: rgba(255, 255, 255, 0.2);
+            --bg-body: #FAF8F5;
+            --bg-surface: #FFFFFF;
+            --bg-surface-elevated: #F5F2ED;
+            --text-primary: #171614;
+            --text-secondary: #635F59;
+            --text-muted: #8C867E;
+            --border-subtle: rgba(28, 25, 23, 0.08);
+            --border-highlight: rgba(28, 25, 23, 0.18);
+            --shadow-card: 0 16px 36px -10px rgba(28, 25, 23, 0.08), 0 4px 10px -2px rgba(28, 25, 23, 0.03);
             --card-max: 640px;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
@@ -35,36 +40,36 @@
             margin: 0 auto;
         }
 
-        .card-dark {
+        .card-admin {
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.85);
+            box-shadow: var(--shadow-card);
         }
 
-        .card-dark form p {
-            margin-bottom: 1rem;
+        .card-admin form p {
+            margin-bottom: 1.15rem;
         }
 
-        .card-dark form label {
+        .card-admin form label {
             font-weight: 600;
             display: block;
             margin-bottom: 0.35rem;
             font-size: 0.82rem;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-            color: #d1d5db;
+            color: var(--text-primary);
         }
 
         .helptext {
             font-size: 0.8rem;
-            color: #9ca3af;
+            color: var(--text-secondary);
             margin-top: 0.3rem;
             display: block;
         }
 
         .errorlist {
-            color: #f87171;
+            color: #dc2626;
             font-size: 0.82rem;
             padding-left: 1.25rem;
             margin-bottom: 0.35rem;
@@ -73,32 +78,47 @@
         .form-control, .form-select {
             background-color: var(--bg-surface-elevated) !important;
             border-color: var(--border-subtle) !important;
-            color: #ffffff !important;
+            color: var(--text-primary) !important;
             border-radius: 8px;
             min-height: 42px;
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: #ffffff !important;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+            background-color: #FFFFFF !important;
+            border-color: var(--text-primary) !important;
+            box-shadow: 0 0 0 2px rgba(23, 22, 20, 0.12);
+        }
+
+        .btn-obsidian {
+            background-color: #171614 !important;
+            border-color: #171614 !important;
+            color: #FFFFFF !important;
+        }
+        .btn-obsidian:hover {
+            background-color: #2b2824 !important;
+            border-color: #2b2824 !important;
+            color: #FFFFFF !important;
         }
     </style>
 </head>
 <body class="py-4 py-md-5 px-3">
 <div class="container form-card">
-    <div class="card-dark p-3 p-sm-4 p-md-5">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
-            <div>
-                <h1 class="h4 fw-bold m-0 text-white text-uppercase" style="letter-spacing: 0.08em;">
-                    {% if category %}Edit Category{% else %}Add New Category{% endif %}
-                </h1>
-                <small class="text-secondary">Manage catalog classifications and photos</small>
+    <div class="card-admin p-3 p-sm-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+            <div class="d-flex align-items-center gap-3">
+                <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" style="height: 34px; width: auto; object-fit: contain;">
+                <div>
+                    <h1 class="h4 fw-bold m-0 text-dark text-uppercase" style="letter-spacing: 0.06em;">
+                        {% if category %}Edit Category{% else %}Add New Category{% endif %}
+                    </h1>
+                    <small class="text-secondary">Manage catalog classifications and photos</small>
+                </div>
             </div>
-            <a href="{% url 'adminpp_dashboard' %}" class="btn-close btn-close-white" aria-label="Close"></a>
+            <a href="{% url 'adminpp_dashboard' %}" class="btn-close" aria-label="Close"></a>
         </div>
 
         {% if form.errors %}
-        <div class="alert alert-danger py-2 small mb-3 rounded-3">
+        <div class="alert alert-danger py-2 small mb-3 rounded-3" style="background: #FEF2F2; border: 1px solid rgba(239, 68, 68, 0.3);">
             <strong><i class="bi bi-exclamation-circle me-1"></i>Please correct the errors below:</strong>
             <ul class="mb-0 ps-3 mt-1">
                 {% for field, errors in form.errors.items %}
@@ -111,10 +131,10 @@
         {% endif %}
 
         {% if category and category.image %}
-        <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 border border-secondary border-opacity-25" style="background: var(--bg-surface-elevated);">
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" width="54" height="54" style="object-fit: cover;" class="rounded border border-secondary border-opacity-50">
+        <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 border" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" width="54" height="54" style="object-fit: cover;" class="rounded border">
             <div class="min-w-0">
-                <span class="small text-white fw-semibold d-block">Current Image</span>
+                <span class="small text-dark fw-semibold d-block">Current Image</span>
                 <span class="small text-secondary text-truncate d-block">{{ category.image.name }}</span>
             </div>
         </div>
@@ -123,10 +143,10 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-light w-100 mt-3 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em;">
+            <button type="submit" class="btn btn-obsidian w-100 mt-3 py-2 py-sm-3 fw-bold rounded-pill text-uppercase shadow-sm" style="letter-spacing: 0.05em;">
                 <i class="bi bi-check2-circle me-1"></i> Save Category
             </button>
-            <a href="{% url 'adminpp_dashboard' %}" class="btn btn-link w-100 text-secondary mt-2 text-decoration-none small text-center d-block">
+            <a href="{% url 'adminpp_dashboard' %}" class="btn btn-outline-dark rounded-pill w-100 mt-2 py-2 text-center d-block small">
                 Cancel and return to dashboard
             </a>
         </form>
