@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container py-4 py-md-5" style="max-width: 960px;">
     <!-- Bag Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
         <div>
             <h1 class="h4 fw-bold tracking-wider m-0 text-uppercase text-dark" style="letter-spacing: 0.1em;">YOUR SHOPPING BAG</h1>
             <span class="text-secondary small">{{ cart_items|length }} Item{{ cart_items|length|pluralize }}</span>
@@ -92,10 +92,10 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25">
-                <div class="btn-group btn-group-sm border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white" role="group">
-                    <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-0" style="background: #F4F0EB;" aria-label="Decrease">-</a>
-                    <span class="btn btn-sm btn-light text-dark disabled px-3 py-0 border-0 fw-semibold bg-white">{{ item.quantity }}</span>
-                    <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-0" style="background: #F4F0EB;" aria-label="Increase">+</a>
+                <div class="btn-group border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white" role="group">
+                    <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Decrease">-</a>
+                    <span class="btn btn-sm btn-light text-dark disabled px-3 py-1 border-0 fw-semibold bg-white">{{ item.quantity }}</span>
+                    <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Increase">+</a>
                 </div>
                 <div>
                     <span class="text-secondary small me-1">Subtotal:</span>
@@ -113,7 +113,7 @@
             <div class="h3 m-0 fw-bold text-dark">₹{{ total }}</div>
             <small class="text-muted">Includes taxes and standard delivery</small>
         </div>
-        <a href="{% url 'checkout' %}" class="btn btn-dark px-4 py-2 py-md-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">
+        <a href="{% url 'checkout' %}" class="btn btn-dark px-4 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">
             <span>Proceed to Checkout</span>
             <i class="bi bi-arrow-right"></i>
         </a>

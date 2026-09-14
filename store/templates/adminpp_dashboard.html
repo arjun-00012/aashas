@@ -27,6 +27,20 @@
             --shadow-card: 0 10px 28px -6px rgba(28, 25, 23, 0.05), 0 4px 10px -2px rgba(28, 25, 23, 0.02);
         }
 
+        /* Prevent iOS auto-zoom on input focus */
+        @media (max-width: 768px) {
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="tel"],
+            input[type="number"],
+            input[type="search"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+
         body {
             background-color: var(--bg-body);
             color: var(--text-primary);
@@ -36,7 +50,7 @@
         }
 
         .portal-header {
-            font-size: clamp(1.15rem, 3vw, 1.55rem);
+            font-size: clamp(1.05rem, 3.5vw, 1.55rem);
             font-weight: 800;
             letter-spacing: 0.06em;
             color: var(--text-primary);

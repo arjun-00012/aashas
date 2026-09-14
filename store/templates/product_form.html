@@ -28,6 +28,20 @@
             --card-max: 680px;
         }
 
+        /* Prevent iOS auto-zoom on input focus */
+        @media (max-width: 768px) {
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="tel"],
+            input[type="number"],
+            input[type="url"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+
         body {
             background-color: var(--bg-body);
             color: var(--text-primary);

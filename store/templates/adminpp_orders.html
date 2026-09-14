@@ -27,6 +27,21 @@
             --shadow-card: 0 10px 28px -6px rgba(28, 25, 23, 0.05), 0 4px 10px -2px rgba(28, 25, 23, 0.02);
         }
 
+        /* Prevent iOS auto-zoom on input focus */
+        @media (max-width: 768px) {
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="tel"],
+            input[type="number"],
+            input[type="search"],
+            input[type="date"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+
         body {
             background-color: var(--bg-body);
             color: var(--text-primary);
@@ -155,8 +170,8 @@
                 </a>
             </div>
         </div>
-        <div>
-            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap" style="background-color: #15803d; border-color: #15803d;">
+        <div class="w-100 w-sm-auto">
+            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap w-100 w-sm-auto" style="background-color: #15803d; border-color: #15803d;">
                 <i class="bi bi-file-earmark-excel me-2"></i> Export Dataset (.xlsx)
             </a>
         </div>
