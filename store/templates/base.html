@@ -70,13 +70,11 @@
             background-color: #FAF8F5;
         }
 
-        /* Minimalist Classic Top Navbar */
+        /* Minimalist Modern Top Navbar Matching Reference */
         .top-navbar {
             height: var(--nav-height);
-            background: rgba(250, 248, 245, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-subtle);
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(28, 25, 23, 0.08);
             padding: 0 1rem;
             z-index: 1030;
             position: sticky;
@@ -102,36 +100,36 @@
             position: relative;
         }
 
-        /* Minimalist Hamburger Button (=) */
+        /* Minimalist 3-Bar Hamburger Button (=) */
         .nav-menu-btn {
             background: transparent;
             border: none;
-            padding: 6px 4px;
+            padding: 6px 2px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 5px;
-            width: 32px;
-            height: 32px;
+            gap: 4.5px;
+            width: 34px;
+            height: 34px;
             transition: opacity 0.2s ease;
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         .nav-menu-btn:hover {
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         .menu-bar {
-            width: 22px;
-            height: 1.5px;
+            width: 20px;
+            height: 2px;
             background-color: #171614;
-            border-radius: 1px;
+            border-radius: 2px;
             transition: all 0.2s ease;
         }
 
-        /* Centered ASHAS Logo */
+        /* Centered Brand Logo */
         .nav-center-brand {
             position: absolute;
             left: 50%;
@@ -145,45 +143,44 @@
         }
 
         .nav-center-brand:hover {
-            opacity: 0.85;
+            opacity: 0.8;
             transform: translateX(-50%) scale(1.02);
         }
 
         .nav-brand-img {
-            height: 24px;
+            height: 22px;
             width: auto;
             max-width: 130px;
             object-fit: contain;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.06));
         }
 
         @media (min-width: 768px) {
             .nav-brand-img {
-                height: 28px;
-                max-width: 160px;
+                height: 24px;
+                max-width: 150px;
             }
         }
 
-        .brand-tm {
-            font-size: 0.55rem;
-            font-weight: 700;
-            color: #635F59;
-            margin-left: 2px;
-            vertical-align: super;
+        .nav-brand-text {
             font-family: 'Outfit', sans-serif;
-            letter-spacing: 0.04em;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            color: #171614;
+            text-transform: uppercase;
+            line-height: 1;
         }
 
-        /* Right Header Group: Search + bag (count) */
+        /* Right Nav Icons Group (Search + Shopping Cart) */
         .nav-right-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         @media (min-width: 768px) {
             .nav-right-group {
-                gap: 20px;
+                gap: 22px;
             }
         }
 
@@ -191,7 +188,7 @@
             background: transparent;
             border: none;
             color: #171614;
-            font-size: 1rem;
+            font-size: 1.18rem;
             cursor: pointer;
             padding: 4px;
             display: inline-flex;
@@ -199,124 +196,57 @@
             justify-content: center;
             transition: opacity 0.2s ease, transform 0.2s ease;
             outline: none;
+            line-height: 1;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .nav-icon-action:hover {
-            opacity: 0.7;
+            opacity: 0.6;
             transform: scale(1.08);
         }
 
-        .nav-bag-link {
+        .nav-cart-btn {
+            position: relative;
+            background: transparent;
+            border: none;
             color: #171614;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             text-decoration: none;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: opacity 0.2s ease;
-            white-space: nowrap;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            outline: none;
+            line-height: 1;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .nav-bag-link:hover {
+        .nav-cart-btn:hover {
             color: #171614;
-            opacity: 0.75;
+            opacity: 0.6;
+            transform: scale(1.08);
         }
 
-        .bag-count {
-            font-size: 0.82rem;
-            color: #635F59;
-            font-weight: 500;
-        }
-
-        /* Top Navbar Admin Dashboard Button */
-        .nav-admin-dashboard-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #171614;
-            border: 1px solid #171614;
-            color: #FAF8F5 !important;
-            padding: 5px 12px;
-            border-radius: 9999px;
+        .nav-cart-badge {
+            position: absolute;
+            top: -2px;
+            right: -6px;
+            background-color: #171614;
+            color: #FFFFFF;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.74rem;
+            font-size: 0.62rem;
             font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.12);
-        }
-
-        .nav-admin-dashboard-btn:hover {
-            background: #2E2B26;
-            border-color: #2E2B26;
-            color: #FFFFFF !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(23, 22, 20, 0.2);
-        }
-
-        .nav-admin-dashboard-btn i {
-            color: #F59E0B;
-            font-size: 0.85rem;
-            transition: color 0.2s ease;
-        }
-
-        .nav-user-profile-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(28, 25, 23, 0.05);
-            border: 1px solid rgba(28, 25, 23, 0.12);
-            color: #171614 !important;
-            padding: 5px 12px;
+            min-width: 16px;
+            height: 16px;
             border-radius: 9999px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.74rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .nav-user-profile-btn:hover {
-            background: #171614;
-            border-color: #171614;
-            color: #FAF8F5 !important;
-            transform: translateY(-1px);
-        }
-
-        .nav-user-profile-btn i {
-            font-size: 0.85rem;
-        }
-
-
-        @media (max-width: 576px) {
-            .nav-container {
-                padding: 0 10px;
-            }
-            .nav-right-group {
-                gap: 8px;
-            }
-            .nav-admin-dashboard-btn {
-                padding: 4px 8px;
-                font-size: 0.68rem;
-            }
-            .nav-admin-dashboard-btn span {
-                display: none;
-            }
-            .nav-brand-img {
-                height: 20px;
-                max-width: 105px;
-            }
-            .nav-bag-link {
-                font-size: 0.8rem;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            line-height: 1;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
         }
 
         /* Floating WhatsApp Button - Pure Icon Only */
@@ -758,44 +688,27 @@
     <!-- Blactify-Style Top Minimalist Sticky Header -->
     <header class="top-navbar">
         <div class="nav-container">
-            <!-- Left: Menu Toggle (=) -->
+            <!-- Left: Minimal 3-bar Hamburger Menu Button matching reference -->
             <button class="nav-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ashasSideDrawer" aria-controls="ashasSideDrawer" aria-label="Open Navigation Menu">
+                <span class="menu-bar"></span>
                 <span class="menu-bar"></span>
                 <span class="menu-bar"></span>
             </button>
 
-            <!-- Center: ASHAS Logo -->
-            <a href="{% url 'home' %}" class="nav-center-brand" title="AASHAS STORE — Home">
-                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="ASHAS" class="nav-brand-img">
-                <span class="brand-tm">TM</span>
+            <!-- Center: AASHAS Brand Logo (Clean, no TM, perfectly centered) -->
+            <a href="{% url 'home' %}" class="nav-center-brand" title="AASHAS">
+                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="AASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="nav-brand-text" style="display: none;">AASHAS</span>
             </a>
 
-            <!-- Right: Account/Admin + Search + Bag (count) -->
+            <!-- Right: Search + Shopping Cart (Matching reference image) -->
             <div class="nav-right-group">
-                {% if user.is_authenticated %}
-                    {% if user.is_staff or user.is_superuser %}
-                    <a href="{% url 'adminpp_dashboard' %}" class="nav-admin-dashboard-btn" id="navAdminDashboardBtn" title="Open Management Dashboard">
-                        <i class="bi bi-shield-lock-fill"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'profile' %}" class="nav-user-profile-btn" id="navUserProfileBtn" title="My Profile ({{ user.username }})">
-                        <i class="bi bi-person-fill"></i>
-                        <span class="d-none d-sm-inline">{{ user.username }}</span>
-                    </a>
-                    {% endif %}
-                {% else %}
-                <a href="{% url 'login' %}" class="nav-user-profile-btn" id="navUserLoginBtn" title="Customer Sign In">
-                    <i class="bi bi-person"></i>
-                    <span class="d-none d-sm-inline">Sign In</span>
-                </a>
-                {% endif %}
-                <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search" title="Search (Press / or Ctrl+K)">
+                <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search Catalog" title="Search">
                     <i class="bi bi-search"></i>
                 </button>
-                <a href="{% url 'cart' %}" class="nav-bag-link" id="navBagLink" aria-label="Shopping Bag">
-                    <span>bag</span>
-                    <span class="bag-count" id="navBagCount">({{ cart_item_count|default:0 }})</span>
+                <a href="{% url 'cart' %}" class="nav-cart-btn" id="navBagLink" aria-label="Shopping Cart" title="View Cart">
+                    <i class="bi bi-cart3"></i>
+                    <span class="nav-cart-badge" id="navBagCount" style="{% if not cart_item_count or cart_item_count == 0 %}display: none;{% endif %}">{{ cart_item_count|default:'' }}</span>
                 </a>
             </div>
         </div>
@@ -814,22 +727,28 @@
         </div>
     </header>
 
-    <!-- Offcanvas Left Side Drawer (ASHAS Branding) -->
+    <!-- Offcanvas Left Side Drawer (Clean, Aesthetic) -->
     <div class="offcanvas offcanvas-start offcanvas-ashas" tabindex="-1" id="ashasSideDrawer" aria-labelledby="ashasSideDrawerLabel">
-        <div class="drawer-header">
-            <a href="{% url 'home' %}" class="drawer-brand">
-                <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Badge" class="drawer-brand-img">
-                <div>
-                    <h5 class="drawer-brand-title mb-0" id="ashasSideDrawerLabel">ASHAS</h5>
-                    <span class="drawer-brand-sub">ACCESSORIZE YOUR STORY</span>
-                </div>
-            </a>
+        <div class="drawer-header border-bottom pb-3">
+            <div class="d-flex align-items-center gap-2">
+                <img src="{% static 'images/ashas_badge.png' %}" alt="AASHAS" class="drawer-brand-img" style="width: 28px; height: 28px; border-radius: 50%;">
+                <span class="fw-bold text-dark text-uppercase" id="ashasSideDrawerLabel" style="letter-spacing: 0.14em; font-size: 0.95rem; font-family: 'Outfit', sans-serif;">AASHAS</span>
+            </div>
             <button type="button" class="btn-drawer-close" data-bs-dismiss="offcanvas" aria-label="Close">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
 
         <div class="drawer-body">
+            {% if user.is_authenticated and user.is_staff %}
+            <div class="mb-3 p-2 rounded-3" style="background: rgba(23, 22, 20, 0.05); border: 1px solid rgba(23, 22, 20, 0.1);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="small fw-bold text-dark text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.08em;"><i class="bi bi-shield-lock-fill text-warning me-1"></i> Admin Portal</span>
+                    <a href="{% url 'adminpp_dashboard' %}" class="btn btn-dark btn-sm py-1 px-3 rounded-pill fw-semibold" style="font-size: 0.72rem;">Dashboard</a>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Navigation Sections -->
             <div class="drawer-section-title">COLLECTIONS</div>
             <a href="{% url 'home' %}" class="drawer-link" data-target-section="top">
@@ -1037,7 +956,14 @@ window.showAshasToast = function(title, message, iconHtml = '<i class="bi bi-che
 window.updateNavbarCartCount = function(count) {
     const countEl = document.getElementById('navBagCount');
     if (countEl) {
-        countEl.innerText = `(${count})`;
+        const num = parseInt(count) || 0;
+        if (num > 0) {
+            countEl.innerText = num;
+            countEl.style.display = 'flex';
+        } else {
+            countEl.innerText = '';
+            countEl.style.display = 'none';
+        }
         countEl.classList.remove('bag-pulse');
         void countEl.offsetWidth; // Trigger reflow
         countEl.classList.add('bag-pulse');

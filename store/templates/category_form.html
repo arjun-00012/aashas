@@ -12,7 +12,7 @@
     <!-- Plus Jakarta Sans Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -25,7 +25,7 @@
             --border-subtle: rgba(28, 25, 23, 0.08);
             --border-highlight: rgba(28, 25, 23, 0.18);
             --shadow-card: 0 16px 36px -10px rgba(28, 25, 23, 0.08), 0 4px 10px -2px rgba(28, 25, 23, 0.03);
-            --card-max: 640px;
+            --card-max: 680px;
         }
 
         body {
@@ -47,32 +47,14 @@
             box-shadow: var(--shadow-card);
         }
 
-        .card-admin form p {
-            margin-bottom: 1.15rem;
-        }
-
-        .card-admin form label {
+        .form-label-custom {
             font-weight: 600;
             display: block;
             margin-bottom: 0.35rem;
-            font-size: 0.82rem;
-            letter-spacing: 0.04em;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             color: var(--text-primary);
-        }
-
-        .helptext {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 0.3rem;
-            display: block;
-        }
-
-        .errorlist {
-            color: #dc2626;
-            font-size: 0.82rem;
-            padding-left: 1.25rem;
-            margin-bottom: 0.35rem;
         }
 
         .form-control, .form-select {
@@ -98,6 +80,46 @@
             background-color: #2b2824 !important;
             border-color: #2b2824 !important;
             color: #FFFFFF !important;
+        }
+
+        /* Image Guidelines Card */
+        .specs-card {
+            background: #F8F6F2;
+            border: 1px solid rgba(28, 25, 23, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .specs-badge {
+            background: #FFFFFF;
+            border: 1px solid rgba(28, 25, 23, 0.12);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #2B2824;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Live Preview Container */
+        .preview-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -130,20 +152,71 @@
         </div>
         {% endif %}
 
-        {% if category and category.image %}
-        <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 border" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" width="54" height="54" style="object-fit: cover;" class="rounded border">
-            <div class="min-w-0">
-                <span class="small text-dark fw-semibold d-block">Current Image</span>
-                <span class="small text-secondary text-truncate d-block">{{ category.image.name }}</span>
+        <!-- Image Upload Specifications Guidance -->
+        <div class="specs-card mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold text-dark text-uppercase" style="letter-spacing: 0.06em; font-size: 0.72rem;">
+                    <i class="bi bi-info-circle-fill text-primary me-1"></i> Category Image Guidelines
+                </span>
+                <span class="badge bg-dark rounded-pill" style="font-size: 0.65rem;">Frontend Standard</span>
             </div>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                <span class="specs-badge"><i class="bi bi-aspect-ratio"></i> Aspect Ratio: <strong>1:1 (Square)</strong></span>
+                <span class="specs-badge"><i class="bi bi-arrows-fullscreen"></i> Size: <strong>800 × 800 px</strong> (or 1000×1000)</span>
+                <span class="specs-badge"><i class="bi bi-file-earmark-check"></i> Max File: <strong>5 MB</strong></span>
+                <span class="specs-badge"><i class="bi bi-images"></i> Formats: <strong>WebP, PNG, JPG</strong></span>
+            </div>
+            <small class="text-secondary d-block" style="font-size: 0.74rem;">
+                Category thumbnails are displayed in circular/square icons at the top of the store. Transparent PNG or clean white/neutral background works best.
+            </small>
         </div>
-        {% endif %}
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-obsidian w-100 mt-3 py-2 py-sm-3 fw-bold rounded-pill text-uppercase shadow-sm" style="letter-spacing: 0.05em;">
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label-custom">Category Name *</label>
+                    {{ form.name }}
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label-custom">Upload Image File</label>
+                    {{ form.image }}
+                    <div class="form-text small text-secondary mt-1">Select square photo (WebP, PNG, JPG). Max 5 MB.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label-custom">OR Direct Image URL</label>
+                    {{ form.image_url }}
+                    <div class="form-text small text-secondary mt-1">Direct link to hosted image (e.g. Cloudinary, CDN).</div>
+                </div>
+
+                <!-- Live Image Preview & Resolution Inspector -->
+                <div class="col-12">
+                    <div class="d-flex align-items-center gap-3 p-2 rounded-3 border" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
+                        <div class="preview-box">
+                            <img id="categoryImagePreview" src="{% if category and category.display_image %}{{ category.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Category Preview">
+                        </div>
+                        <div class="min-w-0 flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="small text-dark fw-bold" id="previewTitle">Image Preview</span>
+                                <span class="badge bg-secondary bg-opacity-10 text-dark border border-secondary border-opacity-25 rounded-pill px-2 py-0" id="previewStatusBadge" style="font-size: 0.68rem;">1:1 Square</span>
+                            </div>
+                            <span class="small text-secondary d-block text-truncate" id="previewSpecs">
+                                {% if category and category.image %}File: {{ category.image.name }}{% elif category and category.image_url %}URL: {{ category.image_url }}{% else %}No image selected{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label-custom">Description (Optional)</label>
+                    {{ form.description }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-obsidian w-100 mt-4 py-2 py-sm-3 fw-bold rounded-pill text-uppercase shadow-sm" style="letter-spacing: 0.05em;">
                 <i class="bi bi-check2-circle me-1"></i> Save Category
             </button>
             <a href="{% url 'adminpp_dashboard' %}" class="btn btn-outline-dark rounded-pill w-100 mt-2 py-2 text-center d-block small">
@@ -156,16 +229,61 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     (function(){
-        const form = document.querySelector('form');
-        if (!form) return;
-        const textInputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="url"], input[type="file"], textarea');
-        textInputs.forEach(i => i.classList.add('form-control'));
-        const selects = form.querySelectorAll('select');
-        selects.forEach(s => s.classList.add('form-select'));
-        const checkboxes = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-        checkboxes.forEach(c => c.classList.add('form-check-input'));
-        const helptexts = form.querySelectorAll('.helptext, .help');
-        helptexts.forEach(h => h.classList.add('helptext'));
+        const fileInput = document.querySelector('input[type="file"]');
+        const urlInput = document.querySelector('input[type="url"]');
+        const previewImg = document.getElementById('categoryImagePreview');
+        const previewSpecs = document.getElementById('previewSpecs');
+        const statusBadge = document.getElementById('previewStatusBadge');
+
+        function updateImageInfo(src, name, sizeBytes) {
+            if (!src) return;
+            previewImg.src = src;
+            const img = new Image();
+            img.onload = function() {
+                const w = img.naturalWidth;
+                const h = img.naturalHeight;
+                const ratio = (w / h).toFixed(2);
+                let sizeStr = '';
+                if (sizeBytes) {
+                    sizeStr = (sizeBytes / 1024).toFixed(1) + ' KB';
+                }
+                let ratioText = '1:1 Square';
+                if (ratio >= 0.95 && ratio <= 1.05) {
+                    statusBadge.className = 'badge bg-success text-white rounded-pill px-2 py-0';
+                    statusBadge.innerText = `✓ ${w} × ${h} px (1:1 Ideal)`;
+                } else {
+                    statusBadge.className = 'badge bg-warning text-dark rounded-pill px-2 py-0';
+                    statusBadge.innerText = `⚠️ ${w} × ${h} px (${ratio > 1 ? 'Landscape' : 'Portrait'} - 1:1 Recommended)`;
+                }
+                previewSpecs.innerText = `${name || 'Selected'} • ${w} × ${h} px ${sizeStr ? '• ' + sizeStr : ''}`;
+            };
+            img.src = src;
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert("Selected file is larger than 5 MB (" + (file.size / (1024*1024)).toFixed(1) + " MB). Please choose a smaller image.");
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        updateImageInfo(evt.target.result, file.name, file.size);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (urlInput) {
+            urlInput.addEventListener('input', function() {
+                const val = urlInput.value.trim();
+                if (val.startsWith('http://') || val.startsWith('https://')) {
+                    updateImageInfo(val, 'Direct Link', null);
+                }
+            });
+        }
     })();
 </script>
 </body>

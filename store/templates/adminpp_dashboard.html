@@ -329,7 +329,10 @@
             <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
                     <div>
-                        <h2 class="h5 m-0 fw-bold text-dark">Categories</h2>
+                        <div class="d-flex align-items-center gap-2">
+                            <h2 class="h5 m-0 fw-bold text-dark">Categories</h2>
+                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>800×800 (1:1)</span>
+                        </div>
                         <small class="text-secondary">{{ categories|length }} Total</small>
                     </div>
                     <a href="{% url 'category_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-1 fw-semibold text-nowrap">
@@ -399,7 +402,10 @@
             <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
                     <div>
-                        <h2 class="h5 m-0 fw-bold text-dark">Products</h2>
+                        <div class="d-flex align-items-center gap-2">
+                            <h2 class="h5 m-0 fw-bold text-dark">Products</h2>
+                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>1000×1000 (1:1)</span>
+                        </div>
                         <small class="text-secondary">{{ products|length }} Listed</small>
                     </div>
                     <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto">

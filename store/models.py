@@ -21,6 +21,28 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
             instance.profile.save()
 
 
+def optimize_image_file(image_field, max_dimension=1200):
+    """
+    Downscale oversized uploaded images to max_dimension (maintaining aspect ratio)
+    and compress cleanly using Pillow to protect server performance and speed up loading.
+    """
+    if not image_field:
+        return
+    try:
+        import os
+        from PIL import Image
+        filepath = getattr(image_field, 'path', None)
+        if filepath and os.path.exists(filepath):
+            with Image.open(filepath) as img:
+                w, h = img.size
+                if w > max_dimension or h > max_dimension:
+                    img.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+                    save_fmt = img.format or ('PNG' if img.mode in ('RGBA', 'LA', 'P') else 'JPEG')
+                    img.save(filepath, format=save_fmt, quality=85, optimize=True)
+    except Exception:
+        pass
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
@@ -35,6 +57,10 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+        # Optimize image dimensions if uploaded locally
+        if self.image:
+            optimize_image_file(self.image, max_dimension=1000)
 
         # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
         if self.image and not self.image_url:
@@ -98,6 +124,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+        # Optimize image dimensions if uploaded locally
+        if self.image:
+            optimize_image_file(self.image, max_dimension=1200)
 
         # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
         if self.image and not self.image_url:
