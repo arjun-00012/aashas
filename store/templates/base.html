@@ -331,58 +331,98 @@
         }
 
         .search-input-wrap {
-            max-width: 600px;
+            max-width: 640px;
             margin: 0 auto;
             position: relative;
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        .search-input-wrap input {
+        .search-field-inner {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-leading-icon {
+            position: absolute;
+            left: 14px;
+            color: #8C867E;
+            font-size: 0.88rem;
+            pointer-events: none;
+        }
+
+        .search-field-inner input {
             width: 100%;
             background: #FFFFFF;
             border: 1px solid var(--border-line);
             color: #171614;
             border-radius: 9999px;
-            padding: 9px 40px 9px 18px;
+            padding: 9px 38px 9px 38px;
             font-size: 0.88rem;
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 2px 6px rgba(28, 25, 23, 0.04);
         }
 
-        .search-input-wrap input:focus {
+        .search-field-inner input:focus {
             border-color: #171614;
             box-shadow: 0 0 0 2px rgba(23, 22, 20, 0.12);
         }
 
-        .search-close-btn {
+        .search-clear-input-btn {
             position: absolute;
             right: 12px;
             background: transparent;
             border: none;
-            color: #635F59;
+            color: #8C867E;
             cursor: pointer;
-            padding: 4px;
+            padding: 2px;
             font-size: 1rem;
-            transition: color 0.2s ease;
+            line-height: 1;
+            display: none;
+            transition: color 0.18s ease;
         }
 
-        .search-close-btn:hover {
+        .search-clear-input-btn:hover {
             color: #171614;
         }
 
+        .search-close-btn {
+            background: transparent;
+            border: 1px solid rgba(28, 25, 23, 0.16);
+            border-radius: 9999px;
+            color: #171614;
+            cursor: pointer;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-close-btn:hover {
+            background: #171614;
+            color: #FFFFFF;
+            border-color: #171614;
+        }
+
         .search-kbd-badge {
-            position: absolute;
-            right: 36px;
             font-size: 0.65rem;
             color: #8C867E;
             background: #F3EFEA;
             border: 1px solid rgba(28, 25, 23, 0.12);
-            padding: 2px 6px;
+            padding: 3px 6px;
             border-radius: 4px;
             pointer-events: none;
             font-family: monospace;
+            line-height: 1;
         }
 
         /* Search Live Suggestions Dropdown */
@@ -719,10 +759,17 @@
         <!-- Dropdown Quick Search Bar -->
         <div class="search-slide-bar" id="searchSlideBar">
             <div class="search-input-wrap">
-                <input type="text" id="quickSearchInput" placeholder="Search accessories, watches, shades, rings... (Press Esc to close)" autocomplete="off">
-                <span class="search-kbd-badge d-none d-sm-inline">ESC</span>
-                <button type="button" class="search-close-btn" id="searchCloseBtn" aria-label="Close search">
-                    <i class="bi bi-x-lg"></i>
+                <div class="search-field-inner">
+                    <i class="bi bi-search search-leading-icon"></i>
+                    <input type="text" id="quickSearchInput" placeholder="Search accessories, watches, shades, rings..." autocomplete="off">
+                    <button type="button" class="search-clear-input-btn" id="searchClearInputBtn" aria-label="Clear search input" title="Clear text">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+                <span class="search-kbd-badge d-none d-md-inline">ESC</span>
+                <button type="button" class="search-close-btn" id="searchCloseBtn" aria-label="Close search" title="Done / Close search">
+                    <span class="d-none d-sm-inline">Done</span>
+                    <i class="bi bi-x-lg ms-sm-1"></i>
                 </button>
                 <!-- Live Search Suggestions Container -->
                 <div class="search-suggestions-box" id="searchSuggestionsBox" style="display: none;"></div>
@@ -992,6 +1039,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isHomePage) {
                 e.preventDefault();
 
+                // If search filter is active, cancel it before navigating so all sections are visible
+                if (window.cancelSearchFilter && window.isSearchFilterActive) {
+                    const slug = targetSelector === 'top' ? null : targetSelector.replace('#section-', '');
+                    window.cancelSearchFilter(slug);
+                }
+
                 // Suppress Bootstrap 5 refocusing the hamburger button (which snaps scroll to top)
                 const menuBtn = document.querySelector('.nav-menu-btn');
                 if (menuBtn) {
@@ -1057,13 +1110,66 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================
-    // 2. Dropdown Search Bar & Live Suggestions
+    // 2. Dropdown Search Bar, Filtering, & Cancellation Logic
     // =========================================================
     const searchTrigger = document.getElementById('searchTriggerBtn');
     const searchBar = document.getElementById('searchSlideBar');
     const searchClose = document.getElementById('searchCloseBtn');
+    const searchClearBtn = document.getElementById('searchClearInputBtn');
     const searchInput = document.getElementById('quickSearchInput');
     const suggestionsBox = document.getElementById('searchSuggestionsBox');
+
+    // State tracking for active filter & target category anchoring
+    window.isSearchFilterActive = false;
+    let lastSearchedCategorySlug = null;
+
+    // Helper: smoothly scroll to a category section taking sticky navbar height into account
+    window.scrollToCategorySection = function(categorySlug, smooth = true) {
+        if (!categorySlug) return;
+        const target = document.getElementById(`section-${categorySlug}`);
+        if (!target) return;
+        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+        const offset = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+        window.scrollTo({
+            top: Math.max(0, offset),
+            behavior: smooth ? 'smooth' : 'auto'
+        });
+
+        // Update active category icon in collections grid
+        document.querySelectorAll('.category-item-link').forEach(link => {
+            if (link.getAttribute('data-cat') === categorySlug) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    };
+
+    // Helper: detect which visible category section is currently closest to the user's viewport
+    function getCurrentlyViewedSectionSlug() {
+        if (lastSearchedCategorySlug) {
+            const sec = document.getElementById(`section-${lastSearchedCategorySlug}`);
+            if (sec && sec.style.display !== 'none') return lastSearchedCategorySlug;
+        }
+        const visibleSections = Array.from(document.querySelectorAll('.category-section')).filter(s => s.style.display !== 'none');
+        if (!visibleSections.length) return null;
+
+        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+        const viewTop = window.pageYOffset + navHeight + 80;
+        let bestSlug = null;
+        let bestDist = Infinity;
+
+        for (const sec of visibleSections) {
+            const rect = sec.getBoundingClientRect();
+            const topPos = rect.top + window.pageYOffset;
+            const dist = Math.abs(topPos - viewTop);
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestSlug = sec.id.replace('section-', '');
+            }
+        }
+        return bestSlug || visibleSections[0].id.replace('section-', '');
+    }
 
     function openSearch() {
         if (searchBar) {
@@ -1071,6 +1177,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchInput) {
                 searchInput.focus();
                 searchInput.select();
+                if (searchClearBtn) {
+                    searchClearBtn.style.display = searchInput.value.trim() ? 'block' : 'none';
+                }
             }
         }
     }
@@ -1080,10 +1189,60 @@ document.addEventListener('DOMContentLoaded', () => {
             searchBar.classList.remove('active');
             if (suggestionsBox) suggestionsBox.style.display = 'none';
         }
+        if (searchInput) searchInput.blur();
+
+        // If a search query is active on the homepage, scroll smoothly to the matched searched term!
+        if (window.isSearchFilterActive && lastSearchedCategorySlug) {
+            window.scrollToCategorySection(lastSearchedCategorySlug, true);
+        }
     }
+
+    // Cancel / Reset Filter Function
+    // Restores all products and sections, clears input, and keeps the user anchored at the searched term!
+    window.cancelSearchFilter = function(explicitSlug = null) {
+        // Determine the anchor category slug before unhiding earlier categories
+        const anchorSlug = explicitSlug || lastSearchedCategorySlug || getCurrentlyViewedSectionSlug();
+
+        // Reset search input
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (searchClearBtn) {
+            searchClearBtn.style.display = 'none';
+        }
+        if (suggestionsBox) {
+            suggestionsBox.style.display = 'none';
+        }
+
+        // Restore all products and category sections
+        document.querySelectorAll('.product-scroll-item').forEach(c => c.style.display = 'flex');
+        document.querySelectorAll('.category-section').forEach(s => s.style.display = 'block');
+
+        // Hide empty state & active filter banner
+        const emptyNotice = document.getElementById('searchEmptyState') || document.getElementById('searchNoResultsNotice');
+        if (emptyNotice) emptyNotice.style.display = 'none';
+        const filterBar = document.getElementById('activeFilterBar');
+        if (filterBar) filterBar.style.display = 'none';
+
+        window.isSearchFilterActive = false;
+
+        // Re-anchor to the searched term so the user stays exactly in that searched term
+        if (anchorSlug) {
+            // Use requestAnimationFrame so the browser recalculates layout with unhidden sections before scrolling
+            requestAnimationFrame(() => {
+                window.scrollToCategorySection(anchorSlug, true);
+            });
+        }
+    };
 
     if (searchTrigger) searchTrigger.addEventListener('click', openSearch);
     if (searchClose) searchClose.addEventListener('click', closeSearch);
+    if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+            window.cancelSearchFilter();
+            if (searchInput) searchInput.focus();
+        });
+    }
 
     // Collect products from page for client-side instant search
     function getPageProducts() {
@@ -1110,15 +1269,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const query = e.target.value.toLowerCase().trim();
             const products = getPageProducts();
 
+            // Toggle clear button inside input
+            if (searchClearBtn) {
+                searchClearBtn.style.display = query.length > 0 ? 'block' : 'none';
+            }
+
             if (!query) {
-                if (suggestionsBox) suggestionsBox.style.display = 'none';
-                // Reset all products & sections
-                document.querySelectorAll('.product-scroll-item').forEach(c => c.style.display = 'flex');
-                document.querySelectorAll('.category-section').forEach(s => s.style.display = 'block');
-                const emptyFeedback = document.getElementById('searchNoResultsNotice');
-                if (emptyFeedback) emptyFeedback.remove();
+                window.cancelSearchFilter();
                 return;
             }
+
+            window.isSearchFilterActive = true;
 
             // Filter on-page products
             let visibleCount = 0;
@@ -1135,11 +1296,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Hide sections with no matching products on home page
+            // Remember first matched category slug
+            if (matches.length > 0) {
+                lastSearchedCategorySlug = matches[0].catSlug;
+            }
+
+            // Hide/Show category sections
             document.querySelectorAll('.category-section').forEach(section => {
                 const visibleInSec = section.querySelectorAll('.product-scroll-item[style*="display: flex"]');
                 section.style.display = visibleInSec.length > 0 ? 'block' : 'none';
             });
+
+            // Update on-page Active Filter Bar
+            const filterBar = document.getElementById('activeFilterBar');
+            const filterTermEl = document.getElementById('activeFilterTerm');
+            const filterCountEl = document.getElementById('activeFilterCountBadge');
+            if (filterBar && filterTermEl) {
+                if (matches.length > 0) {
+                    filterBar.style.display = 'block';
+                    filterTermEl.innerText = `"${e.target.value.trim()}"`;
+                    if (filterCountEl) filterCountEl.innerText = `(${visibleCount} ${visibleCount === 1 ? 'item' : 'items'} found)`;
+                } else {
+                    filterBar.style.display = 'none';
+                }
+            }
+
+            // Empty state notice
+            const emptyState = document.getElementById('searchEmptyState');
+            if (emptyState) {
+                if (matches.length === 0 && products.length > 0) {
+                    emptyState.style.display = 'block';
+                    const termSpan = document.getElementById('searchEmptyQueryTerm');
+                    if (termSpan) termSpan.innerText = e.target.value.trim();
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
 
             // Populate Live Suggestions Box
             if (suggestionsBox) {
@@ -1153,20 +1345,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         itemLink.innerHTML = `
                             <img src="${m.img || '{% static "images/ashas_badge.png" %}'}" class="search-suggestion-thumb" alt="${m.name}">
                             <div class="flex-grow-1 min-w-0">
-                                <div class="text-white small fw-semibold text-truncate">${m.name}</div>
-                                <div class="text-secondary" style="font-size: 0.72rem;">${m.catName} • <span class="text-white">${m.price}</span></div>
+                                <div class="text-dark small fw-semibold text-truncate">${m.name}</div>
+                                <div class="text-secondary" style="font-size: 0.72rem;">${m.catName} • <span class="text-dark fw-bold">${m.price}</span></div>
                             </div>
                             <i class="bi bi-arrow-right-short text-secondary fs-5"></i>
                         `;
                         itemLink.addEventListener('click', (ev) => {
                             ev.preventDefault();
+                            lastSearchedCategorySlug = m.catSlug;
                             closeSearch();
-                            const target = document.getElementById(`section-${m.catSlug}`);
-                            if (target) {
-                                const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
-                                const offset = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
-                                window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
-                            }
+                            window.scrollToCategorySection(m.catSlug, true);
                         });
                         suggestionsBox.appendChild(itemLink);
                     });
@@ -1182,21 +1370,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Enter key scrolls to first match
+        // Enter key scrolls to first match and closes search
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const query = searchInput.value.toLowerCase().trim();
-                const firstVisible = document.querySelector('.product-scroll-item[style*="display: flex"]');
-                if (firstVisible) {
-                    const sec = firstVisible.closest('.category-section');
-                    if (sec) {
-                        closeSearch();
-                        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
-                        const offset = sec.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
-                        window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
-                    }
-                }
+                closeSearch();
             }
         });
     }

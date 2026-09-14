@@ -561,6 +561,74 @@
             height: 40px;
         }
     }
+
+    /* Active Search Filter Banner */
+    .active-filter-bar {
+        position: sticky;
+        top: calc(var(--nav-height) + 8px);
+        z-index: 990;
+        animation: fadeInFilterBar 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInFilterBar {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .active-filter-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        border-radius: 9999px;
+        padding: 7px 12px 7px 16px;
+        box-shadow: 0 4px 18px rgba(28, 25, 23, 0.07);
+    }
+
+    .active-filter-pill {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        background: #171614;
+        color: #FFFFFF;
+        padding: 3px 8px;
+        border-radius: 9999px;
+        white-space: nowrap;
+    }
+
+    .active-filter-label {
+        font-size: 0.82rem;
+        color: #171614;
+    }
+
+    .btn-cancel-search-filter {
+        background: transparent;
+        border: 1px solid rgba(28, 25, 23, 0.18);
+        border-radius: 9999px;
+        color: #171614;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-cancel-search-filter:hover {
+        background: #171614;
+        color: #FAF8F5;
+        border-color: #171614;
+    }
 </style>
 {% endblock %}
 
@@ -625,6 +693,37 @@
 
 <!-- Dynamic Category Sections with Products -->
 <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px; overflow-x: clip;">
+    <!-- Active Filter Banner with 1-Click Cancel -->
+    <div id="activeFilterBar" class="active-filter-bar mb-4" style="display: none;">
+        <div class="active-filter-inner">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <span class="active-filter-pill"><i class="bi bi-funnel-fill me-1"></i> FILTERED</span>
+                <span class="active-filter-label text-truncate">
+                    Showing results for <strong id="activeFilterTerm" class="text-dark">""</strong>
+                    <span id="activeFilterCountBadge" class="text-secondary ms-1"></span>
+                </span>
+            </div>
+            <button type="button" id="activeFilterResetBtn" class="btn-cancel-search-filter" title="Cancel filter and show all accessories">
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Cancel Filter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Empty State Notice when 0 products match search -->
+    <div id="searchEmptyState" class="py-5 text-center my-4" style="display: none;">
+        <div class="p-4 p-md-5 rounded-4 mx-auto" style="max-width: 460px; background: #FAF8F5; border: 1px solid rgba(28, 25, 23, 0.08); box-shadow: 0 8px 24px rgba(28, 25, 23, 0.04);">
+            <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm" style="width: 56px; height: 56px; border: 1px solid rgba(28, 25, 23, 0.08);">
+                <i class="bi bi-search fs-4 text-dark"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.05em;">NO ACCESSORIES FOUND</h5>
+            <p class="text-secondary small mb-4">We couldn't find any accessories matching "<strong id="searchEmptyQueryTerm" class="text-dark"></strong>". Try another search or explore all collections.</p>
+            <button type="button" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold" id="emptyStateResetBtn" style="font-size: 0.82rem; letter-spacing: 0.06em;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> VIEW ALL ACCESSORIES
+            </button>
+        </div>
+    </div>
+
     {% for category in categories %}
     <section id="section-{{ category.slug }}" class="category-section mb-5 pt-3">
         <div class="section-header">
@@ -757,22 +856,45 @@
                 const targetId = this.getAttribute('href');
                 if (targetId && targetId.startsWith('#')) {
                     e.preventDefault();
+                    const slug = this.getAttribute('data-cat') || targetId.replace('#section-', '');
                     categoryLinks.forEach(l => l.classList.remove('active'));
                     this.classList.add('active');
 
-                    const targetElem = document.querySelector(targetId);
-                    if (targetElem) {
-                        const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
-                        const offsetPosition = targetElem.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
-                        window.scrollTo({
-                            top: Math.max(0, offsetPosition),
-                            behavior: 'smooth'
-                        });
-                        history.pushState(null, null, targetId);
+                    // If a search filter is active, cancel it and anchor cleanly to clicked category
+                    if (window.cancelSearchFilter && window.isSearchFilterActive) {
+                        window.cancelSearchFilter(slug);
+                    } else {
+                        const targetElem = document.querySelector(targetId);
+                        if (targetElem) {
+                            const navHeight = document.querySelector('.top-navbar')?.offsetHeight || 62;
+                            const offsetPosition = targetElem.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+                            window.scrollTo({
+                                top: Math.max(0, offsetPosition),
+                                behavior: 'smooth'
+                            });
+                            history.pushState(null, null, targetId);
+                        }
                     }
                 }
             });
         });
+
+        // Wire up cancel filter buttons
+        const activeFilterResetBtn = document.getElementById('activeFilterResetBtn');
+        if (activeFilterResetBtn) {
+            activeFilterResetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.cancelSearchFilter) window.cancelSearchFilter();
+            });
+        }
+
+        const emptyStateResetBtn = document.getElementById('emptyStateResetBtn');
+        if (emptyStateResetBtn) {
+            emptyStateResetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.cancelSearchFilter) window.cancelSearchFilter();
+            });
+        }
 
         // IntersectionObserver to highlight category icons as user scrolls
         const catSections = document.querySelectorAll('section[id^="section-"]');
