@@ -199,22 +199,23 @@
         }
 
         .btn-toggle-trending:hover {
-            border-color: #EF4444;
-            color: #DC2626;
-            background: #FFF1F2;
-            transform: scale(1.04);
+            border-color: #171614;
+            color: #171614;
+            background: #F4F0EB;
+            transform: scale(1.02);
         }
 
         .btn-toggle-trending.is-trending {
-            background: #FEF2F2;
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #DC2626;
-            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+            background: #171614;
+            border-color: #171614;
+            color: #FAF8F5;
+            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.18);
         }
 
         .btn-toggle-trending.is-trending:hover {
-            background: #FEE2E2;
-            border-color: #DC2626;
+            background: #2B2824;
+            border-color: #2B2824;
+            color: #FFFFFF;
         }
 
         @media (max-width: 767.98px) {
@@ -482,7 +483,7 @@
                             <span class="input-group-text"><i class="bi bi-funnel"></i></span>
                             <select id="productCategoryFilter" class="form-select form-select-sm">
                                 <option value="all">All Categories</option>
-                                <option value="trending">🔥 Trending Only ({{ trending_count }})</option>
+                                <option value="trending">★ Trending Only ({{ trending_count }})</option>
                                 {% for cat in categories %}
                                     <option value="{{ cat.name }}">{{ cat.name }}</option>
                                 {% endfor %}
@@ -556,9 +557,9 @@
                                             data-trending="{% if p.is_trending %}true{% else %}false{% endif %}"
                                             title="{% if p.is_trending %}Click to remove from Trending{% else %}Click to add to Trending{% endif %}">
                                         {% if p.is_trending %}
-                                            <i class="bi bi-fire text-danger"></i> <span class="trending-text">Trending</span>
+                                            <i class="bi bi-star-fill text-warning"></i> <span class="trending-text">Trending</span>
                                         {% else %}
-                                            <i class="bi bi-plus-circle text-secondary"></i> <span class="trending-text">Add</span>
+                                            <i class="bi bi-star text-secondary"></i> <span class="trending-text">Feature</span>
                                         {% endif %}
                                     </button>
                                 </td>
@@ -686,7 +687,7 @@
         toast.innerHTML = `
             <div class="d-flex align-items-start gap-3">
                 <div class="toast-icon-wrap ${isError ? 'error' : ''} flex-shrink-0">
-                    <i class="bi ${isError ? 'bi-exclamation-triangle-fill text-danger' : (isTrending ? 'bi-fire text-danger' : 'bi-check-circle-fill text-success')} fs-5"></i>
+                    <i class="bi ${isError ? 'bi-exclamation-triangle-fill text-danger' : (isTrending ? 'bi-star-fill text-warning' : 'bi-check-circle-fill text-success')} fs-5"></i>
                 </div>
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex align-items-center justify-content-between mb-1">
@@ -748,11 +749,11 @@
                         if (isTrending) {
                             this.classList.add('is-trending');
                             this.title = 'Click to remove from Trending';
-                            this.innerHTML = '<i class="bi bi-fire text-danger"></i> <span class="trending-text">Trending</span>';
+                            this.innerHTML = '<i class="bi bi-star-fill text-warning"></i> <span class="trending-text">Trending</span>';
                         } else {
                             this.classList.remove('is-trending');
                             this.title = 'Click to add to Trending';
-                            this.innerHTML = '<i class="bi bi-plus-circle text-secondary"></i> <span class="trending-text">Add</span>';
+                            this.innerHTML = '<i class="bi bi-star text-secondary"></i> <span class="trending-text">Feature</span>';
                         }
 
                         showFloatingAdminToast(isTrending ? 'Added to Trending' : 'Removed from Trending', data.message, isTrending);
