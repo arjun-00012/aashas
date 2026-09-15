@@ -22,8 +22,22 @@ razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZOR
 @receiver(user_logged_in)
 def handle_user_logged_in(sender, request, user, **kwargs):
     if request:
+        # Check if visitor added items to session before logging in
+        guest_cart = request.session.get('cart', {})
         items = CartItem.objects.filter(user=user)
-        request.session['cart'] = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        user_items = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        
+        # Merge guest cart into user's DB items
+        if guest_cart:
+            for pid, qty in guest_cart.items():
+                if qty > 0:
+                    product = Product.objects.filter(id=pid).first()
+                    if product and product.stock > 0:
+                        merged_qty = min(user_items.get(pid, 0) + qty, product.stock)
+                        CartItem.objects.update_or_create(user=user, product=product, defaults={'quantity': merged_qty})
+                        user_items[pid] = merged_qty
+
+        request.session['cart'] = user_items
         request.session.modified = True
 
 @receiver(user_logged_out)
@@ -109,10 +123,10 @@ def register_view(request):
             profile.phone_number = form.cleaned_data['phone_number']
             profile.save()
             login(request, user)
-            # Fresh isolated cart for new user
-            request.session['cart'] = {}
-            request.session.modified = True
-            return redirect('home')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
+            if not next_url.startswith('/'):
+                next_url = 'home'
+            return redirect(next_url)
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
@@ -124,12 +138,9 @@ def login_view(request):
         user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
-            # Load THIS user's specific cart items into session, completely clearing any prior user's items!
-            user_items = CartItem.objects.filter(user=user)
-            user_cart = {str(item.product_id): item.quantity for item in user_items if item.quantity > 0}
-            request.session['cart'] = user_cart
-            request.session.modified = True
-            next_url = request.GET.get('next', 'home')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
+            if not next_url.startswith('/'):
+                next_url = 'home'
             return redirect(next_url)
         return render(request, 'login.html', {'error': 'Invalid Username or Password.'})
     return render(request, 'login.html')
@@ -246,6 +257,7 @@ def update_cart(request, product_id, action):
     return redirect('cart')
 
 # --- Razorpay Checkout ---
+@login_required(login_url='login')
 def checkout_view(request):
     cart = get_user_cart(request)
     if not cart:
