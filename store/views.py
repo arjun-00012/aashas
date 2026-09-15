@@ -112,6 +112,7 @@ def home(request):
 
 # --- Auth Views ---
 def register_view(request):
+    next_url = request.POST.get('next') or request.GET.get('next') or ''
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -123,27 +124,24 @@ def register_view(request):
             profile.phone_number = form.cleaned_data['phone_number']
             profile.save()
             login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
-            if not next_url.startswith('/'):
-                next_url = 'home'
-            return redirect(next_url)
+            target = next_url if next_url.startswith('/') else 'home'
+            return redirect(target)
     else:
         form = RegistrationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'register.html', {'form': form, 'next_url': next_url})
 
 def login_view(request):
+    next_url = request.POST.get('next') or request.GET.get('next') or ''
     if request.method == 'POST':
         u = request.POST.get('username')
         p = request.POST.get('password')
         user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
-            if not next_url.startswith('/'):
-                next_url = 'home'
-            return redirect(next_url)
-        return render(request, 'login.html', {'error': 'Invalid Username or Password.'})
-    return render(request, 'login.html')
+            target = next_url if next_url.startswith('/') else 'home'
+            return redirect(target)
+        return render(request, 'login.html', {'error': 'Invalid Username or Password.', 'next_url': next_url})
+    return render(request, 'login.html', {'next_url': next_url})
 
 def logout_view(request):
     logout(request)

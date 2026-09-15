@@ -10,7 +10,7 @@
             <p class="text-secondary small mb-0">Sign in to manage your bag and orders</p>
         </div>
 
-        {% if request.GET.next == '/checkout/' or 'checkout' in request.GET.next %}
+        {% if next_url and 'checkout' in next_url %}
         <div class="alert alert-warning py-2 px-3 small mb-3 rounded-3 d-flex align-items-center gap-2" style="background: #FFFBEB; color: #92400E; border: 1px solid rgba(245, 158, 11, 0.3);">
             <i class="bi bi-shield-lock-fill fs-6 text-warning"></i>
             <span>Sign in to proceed to checkout and complete your order.</span>
@@ -25,7 +25,7 @@
 
         <form method="POST">
             {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.GET.next|default:request.POST.next|default:'' }}">
+            <input type="hidden" name="next" value="{{ next_url|default:'' }}">
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Username</label>
                 <input type="text" name="username" class="form-control" placeholder="Your username" required autofocus>
@@ -38,7 +38,7 @@
         </form>
 
         <p class="small text-center mt-4 text-secondary mb-0">
-            New to AASHAS? <a href="{% url 'register' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" class="text-dark text-decoration-underline fw-semibold">Create Account</a>
+            New to AASHAS? <a href="{% url 'register' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="text-dark text-decoration-underline fw-semibold">Create Account</a>
         </p>
     </div>
 </div>
