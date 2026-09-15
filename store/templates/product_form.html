@@ -214,6 +214,23 @@
                     {{ form.discount_price }}
                 </div>
 
+                <!-- Trending Product Switch -->
+                <div class="col-12">
+                    <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
+                        <div class="pe-3">
+                            <label class="form-check-label fw-bold text-dark d-block mb-1" for="{{ form.is_trending.id_for_label }}" style="font-size: 0.9rem; cursor: pointer;">
+                                🔥 Feature in Trending Section
+                            </label>
+                            <small class="text-secondary d-block" style="font-size: 0.78rem;">
+                                Display this product in the top "Trending Now" carousel on the homepage and mark with a Trending badge.
+                            </small>
+                        </div>
+                        <div class="form-check form-switch m-0 fs-4">
+                            {{ form.is_trending }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-12 col-md-6">
                     <label class="form-label-custom">Upload Image File</label>
                     {{ form.image }}

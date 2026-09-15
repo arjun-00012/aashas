@@ -120,6 +120,7 @@ class Product(models.Model):
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     stock = models.PositiveIntegerField(default=1)
+    is_trending = models.BooleanField(default=False, db_index=True, help_text="Showcase this product in the Trending section")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -221,3 +222,23 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.subject}"
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='cart_items')
+    session_key = models.CharField(max_length=100, null=True, blank=True, db_index=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='in_carts')
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        owner = self.user.username if self.user else f"Guest ({self.session_key})"
+        return f"{self.quantity}x {self.product.name} ({owner})"
+
+    @property
+    def subtotal(self):
+        return float(self.product.current_price) * self.quantity

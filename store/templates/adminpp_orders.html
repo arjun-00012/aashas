@@ -197,15 +197,20 @@
                 <label class="form-label small fw-bold text-secondary mb-1">TO DATE</label>
                 <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
             </div>
-            <div class="col-12 col-md-2">
+            <div class="col-12 col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-obsidian btn-sm w-100 py-2 fw-semibold rounded-pill">
                     <i class="bi bi-funnel me-1"></i> Filter
                 </button>
+                {% if selected_category or start_date or end_date %}
+                <a href="{% url 'adminpp_orders' %}" class="btn btn-outline-secondary btn-sm py-2 px-3 rounded-pill" title="Clear filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
             </div>
         </div>
     </form>
 
-    <!-- Orders Output Table -->
+    <!-- Orders Output Container -->
     <div class="card-admin p-3 p-md-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
@@ -215,7 +220,73 @@
             <span class="badge bg-dark rounded-pill px-3 py-2 fw-semibold" style="background-color: #171614 !important;">{{ orders|length }} Orders</span>
         </div>
 
-        <div class="table-responsive">
+        <!-- Mobile Card View (< 768px) -->
+        <div class="d-block d-md-none">
+            {% for order in orders %}
+            <div class="p-3 mb-3 rounded-3 border bg-white shadow-sm" style="border-color: var(--border-subtle) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-dark rounded-pill px-2 py-1 fw-bold">#{{ order.id }}</span>
+                        {% if order.payment_status == 'Completed' %}
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1">Paid</span>
+                        {% else %}
+                            <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-1">{{ order.payment_status }}</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-secondary" style="font-size: 0.76rem;">{{ order.created_at|date:"d M Y, H:i" }}</small>
+                </div>
+
+                <div class="mb-2">
+                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ order.full_name }}</div>
+                    {% if order.phone_number %}
+                    <a href="tel:{{ order.phone_number }}" class="text-decoration-none small text-secondary d-inline-flex align-items-center gap-1 mt-1">
+                        <i class="bi bi-telephone text-success"></i> {{ order.phone_number }}
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if order.shipping_address %}
+                <div class="mb-2 p-2 rounded-2" style="background: var(--bg-surface-elevated); font-size: 0.8rem;">
+                    <span class="text-muted d-block small mb-1" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Shipping Address</span>
+                    <span class="text-dark">{{ order.shipping_address }}</span>
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small mb-1" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Items</span>
+                    <div class="d-flex flex-column gap-1">
+                        {% for item in order.items.all %}
+                        <div class="d-flex justify-content-between align-items-center bg-light px-2 py-1 rounded border" style="border-color: var(--border-subtle) !important; font-size: 0.8rem;">
+                            <span class="text-dark text-truncate me-2">{{ item.product.name }}</span>
+                            <span class="badge bg-secondary rounded-pill">x{{ item.quantity }}</span>
+                        </div>
+                        {% empty %}
+                        <span class="text-muted small">No items recorded</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: var(--border-subtle) !important;">
+                    <div>
+                        <span class="text-muted small d-block" style="font-size: 0.7rem;">TOTAL PAID</span>
+                        <strong class="fs-6 text-dark">₹{{ order.total_price }}</strong>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-muted small d-block" style="font-size: 0.7rem;">PAYMENT ID</span>
+                        <code class="text-dark bg-light px-2 py-1 rounded small" style="border: 1px solid var(--border-subtle); font-size: 0.72rem;">{{ order.razorpay_payment_id|default:"-" }}</code>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-secondary small">
+                <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                No completed transactions found matching the specified parameters.
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Desktop Table (>= 768px) -->
+        <div class="d-none d-md-block table-responsive">
             <table class="table table-custom align-middle">
                 <thead>
                     <tr>
@@ -236,7 +307,13 @@
                             <span class="badge bg-light text-dark border rounded-pill px-2 py-1 fw-bold" style="border-color: var(--border-subtle) !important;">#{{ order.id }}</span>
                         </td>
                         <td class="fw-semibold text-dark text-nowrap">{{ order.full_name }}</td>
-                        <td class="text-secondary text-nowrap">{{ order.phone_number }}</td>
+                        <td class="text-secondary text-nowrap">
+                            {% if order.phone_number %}
+                            <a href="tel:{{ order.phone_number }}" class="text-secondary text-decoration-none">
+                                <i class="bi bi-telephone small me-1"></i>{{ order.phone_number }}
+                            </a>
+                            {% else %}-{% endif %}
+                        </td>
                         <td><small class="text-secondary" style="min-width: 160px; max-width: 250px; display: inline-block; word-break: break-word;">{{ order.shipping_address }}</small></td>
                         <td style="min-width: 160px;">
                             {% for item in order.items.all %}

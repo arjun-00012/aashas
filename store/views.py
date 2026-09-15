@@ -10,14 +10,70 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Category, Product, Order, OrderItem, Profile, ContactMessage
+from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
+
+import razorpay
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver
 
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-def cart_context_processor(request):
+@receiver(user_logged_in)
+def handle_user_logged_in(sender, request, user, **kwargs):
+    if request:
+        items = CartItem.objects.filter(user=user)
+        request.session['cart'] = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        request.session.modified = True
+
+@receiver(user_logged_out)
+def handle_user_logged_out(sender, request, user, **kwargs):
+    if request:
+        request.session.flush()
+
+
+def get_user_cart(request):
+    """
+    Returns a dict {str(product_id): int(quantity)} strictly isolated for current user/session.
+    If authenticated: fetches from CartItem DB model.
+    If guest: uses request.session.
+    """
+    if request.user.is_authenticated:
+        items = CartItem.objects.filter(user=request.user)
+        cart = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        request.session['cart'] = cart
+        return cart
+    return request.session.get('cart', {})
+
+def sync_cart_item(request, product, quantity):
+    """
+    Persists cart change to DB if authenticated, and keeps session up-to-date.
+    If quantity <= 0, deletes from DB.
+    """
+    pid = str(product.id)
     cart = request.session.get('cart', {})
-    total_qty = sum(cart.values()) if cart else 0
+    if quantity > 0:
+        cart[pid] = quantity
+        if request.user.is_authenticated:
+            CartItem.objects.update_or_create(
+                user=request.user,
+                product=product,
+                defaults={'quantity': quantity}
+            )
+    else:
+        cart.pop(pid, None)
+        if request.user.is_authenticated:
+            CartItem.objects.filter(user=request.user, product=product).delete()
+    request.session['cart'] = cart
+    request.session.modified = True
+
+def cart_context_processor(request):
+    if request.user.is_authenticated:
+        items = CartItem.objects.filter(user=request.user)
+        total_qty = sum(item.quantity for item in items)
+    else:
+        cart = request.session.get('cart', {})
+        total_qty = sum(cart.values()) if cart else 0
     return {
         'cart_item_count': total_qty,
         'all_categories': Category.objects.all(),
@@ -34,7 +90,11 @@ def home(request):
     if 'cron-job' in user_agent or 'cronjob' in user_agent or 'uptimerobot' in user_agent or request.GET.get('ping'):
         return HttpResponse("OK", content_type="text/plain", status=200)
     categories = Category.objects.prefetch_related('products').all()
-    return render(request, 'index.html', {'categories': categories})
+    trending_products = Product.objects.filter(is_trending=True).select_related('category')
+    return render(request, 'index.html', {
+        'categories': categories,
+        'trending_products': trending_products
+    })
 
 # --- Auth Views ---
 def register_view(request):
@@ -49,6 +109,9 @@ def register_view(request):
             profile.phone_number = form.cleaned_data['phone_number']
             profile.save()
             login(request, user)
+            # Fresh isolated cart for new user
+            request.session['cart'] = {}
+            request.session.modified = True
             return redirect('home')
     else:
         form = RegistrationForm()
@@ -61,6 +124,11 @@ def login_view(request):
         user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
+            # Load THIS user's specific cart items into session, completely clearing any prior user's items!
+            user_items = CartItem.objects.filter(user=user)
+            user_cart = {str(item.product_id): item.quantity for item in user_items if item.quantity > 0}
+            request.session['cart'] = user_cart
+            request.session.modified = True
             next_url = request.GET.get('next', 'home')
             return redirect(next_url)
         return render(request, 'login.html', {'error': 'Invalid Username or Password.'})
@@ -68,6 +136,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
     return redirect('home')
 
 @login_required
@@ -85,7 +154,7 @@ def profile_view(request):
 
 # --- Cart Views ---
 def add_to_cart(request, product_id):
-    cart = request.session.get('cart', {})
+    cart = get_user_cart(request)
     pid = str(product_id)
     product = Product.objects.filter(id=product_id).first()
 
@@ -108,11 +177,10 @@ def add_to_cart(request, product_id):
         messages.warning(request, f'Only {product.stock} available in stock.')
         return redirect(request.META.get('HTTP_REFERER', 'home'))
 
-    cart[pid] = current_qty + 1
-    request.session['cart'] = cart
+    sync_cart_item(request, product, current_qty + 1)
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
-        total_qty = sum(cart.values())
+        total_qty = sum(get_user_cart(request).values())
         return JsonResponse({
             'status': 'success',
             'cart_item_count': total_qty,
@@ -123,7 +191,7 @@ def add_to_cart(request, product_id):
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 def cart_view(request):
-    cart = request.session.get('cart', {})
+    cart = get_user_cart(request)
     cart_items = []
     total = 0
     stale_pids = []
@@ -136,7 +204,7 @@ def cart_view(request):
             continue
         if qty > product.stock:
             qty = product.stock
-            cart[pid] = qty
+            sync_cart_item(request, product, qty)
             stock_adjusted = True
 
         subtotal = float(product.current_price) * qty
@@ -145,36 +213,41 @@ def cart_view(request):
     
     if stale_pids or stock_adjusted:
         for pid in stale_pids:
-            cart.pop(pid, None)
+            p = Product.objects.filter(id=pid).first()
+            if p:
+                sync_cart_item(request, p, 0)
+            else:
+                cart.pop(pid, None)
+                if request.user.is_authenticated:
+                    CartItem.objects.filter(user=request.user, product_id=pid).delete()
         request.session['cart'] = cart
+        request.session.modified = True
         if stock_adjusted:
             messages.warning(request, "Some cart quantities were adjusted to match available inventory.")
 
     return render(request, 'cart.html', {'cart_items': cart_items, 'total': total})
 
 def update_cart(request, product_id, action):
-    cart = request.session.get('cart', {})
+    cart = get_user_cart(request)
     pid = str(product_id)
     product = Product.objects.filter(id=product_id).first()
 
-    if pid in cart:
+    if pid in cart and product:
         if action == 'increase':
-            if product and cart[pid] >= product.stock:
+            if cart[pid] >= product.stock:
                 messages.warning(request, f'Cannot exceed available stock of {product.stock}.')
             else:
-                cart[pid] += 1
+                sync_cart_item(request, product, cart[pid] + 1)
         elif action == 'decrease':
-            cart[pid] -= 1
-            if cart[pid] <= 0:
-                del cart[pid]
+            new_qty = cart[pid] - 1
+            sync_cart_item(request, product, new_qty)
         elif action == 'remove':
-            del cart[pid]
-    request.session['cart'] = cart
+            sync_cart_item(request, product, 0)
     return redirect('cart')
 
 # --- Razorpay Checkout ---
 def checkout_view(request):
-    cart = request.session.get('cart', {})
+    cart = get_user_cart(request)
     if not cart:
         return redirect('home')
     
@@ -188,7 +261,7 @@ def checkout_view(request):
         if product and product.stock > 0:
             if qty > product.stock:
                 qty = product.stock
-                cart[pid] = qty
+                sync_cart_item(request, product, qty)
                 stock_adjusted = True
             valid_items[pid] = (product, qty)
             total += float(product.current_price) * qty
@@ -197,8 +270,15 @@ def checkout_view(request):
 
     if stale_pids or stock_adjusted:
         for pid in stale_pids:
-            cart.pop(pid, None)
+            p = Product.objects.filter(id=pid).first()
+            if p:
+                sync_cart_item(request, p, 0)
+            else:
+                cart.pop(pid, None)
+                if request.user.is_authenticated:
+                    CartItem.objects.filter(user=request.user, product_id=pid).delete()
         request.session['cart'] = cart
+        request.session.modified = True
         if stock_adjusted:
             messages.warning(request, "Item quantities adjusted based on current warehouse stock.")
 
@@ -281,7 +361,11 @@ def payment_verify(request):
                     item.product.stock = max(0, item.product.stock - item.quantity)
                     item.product.save(update_fields=['stock'])
 
+            # Clear cart items strictly for this user
+            if request.user.is_authenticated:
+                CartItem.objects.filter(user=request.user).delete()
             request.session['cart'] = {}
+            request.session.modified = True
             return JsonResponse({'status': 'success'})
         except Exception:
             return JsonResponse({'status': 'failed'}, status=400)
@@ -325,11 +409,33 @@ def staff_required(view_func):
 
 @staff_required
 def adminpp_dashboard(request):
+    products = Product.objects.select_related('category').all().order_by('-created_at')
+    trending_count = products.filter(is_trending=True).count()
     return render(request, 'adminpp_dashboard.html', {
         'categories': Category.objects.all(),
-        'products': Product.objects.all(),
+        'products': products,
+        'trending_count': trending_count,
         'inquiries': ContactMessage.objects.all().order_by('-created_at')
     })
+
+@staff_required
+def product_toggle_trending(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.is_trending = not product.is_trending
+    product.save(update_fields=['is_trending'])
+
+    action_text = "added to" if product.is_trending else "removed from"
+    msg = f'Product "{product.name}" {action_text} Trending.'
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
+        return JsonResponse({
+            'status': 'success',
+            'product_id': product.id,
+            'is_trending': product.is_trending,
+            'message': msg
+        })
+    messages.success(request, msg)
+    return redirect(request.META.get('HTTP_REFERER', 'adminpp_dashboard'))
 
 @staff_required
 def adminpp_orders(request):

@@ -72,6 +72,16 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* Prevent Bootstrap offcanvas / modal scrollbar jump */
+        body.modal-open,
+        body.offcanvas-open {
+            padding-right: 0 !important;
+            overflow: hidden !important;
+        }
+        .top-navbar {
+            padding-right: inherit !important;
+        }
+
         /* Full-width clean container */
         .main-wrapper {
             width: 100%;
@@ -124,25 +134,32 @@
             position: relative;
         }
 
-        /* Minimalist 3-Bar Hamburger Button (=) */
+        /* Minimalist 3-Bar Hamburger Button with Morph Animation */
         .nav-menu-btn {
             background: transparent;
             border: none;
-            padding: 6px 2px;
+            padding: 6px 4px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             gap: 4.5px;
-            width: 34px;
-            height: 34px;
-            transition: opacity 0.2s ease;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
             outline: none;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
 
         .nav-menu-btn:hover {
-            opacity: 0.6;
+            background: rgba(28, 25, 23, 0.05);
+        }
+
+        .nav-menu-btn:active {
+            transform: scale(0.92);
         }
 
         .menu-bar {
@@ -150,7 +167,63 @@
             height: 2px;
             background-color: #171614;
             border-radius: 2px;
-            transition: all 0.2s ease;
+            transition: transform 0.32s cubic-bezier(0.68, -0.6, 0.32, 1.6), opacity 0.22s ease, background-color 0.2s ease;
+            transform-origin: center;
+            display: block;
+        }
+
+        /* Animated hamburger morph to close cross ('X') */
+        .nav-menu-btn.is-active .menu-bar:nth-child(1) {
+            transform: translateY(6.5px) rotate(45deg);
+        }
+
+        .nav-menu-btn.is-active .menu-bar:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .nav-menu-btn.is-active .menu-bar:nth-child(3) {
+            transform: translateY(-6.5px) rotate(-45deg);
+        }
+
+        /* Small Admin Portal Navbar Button */
+        .btn-nav-admin {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #171614;
+            color: #FAF8F5 !important;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            text-decoration: none;
+            border: 1px solid rgba(28, 25, 23, 0.2);
+            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.12);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-nav-admin:hover {
+            background: #2E2A24;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(23, 22, 20, 0.2);
+            color: #FFFFFF !important;
+        }
+
+        .btn-nav-admin i {
+            font-size: 0.82rem;
+            color: #E5C378;
+        }
+
+        @media (max-width: 480px) {
+            .btn-nav-admin {
+                padding: 4px 8px;
+                font-size: 0.66rem;
+            }
         }
 
         /* Centered Brand Logo */
@@ -833,8 +906,14 @@
                 <span class="nav-brand-text" style="display: none;">AASHAS</span>
             </a>
 
-            <!-- Right: Search + Shopping Cart (Matching reference image) -->
+            <!-- Right: Admin Dashboard Button (if staff) + Search + Shopping Cart -->
             <div class="nav-right-group">
+                {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'adminpp_dashboard' %}" class="btn-nav-admin" title="Admin Management Dashboard">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="d-none d-sm-inline">Dashboard</span>
+                </a>
+                {% endif %}
                 <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search Catalog" title="Search">
                     <i class="bi bi-search"></i>
                 </button>
@@ -893,6 +972,10 @@
             <a href="{% url 'home' %}" class="drawer-link" data-target-section="top">
                 <span><i class="bi bi-grid-fill me-2"></i> All Accessories</span>
                 <i class="bi bi-chevron-right small text-muted"></i>
+            </a>
+            <a href="{% url 'home' %}#section-trending" class="drawer-link" data-target-section="#section-trending">
+                <span><i class="bi bi-fire text-danger me-2"></i> Trending Now</span>
+                <span class="badge bg-danger text-white rounded-pill px-2 py-0" style="font-size: 0.65rem;">HOT</span>
             </a>
             {% for cat in all_categories %}
             <a href="{% url 'home' %}#section-{{ cat.slug }}" class="drawer-link drawer-category-link" data-target-section="#section-{{ cat.slug }}" data-cat="{{ cat.slug }}">
@@ -1115,6 +1198,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawerEl = document.getElementById('ashasSideDrawer');
     const bsDrawer = drawerEl && window.bootstrap ? bootstrap.Offcanvas.getOrCreateInstance(drawerEl) : null;
     const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+
+    // Synchronize animated hamburger button with offcanvas drawer state
+    const navMenuBtn = document.querySelector('.nav-menu-btn');
+    if (drawerEl && navMenuBtn) {
+        drawerEl.addEventListener('show.bs.offcanvas', () => {
+            navMenuBtn.classList.add('is-active');
+        });
+        drawerEl.addEventListener('hide.bs.offcanvas', () => {
+            navMenuBtn.classList.remove('is-active');
+        });
+    }
+
+    // Brand logo click: smoothly scroll to top if already on homepage without reloading
+    const navBrandLink = document.querySelector('.nav-center-brand');
+    if (navBrandLink) {
+        navBrandLink.addEventListener('click', (e) => {
+            if (isHomePage) {
+                e.preventDefault();
+                if (window.cancelSearchFilter && window.isSearchFilterActive) {
+                    window.cancelSearchFilter();
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                history.pushState(null, null, '/');
+            }
+        });
+    }
 
     // =========================================================
     // 1. Sidebar Navigation Handler (Rings & Collections Scroll)

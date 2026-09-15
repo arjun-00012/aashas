@@ -57,7 +57,7 @@ class CategoryForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['category', 'name', 'image', 'image_url', 'price', 'discount_price', 'description', 'stock']
+        fields = ['category', 'name', 'image', 'image_url', 'price', 'discount_price', 'description', 'stock', 'is_trending']
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Wolf Ring, Noir Sunglasses'}),
@@ -66,11 +66,13 @@ class ProductForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '999'}),
             'discount_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '799 (Leave empty if not on sale)'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '10'}),
+            'is_trending': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Product details, sizing, material...'}),
         }
         help_texts = {
             'image': 'Recommended: 1000 × 1000 px to 1200 × 1200 px (1:1 Square). Max 5 MB. Formats: WebP, PNG, JPG.',
             'image_url': 'Direct high-res link to product image (e.g. Cloudinary, CDN, Imgur).',
+            'is_trending': 'Feature this item prominently in the homepage Trending Now section.',
         }
 
     def clean_image(self):

@@ -177,16 +177,17 @@
             padding: 0 0.5rem;
         }
         .category-grid {
-            gap: 10px 4px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 6px;
         }
         .category-thumb-wrapper {
-            width: clamp(60px, 19vw, 80px);
-            height: clamp(60px, 19vw, 80px);
-            padding: 5px;
-            border-radius: 10px;
+            width: clamp(62px, 19vw, 76px) !important;
+            height: clamp(62px, 19vw, 76px) !important;
+            padding: 6px !important;
+            border-radius: 50% !important;
         }
         .category-label {
-            margin-top: 5px;
+            margin-top: 6px;
             font-size: clamp(0.55rem, 2vw, 0.68rem);
             letter-spacing: 0.08em;
             line-height: 1.15;
@@ -198,15 +199,15 @@
 
     @media (min-width: 576px) and (max-width: 991.98px) {
         .category-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 32px 20px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 24px 16px;
         }
     }
 
     @media (min-width: 992px) {
         .category-grid {
-            grid-template-columns: repeat(8, 1fr);
-            gap: 24px 14px;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 20px 12px;
         }
     }
 
@@ -224,27 +225,87 @@
         transform: translateY(-4px);
     }
 
-    /* Isolated Product Thumbnail Card */
+    /* Circular Luxury Ring Category Thumbnail */
     .category-thumb-wrapper {
-        width: clamp(76px, 22vw, 110px);
-        height: clamp(76px, 22vw, 110px);
+        width: clamp(74px, 20vw, 96px);
+        height: clamp(74px, 20vw, 96px);
         display: flex;
         align-items: center;
         justify-content: center;
         background: #FFFFFF;
-        border-radius: 12px;
+        border-radius: 50%;
         padding: 8px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
-        border: 1px solid rgba(28, 25, 23, 0.1);
-        transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+        border: 2px solid rgba(28, 25, 23, 0.14);
+        box-shadow: 0 0 0 3px #FAF8F5, 0 4px 14px rgba(28, 25, 23, 0.04);
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+        aspect-ratio: 1 / 1;
     }
 
     .category-item-link:hover .category-thumb-wrapper {
-        box-shadow: 0 10px 24px rgba(28, 25, 23, 0.1);
+        box-shadow: 0 0 0 3px #FAF8F5, 0 0 0 5px rgba(23, 22, 20, 0.25), 0 8px 20px rgba(28, 25, 23, 0.1);
         border-color: #171614;
-        transform: scale(1.04);
+        transform: scale(1.06);
+    }
+
+    .category-item-link.active .category-thumb-wrapper {
+        border-color: #171614;
+        box-shadow: 0 0 0 3px #FAF8F5, 0 0 0 5px #171614, 0 8px 20px rgba(28, 25, 23, 0.12);
+    }
+
+    /* Trending Story Ring Custom Theme */
+    .category-ring-trending .category-thumb-wrapper {
+        border-color: #EF4444;
+        background: linear-gradient(135deg, #FFF1F2 0%, #FFFFFF 100%);
+        box-shadow: 0 0 0 3px #FAF8F5, 0 0 0 4px rgba(239, 68, 68, 0.28), 0 4px 14px rgba(239, 68, 68, 0.12);
+    }
+
+    .category-ring-trending:hover .category-thumb-wrapper {
+        border-color: #DC2626;
+        box-shadow: 0 0 0 3px #FAF8F5, 0 0 0 5px rgba(220, 38, 38, 0.5), 0 8px 22px rgba(239, 68, 68, 0.22);
+        transform: scale(1.08);
+    }
+
+    .trending-ring-icon {
+        font-size: clamp(1.3rem, 3.8vw, 1.75rem);
+        color: #DC2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: flamePulse 2s infinite alternate;
+    }
+
+    @keyframes flamePulse {
+        0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.3)); }
+        100% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6)); }
+    }
+
+    .trending-flame-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #FEE2E2;
+        color: #DC2626;
+        font-size: 0.85rem;
+    }
+
+    .badge-trending-hot {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #DC2626;
+        color: #FFFFFF;
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        padding: 3px 7px;
+        border-radius: 9999px;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+        z-index: 5;
     }
 
     .category-thumb-img {
@@ -764,8 +825,18 @@
         <h2 class="aesthetic-section-title">COLLECTIONS</h2>
     </div>
 
-    <!-- Category Grid: Watches, Belts, Shades, Caps, Rings, Chains, Bracelets -->
+    <!-- Category Grid: Trending ring + Watches, Belts, Shades, Caps, Rings, Chains, Bracelets -->
     <div class="category-grid" id="blactifyCategoryGrid">
+        {% if trending_products %}
+        <a href="#section-trending" class="category-item-link category-ring-trending" data-cat="trending">
+            <div class="category-thumb-wrapper ring-trending-badge">
+                <div class="trending-ring-icon">
+                    <i class="bi bi-fire"></i>
+                </div>
+            </div>
+            <span class="category-label text-danger fw-bold">Trending</span>
+        </a>
+        {% endif %}
         {% for cat in categories %}
         <a href="#section-{{ cat.slug }}" class="category-item-link" data-cat="{{ cat.slug }}">
             <div class="category-thumb-wrapper">
@@ -813,6 +884,86 @@
             </button>
         </div>
     </div>
+
+    <!-- =========================================================
+         FIRST PRODUCT SHOWCASE: TRENDING NOW (Most Moving Products)
+         ========================================================= -->
+    {% if trending_products %}
+    <section id="section-trending" class="category-section mb-5 pt-3 trending-showcase-section">
+        <div class="section-header">
+            <div class="min-w-0 flex-grow-1 pe-2">
+                <div class="section-title-wrap">
+                    <span class="trending-flame-badge"><i class="bi bi-fire"></i></span>
+                    <h2 class="section-title text-truncate" style="letter-spacing: 0.16em;">TRENDING NOW</h2>
+                    <span class="section-count bg-danger text-white border-0">{{ trending_products.count }}</span>
+                </div>
+            </div>
+            {% if trending_products.count > 1 %}
+            <div class="scroll-nav-btns d-flex gap-1 ms-1">
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', -1)" aria-label="Scroll left" title="Scroll left">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', 1)" aria-label="Scroll right" title="Scroll right">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Horizontal Scroll Track for Trending Items -->
+        <div class="product-scroll-track" id="scrollTrack-trending">
+            {% for product in trending_products %}
+            <div class="product-scroll-item">
+                <div class="product-card h-100 d-flex flex-column justify-content-between"
+                     data-id="{{ product.id }}"
+                     data-name="{{ product.name }}"
+                     data-price="₹{{ product.current_price }}"
+                     data-orig-price="{% if product.discount_price %}₹{{ product.price }}{% endif %}"
+                     data-desc="{{ product.description|default:'Curated archival streetwear accessory crafted with precision and premium durability.' }}"
+                     data-cat="{{ product.category.name }}"
+                     data-stock="{{ product.stock }}"
+                     data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                     data-add-url="{% url 'add_to_cart' product.id %}">
+                    <div>
+                        <!-- Interactive Preview Area -->
+                        <div class="product-clickable-area" role="button" tabindex="0" aria-label="Quick view {{ product.name }}">
+                            <div class="product-img-wrapper">
+                                {% if product.display_image %}
+                                    <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy">
+                                {% else %}
+                                    <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
+                                {% endif %}
+                                <span class="badge-trending-hot"><i class="bi bi-fire me-1"></i>HOT</span>
+                            </div>
+                            <h3 class="product-name mt-2" title="{{ product.name }}">{{ product.name }}</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="product-price">₹{{ product.current_price }}</span>
+                            {% if product.discount_price %}
+                                <span class="text-secondary text-decoration-line-through small" style="font-size: 0.78rem;">₹{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.stock > 0 %}
+                            <button type="button" class="btn btn-add-cart w-100 ajax-add-to-bag d-inline-flex align-items-center justify-content-center gap-1"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-add-url="{% url 'add_to_cart' product.id %}">
+                                <i class="bi bi-cart-plus"></i> <span>ADD TO BAG</span>
+                            </button>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-secondary w-100 rounded-pill disabled" style="font-size: 0.72rem;" disabled>
+                                SOLD OUT
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     {% for category in categories %}
     <section id="section-{{ category.slug }}" class="category-section mb-5 pt-3">
