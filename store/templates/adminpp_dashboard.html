@@ -317,54 +317,101 @@
             border-color: #2b2824 !important;
             color: #FFFFFF !important;
         }
+
+        /* Sticky Top Admin Navigation Bar */
+        .admin-top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            background: #FFFFFF !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            width: 100%;
+        }
+
+        .admin-nav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+            border: 1px solid transparent;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .admin-nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-elevated);
+        }
+
+        .admin-nav-tab.active {
+            background-color: #171614 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        }
+
+        @media (max-width: 575.98px) {
+            .admin-nav-tab {
+                padding: 6px 10px;
+                font-size: 0.74rem;
+                gap: 4px;
+            }
+        }
     </style>
 </head>
-<body class="p-2 p-sm-3 p-md-4 page-container">
+<body class="page-container p-0">
 
-<!-- Floating Admin Notification Pop-up -->
-{% if messages %}
-<div class="admin-toast-container" id="adminToastContainer">
-    {% for message in messages %}
-    <div class="admin-toast {% if message.tags == 'error' %}error-toast{% endif %} p-3 mb-2" id="adminToast{{ forloop.counter }}">
-        <div class="d-flex align-items-start gap-3">
-            <div class="toast-icon-wrap {% if message.tags == 'error' %}error{% endif %} flex-shrink-0">
-                <i class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill text-danger{% else %}bi-check-circle-fill text-success{% endif %} fs-5"></i>
+<!-- Sticky Responsive Admin Navigation Bar -->
+<header class="admin-top-navbar">
+    <div class="container-fluid px-3 px-md-4" style="max-width: 1400px;">
+        <div class="d-flex align-items-center justify-content-between" style="height: 58px;">
+            <!-- Brand Badge -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'adminpp_dashboard' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" style="height: 30px; width: auto; object-fit: contain;">
+                    <span class="fw-bold text-dark text-uppercase tracking-wider d-none d-sm-inline" style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; letter-spacing: 0.12em;">AASHAS</span>
+                </a>
+                <span class="badge bg-dark rounded-pill px-2 py-1 small" style="font-size: 0.65rem; letter-spacing: 0.08em; background-color: #171614 !important;">ADMIN</span>
             </div>
-            <div class="flex-grow-1 min-w-0">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="badge {% if message.tags == 'error' %}bg-danger text-danger{% else %}bg-success text-success{% endif %} bg-opacity-10 border {% if message.tags == 'error' %}border-danger{% else %}border-success{% endif %} border-opacity-30 rounded-pill px-2 py-0" style="font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;">
-                        {% if message.tags == 'error' %}Notice{% else %}Catalog Update{% endif %}
-                    </span>
-                    <button type="button" class="btn-close" style="font-size: 0.7rem; padding: 0.25rem;" onclick="dismissToast('adminToast{{ forloop.counter }}')"></button>
-                </div>
-                <div class="fw-semibold text-dark small" style="line-height: 1.35;">{{ message }}</div>
-                <div class="toast-progress-bar">
-                    <div class="toast-progress-fill {% if message.tags == 'error' %}error{% endif %}"></div>
-                </div>
-            </div>
+
+            <!-- Responsive Navigation Pills -->
+            <nav class="d-flex align-items-center gap-1 gap-sm-2">
+                <a href="{% url 'adminpp_dashboard' %}" class="admin-nav-tab active" title="Catalog & Dashboard">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'adminpp_orders' %}" class="admin-nav-tab" title="Orders & Transactions">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="{% url 'home' %}" target="_blank" class="admin-nav-tab" title="View Customer Store">
+                    <i class="bi bi-shop"></i>
+                    <span class="d-none d-md-inline">Live Store</span>
+                </a>
+                <a href="{% url 'logout' %}" class="admin-nav-tab text-danger" title="Sign Out">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </nav>
         </div>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+</header>
 
+<div class="p-2 p-sm-3 p-md-4">
 <div class="container-fluid" style="max-width: 1400px;">
-    <!-- Top Action Header -->
-    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 pb-3 border-bottom" style="border-color: var(--border-subtle) !important;">
-        <div class="d-flex align-items-center gap-2 gap-sm-3">
-            <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" style="height: 38px; width: auto; object-fit: contain;">
-            <div>
-                <h1 class="portal-header m-0 text-uppercase">AASHAS STORE — PORTAL</h1>
-                <span class="text-secondary small d-none d-sm-inline">Inventory, categories, customer orders & inquiry management</span>
-            </div>
+    <!-- Portal Header Bar -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+        <div>
+            <h1 class="portal-header m-0 text-uppercase">CATALOG & INVENTORY MANAGEMENT</h1>
+            <span class="text-secondary small">Curate collections, configure inventory, adjust pricing, and track live stock</span>
         </div>
-        <div class="d-flex flex-wrap gap-2 w-100 w-sm-auto justify-content-start justify-content-sm-end">
-            <a href="{% url 'adminpp_orders' %}" class="btn btn-obsidian btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm text-nowrap fw-medium flex-grow-1 flex-sm-grow-0">
+        <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0 w-100 w-sm-auto">
+            <a href="{% url 'adminpp_orders' %}" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center text-nowrap fw-medium flex-grow-1 flex-sm-grow-0">
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i> Orders & Export
-            </a>
-
-            <a href="{% url 'home' %}" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center text-nowrap fw-medium flex-grow-1 flex-sm-grow-0">
-                <i class="bi bi-shop me-1"></i> View Live Store
             </a>
         </div>
     </div>
@@ -391,15 +438,15 @@
         <!-- Categories Section -->
         <div class="col-12 col-lg-5">
             <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <h2 class="h5 m-0 fw-bold text-dark">Categories</h2>
-                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>800×800 (1:1)</span>
+                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0 d-none d-sm-inline-flex align-items-center" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>800×800</span>
                         </div>
                         <small class="text-secondary">{{ categories|length }} Total</small>
                     </div>
-                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-1 fw-semibold text-nowrap">
+                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-2 fw-semibold text-nowrap shadow-sm d-inline-flex align-items-center">
                         <i class="bi bi-plus-lg me-1"></i> Add Category
                     </a>
                 </div>
@@ -464,24 +511,31 @@
         <!-- Products Section with Category Filter -->
         <div class="col-12 col-lg-7">
             <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <h2 class="h5 m-0 fw-bold text-dark">Products</h2>
-                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>1000×1000 (1:1)</span>
+                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0 d-none d-sm-inline-flex align-items-center" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>1000×1000</span>
                         </div>
                         <small class="text-secondary">{{ products|length }} Listed</small>
                     </div>
-                    <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto">
-                        <!-- Search Box for Products -->
-                        <div class="input-group input-group-sm flex-grow-1 flex-sm-grow-0" style="min-width: 140px; max-width: 180px;">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" id="adminProductSearchInput" class="form-control form-control-sm" placeholder="Search product...">
+                    <a href="{% url 'product_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-2 fw-semibold text-nowrap shadow-sm d-inline-flex align-items-center">
+                        <i class="bi bi-plus-lg me-1"></i> Add Product
+                    </a>
+                </div>
+
+                <!-- Product Search & Filter Row -->
+                <div class="row g-2 mb-3">
+                    <div class="col-12 col-sm-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white text-secondary border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" id="adminProductSearchInput" class="form-control form-control-sm border-start-0 ps-0" placeholder="Search product name...">
                         </div>
-                        <!-- Category & Trending Filter Dropdown -->
-                        <div class="input-group input-group-sm flex-grow-1 flex-sm-grow-0" style="min-width: 150px;">
-                            <span class="input-group-text"><i class="bi bi-funnel"></i></span>
-                            <select id="productCategoryFilter" class="form-select form-select-sm">
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white text-secondary border-end-0"><i class="bi bi-funnel"></i></span>
+                            <select id="productCategoryFilter" class="form-select form-select-sm border-start-0 ps-0">
                                 <option value="all">All Categories</option>
                                 <option value="trending">★ Trending Only ({{ trending_count }})</option>
                                 {% for cat in categories %}
@@ -489,9 +543,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <a href="{% url 'product_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-1 fw-semibold text-nowrap">
-                            <i class="bi bi-plus-lg me-1"></i> Add Product
-                        </a>
                     </div>
                 </div>
 
@@ -656,6 +707,7 @@
             </table>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Bootstrap 5 JS -->

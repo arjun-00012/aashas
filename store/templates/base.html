@@ -186,6 +186,20 @@
             transform: translateY(-6.5px) rotate(-45deg);
         }
 
+        /* Left Nav Group */
+        .nav-left-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        @media (min-width: 576px) {
+            .nav-left-group {
+                gap: 10px;
+            }
+        }
+
         /* Small Admin Portal Navbar Button */
         .btn-nav-admin {
             display: inline-flex;
@@ -198,7 +212,7 @@
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 9999px;
             text-decoration: none;
             border: 1px solid rgba(28, 25, 23, 0.2);
@@ -215,14 +229,21 @@
         }
 
         .btn-nav-admin i {
-            font-size: 0.82rem;
+            font-size: 0.85rem;
             color: #E5C378;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 575.98px) {
             .btn-nav-admin {
-                padding: 4px 8px;
-                font-size: 0.66rem;
+                width: 38px;
+                height: 38px;
+                padding: 0;
+                justify-content: center;
+                border-radius: 8px;
+            }
+            .btn-nav-admin i {
+                font-size: 1.1rem;
+                margin: 0;
             }
         }
 
@@ -237,6 +258,8 @@
             text-decoration: none;
             color: #171614;
             transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1;
+            max-width: calc(100% - 170px);
         }
 
         .nav-center-brand:hover {
@@ -260,19 +283,19 @@
 
         @media (max-width: 575.98px) {
             .nav-brand-img {
-                height: 20px;
-                max-width: 118px;
+                height: 19px;
+                max-width: 110px;
             }
             .nav-brand-text {
-                font-size: 1.15rem;
+                font-size: 1.1rem;
                 letter-spacing: 0.12em;
             }
         }
 
         @media (max-width: 374.98px) {
             .nav-brand-img {
-                height: 18px;
-                max-width: 96px;
+                height: 17px;
+                max-width: 90px;
             }
         }
 
@@ -286,94 +309,81 @@
             line-height: 1;
         }
 
-        /* Right Nav Icons Group (Search + Shopping Cart) */
+        /* Right Nav Icons Group (Search + Shopping Bag) */
         .nav-right-group {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 6px;
+            z-index: 2;
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 576px) {
             .nav-right-group {
-                gap: 22px;
+                gap: 10px;
             }
         }
 
-        @media (max-width: 575.98px) {
-            .nav-right-group {
-                gap: 12px;
-            }
-        }
-
-        @media (max-width: 374.98px) {
-            .nav-right-group {
-                gap: 8px;
-            }
-        }
-
-        .nav-icon-action {
-            background: transparent;
-            border: none;
-            color: #171614;
-            font-size: 1.18rem;
-            cursor: pointer;
-            padding: 4px;
+        .nav-icon-action,
+        .nav-cart-btn {
+            width: 38px;
+            height: 38px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            outline: none;
-            line-height: 1;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .nav-icon-action:hover {
-            opacity: 0.6;
-            transform: scale(1.08);
-        }
-
-        .nav-cart-btn {
             position: relative;
             background: transparent;
             border: none;
             color: #171614;
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
             text-decoration: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
             outline: none;
             line-height: 1;
             -webkit-tap-highlight-color: transparent;
         }
 
+        .nav-icon-action:hover,
         .nav-cart-btn:hover {
+            background: rgba(28, 25, 23, 0.05);
             color: #171614;
-            opacity: 0.6;
-            transform: scale(1.08);
+            opacity: 0.85;
+        }
+
+        .nav-icon-action:active,
+        .nav-cart-btn:active {
+            transform: scale(0.92);
+        }
+
+        .nav-icon-action i {
+            font-size: 1.15rem;
+            line-height: 1;
+        }
+
+        .nav-cart-btn i {
+            font-size: 1.25rem;
+            line-height: 1;
         }
 
         .nav-cart-badge {
             position: absolute;
-            top: -2px;
-            right: -6px;
+            top: 2px;
+            right: 2px;
             background-color: #171614;
             color: #FFFFFF;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            min-width: 16px;
-            height: 16px;
+            min-width: 17px;
+            height: 17px;
             border-radius: 9999px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 4px;
             line-height: 1;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+            border: 1.5px solid #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
         }
 
         /* Floating WhatsApp Button - Pure Icon Only */
@@ -893,32 +903,34 @@
     <!-- Minimalist Modern Sticky Header (top: 0) -->
     <header class="top-navbar">
         <div class="nav-container">
-            <!-- Left: Minimal 3-bar Hamburger Menu Button matching reference -->
-            <button class="nav-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ashasSideDrawer" aria-controls="ashasSideDrawer" aria-label="Open Navigation Menu">
-                <span class="menu-bar"></span>
-                <span class="menu-bar"></span>
-                <span class="menu-bar"></span>
-            </button>
-
-            <!-- Center: AASHAS Brand Logo (Clean, no TM, perfectly centered) -->
-            <a href="{% url 'home' %}" class="nav-center-brand" title="AASHAS">
-                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="AASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                <span class="nav-brand-text" style="display: none;">AASHAS</span>
-            </a>
-
-            <!-- Right: Admin Dashboard Button (if staff) + Search + Shopping Cart -->
-            <div class="nav-right-group">
+            <!-- Left Group: Minimal 3-bar Hamburger Menu Button + Staff Admin Dashboard Icon -->
+            <div class="nav-left-group">
+                <button class="nav-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ashasSideDrawer" aria-controls="ashasSideDrawer" aria-label="Open Navigation Menu">
+                    <span class="menu-bar"></span>
+                    <span class="menu-bar"></span>
+                    <span class="menu-bar"></span>
+                </button>
                 {% if user.is_authenticated and user.is_staff %}
                 <a href="{% url 'adminpp_dashboard' %}" class="btn-nav-admin" title="Admin Management Dashboard">
                     <i class="bi bi-speedometer2"></i>
                     <span class="d-none d-sm-inline">Dashboard</span>
                 </a>
                 {% endif %}
+            </div>
+
+            <!-- Center: AASHAS Brand Logo (Clean, centered) -->
+            <a href="{% url 'home' %}" class="nav-center-brand" title="AASHAS">
+                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="AASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="nav-brand-text" style="display: none;">AASHAS</span>
+            </a>
+
+            <!-- Right Group: Search + Shopping Bag (Cart is the far-right anchor) -->
+            <div class="nav-right-group">
                 <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search Catalog" title="Search">
                     <i class="bi bi-search"></i>
                 </button>
-                <a href="{% url 'cart' %}" class="nav-cart-btn" id="navBagLink" aria-label="Shopping Cart" title="View Cart">
-                    <i class="bi bi-cart3"></i>
+                <a href="{% url 'cart' %}" class="nav-cart-btn" id="navBagLink" aria-label="Shopping Cart" title="View Shopping Cart">
+                    <i class="bi bi-bag"></i>
                     <span class="nav-cart-badge" id="navBagCount" style="{% if not cart_item_count or cart_item_count == 0 %}display: none;{% endif %}">{{ cart_item_count|default:'' }}</span>
                 </a>
             </div>
