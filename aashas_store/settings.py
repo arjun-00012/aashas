@@ -15,6 +15,29 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = ['*']
 
+# Reverse proxy & SSL configuration (Crucial for Render & custom domains)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# CSRF Trusted Origins for Render, custom domains, and Hostinger domain
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://*.railway.app',
+    'https://ashasstore.in',
+    'https://www.ashasstore.in',
+    'http://ashasstore.in',
+    'http://www.ashasstore.in',
+]
+CSRF_EXTRA = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+if CSRF_EXTRA:
+    CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in CSRF_EXTRA.split(',') if origin.strip()])
+
+
 # Application Definition
 INSTALLED_APPS = [
     'django.contrib.admin',

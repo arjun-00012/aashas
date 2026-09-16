@@ -4,6 +4,9 @@ services:
     runtime: python
     buildCommand: "./build.sh"
     startCommand: "gunicorn aashas_store.wsgi:application"
+    domains:
+      - ashasstore.in
+      - www.ashasstore.in
     envVars:
       - key: DATABASE_URL
         fromDatabase:
