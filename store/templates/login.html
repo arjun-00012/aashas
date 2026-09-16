@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign In | AASHAS STORE{% endblock %}
+{% block title %}Sign In | ASHAS STORE{% endblock %}
 
 {% block content %}
 <div class="container py-4 py-md-5 d-flex justify-content-center align-items-center" style="min-height: 72vh;">
@@ -38,7 +38,7 @@
         </form>
 
         <p class="small text-center mt-4 text-secondary mb-0">
-            New to AASHAS? <a href="{% url 'register' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="text-dark text-decoration-underline fw-semibold">Create Account</a>
+            New to ASHAS? <a href="{% url 'register' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="text-dark text-decoration-underline fw-semibold">Create Account</a>
         </p>
     </div>
 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>{% block title %}AASHAS STORE | Accessorize Your Story{% endblock %}</title>
+    <title>{% block title %}ASHAS STORE | Accessorize Your Story{% endblock %}</title>
 
     {% load static %}
     <!-- Favicon -->
@@ -874,26 +874,129 @@
             background-size: 12px 12px;
         }
 
-        /* Modern Footer */
+        /* Classic Luxury Footer */
         .ashas-footer {
-            background: #F3EFEA;
-            border-top: 1px solid var(--border-line);
+            background: #11100F;
+            color: #FAF8F5;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
         }
 
-        .footer-logo-badge {
-            width: 64px;
-            height: 64px;
+        .ashas-footer a {
+            color: rgba(250, 248, 245, 0.72);
+            text-decoration: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .ashas-footer a:hover {
+            color: #FFFFFF;
+        }
+
+        .footer-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-heading::after {
+            content: '';
+            height: 1px;
+            width: 24px;
+            background: rgba(255, 255, 255, 0.25);
+            display: inline-block;
+        }
+
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links-list li {
+            margin-bottom: 0.55rem;
+        }
+
+        .footer-links-list a {
+            font-size: 0.82rem;
+            color: rgba(250, 248, 245, 0.68);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .footer-links-list a:hover {
+            color: #FFFFFF;
+            transform: translateX(3px);
+        }
+
+        .footer-map-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-map-card:hover {
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-2px);
+        }
+
+        .footer-map-frame {
+            width: 100%;
+            height: 155px;
+            border: 0;
+            display: block;
+            filter: contrast(1.05) saturate(0.95);
+        }
+
+        .footer-social-icon {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 1.5px solid rgba(28, 25, 23, 0.2);
-            padding: 2px;
-            margin-bottom: 1rem;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-            background: #FFFFFF;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #FAF8F5;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
         }
 
-        .footer-logo-badge:hover {
-            transform: scale(1.06) rotate(3deg);
-            border-color: #171614;
+        .footer-social-icon:hover {
+            background: #FFFFFF;
+            color: #11100F;
+            transform: translateY(-2px);
+            border-color: #FFFFFF;
+        }
+
+        .footer-input-dark {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            color: #FAF8F5 !important;
+            font-size: 0.8rem !important;
+            border-radius: 8px !important;
+        }
+
+        .footer-input-dark:focus {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+            box-shadow: none !important;
+            color: #FFFFFF !important;
+        }
+
+        .footer-input-dark::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -918,10 +1021,10 @@
                 {% endif %}
             </div>
 
-            <!-- Center: AASHAS Brand Logo (Clean, centered) -->
-            <a href="{% url 'home' %}" class="nav-center-brand" title="AASHAS">
-                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="AASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-                <span class="nav-brand-text" style="display: none;">AASHAS</span>
+            <!-- Center: ASHAS Brand Logo (Clean, centered) -->
+            <a href="{% url 'home' %}" class="nav-center-brand" title="ASHAS">
+                <img src="{% static 'images/ashas_official_logo.png' %}" alt="ASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="nav-brand-text" style="display: none;">ASHAS</span>
             </a>
 
             <!-- Right Group: Search + Shopping Bag (Cart is the far-right anchor) -->
@@ -961,8 +1064,8 @@
     <div class="offcanvas offcanvas-start offcanvas-ashas" tabindex="-1" id="ashasSideDrawer" aria-labelledby="ashasSideDrawerLabel">
         <div class="drawer-header border-bottom pb-3">
             <div class="d-flex align-items-center gap-2">
-                <img src="{% static 'images/ashas_badge.png' %}" alt="AASHAS" class="drawer-brand-img" style="width: 28px; height: 28px; border-radius: 50%;">
-                <span class="fw-bold text-dark text-uppercase" id="ashasSideDrawerLabel" style="letter-spacing: 0.14em; font-size: 0.95rem; font-family: 'Outfit', sans-serif;">AASHAS</span>
+                <img src="{% static 'images/ashas_official_logo.png' %}" alt="ASHAS" class="drawer-brand-img" style="height: 22px; width: auto; object-fit: contain;">
+                <span class="fw-bold text-dark text-uppercase" id="ashasSideDrawerLabel" style="letter-spacing: 0.14em; font-size: 0.95rem; font-family: 'Outfit', sans-serif;">ASHAS</span>
             </div>
             <button type="button" class="btn-drawer-close" data-bs-dismiss="offcanvas" aria-label="Close">
                 <i class="bi bi-x-lg"></i>
@@ -1085,54 +1188,163 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Global Minimalist Footer with ASHAS Optical Brand Mark -->
-    <footer class="ashas-footer py-5 px-3 px-md-4 mt-auto w-100" id="contact-section">
-        <div class="container text-center" style="max-width: 1100px;">
-            <!-- Centered Brand Emblem -->
-            <div class="d-flex flex-column align-items-center mb-4">
-                <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Emblem" class="footer-logo-badge">
-                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="ASHAS" style="height: 24px; max-width: 150px; opacity: 0.95;" class="mb-2">
-                <p class="small text-secondary mb-0" style="letter-spacing: 0.24em; font-size: 0.75rem; font-family: 'Outfit', sans-serif;">
-                    ACCESSORIZE YOUR STORY
-                </p>
-            </div>
-
-            <div class="row g-4 text-start justify-content-between pt-3 border-top border-secondary border-opacity-25">
-                <div class="col-12 col-md-5">
-                    <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-dark" style="letter-spacing: 0.16em; font-size: 0.82rem;">FLAGSHIP STORE</h6>
-                    <p class="text-secondary small mb-3 line-height-base">
-                        Road No. 36, Jubilee Hills, Hyderabad, Telangana, India.
+    <!-- Global Classic Luxury Footer with Map Interface & Official ASHAS Brand -->
+    <footer class="ashas-footer pt-5 pb-4 px-3 px-md-4 mt-auto w-100" id="contact-section">
+        <div class="container" style="max-width: 1260px;">
+            <div class="row g-4 g-lg-5 justify-content-between pb-4 border-bottom border-white border-opacity-10">
+                
+                <!-- Col 1: Brand & Philosophy -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="mb-3">
+                        <a href="{% url 'home' %}" class="d-inline-block text-decoration-none">
+                            <img src="{% static 'images/ashas_official_logo_white.png' %}" alt="ASHAS" style="height: 34px; width: auto; max-width: 160px; object-fit: contain;">
+                        </a>
+                        <p class="text-uppercase mt-2 mb-3" style="letter-spacing: 0.22em; font-size: 0.7rem; color: rgba(255,255,255,0.55); font-family: 'Outfit', sans-serif;">
+                            CLOTHING &amp; ACCESSORIES
+                        </p>
+                    </div>
+                    <p class="small mb-4" style="color: rgba(250, 248, 245, 0.65); line-height: 1.65; font-size: 0.82rem;">
+                        Distinctive contemporary apparel and timeless statement accessories. Accessorize your story with craftsmanship and elegance.
                     </p>
-                    <a href="https://maps.google.com/?q=Jubilee+Hills+Hyderabad" target="_blank" class="btn btn-outline-dark btn-sm px-3 rounded-pill" style="font-size: 0.75rem;">
-                        <i class="bi bi-geo-alt me-1"></i> Open in Maps
+                    <!-- Social & Quick Action Icons -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." target="_blank" rel="noopener noreferrer" class="footer-social-icon" title="WhatsApp Us" aria-label="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                        <a href="https://instagram.com/ashas.clothing" target="_blank" rel="noopener noreferrer" class="footer-social-icon" title="Follow on Instagram" aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="https://www.google.com/maps/place/ASHAS.CLOTHING/@11.303312,75.7826038,854m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!2sASHAS.CLOTHING!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!3m5!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!5m1!1e2?entry=ttu" target="_blank" rel="noopener noreferrer" class="footer-social-icon" title="View Store on Google Maps" aria-label="Google Maps">
+                            <i class="bi bi-geo-alt"></i>
+                        </a>
+                        <a href="tel:+919074277754" class="footer-social-icon" title="Call Us" aria-label="Call Store">
+                            <i class="bi bi-telephone"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation & Collections -->
+                <div class="col-6 col-md-6 col-lg-2">
+                    <h6 class="footer-heading">COLLECTIONS</h6>
+                    <ul class="footer-links-list">
+                        <li><a href="{% url 'home' %}#catalogSection"><i class="bi bi-chevron-right small text-white-50"></i> New Arrivals</a></li>
+                        <li><a href="{% url 'home' %}#catalogSection"><i class="bi bi-chevron-right small text-white-50"></i> Necklaces &amp; Chains</a></li>
+                        <li><a href="{% url 'home' %}#catalogSection"><i class="bi bi-chevron-right small text-white-50"></i> Bracelets &amp; Cuffs</a></li>
+                        <li><a href="{% url 'home' %}#catalogSection"><i class="bi bi-chevron-right small text-white-50"></i> Rings &amp; Accents</a></li>
+                        <li><a href="{% url 'cart' %}"><i class="bi bi-chevron-right small text-white-50"></i> Shopping Bag</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}"><i class="bi bi-chevron-right small text-white-50"></i> My Account</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}"><i class="bi bi-chevron-right small text-white-50"></i> Sign In / Join</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Col 3: Flagship Boutique & Address -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <h6 class="footer-heading">FLAGSHIP BOUTIQUE</h6>
+                    <div class="mb-3">
+                        <div class="fw-bold text-white mb-1" style="font-family: 'Outfit', sans-serif; font-size: 0.96rem; letter-spacing: 0.05em;">
+                            ASHAS.CLOTHING
+                        </div>
+                        <p class="small mb-3" style="color: rgba(250, 248, 245, 0.72); line-height: 1.6; font-size: 0.82rem;">
+                            <i class="bi bi-geo-alt-fill text-white-50 me-1"></i>
+                            Krishnamanam Building, Karuvissery,<br>
+                            Kozhikode (Calicut), Kerala – 673010, India.
+                        </p>
+                    </div>
+
+                    <div class="mb-3" style="font-size: 0.8rem; color: rgba(250, 248, 245, 0.7);">
+                        <div class="mb-1"><i class="bi bi-clock text-white-50 me-1"></i> <strong>Mon – Sat:</strong> 10:00 AM – 9:00 PM</div>
+                        <div><i class="bi bi-clock text-white-50 me-1"></i> <strong>Sunday:</strong> 11:00 AM – 8:00 PM</div>
+                    </div>
+
+                    <div class="mb-3" style="font-size: 0.82rem;">
+                        <span class="text-white-50 me-1"><i class="bi bi-telephone"></i> Call / WhatsApp:</span>
+                        <a href="https://wa.me/919074277754" target="_blank" rel="noopener noreferrer" class="text-white fw-semibold text-decoration-underline">+91 90742 77754</a>
+                    </div>
+
+                    <a href="https://www.google.com/maps/place/ASHAS.CLOTHING/@11.303312,75.7826038,854m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!2sASHAS.CLOTHING!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!3m5!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!5m1!1e2?entry=ttu" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2" 
+                       style="font-size: 0.75rem; letter-spacing: 0.04em;">
+                        <i class="bi bi-compass"></i>
+                        <span>Get Directions</span>
+                        <i class="bi bi-arrow-up-right small"></i>
                     </a>
                 </div>
-                <div class="col-12 col-md-6 col-lg-5">
-                    <h6 class="fw-bold tracking-widest text-uppercase mb-2 text-dark" style="letter-spacing: 0.16em; font-size: 0.82rem;">INQUIRIES & SUPPORT</h6>
-                    <a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Store%2C%20I%20have%20an%20enquiry%20regarding%20accessories." target="_blank" rel="noopener noreferrer" class="btn btn-sm w-100 mb-3 py-2 fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2 text-white" style="background-color: #25D366; border: none; font-size: 0.85rem; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);">
-                        <i class="bi bi-whatsapp fs-5"></i>
+
+                <!-- Col 4: Map Interface & Quick Connect -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <h6 class="footer-heading">STORE LOCATION</h6>
+                    
+                    <!-- Interactive Map Interface Look -->
+                    <div class="footer-map-card mb-3">
+                        <iframe 
+                            class="footer-map-frame" 
+                            src="https://maps.google.com/maps?q=11.303312,75.7851787&t=&z=15&ie=UTF8&iwloc=B&output=embed" 
+                            title="ASHAS.CLOTHING Store Location"
+                            loading="lazy" 
+                            allowfullscreen="" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                        <div class="p-2 px-3 d-flex align-items-center justify-content-between" style="background: rgba(18, 17, 16, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                <span style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0; box-shadow: 0 0 8px #22c55e;"></span>
+                                <span class="small text-truncate" style="font-size: 0.74rem; color: rgba(255, 255, 255, 0.85); font-weight: 500;">
+                                    Karuvissery, Kozhikode
+                                </span>
+                            </div>
+                            <a href="https://www.google.com/maps/place/ASHAS.CLOTHING/@11.303312,75.7826038,854m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!2sASHAS.CLOTHING!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!3m5!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!5m1!1e2?entry=ttu" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="btn btn-link btn-sm text-decoration-none p-0 text-white fw-semibold d-inline-flex align-items-center gap-1" 
+                               style="font-size: 0.72rem;">
+                                <span>Full Map</span>
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Direct WhatsApp Support Button -->
+                    <a href="https://wa.me/919074277754?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="btn btn-sm w-100 py-2 fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2 text-white mb-2" 
+                       style="background: #25D366; border: none; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);">
+                        <i class="bi bi-whatsapp fs-6"></i>
                         <span>Chat on WhatsApp</span>
                     </a>
+
+                    <!-- Compact Fast Inquiry Form -->
                     <div id="contactFeedback"></div>
-                    <form id="contactForm" method="POST" action="{% url 'contact_submit' %}">
+                    <form id="contactForm" method="POST" action="{% url 'contact_submit' %}" class="mt-2">
                         {% csrf_token %}
-                        <div class="row g-2 mb-2">
-                            <div class="col-12 col-sm-6">
-                                <input type="text" name="name" class="form-control form-control-sm" placeholder="Your Name" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <input type="email" name="email" class="form-control form-control-sm" placeholder="Email" required>
-                            </div>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="email" name="email" class="form-control footer-input-dark" placeholder="Enter your email for inquiries" required>
+                            <input type="hidden" name="name" value="Store Visitor">
+                            <input type="hidden" name="subject" value="Website Footer Inquiry">
+                            <input type="hidden" name="message" value="Customer requested assistance via footer quick inquiry.">
+                            <button type="submit" class="btn btn-outline-light px-3" style="font-size: 0.76rem; border-color: rgba(255,255,255,0.2);">Send</button>
                         </div>
-                        <input type="text" name="subject" class="form-control form-control-sm mb-2" placeholder="Subject" required>
-                        <textarea name="message" class="form-control form-control-sm mb-2" rows="2" placeholder="Message" required></textarea>
-                        <button type="submit" class="btn btn-dark btn-sm px-4 fw-semibold rounded-pill w-100 w-sm-auto" style="font-size: 0.78rem;">Send Message</button>
                     </form>
                 </div>
+
             </div>
 
-            <div class="border-top border-secondary border-opacity-25 mt-4 pt-3 text-center text-secondary small" style="font-size: 0.72rem; letter-spacing: 0.08em;">
-                © {% now "Y" %} ASHAS STORE (TM). All rights reserved. Accessorize Your Story.
+            <!-- Footer Bottom Strip -->
+            <div class="pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="font-size: 0.75rem; color: rgba(250, 248, 245, 0.55);">
+                <div>
+                    © {% now "Y" %} <strong>ASHAS™</strong> CLOTHING. All rights reserved. Accessorize Your Story.
+                </div>
+                <div class="d-flex align-items-center gap-3 text-white-50">
+                    <span><i class="bi bi-shield-check text-success me-1"></i> 100% Authentic Quality</span>
+                    <span class="d-none d-sm-inline">•</span>
+                    <span class="d-none d-sm-inline"><i class="bi bi-truck me-1"></i> Express Pan-India Delivery</span>
+                    <span>•</span>
+                    <span><i class="bi bi-lock-fill me-1"></i> 256-Bit SSL Secured</span>
+                </div>
             </div>
         </div>
     </footer>

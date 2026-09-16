@@ -1,12 +1,12 @@
 {% extends "admin/base.html" %}
 {% load i18n static %}
 
-{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('AASHAS Administration') }}{% endblock %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('ASHAS Administration') }}{% endblock %}
 
 {% block branding %}
 <div id="site-name" style="display: flex; align-items: center; gap: 12px;">
     <a href="{% url 'admin:index' %}" style="font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;">
-        {{ site_header|default:'AASHAS Administration' }}
+        {{ site_header|default:'ASHAS Administration' }}
     </a>
 </div>
 {% endblock %}

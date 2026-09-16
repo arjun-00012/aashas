@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout | AASHAS STORE{% endblock %}
+{% block title %}Checkout | ASHAS STORE{% endblock %}
 
 {% block extra_css %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -73,8 +73,8 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
             key: data.razorpay_key,
             amount: data.amount,
             currency: "INR",
-            name: "AASHAS STORE",
-            description: "Curated Statement Accessories",
+            name: "ASHAS STORE",
+            description: "Curated Statement Apparel & Accessories",
             order_id: data.razorpay_order_id,
             handler: async function (response) {
                 const verifyRes = await fetch("{% url 'payment_verify' %}", {
