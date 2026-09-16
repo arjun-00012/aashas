@@ -10,8 +10,15 @@ SECRET_KEY = os.environ.get(
     'django-insecure-aashas-store-secret-key-change-in-prod'
 )
 
-# Set DEBUG to False in production by checking environment
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
+# Detect if running in production (Render, Railway, or DATABASE_URL provided)
+IS_RENDER = 'RENDER' in os.environ or 'RENDER_EXTERNAL_HOSTNAME' in os.environ
+IS_PRODUCTION = IS_RENDER or os.environ.get('ENV') == 'production' or bool(os.environ.get('DATABASE_URL'))
+
+# Default DEBUG to False in production
+if IS_PRODUCTION:
+    DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
+else:
+    DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = ['*']
 
@@ -19,10 +26,16 @@ ALLOWED_HOSTS = ['*']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
-if not DEBUG:
+# Production SSL Enforcement, Secure Cookies & HSTS Protection
+if not DEBUG or IS_PRODUCTION:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year HSTS policy
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # CSRF Trusted Origins for Render, custom domains, and Hostinger domain
 CSRF_TRUSTED_ORIGINS = [
@@ -30,8 +43,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://ashasstore.in',
     'https://www.ashasstore.in',
-    'http://ashasstore.in',
-    'http://www.ashasstore.in',
 ]
 CSRF_EXTRA = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if CSRF_EXTRA:
