@@ -23,7 +23,7 @@
     <div class="row g-4">
         <!-- Delivery Defaults Form -->
         <div class="col-12 col-lg-4">
-            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm sticky-top" style="top: 80px; z-index: 10;">
+            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm sticky-lg-top" style="top: 80px; z-index: 10;">
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <i class="bi bi-geo-alt-fill text-dark"></i>
                     <h6 class="fw-bold tracking-wider text-uppercase m-0 small text-dark" style="letter-spacing: 0.06em;">SHIPPING PREFERENCES</h6>
@@ -160,7 +160,7 @@
                                 Speed Post Consignment Number
                             </span>
                             <div class="d-flex flex-wrap align-items-center gap-2">
-                                <code class="fs-6 fw-bold text-dark bg-light px-3 py-1.5 rounded-2 border border-secondary border-opacity-25 user-select-all">{{ order.tracking_id }}</code>
+                                <code class="fs-6 fw-bold text-dark bg-light px-3 py-1.5 rounded-2 border border-secondary border-opacity-25 user-select-all" style="word-break: break-all;">{{ order.tracking_id }}</code>
                                 <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1 copy-tracking-btn" data-code="{{ order.tracking_id }}" title="Copy consignment number">
                                     <i class="bi bi-clipboard me-1"></i> <span>Copy</span>
                                 </button>
@@ -168,18 +168,18 @@
                         </div>
 
                         {% if order.tracking_notes %}
-                        <div class="small text-secondary mb-2 bg-light p-2 rounded-2 border border-secondary border-opacity-10">
+                        <div class="small text-secondary mb-2 bg-light p-2 rounded-2 border border-secondary border-opacity-10" style="word-break: break-word;">
                             <i class="bi bi-pin-map-fill text-danger me-1"></i> {{ order.tracking_notes }}
                         </div>
                         {% endif %}
 
-                        <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 pt-2 border-top border-secondary border-opacity-10 mt-2">
-                            <a href="https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #171614;">
+                        <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between gap-2 pt-2 border-top border-secondary border-opacity-10 mt-2">
+                            <a href="https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill px-3 py-2 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm text-center" style="background-color: #171614;">
                                 <i class="bi bi-geo-alt-fill text-warning"></i>
                                 <span>Track on India Post Portal</span>
                                 <i class="bi bi-box-arrow-up-right small"></i>
                             </a>
-                            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20have%20an%20enquiry%20regarding%20my%20Order%20%23{{ order.id }}%20(Tracking%20ID%3A%20{{ order.tracking_id }})" target="_blank" rel="noopener noreferrer" class="small text-success text-decoration-none d-inline-flex align-items-center justify-content-center gap-1 fw-semibold py-1">
+                            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20have%20an%20enquiry%20regarding%20my%20Order%20%23{{ order.id }}%20(Tracking%20ID%3A%20{{ order.tracking_id }})" target="_blank" rel="noopener noreferrer" class="small text-success text-decoration-none d-inline-flex align-items-center justify-content-center gap-1 fw-semibold py-1.5">
                                 <i class="bi bi-whatsapp"></i> WhatsApp Helpline
                             </a>
                         </div>
