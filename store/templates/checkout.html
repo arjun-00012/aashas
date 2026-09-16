@@ -69,6 +69,16 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
         const res = await fetch("{% url 'checkout' %}", { method: 'POST', body: formData });
         const data = await res.json();
 
+        if (data.demo_mode) {
+            btn.classList.remove('btn-dark');
+            btn.classList.add('btn-success');
+            btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Order Placed Successfully!';
+            setTimeout(() => {
+                window.location.href = data.redirect_url || "{% url 'profile' %}";
+            }, 600);
+            return;
+        }
+
         const options = {
             key: data.razorpay_key,
             amount: data.amount,
