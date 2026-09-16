@@ -189,6 +189,13 @@ class Order(models.Model):
         ('Completed', 'Completed'),
         ('Failed', 'Failed'),
     )
+    SHIPPING_STATUS_CHOICES = (
+        ('Processing', 'Processing / Packed'),
+        ('Dispatched', 'Dispatched via Post Office'),
+        ('In Transit', 'In Transit'),
+        ('Out for Delivery', 'Out for Delivery'),
+        ('Delivered', 'Delivered'),
+    )
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     full_name = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=20)
@@ -197,7 +204,50 @@ class Order(models.Model):
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+    # Tracking Details (Updated manually by Admin)
+    tracking_id = models.CharField(max_length=100, blank=True, null=True, help_text="India Post / Speed Post consignment tracking number")
+    carrier = models.CharField(max_length=100, default='India Post', blank=True, help_text="Courier service or Post Office branch")
+    shipping_status = models.CharField(max_length=50, choices=SHIPPING_STATUS_CHOICES, default='Processing', blank=True)
+    tracking_notes = models.CharField(max_length=255, blank=True, null=True, help_text="Dispatch notes (e.g. Dispatched from Karuvissery Post Office)")
+    tracking_updated_at = models.DateTimeField(blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def tracking_url(self):
+        """Official India Post tracking URL"""
+        if self.tracking_id:
+            return "https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx"
+        return ""
+
+    @property
+    def whatsapp_notification_url(self):
+        """Generates pre-formatted WhatsApp message link for admin to notify customer in 1 click"""
+        if not self.phone_number:
+            return ""
+        import urllib.parse
+        import re
+        digits = re.sub(r'\D', '', str(self.phone_number))
+        if len(digits) == 10:
+            digits = '91' + digits
+        
+        tracking_info = self.tracking_id or 'Will be updated shortly'
+        carrier_name = self.carrier or 'India Post (Speed Post)'
+        status_name = self.get_shipping_status_display() if hasattr(self, 'get_shipping_status_display') else self.shipping_status
+
+        msg = (
+            f"Hello {self.full_name},\n\n"
+            f"Your ASHAS order #{self.id} has an update!\n"
+            f"📦 Carrier: {carrier_name}\n"
+            f"🏷️ Tracking ID: {tracking_info}\n"
+            f"🚚 Status: {status_name}\n\n"
+            f"Track your parcel on India Post:\n"
+            f"https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx\n\n"
+            f"Thank you for choosing ASHAS!\n"
+            f"Boutique Helpline: +91 82814 51481"
+        )
+        return f"https://wa.me/{digits}?text={urllib.parse.quote(msg)}"
 
     def __str__(self):
         return f"Order #{self.id} - {self.full_name} ({self.payment_status})"

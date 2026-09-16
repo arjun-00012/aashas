@@ -1,72 +1,256 @@
 {% extends 'base.html' %}
 
-{% block title %}My Profile | ASHAS STORE{% endblock %}
+{% block title %}My Profile & Order Tracking | ASHAS{% endblock %}
 
 {% block content %}
-<div class="container py-4 py-md-5" style="max-width: 960px;">
+<div class="container py-4 py-md-5" style="max-width: 1040px;">
     <!-- Profile Header -->
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center border-bottom border-secondary border-opacity-25 pb-3 mb-4 gap-3">
         <div>
-            <h1 class="h4 m-0 fw-bold tracking-wider text-uppercase text-dark" style="letter-spacing: 0.08em;">{{ request.user.username }}'S PROFILE</h1>
-            <small class="text-secondary">Saved delivery details and purchase history</small>
+            <h1 class="h4 m-0 fw-bold tracking-wider text-uppercase text-dark" style="letter-spacing: 0.08em;">{{ request.user.username }}'S ACCOUNT</h1>
+            <small class="text-secondary">Saved shipping address, order history, and post office tracking</small>
         </div>
-        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm px-3 rounded-pill">
-            <i class="bi bi-box-arrow-right me-1"></i> Sign Out
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="https://wa.me/918281451481" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm px-3 rounded-pill d-inline-flex align-items-center gap-1">
+                <i class="bi bi-whatsapp"></i> Support
+            </a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm px-3 rounded-pill">
+                <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+            </a>
+        </div>
     </div>
 
     <div class="row g-4">
         <!-- Delivery Defaults Form -->
-        <div class="col-12 col-md-5">
-            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm">
-                <h6 class="fw-bold tracking-wider text-uppercase mb-3 small text-dark" style="letter-spacing: 0.06em;">SHIPPING PREFERENCES</h6>
+        <div class="col-12 col-lg-4">
+            <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm sticky-top" style="top: 80px; z-index: 10;">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-geo-alt-fill text-dark"></i>
+                    <h6 class="fw-bold tracking-wider text-uppercase m-0 small text-dark" style="letter-spacing: 0.06em;">SHIPPING PREFERENCES</h6>
+                </div>
                 <form method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
-                        <input type="tel" name="phone_number" value="{{ profile.phone_number|default:'' }}" class="form-control form-control-sm" placeholder="e.g. +91 9876543210">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Contact Phone Number</label>
+                        <input type="tel" name="phone_number" value="{{ profile.phone_number|default:'' }}" class="form-control form-control-sm" placeholder="e.g. +91 82814 51481">
+                        <small class="text-muted" style="font-size: 0.72rem;">Used for delivery updates & dispatch notifications.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-semibold text-secondary mb-1">Saved Delivery Address</label>
-                        <textarea name="address" rows="3" class="form-control form-control-sm" placeholder="Street, City, Pincode...">{{ profile.address|default:'' }}</textarea>
+                        <textarea name="address" rows="4" class="form-control form-control-sm" placeholder="House/Flat No, Street, Landmark, City, District, PIN Code...">{{ profile.address|default:'' }}</textarea>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-dark w-100 py-2 fw-semibold rounded-pill" style="background: #171614; color: #FAF8F5;">Save Details</button>
+                    <button type="submit" class="btn btn-sm btn-dark w-100 py-2 fw-semibold rounded-pill shadow-sm" style="background: #171614; color: #FAF8F5;">
+                        <i class="bi bi-save me-1"></i> Save Preferences
+                    </button>
                 </form>
+
+                <div class="mt-4 pt-3 border-top border-secondary border-opacity-15">
+                    <div class="small fw-semibold text-dark mb-1"><i class="bi bi-shield-check text-success me-1"></i> Dispatch Assurance</div>
+                    <p class="text-muted small mb-0" style="font-size: 0.75rem;">All ASHAS consignments are packed with luxury protective packaging and shipped via India Post Speed Post directly from Kozhikode, Kerala.</p>
+                </div>
             </div>
         </div>
 
-        <!-- Order Records -->
-        <div class="col-12 col-md-7">
+        <!-- Order Records & Live Tracking -->
+        <div class="col-12 col-lg-8">
             <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold tracking-wider text-uppercase m-0 small text-dark" style="letter-spacing: 0.06em;">ORDER HISTORY</h6>
-                    <span class="badge bg-light text-secondary border border-secondary border-opacity-25 small">{{ orders|length }} Order{{ orders|length|pluralize }}</span>
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                    <div>
+                        <h6 class="fw-bold tracking-wider text-uppercase m-0 small text-dark" style="letter-spacing: 0.06em;">ORDER HISTORY & LIVE TRACKING</h6>
+                        <small class="text-secondary">View purchase history and track parcels via India Post</small>
+                    </div>
+                    <span class="badge bg-dark rounded-pill px-3 py-1.5 small" style="background: #171614 !important;">{{ orders|length }} Order{{ orders|length|pluralize }}</span>
                 </div>
 
                 {% for order in orders %}
-                <div class="border-bottom border-secondary border-opacity-25 py-3 {% if forloop.last %}border-0 pb-0{% endif %}">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-dark">Order #{{ order.id }}</span>
-                        <span class="badge {% if order.payment_status == 'Completed' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill px-2 py-1 small">
-                            {{ order.payment_status }}
+                <div class="p-3 p-sm-3 mb-3 rounded-3 border bg-light bg-opacity-50 shadow-sm" style="border-color: rgba(28, 25, 23, 0.12) !important;">
+                    <!-- Order Top Row -->
+                    <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom border-secondary border-opacity-20 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-dark fs-6">Order #{{ order.id }}</span>
+                            {% if order.payment_status == 'Completed' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
+                                    <i class="bi bi-check2-circle me-1"></i>Paid
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 rounded-pill px-2.5 py-1 small">
+                                    {{ order.payment_status }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <span class="text-secondary small" style="font-size: 0.78rem;">
+                            <i class="bi bi-calendar3 me-1"></i>{{ order.created_at|date:"d M Y, h:i A" }}
                         </span>
                     </div>
-                    <div class="text-secondary small mb-2">{{ order.created_at|date:"d M Y, h:i A" }}</div>
-                    <div class="small text-dark">
-                        {% for item in order.items.all %}
-                            <div class="py-1">• {{ item.product.name }} <span class="text-secondary">(x{{ item.quantity }})</span></div>
-                        {% endfor %}
+
+                    <!-- Items List -->
+                    <div class="mb-3">
+                        <div class="small fw-semibold text-secondary text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Purchased Items</div>
+                        <div class="d-flex flex-column gap-1">
+                            {% for item in order.items.all %}
+                            <div class="d-flex justify-content-between align-items-center bg-white px-2.5 py-1.5 rounded border border-secondary border-opacity-10 small">
+                                <div class="d-flex align-items-center gap-2 text-truncate">
+                                    {% if item.product and item.product.display_image %}
+                                        <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="rounded" style="width: 30px; height: 30px; object-fit: cover;">
+                                    {% endif %}
+                                    <span class="text-dark fw-medium text-truncate">{{ item.product.name }}</span>
+                                </div>
+                                <span class="badge bg-dark bg-opacity-10 text-dark rounded-pill fw-bold ms-2">x{{ item.quantity }}</span>
+                            </div>
+                            {% empty %}
+                            <div class="small text-muted">No item details recorded</div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-1">
+                            <span class="text-secondary small">Total Amount:</span>
+                            <span class="fw-bold text-dark fs-6">₹{{ order.total_price }}</span>
+                        </div>
                     </div>
-                    <div class="fw-bold text-dark mt-2 fs-6">₹{{ order.total_price }}</div>
+
+                    <!-- Post Office Shipment Tracking Card -->
+                    <div class="p-3 rounded-3 bg-white border border-secondary border-opacity-25 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-2 border-bottom border-secondary border-opacity-15">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-dark rounded-pill px-2.5 py-1 small" style="background: #171614 !important;">
+                                    <i class="bi bi-box-seam me-1 text-warning"></i> {{ order.carrier|default:'India Post' }}
+                                </span>
+                                {% if order.shipping_status == 'Delivered' %}
+                                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small">
+                                        <i class="bi bi-check2-all me-1"></i> Delivered
+                                    </span>
+                                {% elif order.shipping_status == 'Out for Delivery' %}
+                                    <span class="badge bg-info text-dark rounded-pill px-2.5 py-1 small">
+                                        <i class="bi bi-bicycle me-1"></i> Out for Delivery
+                                    </span>
+                                {% elif order.shipping_status == 'In Transit' %}
+                                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 small">
+                                        <i class="bi bi-send-fill me-1"></i> In Transit
+                                    </span>
+                                {% elif order.shipping_status == 'Dispatched' %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small">
+                                        <i class="bi bi-truck me-1"></i> Dispatched via Post Office
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-white rounded-pill px-2.5 py-1 small">
+                                        <i class="bi bi-clock-history me-1"></i> {{ order.get_shipping_status_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% if order.tracking_updated_at %}
+                            <small class="text-muted" style="font-size: 0.72rem;">
+                                Updated {{ order.tracking_updated_at|date:"d M, H:i" }}
+                            </small>
+                            {% endif %}
+                        </div>
+
+                        {% if order.tracking_id %}
+                        <!-- Active Tracking Number -->
+                        <div class="mb-2">
+                            <span class="text-secondary d-block small mb-1 fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                                Speed Post Consignment Number
+                            </span>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <code class="fs-6 fw-bold text-dark bg-light px-3 py-1.5 rounded-2 border border-secondary border-opacity-25 user-select-all">{{ order.tracking_id }}</code>
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1 copy-tracking-btn" data-code="{{ order.tracking_id }}" title="Copy consignment number">
+                                    <i class="bi bi-clipboard me-1"></i> <span>Copy</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {% if order.tracking_notes %}
+                        <div class="small text-secondary mb-2 bg-light p-2 rounded-2 border border-secondary border-opacity-10">
+                            <i class="bi bi-pin-map-fill text-danger me-1"></i> {{ order.tracking_notes }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 pt-2 border-top border-secondary border-opacity-10 mt-2">
+                            <a href="https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #171614;">
+                                <i class="bi bi-geo-alt-fill text-warning"></i>
+                                <span>Track on India Post Portal</span>
+                                <i class="bi bi-box-arrow-up-right small"></i>
+                            </a>
+                            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20have%20an%20enquiry%20regarding%20my%20Order%20%23{{ order.id }}%20(Tracking%20ID%3A%20{{ order.tracking_id }})" target="_blank" rel="noopener noreferrer" class="small text-success text-decoration-none d-inline-flex align-items-center justify-content-center gap-1 fw-semibold py-1">
+                                <i class="bi bi-whatsapp"></i> WhatsApp Helpline
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2" style="font-size: 0.72rem;">
+                            <i class="bi bi-info-circle me-1"></i> Copy your consignment number above and paste it on the India Post tracking page for live postal transit checkpoints.
+                        </small>
+
+                        {% else %}
+                        <!-- Tracking Pending -->
+                        <div class="text-secondary small py-2">
+                            <div class="d-flex align-items-center gap-2 mb-1 text-dark fw-semibold">
+                                <i class="bi bi-box-seam text-secondary"></i> Preparing for Dispatch via India Post
+                            </div>
+                            <p class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                Your order is confirmed and being carefully prepared at our Kozhikode boutique. Your Speed Post consignment tracking ID will appear here as soon as it is booked at the post office.
+                            </p>
+                            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20would%20like%20to%20check%20the%20shipping%20status%20of%20my%20Order%20%23{{ order.id }}" target="_blank" rel="noopener noreferrer" class="small text-success text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold">
+                                <i class="bi bi-whatsapp"></i> Chat with ASHAS Helpline (+91 82814 51481)
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
                 {% empty %}
-                <div class="text-center py-4 text-secondary small">
-                    <i class="bi bi-clock-history fs-3 d-block mb-2 text-muted"></i>
+                <div class="text-center py-5 text-secondary small">
+                    <i class="bi bi-clock-history fs-2 d-block mb-2 text-muted"></i>
                     No orders placed under this account yet.
+                    <div class="mt-3">
+                        <a href="{% url 'home' %}" class="btn btn-dark btn-sm rounded-pill px-4" style="background: #171614;">Browse Collection</a>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy tracking number to clipboard with feedback
+    document.querySelectorAll('.copy-tracking-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const code = this.getAttribute('data-code');
+            if (!code) return;
+            const span = this.querySelector('span');
+            const originalText = span ? span.textContent : 'Copy';
+
+            const handleSuccess = () => {
+                if (span) span.textContent = 'Copied!';
+                btn.classList.remove('btn-outline-dark');
+                btn.classList.add('btn-success');
+                setTimeout(() => {
+                    if (span) span.textContent = originalText;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-dark');
+                }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(handleSuccess).catch(() => {
+                    fallbackCopy(code, handleSuccess);
+                });
+            } else {
+                fallbackCopy(code, handleSuccess);
+            }
+        });
+    });
+
+    function fallbackCopy(text, callback) {
+        const temp = document.createElement('input');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+            document.execCommand('copy');
+            callback();
+        } catch (e) {
+            console.error('Copy failed', e);
+        }
+        document.body.removeChild(temp);
+    }
+});
+</script>
 {% endblock %}

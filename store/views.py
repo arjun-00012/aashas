@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
 
@@ -158,7 +159,7 @@ def profile_view(request):
             return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=profile)
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
     return render(request, 'profile.html', {'form': form, 'orders': orders, 'profile': profile})
 
 # --- Cart Views ---
@@ -468,7 +469,7 @@ def adminpp_orders(request):
         ws = wb.active
         ws.title = "Orders Data"
 
-        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'Items Purchased', 'Categories', 'Total Price', 'Payment ID', 'Date']
+        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'Items Purchased', 'Categories', 'Total Price', 'Payment ID', 'Tracking ID', 'Carrier', 'Shipping Status', 'Date']
         ws.append(headers)
 
         header_fill = PatternFill(start_color="1F2937", end_color="1F2937", fill_type="solid")
@@ -492,11 +493,14 @@ def adminpp_orders(request):
                 cats_str,
                 float(o.total_price),
                 o.razorpay_payment_id or '',
+                o.tracking_id or 'Not Assigned',
+                o.carrier or 'India Post',
+                o.get_shipping_status_display() if hasattr(o, 'get_shipping_status_display') else o.shipping_status,
                 o.created_at.strftime('%Y-%m-%d %H:%M')
             ])
 
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename="aashas_orders_export.xlsx"'
+        response['Content-Disposition'] = 'attachment; filename="ashas_orders_export.xlsx"'
         wb.save(response)
         return response
 
@@ -507,6 +511,41 @@ def adminpp_orders(request):
         'start_date': start_date,
         'end_date': end_date
     })
+
+@staff_required
+def adminpp_update_tracking(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        tracking_id = request.POST.get('tracking_id', '').strip()
+        carrier = request.POST.get('carrier', 'India Post').strip() or 'India Post'
+        shipping_status = request.POST.get('shipping_status', 'Dispatched').strip() or 'Dispatched'
+        tracking_notes = request.POST.get('tracking_notes', '').strip()
+
+        order.tracking_id = tracking_id
+        order.carrier = carrier
+        order.shipping_status = shipping_status
+        order.tracking_notes = tracking_notes
+        order.tracking_updated_at = timezone.now()
+        order.save(update_fields=['tracking_id', 'carrier', 'shipping_status', 'tracking_notes', 'tracking_updated_at'])
+
+        msg = f"Order #{order.id} tracking updated: {tracking_id} via {carrier}."
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json':
+            return JsonResponse({
+                'status': 'success',
+                'order_id': order.id,
+                'tracking_id': order.tracking_id,
+                'carrier': order.carrier,
+                'shipping_status': order.shipping_status,
+                'shipping_status_display': order.get_shipping_status_display(),
+                'whatsapp_url': order.whatsapp_notification_url,
+                'message': msg
+            })
+
+        messages.success(request, msg)
+        return redirect(request.META.get('HTTP_REFERER', 'adminpp_orders'))
+
+    return redirect('adminpp_orders')
 
 @staff_required
 def category_create_or_edit(request, pk=None):
