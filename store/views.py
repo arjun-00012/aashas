@@ -162,7 +162,7 @@ def profile_view(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
     # Enable Admin/Staff Preview: if staff user has no personal purchases, show store customer orders so they can test tracking UI
     is_admin_preview = False
-    if not orders.exists() and (request.user.is_staff or request.user.is_superuser or request.user.username in ['admin', 'user']):
+    if not orders.exists() and (request.user.is_staff or request.user.is_superuser):
         orders = Order.objects.filter(payment_status='Completed').prefetch_related('items__product').order_by('-created_at')
         is_admin_preview = True
 
@@ -469,7 +469,7 @@ def staff_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('/login/?next=' + request.path)
-        if not (request.user.is_staff or request.user.is_superuser or request.user.username in ['admin', 'user']):
+        if not (request.user.is_staff or request.user.is_superuser):
             messages.error(request, "Access restricted: Staff privileges are required to access the Admin Portal.")
             return redirect('home')
         return view_func(request, *args, **kwargs)

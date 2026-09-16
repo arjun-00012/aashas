@@ -8,10 +8,11 @@ from django.contrib.auth.models import User
 from store.models import Profile, Product, Order, OrderItem
 from django.utils import timezone
 
-# 1. Configure user 'user' with phone number 9074277754 and staff access
-user, created = User.objects.get_or_create(username='user', defaults={'email': 'user@ashasstore.in', 'first_name': 'User', 'is_staff': True})
+# 1. Configure user 'user' as a regular customer (NOT admin, NOT staff)
+user, created = User.objects.get_or_create(username='user', defaults={'email': 'user@ashasstore.in', 'first_name': 'User', 'is_staff': False, 'is_superuser': False})
 user.set_password('user@123')
-user.is_staff = True
+user.is_staff = False
+user.is_superuser = False
 user.save()
 
 profile, _ = Profile.objects.get_or_create(user=user)
@@ -19,7 +20,7 @@ profile.phone_number = '9074277754'
 profile.address = 'Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010'
 profile.save()
 
-print(f"User 'user' updated: Phone = {profile.phone_number}, Staff Access = True, Password = user@123")
+print(f"User 'user' updated: Phone = {profile.phone_number}, Staff Access = {user.is_staff}, Superuser = {user.is_superuser}, Password = user@123")
 
 # 2. Delete ALL current purchases as requested ("delete the current puracheses")
 deleted_count, _ = Order.objects.all().delete()
