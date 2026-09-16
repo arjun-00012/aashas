@@ -471,28 +471,28 @@
         transform: scale(1.06);
     }
 
-    /* Product Card Specifications */
+    /* Product Card Specifications - Classic Luxury Aesthetic */
     .product-card {
         background: #FFFFFF;
         border: 1px solid rgba(28, 25, 23, 0.09);
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 0.75rem !important;
-        transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
         position: relative;
-        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.03);
+        box-shadow: 0 2px 10px rgba(28, 25, 23, 0.03);
     }
 
     @media (min-width: 768px) {
         .product-card {
-            padding: 1rem !important;
-            border-radius: 14px;
+            padding: 0.95rem !important;
+            border-radius: 12px;
         }
     }
 
     .product-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(28, 25, 23, 0.28);
-        box-shadow: 0 14px 28px -4px rgba(28, 25, 23, 0.09);
+        border-color: rgba(28, 25, 23, 0.24);
+        box-shadow: 0 16px 36px -6px rgba(28, 25, 23, 0.09), 0 2px 8px rgba(28, 25, 23, 0.03);
     }
 
     .product-img-wrapper {
@@ -500,9 +500,9 @@
         aspect-ratio: 1 / 1;
         width: 100%;
         overflow: hidden;
-        border-radius: 10px;
-        background: #F8F6F2;
-        border: 1px solid rgba(28, 25, 23, 0.06);
+        border-radius: 8px;
+        background: #F7F5F0;
+        border: 1px solid rgba(28, 25, 23, 0.05);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -513,15 +513,64 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .product-card:hover .product-img-wrapper img {
-        transform: scale(1.08);
+        transform: scale(1.06);
+    }
+
+    /* Classic Quick View Hover Hint (Desktop) */
+    .product-quick-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        background: rgba(23, 22, 20, 0.88);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #FAF8F5;
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+        z-index: 4;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card:hover .product-quick-hint {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .product-quick-hint {
+            display: none;
+        }
+    }
+
+    /* Category Subtitle */
+    .product-category-sub {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8C867E;
+        margin-top: 0.55rem;
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .product-name {
-        font-size: clamp(0.78rem, 2vw, 0.88rem);
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
         font-weight: 600;
         line-height: 1.35;
         display: -webkit-box;
@@ -531,41 +580,86 @@
         min-height: 2.7em;
         margin-bottom: 0.35rem;
         color: #171614;
+        transition: color 0.2s ease;
+    }
+
+    .product-card:hover .product-name {
+        color: #38342E;
     }
 
     .product-price {
         font-family: 'Outfit', sans-serif;
-        font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+        font-size: clamp(0.95rem, 2.2vw, 1.08rem);
         font-weight: 700;
         color: #171614;
+        letter-spacing: -0.01em;
     }
 
+    .product-price-orig {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #9C968E;
+        text-decoration: line-through;
+    }
+
+    /* Classic Badges */
     .badge-sale {
         position: absolute;
         top: 8px;
         right: 8px;
         background: #171614;
         color: #FAF8F5;
-        font-size: 0.6rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
         padding: 3px 8px;
-        border-radius: 9999px;
-        border: 1px solid rgba(28, 25, 23, 0.2);
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        text-transform: uppercase;
+        z-index: 3;
     }
 
+    .badge-trending-classic {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: #171614;
+        color: #FAF8F5;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    /* Classic Add to Bag Button */
     .btn-add-cart {
         font-family: 'Outfit', sans-serif;
-        font-size: 0.78rem !important;
-        font-weight: 600 !important;
-        padding: 8px 0 !important;
-        border-radius: 9999px !important;
-        letter-spacing: 0.06em;
-        border: 1px solid rgba(28, 25, 23, 0.14) !important;
+        font-size: 0.74rem !important;
+        font-weight: 700 !important;
+        padding: 8px 10px !important;
+        border-radius: 6px !important;
+        letter-spacing: 0.1em;
+        border: 1.5px solid #171614 !important;
         color: #171614 !important;
-        background: #F5F2EC !important;
-        transition: all 0.2s ease !important;
+        background: #FFFFFF !important;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
         text-transform: uppercase;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 1px 3px rgba(28, 25, 23, 0.05);
     }
 
     .btn-add-cart:hover, .btn-add-cart:active {
@@ -573,7 +667,18 @@
         color: #FAF8F5 !important;
         border-color: #171614 !important;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.15);
+        box-shadow: 0 5px 14px rgba(23, 22, 20, 0.18) !important;
+    }
+
+    .btn-add-cart:disabled, .btn-add-cart.btn-sold-out {
+        background: #F4F0EB !important;
+        color: #8C867E !important;
+        border: 1px solid rgba(28, 25, 23, 0.12) !important;
+        border-radius: 6px !important;
+        cursor: not-allowed;
+        opacity: 0.75;
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     /* Product card interactive image preview */
@@ -931,27 +1036,32 @@
                                     <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
                                 {% endif %}
                                 <span class="badge-trending-classic"><i class="bi bi-stars"></i>TRENDING</span>
+                                <div class="product-quick-hint">
+                                    <i class="bi bi-eye me-1"></i> Quick View
+                                </div>
                             </div>
-                            <h3 class="product-name mt-2" title="{{ product.name }}">{{ product.name }}</h3>
+                            <div class="product-category-sub">{{ product.category.name|upper }}</div>
+                            <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
                         </div>
                     </div>
                     <div>
                         <div class="d-flex align-items-baseline gap-2 mb-2">
                             <span class="product-price">₹{{ product.current_price }}</span>
                             {% if product.discount_price %}
-                                <span class="text-secondary text-decoration-line-through small" style="font-size: 0.78rem;">₹{{ product.price }}</span>
+                                <span class="product-price-orig">₹{{ product.price }}</span>
                             {% endif %}
                         </div>
                         {% if product.stock > 0 %}
                             <button type="button" class="btn btn-add-cart w-100 ajax-add-to-bag d-inline-flex align-items-center justify-content-center gap-1"
                                     data-product-id="{{ product.id }}"
                                     data-product-name="{{ product.name }}"
-                                    data-add-url="{% url 'add_to_cart' product.id %}">
-                                <i class="bi bi-cart-plus"></i> <span>ADD TO BAG</span>
+                                    data-add-url="{% url 'add_to_cart' product.id %}"
+                                    aria-label="Add {{ product.name }} to bag">
+                                <i class="bi bi-bag-plus"></i> <span>ADD TO BAG</span>
                             </button>
                         {% else %}
-                            <button class="btn btn-sm btn-outline-secondary w-100 rounded-pill disabled" style="font-size: 0.72rem;" disabled>
-                                SOLD OUT
+                            <button type="button" class="btn btn-add-cart btn-sold-out w-100 d-inline-flex align-items-center justify-content-center gap-1" disabled aria-label="{{ product.name }} is sold out">
+                                <i class="bi bi-dash-circle"></i> <span>OUT OF STOCK</span>
                             </button>
                         {% endif %}
                     </div>
@@ -997,40 +1107,48 @@
                      data-stock="{{ product.stock }}"
                      data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                      data-add-url="{% url 'add_to_cart' product.id %}">
-                    <div class="product-clickable-area" role="button" tabindex="0" title="Click to view {{ product.name }} details">
-                        <div class="product-img-wrapper mb-2 mb-md-3">
-                            {% if product.display_image %}
-                                <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy">
-                            {% else %}
-                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary" style="background: #F4F0EB;">
-                                    <i class="bi bi-image fs-3"></i>
+                    <div>
+                        <div class="product-clickable-area" role="button" tabindex="0" title="Click to view {{ product.name }} details" aria-label="Quick view {{ product.name }}">
+                            <div class="product-img-wrapper">
+                                {% if product.display_image %}
+                                    <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy">
+                                {% else %}
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary" style="background: #F4F0EB;">
+                                        <i class="bi bi-image fs-3"></i>
+                                    </div>
+                                {% endif %}
+                                {% if product.discount_price %}
+                                    <span class="badge-sale">SALE</span>
+                                {% endif %}
+                                <div class="product-quick-hint">
+                                    <i class="bi bi-eye me-1"></i> Quick View
                                 </div>
-                            {% endif %}
-                            {% if product.discount_price %}
-                                <span class="badge-sale">SALE</span>
-                            {% endif %}
-                        </div>
-                        <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
-                        <div class="d-flex align-items-center gap-2 mb-2 mb-md-3">
-                            <span class="product-price">₹{{ product.current_price }}</span>
-                            {% if product.discount_price %}
-                                <span class="text-secondary small text-decoration-line-through">₹{{ product.price }}</span>
-                            {% endif %}
+                            </div>
+                            <div class="product-category-sub">{{ category.name|upper }}</div>
+                            <h3 class="product-name" title="{{ product.name }}">{{ product.name }}</h3>
                         </div>
                     </div>
-                    {% if product.stock > 0 %}
-                    <button type="button" class="btn btn-add-cart ajax-add-to-bag"
-                            data-product-id="{{ product.id }}"
-                            data-product-name="{{ product.name }}"
-                            data-add-url="{% url 'add_to_cart' product.id %}"
-                            aria-label="Add {{ product.name }} to cart">
-                        <i class="bi bi-bag-plus me-1"></i> <span>Add to Bag</span>
-                    </button>
-                    {% else %}
-                    <button type="button" class="btn btn-add-cart text-muted" disabled style="opacity: 0.65; cursor: not-allowed; background: #EAE6DF !important; color: #8C867E !important;" aria-label="{{ product.name }} is sold out">
-                        <i class="bi bi-x-circle me-1"></i> <span>Sold Out</span>
-                    </button>
-                    {% endif %}
+                    <div>
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="product-price">₹{{ product.current_price }}</span>
+                            {% if product.discount_price %}
+                                <span class="product-price-orig">₹{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.stock > 0 %}
+                        <button type="button" class="btn btn-add-cart ajax-add-to-bag"
+                                data-product-id="{{ product.id }}"
+                                data-product-name="{{ product.name }}"
+                                data-add-url="{% url 'add_to_cart' product.id %}"
+                                aria-label="Add {{ product.name }} to bag">
+                            <i class="bi bi-bag-plus"></i> <span>ADD TO BAG</span>
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-add-cart btn-sold-out" disabled aria-label="{{ product.name }} is sold out">
+                            <i class="bi bi-dash-circle"></i> <span>OUT OF STOCK</span>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% empty %}
@@ -1049,28 +1167,25 @@
 <!-- Product Quick View Modal -->
 <div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
-        <div class="modal-content border border-secondary border-opacity-25" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
+        <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
             <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
-                <span class="badge bg-light text-secondary border border-secondary border-opacity-25" id="qvCategoryBadge">COLLECTION</span>
+                <span class="badge" id="qvCategoryBadge" style="background: #F7F5F0; color: #635F59; border: 1px solid rgba(28, 25, 23, 0.1); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px;">COLLECTION</span>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-2 pb-4 px-4 text-center">
-                <div class="qv-img-container" style="width: 100%; height: 240px; border-radius: 12px; overflow: hidden; background: #F8F6F2; border: 1px solid rgba(28, 25, 23, 0.08); margin-bottom: 1.25rem;">
+                <div class="qv-img-container" style="width: 100%; height: 240px; border-radius: 10px; overflow: hidden; background: #F7F5F0; border: 1px solid rgba(28, 25, 23, 0.06); margin-bottom: 1.25rem;">
                     <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
-                <h4 class="fw-bold tracking-wide mb-2 text-dark" id="qvTitle"></h4>
+                <h4 class="fw-bold tracking-wide mb-2 text-dark" id="qvTitle" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.01em;"></h4>
                 <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
-                    <span class="fs-4 fw-bold text-dark" id="qvPrice"></span>
-                    <span class="text-secondary small text-decoration-line-through" id="qvOrigPrice"></span>
+                    <span class="fs-4 fw-bold text-dark" id="qvPrice" style="font-family: 'Outfit', sans-serif;"></span>
+                    <span class="product-price-orig" id="qvOrigPrice"></span>
                 </div>
-                <p class="text-secondary small mb-4" id="qvDesc" style="line-height: 1.6;"></p>
-                <div class="d-flex align-items-center justify-content-center gap-2 mb-4 p-2 rounded-3 border border-secondary border-opacity-25 small text-secondary" style="background: #F5F2ED;">
-                    <i class="bi bi-shield-check text-success"></i> 100% Authentic • Kozhikode Flagship • Dispatch in 24h
-                </div>
-                <button type="button" class="btn btn-dark w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2" id="qvAddBagBtn">
-                    <i class="bi bi-bag-plus-fill"></i> <span>Add to Bag</span>
+                <p class="text-secondary small mb-4" id="qvDesc" style="line-height: 1.6; font-size: 0.85rem;"></p>
+                <button type="button" class="btn w-100 py-3 fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2" id="qvAddBagBtn" style="background: #171614; color: #FAF8F5; border: 1.5px solid #171614; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.82rem; letter-spacing: 0.12em;">
+                    <i class="bi bi-bag-plus"></i> <span>Add to Bag</span>
                 </button>
-                <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success w-100 py-2 fw-semibold rounded-pill d-flex align-items-center justify-content-center gap-2" id="qvWhatsappBtn" style="font-size: 0.82rem; border-color: rgba(37, 211, 102, 0.45); color: #25D366; text-decoration: none;">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" id="qvWhatsappBtn" style="font-size: 0.82rem; border-radius: 8px; border: 1.5px solid rgba(37, 211, 102, 0.5); color: #1B8341; background: #F0FDF4; text-decoration: none;">
                     <i class="bi bi-whatsapp"></i> <span>Enquire on WhatsApp</span>
                 </a>
             </div>
