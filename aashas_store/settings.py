@@ -4,6 +4,16 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load local environment variables from .env if present
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k, v = line.split('=', 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
 # Security Settings
 SECRET_KEY = os.environ.get(
     'SECRET_KEY', 
@@ -188,9 +198,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
-# Razorpay Credentials (reads from Render Environment or falls back to local strings)
-RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_YourTestKeyIdHere')
-RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'YourTestKeySecretHere')
+# Razorpay Live Credentials (enforce active live keys for real bank settlement)
+_env_key_id = (os.environ.get('RAZORPAY_KEY_ID') or '').strip()
+RAZORPAY_KEY_ID = 'rzp_live_Tck3w9pvGwRGOY' if (not _env_key_id or _env_key_id.startswith('rzp_test_')) else _env_key_id
+
+_env_key_secret = (os.environ.get('RAZORPAY_KEY_SECRET') or '').strip()
+RAZORPAY_KEY_SECRET = 'uct85ngbFuvyRgdqhGYDFdG4' if (not _env_key_secret or 'YourTestKey' in _env_key_secret) else _env_key_secret
 
 # Hostinger / Custom SMTP Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

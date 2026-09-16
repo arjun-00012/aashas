@@ -1,131 +1,954 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Checkout | ASHAS STORE{% endblock %}
+{% block title %}Checkout & Secure Payment | ASHAS STORE{% endblock %}
 
 {% block extra_css %}
+<!-- Razorpay Checkout Script -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+    /* =========================================================
+       ASHAS Classic Luxury Checkout & Payment Design System
+       Matches Index Page Palette: #FAF8F5 / #171614 / Outfit / Plus Jakarta
+       ========================================================= */
+    :root {
+        --checkout-bg: #FAF8F5;
+        --checkout-card: #FFFFFF;
+        --checkout-dark: #171614;
+        --checkout-secondary: #635F59;
+        --checkout-muted: #8C867E;
+        --checkout-border: rgba(28, 25, 23, 0.09);
+        --checkout-border-focus: #171614;
+        --checkout-gold: #B89D52;
+        --checkout-pill-bg: #F5F2ED;
+        --checkout-shadow: 0 16px 36px -12px rgba(28, 25, 23, 0.06), 0 2px 8px rgba(28, 25, 23, 0.02);
+    }
+
+    body {
+        background-color: var(--checkout-bg);
+    }
+
+    .checkout-page-wrapper {
+        background-color: var(--checkout-bg);
+        min-height: calc(100vh - var(--nav-height, 62px));
+        padding-top: 1.5rem;
+        padding-bottom: 4rem;
+    }
+
+    /* Stepper Bar */
+    .checkout-stepper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+    .stepper-step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--checkout-muted);
+    }
+    .stepper-step.completed {
+        color: #198754;
+    }
+    .stepper-step.active {
+        color: var(--checkout-dark);
+    }
+    .stepper-step .step-badge {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1.5px solid currentColor;
+    }
+    .stepper-step.completed .step-badge {
+        background-color: #198754;
+        color: #FFFFFF;
+        border-color: #198754;
+    }
+    .stepper-step.active .step-badge {
+        background-color: var(--checkout-dark);
+        color: #FAF8F5;
+        border-color: var(--checkout-dark);
+    }
+    .stepper-divider {
+        width: 32px;
+        height: 1px;
+        background: rgba(28, 25, 23, 0.18);
+    }
+
+    /* Luxury Surface Cards */
+    .luxury-card {
+        background: var(--checkout-card);
+        border: 1px solid var(--checkout-border);
+        border-radius: 20px;
+        box-shadow: var(--checkout-shadow);
+        padding: 1.75rem;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    @media (max-width: 575.98px) {
+        .luxury-card {
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+    }
+
+    /* Section Headers */
+    .card-section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--checkout-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .card-section-subtitle {
+        font-size: 0.8rem;
+        color: var(--checkout-secondary);
+        margin-top: 0.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Form Inputs */
+    .luxury-label {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--checkout-dark);
+        margin-bottom: 0.45rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .luxury-input, .luxury-textarea {
+        background-color: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.92rem;
+        color: var(--checkout-dark);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 100%;
+    }
+    .luxury-input:focus, .luxury-textarea:focus {
+        background-color: #FFFFFF;
+        border-color: var(--checkout-dark);
+        box-shadow: 0 0 0 3px rgba(23, 22, 20, 0.08);
+        outline: none;
+    }
+    .luxury-input::placeholder, .luxury-textarea::placeholder {
+        color: #A8A29A;
+        font-size: 0.88rem;
+    }
+
+    /* Payment Methods Selector (Standard E-Commerce) */
+    .payment-methods-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .payment-method-card {
+        border: 1.5px solid rgba(28, 25, 23, 0.12);
+        border-radius: 14px;
+        padding: 1rem 1.15rem;
+        background: #FFFFFF;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+    .payment-method-card:hover {
+        border-color: rgba(28, 25, 23, 0.3);
+        background: #FAF8F5;
+    }
+    .payment-method-card.selected {
+        border-color: var(--checkout-dark);
+        background: #FAF8F5;
+        box-shadow: 0 4px 14px -3px rgba(23, 22, 20, 0.1);
+    }
+    .payment-radio {
+        accent-color: var(--checkout-dark);
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .payment-badge-popular {
+        background: #171614;
+        color: #FAF8F5;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+    }
+
+    .live-gateway-badge {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.25);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #198754;
+        animation: pulse-live 1.8s infinite;
+    }
+    @keyframes pulse-live {
+        0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6); }
+        70% { box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+
+    /* Supported Chips */
+    .method-chip {
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        border-radius: 6px;
+        padding: 0.25rem 0.55rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--checkout-dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* Proceed CTA Button */
+    .btn-checkout-pay {
+        background-color: var(--checkout-dark);
+        color: #FAF8F5;
+        border: none;
+        border-radius: 14px;
+        padding: 1.15rem 1.75rem;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.96rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        box-shadow: 0 12px 28px -6px rgba(23, 22, 20, 0.32);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+    }
+    .btn-checkout-pay:hover:not(:disabled) {
+        background-color: #2D2A26;
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: 0 16px 32px -4px rgba(23, 22, 20, 0.42);
+    }
+    .btn-checkout-pay:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-checkout-pay:disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    /* Trust Highlights */
+    .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+    @media (max-width: 575.98px) {
+        .trust-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+    .trust-item {
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.07);
+        border-radius: 12px;
+        padding: 0.75rem;
+        text-align: center;
+    }
+    .trust-item i {
+        font-size: 1.1rem;
+        color: var(--checkout-dark);
+        margin-bottom: 0.2rem;
+        display: inline-block;
+    }
+    .trust-item .trust-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--checkout-dark);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .trust-item .trust-desc {
+        font-size: 0.68rem;
+        color: var(--checkout-muted);
+        margin: 0;
+    }
+
+    /* Order Summary Column */
+    .order-items-scroll {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 0.35rem;
+    }
+    .order-items-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .order-items-scroll::-webkit-scrollbar-thumb {
+        background: rgba(28, 25, 23, 0.15);
+        border-radius: 4px;
+    }
+
+    .order-item-row {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(28, 25, 23, 0.07);
+    }
+    .order-item-row:last-child {
+        border-bottom: none;
+    }
+    .item-thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        object-fit: cover;
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        flex-shrink: 0;
+    }
+    .item-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .item-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--checkout-dark);
+        margin: 0 0 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .item-meta {
+        font-size: 0.76rem;
+        color: var(--checkout-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .item-qty-badge {
+        background: var(--checkout-pill-bg);
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        padding: 0.1rem 0.45rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .item-price {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--checkout-dark);
+        flex-shrink: 0;
+    }
+
+    /* Price Calculation Rows */
+    .summary-calc-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.45rem 0;
+        font-size: 0.85rem;
+        color: var(--checkout-secondary);
+    }
+    .summary-calc-row.total-row {
+        border-top: 1.5px solid rgba(28, 25, 23, 0.12);
+        margin-top: 0.5rem;
+        padding-top: 0.85rem;
+        color: var(--checkout-dark);
+    }
+    .summary-calc-row.total-row .total-label {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    .summary-calc-row.total-row .total-amount {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: var(--checkout-dark);
+    }
+
+    /* WhatsApp Concierge Box */
+    .whatsapp-concierge-card {
+        background: #F4F8F4;
+        border: 1px solid rgba(25, 135, 84, 0.18);
+        border-radius: 14px;
+        padding: 1rem;
+        margin-top: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-md-5" style="max-width: 580px;">
-    <div class="p-3 p-sm-4 border border-secondary border-opacity-25 rounded-3 bg-white shadow-sm">
+<div class="checkout-page-wrapper">
+    <div class="container" style="max-width: 1120px;">
+        
+        <!-- Breadcrumb & Stepper Header -->
         <div class="text-center mb-4">
-            <h1 class="h4 fw-bold tracking-wider mb-1 text-uppercase text-dark" style="letter-spacing: 0.1em;">SHIPPING & PAYMENT</h1>
-            <p class="text-secondary small mb-0">Complete your order securely with Razorpay</p>
+            <div class="checkout-stepper">
+                <div class="stepper-step completed">
+                    <span class="step-badge"><i class="bi bi-check-lg"></i></span>
+                    <span>01. Bag</span>
+                </div>
+                <div class="stepper-divider"></div>
+                <div class="stepper-step active">
+                    <span class="step-badge">02</span>
+                    <span>Shipping & Payment</span>
+                </div>
+                <div class="stepper-divider"></div>
+                <div class="stepper-step">
+                    <span class="step-badge">03</span>
+                    <span>Confirmation</span>
+                </div>
+            </div>
+
+            <h1 class="h3 fw-bold text-uppercase mb-1" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.12em; color: var(--checkout-dark);">
+                SECURE CHECKOUT
+            </h1>
+            <p class="text-secondary small mb-0">
+                Direct UPI & Card Payments • Official Razorpay Live Gateway • Fast Speed Post Dispatch
+            </p>
         </div>
 
+        <!-- Checkout Main Grid -->
         <form id="checkoutForm">
             {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Full Name</label>
-                <input type="text" id="full_name" class="form-control" value="{{ default_name }}" placeholder="Recipient Full Name" required>
-            </div>
+            <div class="row g-4 g-xl-4 align-items-start">
+                
+                <!-- Left Column: Shipping & Payment -->
+                <div class="col-12 col-lg-7">
+                    
+                    <!-- 1. Shipping Details -->
+                    <div class="luxury-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h2 class="card-section-title">
+                                <i class="bi bi-geo-alt-fill text-dark"></i>
+                                <span>01. Shipping Information</span>
+                            </h2>
+                            <span class="badge bg-light text-dark border border-secondary border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.7rem;">
+                                India Post Speed Post
+                            </span>
+                        </div>
+                        <p class="card-section-subtitle">
+                            Please provide the recipient name, delivery address, and phone number for parcel tracking updates.
+                        </p>
 
-            <div class="mb-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
-                <input type="tel" id="phone_number" class="form-control" value="{{ default_phone }}" placeholder="10-digit mobile number" required>
-            </div>
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <label class="luxury-label" for="full_name">
+                                    Recipient Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="full_name" class="luxury-input" value="{{ default_name }}" placeholder="Recipient Full Name" required>
+                            </div>
 
-            <div class="mb-4">
-                <label class="form-label small fw-semibold text-secondary mb-1">Delivery Address</label>
-                <textarea id="shipping_address" rows="3" class="form-control" placeholder="House/Flat No., Street, City, State, Pincode" required>{{ default_address }}</textarea>
-            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="luxury-label" for="phone_number">
+                                    Mobile Number <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" id="phone_number" class="luxury-input" value="{{ default_phone }}" placeholder="10-digit mobile number" required>
+                            </div>
 
-            <div class="d-flex justify-content-between align-items-center p-3 mb-4 rounded-2 border border-secondary border-opacity-25" style="background: #F5F2ED;">
-                <span class="text-secondary small text-uppercase fw-semibold">Amount Payable</span>
-                <span class="fs-4 fw-bold text-dark">₹{{ total }}</span>
-            </div>
+                            <div class="col-12">
+                                <label class="luxury-label" for="shipping_address">
+                                    Complete Delivery Address <span class="text-danger">*</span>
+                                </label>
+                                <textarea id="shipping_address" rows="3" class="luxury-textarea" placeholder="House/Flat No., Building, Street, Landmark, City, State, PIN Code" required>{{ default_address }}</textarea>
+                                <div class="form-text mt-1 text-muted" style="font-size: 0.75rem;">
+                                    <i class="bi bi-info-circle me-1"></i> Delivery address will be saved to your profile for easy future orders.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <button type="submit" id="payButton" class="btn btn-dark w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">
-                <i class="bi bi-shield-lock-fill"></i>
-                <span>Proceed to Payment</span>
-            </button>
+                    <!-- 2. Payment Method Selector (Standard E-Commerce Style) -->
+                    <div class="luxury-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h2 class="card-section-title">
+                                <i class="bi bi-shield-lock-fill text-dark"></i>
+                                <span>02. Select Payment Method</span>
+                            </h2>
+                            <span class="live-gateway-badge">
+                                <span class="live-dot"></span> Razorpay Live
+                            </span>
+                        </div>
+                        <p class="card-section-subtitle">
+                            Select your preferred payment method below. Funds are processed securely and deposited directly into the merchant bank account.
+                        </p>
+
+                        <div class="payment-methods-stack">
+                            
+                            <!-- 1. UPI (Most Popular / Standard E-Commerce) -->
+                            <label class="payment-method-card selected" id="card_upi" for="method_upi">
+                                <div class="d-flex align-items-start gap-3">
+                                    <input type="radio" name="payment_method" id="method_upi" value="upi" class="payment-radio mt-1" checked>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+                                            <span class="fw-bold text-dark font-outfit" style="font-size: 0.95rem;">
+                                                UPI (Google Pay, PhonePe, Paytm, Any UPI)
+                                            </span>
+                                            <span class="payment-badge-popular">Most Popular</span>
+                                        </div>
+                                        <p class="text-secondary small mb-2" style="font-size: 0.8rem; line-height: 1.35;">
+                                            Instant payment with zero transaction fees. Scan dynamic QR code or pay directly from Google Pay, PhonePe, Paytm, CRED, or BHIM.
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-1.5">
+                                            <span class="method-chip"><i class="bi bi-qr-code text-primary"></i> UPI QR Code</span>
+                                            <span class="method-chip"><i class="bi bi-google text-danger"></i> Google Pay</span>
+                                            <span class="method-chip"><i class="bi bi-phone text-primary"></i> PhonePe</span>
+                                            <span class="method-chip"><i class="bi bi-wallet text-info"></i> Paytm / CRED</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 2. Cards (Visa, Mastercard, RuPay) -->
+                            <label class="payment-method-card" id="card_card" for="method_card">
+                                <div class="d-flex align-items-start gap-3">
+                                    <input type="radio" name="payment_method" id="method_card" value="card" class="payment-radio mt-1">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+                                            <span class="fw-bold text-dark font-outfit" style="font-size: 0.95rem;">
+                                                Credit & Debit Cards
+                                            </span>
+                                            <span class="text-muted small" style="font-size: 0.75rem;">Instant OTP</span>
+                                        </div>
+                                        <p class="text-secondary small mb-2" style="font-size: 0.8rem; line-height: 1.35;">
+                                            All domestic and international cards supported with 256-bit 3D Secure bank OTP verification.
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-1.5">
+                                            <span class="method-chip"><i class="bi bi-credit-card-2-front text-dark"></i> Visa</span>
+                                            <span class="method-chip"><i class="bi bi-credit-card text-danger"></i> Mastercard</span>
+                                            <span class="method-chip"><i class="bi bi-credit-card-fill text-success"></i> RuPay</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 3. Net Banking -->
+                            <label class="payment-method-card" id="card_netbanking" for="method_netbanking">
+                                <div class="d-flex align-items-start gap-3">
+                                    <input type="radio" name="payment_method" id="method_netbanking" value="netbanking" class="payment-radio mt-1">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+                                            <span class="fw-bold text-dark font-outfit" style="font-size: 0.95rem;">
+                                                Net Banking (50+ Indian Banks)
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary small mb-2" style="font-size: 0.8rem; line-height: 1.35;">
+                                            Transfer securely from your Indian bank account: SBI, HDFC, ICICI, Axis, Kotak, PNB, and 50+ other banks.
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-1.5">
+                                            <span class="method-chip"><i class="bi bi-bank text-dark"></i> SBI</span>
+                                            <span class="method-chip"><i class="bi bi-bank text-dark"></i> HDFC</span>
+                                            <span class="method-chip"><i class="bi bi-bank text-dark"></i> ICICI</span>
+                                            <span class="method-chip"><i class="bi bi-bank text-dark"></i> Axis & All Banks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- 4. Wallets -->
+                            <label class="payment-method-card" id="card_wallet" for="method_wallet">
+                                <div class="d-flex align-items-start gap-3">
+                                    <input type="radio" name="payment_method" id="method_wallet" value="wallet" class="payment-radio mt-1">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+                                            <span class="fw-bold text-dark font-outfit" style="font-size: 0.95rem;">
+                                                Wallets & PayLater
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary small mb-2" style="font-size: 0.8rem; line-height: 1.35;">
+                                            Amazon Pay, MobiKwik, Airtel Money, and supported digital wallet balances.
+                                        </p>
+                                    </div>
+                                </div>
+                            </label>
+
+                        </div>
+
+                        <!-- Direct Bank Account Settlement Notice -->
+                        <div class="p-3 mt-3 rounded-3 border d-flex align-items-center gap-2.5" style="background: #FAF8F5; border-color: rgba(28, 25, 23, 0.08) !important;">
+                            <i class="bi bi-bank2 fs-4 text-dark flex-shrink-0"></i>
+                            <div style="font-size: 0.78rem; line-height: 1.4;">
+                                <strong class="text-dark">Official Merchant Bank Settlement:</strong>
+                                <span class="text-secondary"> Payments are captured live via Razorpay and deposited directly into the merchant bank account registered under Merchant Key <code class="text-dark">rzp_live_Tck3w9pvGwRGOY</code>.</span>
+                            </div>
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="mt-4">
+                            <button type="submit" id="payButton" class="btn-checkout-pay">
+                                <i class="bi bi-lock-fill"></i>
+                                <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI</span>
+                            </button>
+
+                            <div id="checkoutAlert" class="alert alert-danger d-none mt-3 py-2 px-3 small rounded-3" role="alert"></div>
+
+                            <p class="text-center text-muted small mt-3 mb-0" style="font-size: 0.75rem;">
+                                <i class="bi bi-shield-check text-success me-1"></i> Clicking pay opens Razorpay's live secure gateway. No money is debited until you authenticate with your UPI PIN or Bank OTP.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Trust Signals Bar -->
+                    <div class="trust-grid">
+                        <div class="trust-item">
+                            <i class="bi bi-patch-check"></i>
+                            <div class="trust-title">100% Genuine</div>
+                            <p class="trust-desc">Curated Statement Quality</p>
+                        </div>
+                        <div class="trust-item">
+                            <i class="bi bi-truck"></i>
+                            <div class="trust-title">Speed Post</div>
+                            <p class="trust-desc">India Post Tracked Parcel</p>
+                        </div>
+                        <div class="trust-item">
+                            <i class="bi bi-shield-lock"></i>
+                            <div class="trust-title">SSL Encrypted</div>
+                            <p class="trust-desc">Razorpay Live 256-Bit Protection</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Order Summary (Sticky) -->
+                <div class="col-12 col-lg-5">
+                    <div class="luxury-card sticky-lg-top" style="top: 80px; z-index: 10;">
+                        
+                        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary border-opacity-15 mb-3">
+                            <h3 class="card-section-title">
+                                <i class="bi bi-bag-check-fill text-dark"></i>
+                                <span>Order Summary</span>
+                            </h3>
+                            <span class="badge bg-dark rounded-pill px-2.5 py-1 text-uppercase" style="font-family: 'Outfit', sans-serif; font-size: 0.72rem; letter-spacing: 0.05em; background: var(--checkout-dark) !important;">
+                                {{ item_count }} Item{{ item_count|pluralize }}
+                            </span>
+                        </div>
+
+                        <!-- Itemized List -->
+                        <div class="order-items-scroll mb-3">
+                            {% for item in checkout_items %}
+                            <div class="order-item-row">
+                                {% if item.product.display_image %}
+                                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="item-thumb">
+                                {% else %}
+                                    <div class="item-thumb d-flex align-items-center justify-content-center text-muted">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="item-info">
+                                    <h4 class="item-title" title="{{ item.product.name }}">{{ item.product.name }}</h4>
+                                    <div class="item-meta">
+                                        <span class="item-qty-badge">Qty: {{ item.quantity }}</span>
+                                        <span>₹{{ item.unit_price|floatformat:2 }} each</span>
+                                    </div>
+                                </div>
+                                <div class="item-price">
+                                    ₹{{ item.subtotal|floatformat:2 }}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4 text-muted small">
+                                No items in your bag.
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Cost Breakdown -->
+                        <div class="pt-2 border-top border-secondary border-opacity-15">
+                            <div class="summary-calc-row">
+                                <span>Bag Subtotal</span>
+                                <span class="fw-semibold text-dark">₹{{ total|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-calc-row">
+                                <span>India Post Insured Express Delivery</span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">FREE</span>
+                            </div>
+                            <div class="summary-calc-row">
+                                <span>Luxury Gift Box & Protective Packaging</span>
+                                <span class="text-dark fw-semibold" style="font-size: 0.78rem;">Complimentary</span>
+                            </div>
+
+                            <!-- Total Payable -->
+                            <div class="summary-calc-row total-row">
+                                <span class="total-label">Total Amount Payable</span>
+                                <span class="total-amount">₹{{ total|floatformat:2 }}</span>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Concierge Support -->
+                        <div class="whatsapp-concierge-card">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-whatsapp text-success fs-4"></i>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.8rem;">ASHAS Customer Concierge</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">Questions about sizing or dispatch?</div>
+                                </div>
+                            </div>
+                            <a href="https://wa.me/918281451481?text=Hi%20ASHAS%20Store%2C%20I%20have%20a%20question%20regarding%20my%20order" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold text-nowrap" style="font-size: 0.75rem;">
+                                Chat Now
+                            </a>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'cart' %}" class="text-secondary text-decoration-none small d-inline-flex align-items-center gap-1" style="font-size: 0.8rem;">
+                                <i class="bi bi-arrow-left"></i> Modify items in your shopping bag
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
         </form>
 
-        <div class="text-center mt-3">
-            <small class="text-muted d-inline-flex align-items-center gap-1">
-                <i class="bi bi-shield-check text-success"></i> 256-bit SSL Encrypted & Secure Razorpay Checkout
-            </small>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkoutForm');
     const btn = document.getElementById('payButton');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Initializing Payment...';
+    const btnText = document.getElementById('payButtonText');
+    const alertBox = document.getElementById('checkoutAlert');
 
-    const formData = new FormData();
-    formData.append('full_name', document.getElementById('full_name').value);
-    formData.append('phone_number', document.getElementById('phone_number').value);
-    formData.append('shipping_address', document.getElementById('shipping_address').value);
-    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    // Handle Payment Method radio selection
+    const methodCards = document.querySelectorAll('.payment-method-card');
+    const radios = document.querySelectorAll('input[name="payment_method"]');
 
-    try {
-        const res = await fetch("{% url 'checkout' %}", { method: 'POST', body: formData });
-        const data = await res.json();
+    function updateSelectedCard(methodVal) {
+        methodCards.forEach(card => card.classList.remove('selected'));
+        const activeCard = document.getElementById('card_' + methodVal);
+        if (activeCard) activeCard.classList.add('selected');
 
-        if (data.demo_mode) {
-            btn.classList.remove('btn-dark');
-            btn.classList.add('btn-success');
-            btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Order Placed Successfully!';
-            setTimeout(() => {
-                window.location.href = data.redirect_url || "{% url 'profile' %}";
-            }, 600);
+        // Update button text accordingly
+        if (methodVal === 'upi') {
+            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA UPI';
+        } else if (methodVal === 'card') {
+            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA CARD';
+        } else if (methodVal === 'netbanking') {
+            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA NETBANKING';
+        } else {
+            btnText.textContent = 'PROCEED TO PAY ₹{{ total|floatformat:2 }}';
+        }
+    }
+
+    radios.forEach(r => {
+        r.addEventListener('change', function() {
+            updateSelectedCard(this.value);
+        });
+    });
+
+    function showError(msg) {
+        alertBox.textContent = msg;
+        alertBox.classList.remove('d-none');
+    }
+
+    function hideError() {
+        alertBox.textContent = '';
+        alertBox.classList.add('d-none');
+    }
+
+    function getSelectedMethod() {
+        const checked = document.querySelector('input[name="payment_method"]:checked');
+        return checked ? checked.value : 'upi';
+    }
+
+    function resetButton() {
+        btn.disabled = false;
+        const m = getSelectedMethod();
+        updateSelectedCard(m);
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideError();
+
+        const fullName = document.getElementById('full_name').value.trim();
+        const phoneNumber = document.getElementById('phone_number').value.trim();
+        const shippingAddress = document.getElementById('shipping_address').value.trim();
+        const selectedMethod = getSelectedMethod();
+
+        if (!fullName || !phoneNumber || !shippingAddress) {
+            showError("Please fill out all shipping details before proceeding.");
             return;
         }
 
-        const options = {
-            key: data.razorpay_key,
-            amount: data.amount,
-            currency: "INR",
-            name: "ASHAS STORE",
-            description: "Curated Statement Apparel & Accessories",
-            order_id: data.razorpay_order_id,
-            handler: async function (response) {
-                const verifyRes = await fetch("{% url 'payment_verify' %}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                        db_order_id: data.db_order_id
-                    })
-                });
+        // Visual loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure Razorpay Gateway...';
 
-                if (verifyRes.ok) {
-                    window.location.href = "{% url 'profile' %}";
-                } else {
-                    alert("Payment verification issue encountered. Please contact support.");
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
-                }
-            },
-            prefill: {
-                name: document.getElementById('full_name').value,
-                contact: document.getElementById('phone_number').value
-            },
-            theme: { color: "#171614" },
-            modal: {
-                ondismiss: function() {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
-                }
+        const formData = new FormData();
+        formData.append('full_name', fullName);
+        formData.append('phone_number', phoneNumber);
+        formData.append('shipping_address', shippingAddress);
+        formData.append('payment_method', selectedMethod);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        try {
+            const res = await fetch("{% url 'checkout' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.status === 'error') {
+                showError(data.message || "Unable to initialize order. Please check your network and try again.");
+                resetButton();
+                return;
             }
-        };
 
-        const rzp = new Razorpay(options);
-        rzp.open();
-    } catch (err) {
-        alert("Failed to initialize checkout. Please check your network and try again.");
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> Proceed to Payment';
-    }
+            if (!data.razorpay_order_id) {
+                showError("Payment gateway initialization failed. Please contact support.");
+                resetButton();
+                return;
+            }
+
+            // Always open the Live Razorpay Payment Modal (NEVER bypass / NEVER auto-redirect)
+            const options = {
+                key: data.razorpay_key,
+                amount: data.amount,
+                currency: data.currency || "INR",
+                name: "ASHAS STORE",
+                description: "Order #" + data.db_order_id + " Payment",
+                image: "{% static 'images/favicon.png' %}",
+                order_id: data.razorpay_order_id,
+                prefill: {
+                    name: data.customer_name || fullName,
+                    contact: data.customer_phone || phoneNumber,
+                    email: data.customer_email || "{{ user_email }}",
+                    method: selectedMethod // Directly opens UPI / Card tab based on choice!
+                },
+                notes: {
+                    order_id: data.db_order_id,
+                    payment_method: selectedMethod,
+                    store: "ASHAS STORE"
+                },
+                theme: {
+                    color: "#171614"
+                },
+                handler: async function (response) {
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying Live Payment Signature...';
+                    
+                    try {
+                        const verifyRes = await fetch("{% url 'payment_verify' %}", {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                db_order_id: data.db_order_id
+                            })
+                        });
+
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyRes.ok && verifyData.status === 'success') {
+                            btn.classList.remove('btn-checkout-pay');
+                            btn.classList.add('btn', 'btn-success', 'py-3', 'w-100', 'rounded-4');
+                            btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Payment Confirmed! Redirecting...';
+                            setTimeout(() => {
+                                window.location.href = verifyData.redirect_url || "{% url 'profile' %}?order_placed=true&order_id=" + data.db_order_id;
+                            }, 500);
+                        } else {
+                            showError("Payment verification issue: " + (verifyData.message || "Please contact support on WhatsApp with your payment ID " + response.razorpay_payment_id));
+                            resetButton();
+                        }
+                    } catch (err) {
+                        showError("Failed to reach server for payment confirmation. If amount was debited, your order will be reconciled automatically. Contact +91 82814 51481.");
+                        resetButton();
+                    }
+                },
+                modal: {
+                    ondismiss: function() {
+                        showError("Payment was cancelled or closed before completion. You can select your method and try again.");
+                        resetButton();
+                    }
+                }
+            };
+
+            if (typeof Razorpay === 'undefined') {
+                showError("Razorpay checkout failed to load. Please disable ad blockers and refresh the page.");
+                resetButton();
+                return;
+            }
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (resp) {
+                showError("Payment Failed: " + (resp.error.description || "The transaction could not be completed. Please try with another payment method."));
+                resetButton();
+            });
+            rzp.open();
+
+        } catch (err) {
+            showError("Network connection error. Please check your internet connectivity and try again.");
+            resetButton();
+        }
+    });
 });
 </script>
 {% endblock %}

@@ -62,6 +62,25 @@
                     <span class="badge bg-dark rounded-pill px-3 py-1.5 small" style="background: #171614 !important;">{{ orders|length }} Order{{ orders|length|pluralize }}</span>
                 </div>
 
+                {% if request.GET.order_placed %}
+                <div class="alert p-3 p-sm-4 mb-4 rounded-3 border border-success border-opacity-30 bg-success bg-opacity-10 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3 shadow-sm">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.25rem;">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark text-uppercase font-outfit mb-0.5" style="letter-spacing: 0.05em;">Payment Confirmed & Order Placed!</div>
+                            <p class="text-secondary small mb-0" style="font-size: 0.8rem;">
+                                Your curated items are reserved. Dispatch updates and India Post tracking details will appear below.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="https://wa.me/918281451481?text=Hi%20ASHAS%20Store%2C%20I%20have%20completed%20order%20payment%20via%20Razorpay" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill px-3 py-2 text-nowrap d-inline-flex align-items-center gap-1.5 shadow-sm" style="background: #171614; font-size: 0.78rem;">
+                        <i class="bi bi-whatsapp text-success"></i> WhatsApp Updates
+                    </a>
+                </div>
+                {% endif %}
+
                 {% if is_admin_preview %}
                 <div class="alert alert-dark py-2 px-3 small rounded-3 mb-3 d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">

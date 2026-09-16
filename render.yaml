@@ -22,6 +22,10 @@ services:
         value: "934762869273294"
       - key: CLOUDINARY_API_SECRET
         value: "bu1cNNgmT6U29O9uPTIM2yyAqFs"
+      - key: RAZORPAY_KEY_ID
+        value: "rzp_live_Tck3w9pvGwRGOY"
+      - key: RAZORPAY_KEY_SECRET
+        value: "uct85ngbFuvyRgdqhGYDFdG4"
 
 databases:
   - name: aashas-db

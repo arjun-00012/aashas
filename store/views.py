@@ -18,7 +18,10 @@ import razorpay
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
 
-razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+def get_razorpay_client():
+    return razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+razorpay_client = get_razorpay_client()
 
 @receiver(user_logged_in)
 def handle_user_logged_in(sender, request, user, **kwargs):
@@ -308,6 +311,18 @@ def checkout_view(request):
         messages.error(request, "The items in your bag are currently out of stock.")
         return redirect('home')
     
+    checkout_items = []
+    item_count = 0
+    for pid, (product, qty) in valid_items.items():
+        sub = float(product.current_price) * qty
+        item_count += qty
+        checkout_items.append({
+            'product': product,
+            'quantity': qty,
+            'unit_price': float(product.current_price),
+            'subtotal': sub
+        })
+
     default_address = ''
     default_phone = ''
     default_name = ''
@@ -318,33 +333,53 @@ def checkout_view(request):
         default_name = request.user.username
 
     if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        phone = request.POST.get('phone_number')
-        address = request.POST.get('shipping_address')
+        full_name = (request.POST.get('full_name') or '').strip()
+        phone = (request.POST.get('phone_number') or '').strip()
+        address = (request.POST.get('shipping_address') or '').strip()
 
-        is_mock_payment = False
-        rzp_order_id = ''
-        rzp_amount = int(total * 100)
+        if not full_name or not phone or not address:
+            return JsonResponse({'status': 'error', 'message': 'Please complete all required shipping details.'}, status=400)
 
-        # Check if Razorpay keys are configured with real values
-        if settings.RAZORPAY_KEY_ID and not settings.RAZORPAY_KEY_ID.startswith('rzp_test_YourTest'):
+        # Automatically update user profile for subsequent visits
+        if request.user.is_authenticated:
             try:
-                rzp_order = razorpay_client.order.create({
-                    'amount': rzp_amount,
-                    'currency': 'INR',
-                    'payment_capture': '1'
-                })
-                rzp_order_id = rzp_order['id']
-                rzp_amount = rzp_order['amount']
+                prof, _ = Profile.objects.get_or_create(user=request.user)
+                if phone:
+                    prof.phone_number = phone
+                if address:
+                    prof.address = address
+                prof.save()
             except Exception:
-                is_mock_payment = True
-        else:
-            is_mock_payment = True
+                pass
 
-        if is_mock_payment:
-            import uuid
-            rzp_order_id = f"demo_order_{uuid.uuid4().hex[:10]}"
+        rzp_amount = int(round(total * 100))
+        payment_method = (request.POST.get('payment_method') or 'upi').strip().lower()
 
+        # Create Live Order via Razorpay API (Deposited to Merchant Bank Account)
+        try:
+            client = get_razorpay_client()
+            rzp_order = client.order.create({
+                'amount': rzp_amount,
+                'currency': 'INR',
+                'payment_capture': 1,
+                'notes': {
+                    'customer_name': full_name[:40],
+                    'customer_phone': phone[:15],
+                    'shipping_address': address[:100],
+                    'payment_method': payment_method
+                }
+            })
+            rzp_order_id = rzp_order['id']
+            rzp_amount = rzp_order['amount']
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Razorpay Live order creation error: {e}")
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Payment Gateway Error: {str(e)}"
+            }, status=400)
+
+        # Order created in Pending status - ONLY marked Completed after verified signature
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
             full_name=full_name,
@@ -363,11 +398,47 @@ def checkout_view(request):
                 quantity=qty
             )
 
-        if is_mock_payment:
-            # Auto-complete demo/reference purchase when payment gateway is not configured
-            import uuid
+        return JsonResponse({
+            'status': 'success',
+            'razorpay_key': settings.RAZORPAY_KEY_ID,
+            'amount': rzp_amount,
+            'currency': 'INR',
+            'razorpay_order_id': rzp_order_id,
+            'db_order_id': order.id,
+            'customer_name': full_name,
+            'customer_phone': phone,
+            'customer_email': request.user.email if request.user.is_authenticated and request.user.email else '',
+            'payment_method': payment_method
+        })
+
+    return render(request, 'checkout.html', {
+        'total': total,
+        'checkout_items': checkout_items,
+        'item_count': item_count,
+        'default_address': default_address,
+        'default_phone': default_phone,
+        'default_name': default_name,
+        'user_email': request.user.email if request.user.is_authenticated else '',
+        'razorpay_key': settings.RAZORPAY_KEY_ID,
+    })
+
+@csrf_exempt
+def payment_verify(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order_id = data.get('db_order_id')
+            params = {
+                'razorpay_order_id': data.get('razorpay_order_id'),
+                'razorpay_payment_id': data.get('razorpay_payment_id'),
+                'razorpay_signature': data.get('razorpay_signature')
+            }
+            if not str(data.get('razorpay_order_id', '')).startswith('demo_'):
+                client = get_razorpay_client()
+                client.utility.verify_payment_signature(params)
+            order = Order.objects.get(id=order_id)
             order.payment_status = 'Completed'
-            order.razorpay_payment_id = f"demo_pay_{uuid.uuid4().hex[:10]}"
+            order.razorpay_payment_id = data.get('razorpay_payment_id') or f"pay_{order.id}"
             order.save(update_fields=['payment_status', 'razorpay_payment_id'])
 
             # Decrement product inventory safely
@@ -381,62 +452,16 @@ def checkout_view(request):
                 CartItem.objects.filter(user=request.user).delete()
             request.session['cart'] = {}
             request.session.modified = True
-
             return JsonResponse({
-                'demo_mode': True,
                 'status': 'success',
                 'order_id': order.id,
-                'redirect_url': '/profile/',
-                'message': 'Order placed successfully!'
+                'redirect_url': f"/profile/?order_placed=true&order_id={order.id}"
             })
-
-        return JsonResponse({
-            'demo_mode': False,
-            'razorpay_key': settings.RAZORPAY_KEY_ID,
-            'amount': rzp_amount,
-            'razorpay_order_id': rzp_order_id,
-            'db_order_id': order.id
-        })
-
-    return render(request, 'checkout.html', {
-        'total': total,
-        'default_address': default_address,
-        'default_phone': default_phone,
-        'default_name': default_name
-    })
-
-@csrf_exempt
-def payment_verify(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        order_id = data.get('db_order_id')
-        params = {
-            'razorpay_order_id': data.get('razorpay_order_id'),
-            'razorpay_payment_id': data.get('razorpay_payment_id'),
-            'razorpay_signature': data.get('razorpay_signature')
-        }
-        try:
-            if not str(data.get('razorpay_order_id', '')).startswith('demo_'):
-                razorpay_client.utility.verify_payment_signature(params)
-            order = Order.objects.get(id=order_id)
-            order.payment_status = 'Completed'
-            order.razorpay_payment_id = data.get('razorpay_payment_id') or f"pay_demo_{order.id}"
-            order.save()
-
-            # Decrement product inventory safely
-            for item in order.items.all():
-                if item.product:
-                    item.product.stock = max(0, item.product.stock - item.quantity)
-                    item.product.save(update_fields=['stock'])
-
-            # Clear cart items strictly for this user
-            if request.user.is_authenticated:
-                CartItem.objects.filter(user=request.user).delete()
-            request.session['cart'] = {}
-            request.session.modified = True
-            return JsonResponse({'status': 'success'})
-        except Exception:
-            return JsonResponse({'status': 'failed'}, status=400)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Payment verification error: {e}")
+            return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
 
 def contact_submit(request):
     if request.method == 'POST':
