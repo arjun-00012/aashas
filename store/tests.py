@@ -193,3 +193,36 @@ class OpenRedirectProtectionTests(TestCase):
         req = self.factory.get('/', HTTP_HOST='ashasstore.in', HTTP_REFERER='https://ashasstore.in/cart/')
         safe_url = safe_referer(req, fallback='home')
         self.assertEqual(safe_url, 'https://ashasstore.in/cart/')
+
+class CartViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.category = Category.objects.create(name="Shades")
+        self.product = Product.objects.create(
+            category=self.category,
+            name="Matrix Shades",
+            price=899.00,
+            stock=15
+        )
+
+    def test_cart_renders_successfully_when_empty(self):
+        res = self.client.get(reverse('cart'))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("Your shopping bag is empty", res.content.decode('utf-8'))
+
+    def test_cart_renders_successfully_with_items_desktop_and_mobile(self):
+        # Add item to cart
+        self.client.get(reverse('add_to_cart', kwargs={'product_id': self.product.id}))
+        
+        # Test desktop rendering
+        res_desktop = self.client.get(reverse('cart'))
+        self.assertEqual(res_desktop.status_code, 200)
+        self.assertIn("Matrix Shades", res_desktop.content.decode('utf-8'))
+
+        # Test mobile rendering (Mobile Safari User-Agent)
+        res_mobile = self.client.get(
+            reverse('cart'),
+            HTTP_USER_AGENT='Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1'
+        )
+        self.assertEqual(res_mobile.status_code, 200)
+        self.assertIn("Matrix Shades", res_mobile.content.decode('utf-8'))
