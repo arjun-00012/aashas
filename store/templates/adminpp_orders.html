@@ -383,7 +383,18 @@
                 <h2 class="h5 m-0 fw-bold text-dark">Transactions & Shipments</h2>
                 <small class="text-secondary">Orders processed via Razorpay • Update Post Office Tracking IDs manually below</small>
             </div>
-            <span class="badge bg-dark rounded-pill px-3 py-2 fw-semibold" style="background-color: #171614 !important;">{{ orders|length }} Orders</span>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                {% if is_postgres %}
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-semibold" title="Orders are permanently stored in managed PostgreSQL cloud database. Deployments will never delete your data.">
+                    <i class="bi bi-database-fill-check me-1"></i> PostgreSQL (Permanent Cloud Storage)
+                </span>
+                {% else %}
+                <span class="badge bg-secondary bg-opacity-10 text-dark border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-semibold" title="Running on local database">
+                    <i class="bi bi-database me-1"></i> Database: {{ db_engine|upper }}
+                </span>
+                {% endif %}
+                <span class="badge bg-dark rounded-pill px-3 py-2 fw-semibold" style="background-color: #171614 !important;">{{ orders|length }} Orders</span>
+            </div>
         </div>
 
         <!-- Mobile Card View (< 768px) -->

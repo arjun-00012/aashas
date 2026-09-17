@@ -22,9 +22,10 @@ profile.save()
 
 print(f"User 'user' updated: Phone = {profile.phone_number}, Staff Access = {user.is_staff}, Superuser = {user.is_superuser}, Password = user@123")
 
-# 2. Delete ALL current purchases as requested ("delete the current puracheses")
-deleted_count, _ = Order.objects.all().delete()
-print(f"Deleted existing purchases count: {deleted_count}")
+# 2. Only seed sample orders if NO orders exist at all in database
+if Order.objects.exists():
+    print(f"Orders already exist in database ({Order.objects.count()} orders). Skipping sample order generation.")
+    exit(0)
 
 # 3. Create fresh purchases with new phone number 9074277754 ("and then number chnaged sfter that puraches some products")
 products = list(Product.objects.all())

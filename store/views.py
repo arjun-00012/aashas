@@ -616,11 +616,16 @@ def staff_required(view_func):
 def adminpp_dashboard(request):
     products = Product.objects.select_related('category').all().order_by('-created_at')
     trending_count = products.filter(is_trending=True).count()
+    from django.conf import settings
+    db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
+    is_postgres = 'postgres' in db_engine or bool(os.environ.get('DATABASE_URL'))
     return render(request, 'adminpp_dashboard.html', {
         'categories': Category.objects.all(),
         'products': products,
         'trending_count': trending_count,
-        'inquiries': ContactMessage.objects.all().order_by('-created_at')
+        'inquiries': ContactMessage.objects.all().order_by('-created_at'),
+        'db_engine': db_engine,
+        'is_postgres': is_postgres,
     })
 
 @staff_required
@@ -698,12 +703,18 @@ def adminpp_orders(request):
         wb.save(response)
         return response
 
+    from django.conf import settings
+    db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
+    is_postgres = 'postgres' in db_engine or bool(os.environ.get('DATABASE_URL'))
+
     return render(request, 'adminpp_orders.html', {
         'orders': orders,
         'categories': Category.objects.all(),
         'selected_category': category_filter,
         'start_date': start_date,
-        'end_date': end_date
+        'end_date': end_date,
+        'db_engine': db_engine,
+        'is_postgres': is_postgres,
     })
 
 @staff_required
