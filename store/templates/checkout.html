@@ -9,7 +9,7 @@
 
 <style>
     /* =========================================================
-       ASHAS Classic Minimal Luxury Checkout Design System
+       ASHAS Minimal Classic Mobile-Responsive Checkout Design
        ========================================================= */
     :root {
         --chk-bg: #FAF8F5;
@@ -24,30 +24,92 @@
     .checkout-wrap {
         background-color: var(--chk-bg);
         min-height: calc(100vh - var(--nav-height, 62px));
-        padding: 1.75rem 0 3.5rem;
+        padding: 1.5rem 0 3.5rem;
     }
 
     /* Minimalist Checkout Header */
     .checkout-header {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
     .checkout-title {
         font-family: 'Outfit', sans-serif;
         font-weight: 800;
-        font-size: 1.45rem;
-        letter-spacing: 0.12em;
+        font-size: 1.35rem;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
         color: var(--chk-dark);
         margin: 0;
+        line-height: 1.15;
     }
     .checkout-subtitle {
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         color: var(--chk-muted);
-        letter-spacing: 0.04em;
-        margin-top: 0.25rem;
+        letter-spacing: 0.03em;
+        margin-top: 0.2rem;
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
+    }
+    .btn-edit-bag {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--chk-dark);
+        border: 1px solid rgba(28, 25, 23, 0.18);
+        border-radius: 999px;
+        padding: 0.35rem 0.85rem;
+        text-decoration: none;
+        background: #FFFFFF;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .btn-edit-bag:hover {
+        background: #F4F0EB;
+        color: var(--chk-dark);
+    }
+
+    /* Mobile Collapsible Order Summary Drawer (< 992px) */
+    .mobile-summary-toggle {
+        background: #FFFFFF;
+        border: 1px solid var(--chk-border);
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        font-size: 0.86rem;
+        color: var(--chk-dark);
+        width: 100%;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03);
+        -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-summary-toggle.open {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        background: #FDFBF8;
+        border-bottom-color: rgba(28, 25, 23, 0.06);
+    }
+    .mobile-summary-toggle .toggle-chevron {
+        transition: transform 0.25s ease;
+        font-size: 0.75rem;
+    }
+    .mobile-summary-toggle.open .toggle-chevron {
+        transform: rotate(180deg);
+    }
+    .mobile-summary-body {
+        background: #FFFFFF;
+        border: 1px solid var(--chk-border);
+        border-top: none;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
     }
 
     /* Minimal Luxury Cards */
@@ -57,15 +119,6 @@
         border-radius: 16px;
         padding: 1.35rem 1.4rem;
         box-shadow: 0 4px 18px rgba(28, 25, 23, 0.03);
-    }
-    @media (max-width: 575.98px) {
-        .chk-card {
-            padding: 1.15rem;
-            border-radius: 14px;
-        }
-        .checkout-wrap {
-            padding: 1rem 0 2.5rem;
-        }
     }
 
     .chk-card-title {
@@ -81,7 +134,7 @@
         justify-content: space-between;
     }
 
-    /* Form Fields */
+    /* Form Fields - 16px font to prevent iOS viewport auto-zoom */
     .chk-label {
         font-family: 'Outfit', sans-serif;
         font-size: 0.74rem;
@@ -96,12 +149,14 @@
         background-color: #FAF8F5;
         border: 1px solid rgba(28, 25, 23, 0.12);
         border-radius: 10px;
-        padding: 0.65rem 0.85rem;
+        padding: 0.7rem 0.9rem;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.88rem;
+        font-size: 16px !important; /* Prevents iOS auto-zoom */
         color: var(--chk-dark);
         width: 100%;
         transition: all 0.2s ease;
+        -webkit-appearance: none;
+        appearance: none;
     }
     .chk-input:focus, .chk-textarea:focus {
         background-color: #FFFFFF;
@@ -111,21 +166,23 @@
     }
     .chk-input::placeholder, .chk-textarea::placeholder {
         color: #A8A29A;
-        font-size: 0.84rem;
+        font-size: 0.88rem;
     }
 
-    /* Payment Methods (Compact & Aesthetic) */
+    /* Payment Methods - Mobile Friendly Touch Targets */
     .payment-option {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem 0.9rem;
-        border: 1px solid rgba(28, 25, 23, 0.1);
-        border-radius: 10px;
+        padding: 0.8rem 0.95rem;
+        border: 1.5px solid rgba(28, 25, 23, 0.1);
+        border-radius: 12px;
         background: #FFFFFF;
         cursor: pointer;
         transition: all 0.18s ease;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.55rem;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 52px;
     }
     .payment-option:last-child {
         margin-bottom: 0;
@@ -141,26 +198,28 @@
     }
     .payment-option input[type="radio"] {
         accent-color: var(--chk-dark);
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
         margin: 0;
+        flex-shrink: 0;
     }
     .payment-option-label {
         font-family: 'Outfit', sans-serif;
-        font-size: 0.86rem;
-        font-weight: 600;
+        font-size: 0.88rem;
+        font-weight: 700;
         color: var(--chk-dark);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.45rem;
+        line-height: 1.2;
     }
-    .payment-option-icons {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        color: var(--chk-secondary);
-        font-size: 0.78rem;
+    .payment-option-sub {
+        font-size: 0.74rem;
+        color: var(--chk-muted);
+        display: block;
+        line-height: 1.25;
+        margin-top: 2px;
     }
     .badge-recommended {
         font-size: 0.6rem;
@@ -180,10 +239,11 @@
         color: #FAF8F5;
         border: none;
         border-radius: 999px;
-        padding: 0.85rem 1.4rem;
+        padding: 0.9rem 1.5rem;
+        min-height: 50px;
         font-family: 'Outfit', sans-serif;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.94rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         width: 100%;
@@ -195,6 +255,7 @@
         transition: all 0.2s ease;
         cursor: pointer;
         margin-top: 1.15rem;
+        -webkit-tap-highlight-color: transparent;
     }
     .btn-pay-now:hover:not(:disabled) {
         background-color: #2D2A26;
@@ -202,12 +263,15 @@
         transform: translateY(-1px);
         box-shadow: 0 8px 22px rgba(23, 22, 20, 0.28);
     }
+    .btn-pay-now:active:not(:disabled) {
+        transform: scale(0.98);
+    }
     .btn-pay-now:disabled {
         opacity: 0.75;
         cursor: not-allowed;
     }
 
-    /* Minimal Order Summary */
+    /* Order Summary Item Lines */
     .summary-item-thumb {
         width: 44px;
         height: 44px;
@@ -251,7 +315,7 @@
     }
     .summary-line.total-line .total-label {
         font-family: 'Outfit', sans-serif;
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -262,24 +326,98 @@
         font-weight: 800;
         color: var(--chk-dark);
     }
+
+    /* Responsive adjustments for phones (< 576px) */
+    @media (max-width: 575.98px) {
+        .checkout-wrap {
+            padding: 0.85rem 0 2rem;
+        }
+        .checkout-header {
+            margin-bottom: 0.9rem;
+        }
+        .checkout-title {
+            font-size: 1.25rem;
+        }
+        .chk-card {
+            padding: 1rem 0.95rem;
+            border-radius: 14px;
+        }
+        .payment-option {
+            padding: 0.75rem 0.85rem;
+        }
+        .btn-pay-now {
+            min-height: 48px;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="checkout-wrap">
-    <div class="container" style="max-width: 960px;">
+    <div class="container px-3 px-sm-4" style="max-width: 960px;">
         
         <!-- Minimal Classic Header -->
-        <div class="checkout-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+        <div class="checkout-header d-flex align-items-center justify-content-between gap-2">
             <div>
                 <h1 class="checkout-title">Checkout</h1>
                 <span class="checkout-subtitle">
-                    <i class="bi bi-shield-check text-success"></i> 256-Bit SSL Encrypted &bull; Speed Post Delivery
+                    <i class="bi bi-shield-check text-success"></i> 256-Bit SSL &bull; Speed Post
                 </span>
             </div>
-            <a href="{% url 'cart' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
-                <i class="bi bi-arrow-left"></i> Edit Bag
+            <a href="{% url 'cart' %}" class="btn-edit-bag" aria-label="Edit shopping bag">
+                <i class="bi bi-bag"></i> <span>Edit Bag</span>
             </a>
+        </div>
+
+        <!-- Mobile Collapsible Order Summary (< 992px) -->
+        <div class="d-lg-none mb-3">
+            <button type="button" class="mobile-summary-toggle" id="mobileSummaryToggle" aria-expanded="false" aria-controls="mobileSummaryDrawer">
+                <span class="d-flex align-items-center gap-2">
+                    <i class="bi bi-bag text-dark fs-6"></i>
+                    <span id="mobileSummaryToggleLabel" class="fw-semibold">Show order summary</span>
+                    <i class="bi bi-chevron-down toggle-chevron text-muted" id="mobileSummaryChevron"></i>
+                </span>
+                <span class="fw-bold text-dark font-outfit fs-6">₹{{ total|floatformat:2 }}</span>
+            </button>
+            <div class="mobile-summary-body" id="mobileSummaryDrawer" style="display: none;">
+                <div class="summary-items-list mb-2" style="max-height: 220px; overflow-y: auto;">
+                    {% for item in checkout_items %}
+                    <div class="summary-item-row">
+                        {% if item.product.display_image %}
+                            <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb">
+                        {% else %}
+                            <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1 min-w-0">
+                            <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
+                            <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}</small>
+                        </div>
+                        <div class="text-end fw-semibold text-dark small">
+                            ₹{{ item.subtotal|floatformat:2 }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-2 text-muted small">
+                        No items in your bag.
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span class="fw-semibold text-dark">₹{{ total|floatformat:2 }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Delivery (India Post Speed Post)</span>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">FREE</span>
+                </div>
+                <div class="summary-line total-line">
+                    <span class="total-label">Total Payable</span>
+                    <span class="total-val">₹{{ total|floatformat:2 }}</span>
+                </div>
+            </div>
         </div>
 
         <form id="checkoutForm">
@@ -292,22 +430,22 @@
                     <!-- 1. Shipping Details -->
                     <div class="chk-card mb-3">
                         <div class="chk-card-title">
-                            <span>1. Delivery Address</span>
+                            <span>1. Delivery Details</span>
                             <span class="badge bg-light text-secondary border rounded-pill fw-normal" style="font-size: 0.68rem;">India Post</span>
                         </div>
 
                         <div class="row g-2.5 g-sm-3">
                             <div class="col-12 col-sm-6 mb-2 mb-sm-0">
-                                <label class="chk-label" for="full_name">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" id="full_name" class="chk-input" value="{{ default_name }}" placeholder="Recipient Name" required>
+                                <label class="chk-label" for="full_name">Recipient Name <span class="text-danger">*</span></label>
+                                <input type="text" id="full_name" class="chk-input" value="{{ default_name }}" placeholder="Full Name" autocomplete="name" required>
                             </div>
                             <div class="col-12 col-sm-6 mb-2 mb-sm-0">
                                 <label class="chk-label" for="phone_number">Mobile Number <span class="text-danger">*</span></label>
-                                <input type="tel" id="phone_number" class="chk-input" value="{{ default_phone }}" placeholder="10-digit mobile number" required>
+                                <input type="tel" id="phone_number" class="chk-input" value="{{ default_phone }}" placeholder="10-digit mobile number" autocomplete="tel" required>
                             </div>
                             <div class="col-12">
-                                <label class="chk-label" for="shipping_address">Street Address &amp; PIN Code <span class="text-danger">*</span></label>
-                                <textarea id="shipping_address" rows="2" class="chk-textarea" placeholder="House/Flat No, Street, Landmark, City, District, PIN Code" required>{{ default_address }}</textarea>
+                                <label class="chk-label" for="shipping_address">Delivery Address &amp; PIN Code <span class="text-danger">*</span></label>
+                                <textarea id="shipping_address" rows="3" class="chk-textarea" placeholder="House/Flat No, Street, Landmark, City, District, PIN Code" autocomplete="street-address" required>{{ default_address }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -315,79 +453,81 @@
                     <!-- 2. Payment Method Selector -->
                     <div class="chk-card">
                         <div class="chk-card-title">
-                            <span>2. Payment Option</span>
+                            <span>2. Payment Method</span>
                             <span class="text-muted small fw-normal" style="font-size: 0.72rem;"><i class="bi bi-patch-check text-success"></i> Razorpay Live</span>
                         </div>
 
                         <div class="payment-methods-stack">
                             <!-- UPI -->
                             <label class="payment-option selected" id="card_upi" for="method_upi">
-                                <div class="d-flex align-items-center gap-2.5">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_upi" value="upi" checked>
-                                    <span class="payment-option-label">UPI <span class="badge-recommended">Instant</span></span>
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">
+                                            UPI <span class="badge-recommended">Instant</span>
+                                        </span>
+                                        <span class="payment-option-sub text-truncate">GPay, PhonePe, Paytm, QR</span>
+                                    </div>
                                 </div>
-                                <div class="payment-option-icons">
-                                    <span class="small text-muted d-none d-sm-inline">Google Pay, PhonePe, Paytm, QR</span>
-                                    <i class="bi bi-qr-code text-dark ms-1"></i>
-                                </div>
+                                <i class="bi bi-qr-code text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
                             <!-- Cards -->
                             <label class="payment-option" id="card_card" for="method_card">
-                                <div class="d-flex align-items-center gap-2.5">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_card" value="card">
-                                    <span class="payment-option-label">Cards</span>
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">Credit &amp; Debit Cards</span>
+                                        <span class="payment-option-sub text-truncate">Visa, Mastercard, RuPay</span>
+                                    </div>
                                 </div>
-                                <div class="payment-option-icons">
-                                    <span class="small text-muted d-none d-sm-inline">Visa, Mastercard, RuPay</span>
-                                    <i class="bi bi-credit-card text-dark ms-1"></i>
-                                </div>
+                                <i class="bi bi-credit-card text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
                             <!-- Net Banking -->
                             <label class="payment-option" id="card_netbanking" for="method_netbanking">
-                                <div class="d-flex align-items-center gap-2.5">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_netbanking" value="netbanking">
-                                    <span class="payment-option-label">Net Banking</span>
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">Net Banking</span>
+                                        <span class="payment-option-sub text-truncate">SBI, HDFC, ICICI, All Banks</span>
+                                    </div>
                                 </div>
-                                <div class="payment-option-icons">
-                                    <span class="small text-muted d-none d-sm-inline">All Indian Banks</span>
-                                    <i class="bi bi-bank text-dark ms-1"></i>
-                                </div>
+                                <i class="bi bi-bank text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
                             <!-- Wallets -->
                             <label class="payment-option" id="card_wallet" for="method_wallet">
-                                <div class="d-flex align-items-center gap-2.5">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_wallet" value="wallet">
-                                    <span class="payment-option-label">Wallets</span>
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">Wallets</span>
+                                        <span class="payment-option-sub text-truncate">Amazon Pay, MobiKwik</span>
+                                    </div>
                                 </div>
-                                <div class="payment-option-icons">
-                                    <span class="small text-muted d-none d-sm-inline">Amazon Pay, etc.</span>
-                                    <i class="bi bi-wallet2 text-dark ms-1"></i>
-                                </div>
+                                <i class="bi bi-wallet2 text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
                         </div>
 
                         <!-- Pay Button -->
                         <button type="submit" id="payButton" class="btn-pay-now">
                             <i class="bi bi-lock-fill"></i>
-                            <span id="payButtonText">PAY ₹{{ total|floatformat:2 }}</span>
+                            <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI</span>
                         </button>
 
                         <div id="checkoutAlert" class="alert alert-danger d-none mt-2.5 py-2 px-3 small rounded-3" role="alert"></div>
 
                         <div class="text-center mt-2.5">
                             <small class="text-muted" style="font-size: 0.72rem;">
-                                <i class="bi bi-shield-lock text-success me-1"></i> 100% Secure Transaction &bull; Direct Bank Settlement
+                                <i class="bi bi-shield-lock text-success me-1"></i> 100% Encrypted &bull; Direct Bank Settlement
                             </small>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Right: Compact Order Summary -->
-                <div class="col-12 col-lg-5">
+                <!-- Right: Desktop Compact Order Summary (Hidden on < 992px, shown on desktop) -->
+                <div class="col-12 col-lg-5 d-none d-lg-block">
                     <div class="chk-card sticky-lg-top" style="top: 80px; z-index: 10;">
                         <div class="chk-card-title">
                             <span>Bag Summary</span>
@@ -456,6 +596,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnText = document.getElementById('payButtonText');
     const alertBox = document.getElementById('checkoutAlert');
 
+    // Mobile Summary Drawer Toggle
+    const summaryToggle = document.getElementById('mobileSummaryToggle');
+    const summaryDrawer = document.getElementById('mobileSummaryDrawer');
+    const summaryLabel = document.getElementById('mobileSummaryToggleLabel');
+
+    if (summaryToggle && summaryDrawer) {
+        summaryToggle.addEventListener('click', function() {
+            const isVisible = summaryDrawer.style.display !== 'none';
+            if (isVisible) {
+                summaryDrawer.style.display = 'none';
+                summaryToggle.classList.remove('open');
+                summaryToggle.setAttribute('aria-expanded', 'false');
+                if (summaryLabel) summaryLabel.textContent = 'Show order summary';
+            } else {
+                summaryDrawer.style.display = 'block';
+                summaryToggle.classList.add('open');
+                summaryToggle.setAttribute('aria-expanded', 'true');
+                if (summaryLabel) summaryLabel.textContent = 'Hide order summary';
+            }
+        });
+    }
+
     // Handle Payment Method selection
     const methodCards = document.querySelectorAll('.payment-option');
     const radios = document.querySelectorAll('input[name="payment_method"]');
@@ -519,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Loading state
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure Gateway...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Gateway...';
 
         const formData = new FormData();
         formData.append('full_name', fullName);
