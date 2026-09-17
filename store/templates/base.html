@@ -581,6 +581,84 @@
             }
         }
 
+        /* Small Return Home Button (Sticky Navbar) */
+        .btn-nav-return-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: rgba(28, 25, 23, 0.05);
+            border: 1px solid rgba(28, 25, 23, 0.12);
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #171614 !important;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-nav-return-home:hover {
+            background: #171614;
+            color: #FAF8F5 !important;
+            border-color: #171614;
+            transform: translateY(-1px);
+        }
+        .btn-nav-return-home:active {
+            transform: scale(0.95);
+        }
+        .btn-nav-return-home i {
+            font-size: 0.88rem;
+            line-height: 1;
+        }
+
+        /* Floating Small Return Home Button (Bottom-Right on all non-home pages) */
+        .floating-home-btn {
+            position: fixed;
+            bottom: 22px;
+            right: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 15px;
+            border-radius: 999px;
+            background: #171614;
+            color: #FAF8F5 !important;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            box-shadow: 0 6px 20px rgba(23, 22, 20, 0.35);
+            z-index: 1039;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, background-color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .floating-home-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 10px 28px rgba(23, 22, 20, 0.5);
+            background: #000000;
+            color: #FFFFFF !important;
+        }
+        .floating-home-btn:active {
+            transform: scale(0.93);
+        }
+        .floating-home-btn i {
+            font-size: 1rem;
+            line-height: 1;
+        }
+        @media (max-width: 576px) {
+            .floating-home-btn {
+                bottom: 16px;
+                right: 16px;
+                padding: 8px 13px;
+                font-size: 0.76rem;
+                box-shadow: 0 4px 16px rgba(23, 22, 20, 0.35);
+            }
+            .floating-home-btn i {
+                font-size: 0.9rem;
+            }
+        }
+
         /* Minimal Dropdown Search Bar */
         .search-slide-bar {
             position: absolute;
@@ -1128,13 +1206,19 @@
     <!-- Minimalist Modern Sticky Header (top: 0) -->
     <header class="top-navbar">
         <div class="nav-container">
-            <!-- Left Group: Minimal 3-bar Hamburger Menu Button + Staff Admin Dashboard Icon -->
+            <!-- Left Group: Minimal 3-bar Hamburger Menu Button + Return Home + Staff Admin Dashboard Icon -->
             <div class="nav-left-group">
                 <button class="nav-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ashasSideDrawer" aria-controls="ashasSideDrawer" aria-label="Open Navigation Menu">
                     <span class="menu-bar"></span>
                     <span class="menu-bar"></span>
                     <span class="menu-bar"></span>
                 </button>
+                {% if request.path != '/' %}
+                <a href="{% url 'home' %}" class="btn-nav-return-home" title="Return to Home Storefront" aria-label="Return to Home">
+                    <i class="bi bi-house-door"></i>
+                    <span class="d-none d-sm-inline">Home</span>
+                </a>
+                {% endif %}
                 {% if user.is_authenticated and user.is_staff %}
                 <a href="{% url 'adminpp_dashboard' %}" class="btn-nav-admin" title="Admin Management Dashboard">
                     <i class="bi bi-speedometer2"></i>
@@ -1207,9 +1291,9 @@
             {% endif %}
 
             <!-- Navigation Sections -->
-            <div class="drawer-section-title">COLLECTIONS</div>
-            <a href="{% url 'home' %}" class="drawer-link" data-target-section="top">
-                <span><i class="bi bi-grid-fill me-2"></i> All Accessories</span>
+            <div class="drawer-section-title">NAVIGATION & COLLECTIONS</div>
+            <a href="{% url 'home' %}" class="drawer-link fw-semibold" data-target-section="top">
+                <span><i class="bi bi-house-door-fill me-2 text-dark"></i> Home Storefront</span>
                 <i class="bi bi-chevron-right small text-muted"></i>
             </a>
             <a href="{% url 'home' %}#section-trending" class="drawer-link" data-target-section="#section-trending">
@@ -1466,6 +1550,14 @@
 <a href="https://wa.me/918281451481?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." target="_blank" rel="noopener noreferrer" class="floating-whatsapp-btn" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
     <i class="bi bi-whatsapp"></i>
 </a>
+
+<!-- Floating Small Return Home Button (Visible on all non-home pages) -->
+{% if request.path != '/' %}
+<a href="{% url 'home' %}" class="floating-home-btn" title="Return to Home" aria-label="Return to Home">
+    <i class="bi bi-house-door"></i>
+    <span>Home</span>
+</a>
+{% endif %}
 
 <!-- Toast Notification Container -->
 <div id="ashasToastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2100; pointer-events: none;"></div>

@@ -365,9 +365,14 @@
                     <i class="bi bi-shield-check text-success"></i> 256-Bit SSL &bull; Speed Post
                 </span>
             </div>
-            <a href="{% url 'cart' %}" class="btn-edit-bag" aria-label="Edit shopping bag">
-                <i class="bi bi-bag"></i> <span>Edit Bag</span>
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'home' %}" class="btn-edit-bag" title="Return to Home Store" aria-label="Return to Home">
+                    <i class="bi bi-house-door"></i> <span>Home</span>
+                </a>
+                <a href="{% url 'cart' %}" class="btn-edit-bag" aria-label="Edit shopping bag">
+                    <i class="bi bi-bag"></i> <span>Edit Bag</span>
+                </a>
+            </div>
         </div>
 
         <!-- Mobile Collapsible Order Summary (< 992px) -->

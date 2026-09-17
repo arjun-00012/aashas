@@ -226,3 +226,55 @@ class CartViewTests(TestCase):
         )
         self.assertEqual(res_mobile.status_code, 200)
         self.assertIn("Matrix Shades", res_mobile.content.decode('utf-8'))
+
+
+class ReturnHomeButtonTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin_user = User.objects.create_superuser('admin_tester', 'admin@example.com', 'AdminPass123!')
+        self.regular_user = User.objects.create_user('john_doe', 'john@example.com', 'UserPass123!')
+        self.category = Category.objects.create(name="Rings")
+        self.product = Product.objects.create(category=self.category, name="Silver Band", price=500, stock=5)
+
+    def test_return_home_buttons_present_on_storefront_subpages(self):
+        home_url = reverse('home')
+        pages_to_test = [
+            reverse('cart'),
+            reverse('login'),
+            reverse('register'),
+        ]
+        for url in pages_to_test:
+            res = self.client.get(url)
+            self.assertEqual(res.status_code, 200, f"Page {url} failed to load")
+            content = res.content.decode('utf-8')
+            # Check presence of link to home
+            self.assertIn(f'href="{home_url}"', content, f"Home link missing in {url}")
+
+        # Test checkout page when logged in and cart has item
+        self.client.login(username='john_doe', password='UserPass123!')
+        self.client.get(reverse('add_to_cart', kwargs={'product_id': self.product.id}))
+        res_checkout = self.client.get(reverse('checkout'))
+        self.assertEqual(res_checkout.status_code, 200)
+        self.assertIn(f'href="{home_url}"', res_checkout.content.decode('utf-8'))
+
+    def test_return_home_button_present_on_profile_page(self):
+        self.client.login(username='john_doe', password='UserPass123!')
+        res = self.client.get(reverse('profile'))
+        self.assertEqual(res.status_code, 200)
+        content = res.content.decode('utf-8')
+        self.assertIn(f'href="{reverse("home")}"', content)
+
+    def test_return_home_button_present_on_admin_pages(self):
+        self.client.login(username='admin_tester', password='AdminPass123!')
+        admin_pages = [
+            reverse('adminpp_dashboard'),
+            reverse('adminpp_orders'),
+            reverse('category_add'),
+            reverse('product_add'),
+        ]
+        for url in admin_pages:
+            res = self.client.get(url)
+            self.assertEqual(res.status_code, 200, f"Admin page {url} failed to load")
+            content = res.content.decode('utf-8')
+            self.assertIn(f'href="{reverse("home")}"', content, f"Home link missing in {url}")
+
