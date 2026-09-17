@@ -11,8 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         cloud_name = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'dwk9pw2ol')
-        api_key = getattr(settings, 'CLOUDINARY_API_KEY', '715241379841871')
-        api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', 'wPtabcIXDXDJnrfeWpZtBC2RK_U')
+        api_key = getattr(settings, 'CLOUDINARY_API_KEY', '934762869273294')
+        api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', 'bu1cNNgmT6U29O9uPTIM2yyAqFs')
 
         cloudinary.config(
             cloud_name=cloud_name,

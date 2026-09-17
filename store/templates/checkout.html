@@ -385,7 +385,7 @@
                     {% for item in checkout_items %}
                     <div class="summary-item-row">
                         {% if item.product.display_image %}
-                            <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb">
+                            <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                         {% else %}
                             <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
                                 <i class="bi bi-image"></i>
@@ -538,7 +538,7 @@
                             {% for item in checkout_items %}
                             <div class="summary-item-row">
                                 {% if item.product.display_image %}
-                                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb">
+                                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                                 {% else %}
                                     <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
                                         <i class="bi bi-image"></i>

@@ -946,9 +946,9 @@
         <a href="#section-{{ cat.slug }}" class="category-item-link" data-cat="{{ cat.slug }}">
             <div class="category-thumb-wrapper">
                 {% if cat.display_image %}
-                    <img src="{{ cat.display_image }}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy">
+                    <img src="{{ cat.display_image }}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                 {% else %}
-                    <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy">
+                    <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                 {% endif %}
             </div>
             <span class="category-label">{{ cat.name }}</span>
@@ -1034,7 +1034,7 @@
                         <div class="product-clickable-area" role="button" tabindex="0" aria-label="Quick view {{ product.name }}">
                             <div class="product-img-wrapper">
                                 {% if product.display_image %}
-                                    <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy">
+                                    <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                                 {% else %}
                                     <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
                                 {% endif %}
@@ -1114,7 +1114,7 @@
                         <div class="product-clickable-area" role="button" tabindex="0" title="Click to view {{ product.name }} details" aria-label="Quick view {{ product.name }}">
                             <div class="product-img-wrapper">
                                 {% if product.display_image %}
-                                    <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy">
+                                    <img src="{{ product.display_image }}" class="w-100 h-100" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                                 {% else %}
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary" style="background: #F4F0EB;">
                                         <i class="bi bi-image fs-3"></i>

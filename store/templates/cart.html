@@ -90,7 +90,7 @@
                     <td>
                         <div class="d-flex align-items-center gap-3">
                             {% if item.product.display_image %}
-                                <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}">
+                                <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                             {% else %}
                                 <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0">
                                     <i class="bi bi-image text-secondary fs-5"></i>
@@ -128,7 +128,7 @@
         <div class="p-3 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
             <div class="d-flex gap-2 gap-sm-3 align-items-start">
                 {% if item.product.display_image %}
-                    <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}">
+                    <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                 {% else %}
                     <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0">
                         <i class="bi bi-image text-secondary fs-5"></i>
