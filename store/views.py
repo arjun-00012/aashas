@@ -99,7 +99,19 @@ def cart_context_processor(request):
     }
 
 def ping_view(request):
-    """Ultra-lightweight endpoint for cron-job.org, uptime monitors, and keep-alive pings (returns 2 bytes 'OK')"""
+    """Ultra-lightweight endpoint for uptime monitors; returns diagnostics on /health/."""
+    if 'health' in request.path:
+        from django.conf import settings
+        db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
+        has_db_url = bool(os.environ.get('DATABASE_URL'))
+        is_postgres = 'postgres' in db_engine or has_db_url
+        return JsonResponse({
+            'status': 'OK',
+            'engine': db_engine,
+            'is_postgres': is_postgres,
+            'has_database_url': has_db_url,
+            'order_count': Order.objects.count(),
+        })
     return HttpResponse("OK", content_type="text/plain", status=200)
 
 def robots_txt_view(request):
