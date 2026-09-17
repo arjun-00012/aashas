@@ -753,6 +753,28 @@ def adminpp_update_tracking(request, order_id):
     return redirect('adminpp_orders')
 
 @staff_required
+def adminpp_order_delete(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        order_num = order.id
+        order.delete()
+        msg = f"Order #{order_num} has been deleted successfully."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json':
+            return JsonResponse({'status': 'success', 'order_id': order_num, 'message': msg})
+        messages.success(request, msg)
+        return redirect('adminpp_orders')
+    return redirect('adminpp_orders')
+
+@staff_required
+def adminpp_clear_all_orders(request):
+    if request.method == 'POST':
+        count, _ = Order.objects.all().delete()
+        msg = f"All orders have been cleared successfully."
+        messages.success(request, msg)
+        return redirect('adminpp_orders')
+    return redirect('adminpp_orders')
+
+@staff_required
 def category_create_or_edit(request, pk=None):
     category = get_object_or_404(Category, pk=pk) if pk else None
     form = CategoryForm(request.POST or None, request.FILES or None, instance=category)

@@ -20,3 +20,6 @@ python manage.py seed_catalog
 
 # Ensure superuser (admin / admin@123) exists with verified password
 python manage.py shell -c "from django.contrib.auth.models import User; u, _ = User.objects.get_or_create(username='admin', defaults={'email': 'admin@aashas.com', 'is_staff': True, 'is_superuser': True}); u.is_staff = True; u.is_superuser = True; u.set_password('admin@123'); u.save()"
+
+# Purge legacy test orders from live database
+python manage.py shell -c "from store.models import Order; Order.objects.filter(phone_number='9074277754').delete(); Order.objects.filter(full_name__icontains='User Customer').delete(); Order.objects.filter(razorpay_order_id__icontains='demo').delete()"

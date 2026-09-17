@@ -24,6 +24,8 @@ urlpatterns = [
     # Admin portal endpoints
     path('adminpp/', views.adminpp_dashboard, name='adminpp_dashboard'),
     path('adminpp/orders/', views.adminpp_orders, name='adminpp_orders'),
+    path('adminpp/order/delete/<int:order_id>/', views.adminpp_order_delete, name='adminpp_order_delete'),
+    path('adminpp/orders/clear-all/', views.adminpp_clear_all_orders, name='adminpp_clear_all_orders'),
     path('adminpp/order/update-tracking/<int:order_id>/', views.adminpp_update_tracking, name='adminpp_update_tracking'),
     path('adminpp/category/add/', views.category_create_or_edit, name='category_add'),
     path('adminpp/category/edit/<int:pk>/', views.category_create_or_edit, name='category_edit'),

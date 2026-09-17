@@ -394,6 +394,14 @@
                 </span>
                 {% endif %}
                 <span class="badge bg-dark rounded-pill px-3 py-2 fw-semibold" style="background-color: #171614 !important;">{{ orders|length }} Orders</span>
+                {% if orders %}
+                <form method="POST" action="{% url 'adminpp_clear_all_orders' %}" class="d-inline" onsubmit="return confirm('⚠️ WARNING: Are you sure you want to permanently DELETE ALL {{ orders|length }} orders? This cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1" title="Clear all orders from database">
+                        <i class="bi bi-trash3"></i> Clear All Orders
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
 
@@ -522,6 +530,9 @@
                             <i class="bi bi-box-arrow-up-right"></i>
                         </a>
                         {% endif %}
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Order #{{ order.id }}">
+                            <i class="bi bi-trash3"></i> Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -651,6 +662,10 @@
                                     <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
                                 {% endif %}
+
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Order #{{ order.id }}">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -972,6 +987,77 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSaveBtn.disabled = false;
             modalSaveBtn.innerHTML = submitOrigText;
         }
+    });
+
+    // Handle Individual Order Deletion
+    document.querySelectorAll('.delete-order-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const customer = this.getAttribute('data-order-customer') || '';
+            const confirmMsg = customer ? `Are you sure you want to permanently delete Order #${orderId} (${customer})?` : `Are you sure you want to permanently delete Order #${orderId}?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            const origHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                              document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+
+            try {
+                const formData = new FormData();
+                formData.append('format', 'json');
+                if (csrfToken) formData.append('csrfmiddlewaretoken', csrfToken);
+
+                const res = await fetch(`/adminpp/order/delete/${orderId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken || ''
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    // Animate and remove desktop row
+                    const row = document.getElementById(`order-row-${orderId}`);
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.95)';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    // Animate and remove mobile card
+                    const card = document.getElementById(`order-card-${orderId}`);
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => card.remove(), 300);
+                    }
+
+                    // Show notification Toast
+                    const toastEl = document.getElementById('adminToast');
+                    const toastMessage = document.getElementById('toastMessage');
+                    if (toastEl && toastMessage) {
+                        toastMessage.innerHTML = `<i class="bi bi-trash3-fill text-danger fs-5"></i> <span>Order #${orderId} deleted successfully.</span>`;
+                        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                        toast.show();
+                    }
+                } else {
+                    alert('Error deleting order. Please refresh the page and try again.');
+                    this.disabled = false;
+                    this.innerHTML = origHtml;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while deleting order.');
+                this.disabled = false;
+                this.innerHTML = origHtml;
+            }
+        });
     });
 });
 </script>
