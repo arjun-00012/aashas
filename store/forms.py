@@ -11,6 +11,14 @@ class RegistrationForm(forms.ModelForm):
         model = User
         fields = ['username', 'phone_number', 'password']
 
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number', '').strip()
+        import re
+        digits = re.sub(r'\D', '', phone)
+        if len(digits) < 10 or len(digits) > 13:
+            raise forms.ValidationError("Please enter a valid 10-digit mobile number.")
+        return phone
+
     def clean(self):
         cleaned_data = super().clean()
         p1 = cleaned_data.get("password")
@@ -23,6 +31,15 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['phone_number', 'address']
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number', '').strip()
+        if phone:
+            import re
+            digits = re.sub(r'\D', '', phone)
+            if len(digits) < 10 or len(digits) > 13:
+                raise forms.ValidationError("Please enter a valid 10-digit mobile number.")
+        return phone
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -119,3 +136,19 @@ class ProductForm(forms.ModelForm):
                     except Exception:
                         pass
         return img
+
+    def clean(self):
+        cleaned_data = super().clean()
+        price = cleaned_data.get('price')
+        discount_price = cleaned_data.get('discount_price')
+
+        if price is not None and price <= 0:
+            self.add_error('price', 'Price must be greater than zero.')
+
+        if discount_price is not None:
+            if discount_price <= 0:
+                self.add_error('discount_price', 'Discount price must be greater than zero.')
+            elif price is not None and discount_price >= price:
+                self.add_error('discount_price', 'Discount price must be lower than the original regular price.')
+
+        return cleaned_data

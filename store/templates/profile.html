@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}My Profile & Order Tracking | ASHAS{% endblock %}
 
@@ -122,9 +123,11 @@
                             <div class="d-flex justify-content-between align-items-center bg-white px-2.5 py-1.5 rounded border border-secondary border-opacity-10 small">
                                 <div class="d-flex align-items-center gap-2 text-truncate">
                                     {% if item.product and item.product.display_image %}
-                                        <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="rounded" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="rounded" style="width: 30px; height: 30px; object-fit: cover;" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                                    {% else %}
+                                        <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" class="rounded" style="width: 30px; height: 30px; object-fit: cover;">
                                     {% endif %}
-                                    <span class="text-dark fw-medium text-truncate">{{ item.product.name }}</span>
+                                    <span class="text-dark fw-medium text-truncate">{% if item.product %}{{ item.product.name }}{% else %}Archived Item{% endif %}</span>
                                 </div>
                                 <span class="badge bg-dark bg-opacity-10 text-dark rounded-pill fw-bold ms-2">x{{ item.quantity }}</span>
                             </div>

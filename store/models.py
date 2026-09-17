@@ -60,7 +60,13 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name) or 'category'
+            slug = base_slug
+            counter = 1
+            while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
 
         # Reset image file pointer if present before saving
         if self.image:
@@ -295,7 +301,9 @@ class Order(models.Model):
         import urllib.parse
         import re
         digits = re.sub(r'\D', '', str(self.phone_number))
-        if len(digits) == 10:
+        if len(digits) == 11 and digits.startswith('0'):
+            digits = '91' + digits[1:]
+        elif len(digits) == 10:
             digits = '91' + digits
         
         tracking_info = self.tracking_id or 'Will be updated shortly'

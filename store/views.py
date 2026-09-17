@@ -12,12 +12,19 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
 
 import razorpay
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
+
+def safe_referer(request, fallback='home'):
+    referer = request.META.get('HTTP_REFERER')
+    if referer and url_has_allowed_host_and_scheme(url=referer, allowed_hosts={request.get_host()}):
+        return referer
+    return fallback
 
 def get_razorpay_client():
     return razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -92,7 +99,7 @@ def cart_context_processor(request):
         total_qty = sum(item.quantity for item in items)
     else:
         cart = request.session.get('cart', {})
-        total_qty = sum(cart.values()) if cart else 0
+        total_qty = sum(int(v) for v in cart.values() if str(v).isdigit()) if cart else 0
     return {
         'cart_item_count': total_qty,
         'all_categories': Category.objects.all(),
@@ -279,27 +286,34 @@ def profile_view(request):
 # --- Cart Views ---
 def add_to_cart(request, product_id):
     cart = get_user_cart(request)
+    try:
+        product_id = int(product_id)
+    except (ValueError, TypeError):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': 'Invalid product ID.'}, status=400)
+        return redirect(safe_referer(request, 'home'))
+
     pid = str(product_id)
     product = Product.objects.filter(id=product_id).first()
 
     if not product:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
             return JsonResponse({'status': 'error', 'message': 'Product not found.'}, status=404)
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
+        return redirect(safe_referer(request, 'home'))
 
     # Check available inventory
     if product.stock <= 0:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
             return JsonResponse({'status': 'error', 'message': f'"{product.name}" is currently sold out.'}, status=400)
         messages.error(request, f'"{product.name}" is currently sold out.')
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
+        return redirect(safe_referer(request, 'home'))
 
     current_qty = cart.get(pid, 0)
     if current_qty >= product.stock:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
             return JsonResponse({'status': 'error', 'message': f'Only {product.stock} available in stock.'}, status=400)
         messages.warning(request, f'Only {product.stock} available in stock.')
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
+        return redirect(safe_referer(request, 'home'))
 
     sync_cart_item(request, product, current_qty + 1)
     
@@ -312,7 +326,7 @@ def add_to_cart(request, product_id):
             'product_name': product.name,
             'message': f"{product.name} added to your bag."
         })
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+    return redirect(safe_referer(request, 'home'))
 
 def cart_view(request):
     cart = get_user_cart(request)
@@ -322,7 +336,13 @@ def cart_view(request):
     stock_adjusted = False
 
     for pid, qty in list(cart.items()):
-        product = Product.objects.filter(id=pid).first()
+        try:
+            pid_int = int(pid)
+        except (ValueError, TypeError):
+            stale_pids.append(pid)
+            continue
+
+        product = Product.objects.filter(id=pid_int).first()
         if not product or product.stock <= 0:
             stale_pids.append(pid)
             continue
@@ -337,7 +357,10 @@ def cart_view(request):
     
     if stale_pids or stock_adjusted:
         for pid in stale_pids:
-            p = Product.objects.filter(id=pid).first()
+            try:
+                p = Product.objects.filter(id=int(pid)).first()
+            except (ValueError, TypeError):
+                p = None
             if p:
                 sync_cart_item(request, p, 0)
             else:
@@ -354,7 +377,11 @@ def cart_view(request):
 def update_cart(request, product_id, action):
     cart = get_user_cart(request)
     pid = str(product_id)
-    product = Product.objects.filter(id=product_id).first()
+    try:
+        product_id_int = int(product_id)
+    except (ValueError, TypeError):
+        return redirect('cart')
+    product = Product.objects.filter(id=product_id_int).first()
 
     if pid in cart and product:
         if action == 'increase':
@@ -407,7 +434,9 @@ def checkout_view(request):
         if stock_adjusted:
             messages.warning(request, "Item quantities adjusted based on current warehouse stock.")
 
-    if not valid_items:
+    if not valid_items or total <= 0:
+        if request.method == 'POST':
+            return JsonResponse({'status': 'error', 'message': 'Your cart is empty or has invalid items.'}, status=400)
         messages.error(request, "The items in your bag are currently out of stock.")
         return redirect('home')
     
@@ -439,6 +468,9 @@ def checkout_view(request):
 
         if not full_name or not phone or not address:
             return JsonResponse({'status': 'error', 'message': 'Please complete all required shipping details.'}, status=400)
+
+        if total <= 0:
+            return JsonResponse({'status': 'error', 'message': 'Invalid cart total.'}, status=400)
 
         # Automatically update user profile for subsequent visits
         if request.user.is_authenticated:
@@ -537,6 +569,19 @@ def payment_verify(request):
                 client = get_razorpay_client()
                 client.utility.verify_payment_signature(params)
             order = Order.objects.get(id=order_id)
+
+            # Security check: if user is authenticated, ensure order belongs to them
+            if request.user.is_authenticated and order.user and order.user != request.user:
+                return JsonResponse({'status': 'failed', 'message': 'Unauthorized order access.'}, status=403)
+
+            # Idempotency guard: prevent duplicate inventory deduction if already verified
+            if order.payment_status == 'Completed':
+                return JsonResponse({
+                    'status': 'success',
+                    'order_id': order.id,
+                    'redirect_url': f"/profile/?order_placed=true&order_id={order.id}"
+                })
+
             order.payment_status = 'Completed'
             order.razorpay_payment_id = data.get('razorpay_payment_id') or f"pay_{order.id}"
             order.save(update_fields=['payment_status', 'razorpay_payment_id'])
@@ -580,12 +625,12 @@ def contact_submit(request):
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'success'})
             messages.success(request, "Your message has been sent successfully!")
-            return redirect(request.META.get('HTTP_REFERER', 'home'))
+            return redirect(safe_referer(request, 'home'))
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'invalid', 'message': 'Please fill all required fields.'}, status=400)
             messages.error(request, "Please fill in all required fields.")
-            return redirect(request.META.get('HTTP_REFERER', 'home'))
+            return redirect(safe_referer(request, 'home'))
 
     return JsonResponse({'status': 'invalid'}, status=400)
 
@@ -636,7 +681,7 @@ def product_toggle_trending(request, pk):
             'message': msg
         })
     messages.success(request, msg)
-    return redirect(request.META.get('HTTP_REFERER', 'adminpp_dashboard'))
+    return redirect(safe_referer(request, 'adminpp_dashboard'))
 
 @staff_required
 def adminpp_orders(request):
@@ -672,8 +717,8 @@ def adminpp_orders(request):
             cell.alignment = Alignment(horizontal="center")
 
         for o in orders:
-            items_str = ", ".join([f"{i.product.name} (x{i.quantity})" for i in o.items.all()])
-            cats_str = ", ".join(list(set([i.product.category.name for i in o.items.all()])))
+            items_str = ", ".join([f"{i.product.name if i.product else 'Archived Item'} (x{i.quantity})" for i in o.items.all()])
+            cats_str = ", ".join(list(set([i.product.category.name for i in o.items.all() if i.product and i.product.category])))
             ws.append([
                 o.id,
                 o.full_name,
@@ -739,7 +784,7 @@ def adminpp_update_tracking(request, order_id):
             })
 
         messages.success(request, msg)
-        return redirect(request.META.get('HTTP_REFERER', 'adminpp_orders'))
+        return redirect(safe_referer(request, 'adminpp_orders'))
 
     return redirect('adminpp_orders')
 
@@ -788,6 +833,10 @@ def category_create_or_edit(request, pk=None):
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     cat_name = category.name
+    # Guard against cascading order item destruction
+    if OrderItem.objects.filter(product__category=category).exists():
+        messages.warning(request, f'Category "{cat_name}" contains products with past customer orders and cannot be deleted to preserve order history.')
+        return redirect('adminpp_dashboard')
     category.delete()
     messages.success(request, f'Category "{cat_name}" deleted successfully.')
     return redirect('adminpp_dashboard')
@@ -815,6 +864,13 @@ def product_create_or_edit(request, pk=None):
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     p_name = product.name
+    # Guard against cascading order item destruction
+    if OrderItem.objects.filter(product=product).exists():
+        product.stock = 0
+        product.is_trending = False
+        product.save(update_fields=['stock', 'is_trending'])
+        messages.warning(request, f'Product "{p_name}" has existing order records and cannot be permanently deleted to protect customer receipts. It has been marked as out-of-stock and unlisted.')
+        return redirect('adminpp_dashboard')
     product.delete()
     messages.success(request, f'Product "{p_name}" deleted successfully.')
     return redirect('adminpp_dashboard')
