@@ -405,6 +405,16 @@
             </div>
         </div>
 
+        {% if not is_postgres %}
+        <div class="alert alert-warning border border-warning rounded-3 p-3 mb-3 d-flex align-items-start gap-2.5 shadow-sm small">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0 mt-0.5"></i>
+            <div>
+                <strong class="text-dark">Permanent Cloud Storage Setup Required:</strong><br>
+                Your store is currently running on temporary container storage (<code>{{ db_engine }}</code>). On Render, web container disks reset during redeployments. To ensure orders, payments, and customer tracking are <strong>permanently preserved across all redeployments</strong>, connect a free Render PostgreSQL database and set the <code>DATABASE_URL</code> environment variable in your Render dashboard.
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Mobile Card View (< 768px) -->
         <div class="d-block d-md-none">
             {% for order in orders %}
