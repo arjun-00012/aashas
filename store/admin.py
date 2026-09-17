@@ -43,9 +43,25 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'phone_number', 'total_price', 'payment_status', 'created_at')
-    list_filter = ('payment_status', 'created_at')
-    search_fields = ('full_name', 'phone_number', 'razorpay_order_id', 'razorpay_payment_id')
+    list_display = ('id', 'full_name', 'phone_number', 'total_price', 'payment_status', 'shipping_status', 'tracking_id', 'created_at')
+    list_filter = ('payment_status', 'shipping_status', 'carrier', 'created_at')
+    search_fields = ('id', 'full_name', 'phone_number', 'tracking_id', 'razorpay_order_id', 'razorpay_payment_id')
+    readonly_fields = ('created_at', 'razorpay_order_id', 'razorpay_payment_id')
+    fieldsets = (
+        ('Customer & Delivery Information', {
+            'fields': ('user', 'full_name', 'phone_number', 'shipping_address')
+        }),
+        ('Payment Details', {
+            'fields': ('total_price', 'payment_status', 'razorpay_order_id', 'razorpay_payment_id')
+        }),
+        ('Fulfillment & Consignment Tracking', {
+            'fields': ('shipping_status', 'carrier', 'tracking_id', 'tracking_notes', 'tracking_updated_at')
+        }),
+        ('System Timestamps', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
     inlines = [OrderItemInline]
 
 
