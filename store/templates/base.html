@@ -6,12 +6,110 @@
     <!-- Force HTTPS & Upgrade Insecure Requests -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{% block title %}ASHAS STORE | Accessorize Your Story{% endblock %}</title>
 
     {% load static %}
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+    <!-- Primary SEO Meta Tags for Google Search Ranking -->
+    <title>{% block title %}ASHAS | Official Online Store | Clothing &amp; Statement Accessories{% endblock %}</title>
+    <meta name="title" content="ASHAS | Official Online Store | Clothing &amp; Statement Accessories">
+    <meta name="description" content="{% block meta_description %}Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories — rings, futuristic shades, cuban chains, and premium streetwear. Fast India Post Speed Post delivery across India.{% endblock %}">
+    <meta name="keywords" content="ASHAS, ASHAS STORE, ASHAS clothing, ashasstore, ashasstore.in, ashas clothing kozhikode, ashas accessories, luxury accessories india, statement rings, neck chains, streetwear kerala, ashas store online">
+    <meta name="author" content="ASHAS">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://ashasstore.in{{ request.path }}">
+
+    <!-- Google Search Favicon & Multi-Resolution App Icons -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/ashas_badge.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/ashas_badge.png' %}">
+
+    <!-- Open Graph (Facebook, WhatsApp, Google Discover) -->
+    <meta property="og:site_name" content="ASHAS">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ashasstore.in{{ request.path }}">
+    <meta property="og:title" content="ASHAS | Official Online Store | Clothing &amp; Statement Accessories">
+    <meta property="og:description" content="Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories. Fast delivery across India.">
+    <meta property="og:image" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
+    <meta property="og:image:secure_url" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="ASHAS Official Store Logo">
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ASHAS | Official Online Store">
+    <meta name="twitter:description" content="Discover official ASHAS clothing and luxury statement accessories. Fast delivery across India.">
+    <meta name="twitter:image" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
+
+    <!-- Schema.org JSON-LD Structured Data for Google Brand Entity & Sitelinks -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://ashasstore.in/#website",
+          "url": "https://ashasstore.in/",
+          "name": "ASHAS",
+          "alternateName": ["ASHAS STORE", "ASHAS CLOTHING", "Ashas", "AshasStore", "ashasstore.in"],
+          "description": "Official online store for ASHAS clothing and statement accessories.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://ashasstore.in/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://ashasstore.in/#organization",
+          "name": "ASHAS",
+          "url": "https://ashasstore.in/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://ashasstore.in{% static 'images/ashas_badge.png' %}",
+            "width": 512,
+            "height": 512
+          },
+          "sameAs": [
+            "https://www.instagram.com/ashas.store/",
+            "https://www.google.com/maps/place/ASHAS.CLOTHING/@11.303312,75.7826038,854m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!2sASHAS.CLOTHING!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!3m5!1s0x3ba65f0b63eba1e3:0x42037317a7df4706!8m2!3d11.303312!4d75.7851787!16s%2Fg%2F11xny1n47_!5m1!1e2"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+91-82814-51481",
+            "contactType": "Customer Support",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Malayalam", "Hindi"]
+          }
+        },
+        {
+          "@type": "ClothingStore",
+          "@id": "https://ashasstore.in/#store",
+          "name": "ASHAS.CLOTHING",
+          "image": "https://ashasstore.in{% static 'images/ashas_badge.png' %}",
+          "url": "https://ashasstore.in/",
+          "telephone": "+918281451481",
+          "priceRange": "₹₹",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "ASHAS.CLOTHING",
+            "addressLocality": "Kozhikode",
+            "addressRegion": "Kerala",
+            "postalCode": "673001",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 11.303312,
+            "longitude": 75.7851787
+          }
+        }
+      ]
+    }
+    </script>
 
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

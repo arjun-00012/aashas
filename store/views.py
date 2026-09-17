@@ -1,3 +1,4 @@
+import os
 import json
 import razorpay
 import openpyxl
@@ -101,9 +102,70 @@ def ping_view(request):
     """Ultra-lightweight endpoint for cron-job.org, uptime monitors, and keep-alive pings (returns 2 bytes 'OK')"""
     return HttpResponse("OK", content_type="text/plain", status=200)
 
+def robots_txt_view(request):
+    """Serve SEO-friendly robots.txt directing Googlebot to the sitemap and allowing full crawling."""
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /adminpp/",
+        "Disallow: /admin/",
+        "Disallow: /django-admin/",
+        "Disallow: /cart/",
+        "Disallow: /checkout/",
+        "Disallow: /profile/",
+        "Disallow: /verify-payment/",
+        "",
+        "User-agent: Googlebot",
+        "Allow: /",
+        "",
+        "User-agent: Googlebot-Image",
+        "Allow: /",
+        "Allow: /static/",
+        "Allow: /media/",
+        "",
+        "Sitemap: https://ashasstore.in/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+
+def sitemap_xml_view(request):
+    """Generate dynamic XML sitemap for Google Search Console and crawlers."""
+    now_str = timezone.now().strftime('%Y-%m-%d')
+    urls = [
+        {'loc': 'https://ashasstore.in/', 'priority': '1.0', 'changefreq': 'daily'},
+        {'loc': 'https://ashasstore.in/#contact-section', 'priority': '0.7', 'changefreq': 'monthly'},
+    ]
+    for cat in Category.objects.all():
+        urls.append({
+            'loc': f'https://ashasstore.in/#section-{cat.slug}',
+            'priority': '0.8',
+            'changefreq': 'weekly'
+        })
+
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    for u in urls:
+        xml.append('  <url>')
+        xml.append(f'    <loc>{u["loc"]}</loc>')
+        xml.append(f'    <lastmod>{now_str}</lastmod>')
+        xml.append(f'    <changefreq>{u["changefreq"]}</changefreq>')
+        xml.append(f'    <priority>{u["priority"]}</priority>')
+        xml.append('  </url>')
+    xml.append('</urlset>')
+
+    return HttpResponse('\n'.join(xml), content_type="application/xml; charset=utf-8")
+
+def favicon_view(request):
+    """Serve root /favicon.ico directly for Google Search Favicon Crawler and browsers."""
+    ico_path = os.path.join(settings.BASE_DIR, 'store', 'static', 'favicon.ico')
+    png_path = os.path.join(settings.BASE_DIR, 'store', 'static', 'images', 'favicon.png')
+    target_path = ico_path if os.path.exists(ico_path) else png_path
+    if os.path.exists(target_path):
+        with open(target_path, 'rb') as f:
+            content_type = "image/x-icon" if target_path.endswith('.ico') else "image/png"
+            return HttpResponse(f.read(), content_type=content_type)
+    return HttpResponse(status=404)
+
 def home(request):
-    if request.method == 'HEAD':
-        return HttpResponse('', content_type='text/plain', status=200)
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
     if 'cron-job' in user_agent or 'cronjob' in user_agent or 'uptimerobot' in user_agent or request.GET.get('ping'):
         return HttpResponse("OK", content_type="text/plain", status=200)
