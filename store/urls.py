@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -9,8 +9,7 @@ urlpatterns = [
     path('robots.txt', views.robots_txt_view, name='robots_txt'),
     path('sitemap.xml', views.sitemap_xml_view, name='sitemap_xml'),
     path('favicon.ico', views.favicon_view, name='favicon_ico'),
-    path('google44f351804c9055d3.html', views.google_verification_view, name='google_verification_exact'),
-    re_path(r'^google(?P<code>[a-zA-Z0-9]+)\.html$', views.google_verification_view, name='google_verification'),
+    path('google44f351804c9055d3.html', views.google_verification_view, name='google_verification'),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
