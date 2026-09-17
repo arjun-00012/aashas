@@ -165,6 +165,10 @@ def favicon_view(request):
             return HttpResponse(f.read(), content_type=content_type)
     return HttpResponse(status=404)
 
+def google_verification_view(request, code='44f351804c9055d3'):
+    """Serve Google Search Console ownership verification file (e.g. google44f351804c9055d3.html)."""
+    return HttpResponse(f"google-site-verification: google{code}.html", content_type="text/html; charset=utf-8")
+
 def home(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
     if 'cron-job' in user_agent or 'cronjob' in user_agent or 'uptimerobot' in user_agent or request.GET.get('ping'):
