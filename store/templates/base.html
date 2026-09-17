@@ -295,51 +295,59 @@
             color: #171614;
             transition: opacity 0.2s ease, transform 0.2s ease;
             z-index: 1;
-            max-width: calc(100% - 170px);
+            max-width: calc(100% - 130px);
         }
 
         .nav-center-brand:hover {
-            opacity: 0.8;
+            opacity: 0.85;
             transform: translateX(-50%) scale(1.02);
         }
 
         .nav-brand-img {
-            height: 22px;
+            height: 28px;
             width: auto;
-            max-width: 130px;
+            max-width: 170px;
             object-fit: contain;
         }
 
         @media (min-width: 768px) {
             .nav-brand-img {
-                height: 24px;
-                max-width: 150px;
+                height: 34px;
+                max-width: 200px;
+            }
+            .nav-brand-text {
+                font-size: 1.95rem;
+                letter-spacing: 0.18em;
             }
         }
 
         @media (max-width: 575.98px) {
             .nav-brand-img {
-                height: 19px;
-                max-width: 110px;
+                height: 24px;
+                max-width: 140px;
             }
             .nav-brand-text {
-                font-size: 1.1rem;
-                letter-spacing: 0.12em;
+                font-size: 1.45rem;
+                letter-spacing: 0.14em;
             }
         }
 
         @media (max-width: 374.98px) {
             .nav-brand-img {
-                height: 17px;
-                max-width: 90px;
+                height: 22px;
+                max-width: 120px;
+            }
+            .nav-brand-text {
+                font-size: 1.3rem;
+                letter-spacing: 0.12em;
             }
         }
 
         .nav-brand-text {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.7rem;
             font-weight: 900;
-            letter-spacing: 0.16em;
+            letter-spacing: 0.18em;
             color: #171614;
             text-transform: uppercase;
             line-height: 1;
@@ -752,46 +760,42 @@
         }
 
         .drawer-header {
-            padding: 1.5rem 1.25rem 1.25rem;
+            padding: 1.35rem 1.25rem 1.15rem;
             border-bottom: 1px solid var(--border-subtle);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             background-color: #FAF8F5;
         }
 
         .drawer-brand {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
             text-decoration: none;
             color: #171614;
         }
 
-        .drawer-brand-img {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid rgba(28, 25, 23, 0.15);
-            object-fit: cover;
-            background: #FFFFFF;
-        }
-
         .drawer-brand-title {
             font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 1rem;
-            letter-spacing: 0.14em;
+            font-weight: 900;
+            font-size: 1.45rem;
+            letter-spacing: 0.18em;
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.1;
             color: #171614;
+            text-transform: uppercase;
         }
 
         .drawer-brand-sub {
-            font-size: 0.65rem;
-            color: #635F59;
-            letter-spacing: 0.18em;
+            font-size: 0.7rem;
+            color: #8C867E;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .btn-drawer-close {
@@ -1098,10 +1102,12 @@
 
     <!-- Offcanvas Left Side Drawer (Clean, Aesthetic) -->
     <div class="offcanvas offcanvas-start offcanvas-ashas" tabindex="-1" id="ashasSideDrawer" aria-labelledby="ashasSideDrawerLabel">
-        <div class="drawer-header border-bottom pb-3">
-            <div class="d-flex align-items-center gap-2">
-                <img src="{% static 'images/ashas_official_logo.png' %}" alt="ASHAS" class="drawer-brand-img" style="height: 22px; width: auto; object-fit: contain;">
-                <span class="fw-bold text-dark text-uppercase" id="ashasSideDrawerLabel" style="letter-spacing: 0.14em; font-size: 0.95rem; font-family: 'Outfit', sans-serif;">ASHAS</span>
+        <div class="drawer-header border-bottom">
+            <div class="d-flex flex-column">
+                <span class="drawer-brand-title" id="ashasSideDrawerLabel">ASHAS</span>
+                <span class="drawer-brand-sub">
+                    <i class="bi bi-geo-alt-fill text-muted" style="font-size: 0.68rem;"></i> Kozhikode, Kerala &bull; India
+                </span>
             </div>
             <button type="button" class="btn-drawer-close" data-bs-dismiss="offcanvas" aria-label="Close">
                 <i class="bi bi-x-lg"></i>
@@ -1162,10 +1168,6 @@
                 <i class="bi bi-chat-dots-fill text-success small"></i>
             </a>
             <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
-                <span><i class="bi bi-geo-alt me-2"></i> Flagship Boutique</span>
-                <span class="small text-muted">Kozhikode, Kerala</span>
-            </a>
-            <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
                 <span><i class="bi bi-chat-dots me-2"></i> Inquiries & Custom Orders</span>
             </a>
 
@@ -1191,14 +1193,6 @@
                     <span><i class="bi bi-person-plus me-2"></i> Join ASHAS</span>
                 </a>
             {% endif %}
-
-            <!-- Side Badge Watermark -->
-            <div class="p-3 mt-4 rounded-3 border border-secondary border-opacity-25 text-center bg-white shadow-sm">
-                <img src="{% static 'images/ashas_wordmark_black.png' %}" alt="ASHAS" style="height: 18px; opacity: 0.9;" class="mb-2">
-                <p class="small text-secondary m-0" style="font-size: 0.68rem; letter-spacing: 0.15em;">
-                    CONTEMPORARY APPAREL &amp; ACCESSORIES<br>KOZHIKODE, KERALA
-                </p>
-            </div>
         </div>
     </div>
 
