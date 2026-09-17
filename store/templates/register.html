@@ -32,19 +32,29 @@
             <input type="hidden" name="next" value="{{ next_url|default:'' }}">
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Choose username" required value="{{ form.username.value|default:'' }}">
+                <input type="text" name="username" class="form-control" placeholder="Choose username" autocomplete="username" required value="{{ form.username.value|default:'' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
-                <input type="tel" name="phone_number" class="form-control" placeholder="10-digit phone number" required value="{{ form.phone_number.value|default:'' }}">
+                <input type="tel" name="phone_number" class="form-control" placeholder="10-digit mobile number" autocomplete="tel" required value="{{ form.phone_number.value|default:'' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Choose a password" required>
+                <div class="input-group">
+                    <input type="password" name="password" id="regPasswordInput" class="form-control" placeholder="Choose a password" autocomplete="new-password" required>
+                    <button type="button" class="btn btn-outline-secondary border" id="toggleRegPasswordBtn" style="border-color: #dee2e6 !important;" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="toggleRegPasswordIcon"></i>
+                    </button>
+                </div>
             </div>
             <div class="mb-4">
                 <label class="form-label small fw-semibold text-secondary mb-1">Confirm Password</label>
-                <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                <div class="input-group">
+                    <input type="password" name="confirm_password" id="regConfirmPasswordInput" class="form-control" placeholder="Re-enter password" autocomplete="new-password" required>
+                    <button type="button" class="btn btn-outline-secondary border" id="toggleRegConfirmPasswordBtn" style="border-color: #dee2e6 !important;" aria-label="Toggle confirm password visibility">
+                        <i class="bi bi-eye" id="toggleRegConfirmPasswordIcon"></i>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn btn-dark w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">Create Account</button>
         </form>
@@ -54,4 +64,25 @@
         </p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupToggle(btnId, inputId, iconId) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (btn && input && icon) {
+            btn.addEventListener('click', function() {
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+            });
+        }
+    }
+    setupToggle('toggleRegPasswordBtn', 'regPasswordInput', 'toggleRegPasswordIcon');
+    setupToggle('toggleRegConfirmPasswordBtn', 'regConfirmPasswordInput', 'toggleRegConfirmPasswordIcon');
+});
+</script>
 {% endblock %}
