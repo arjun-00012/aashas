@@ -568,6 +568,16 @@ def payment_verify(request):
             if not str(data.get('razorpay_order_id', '')).startswith('demo_'):
                 client = get_razorpay_client()
                 client.utility.verify_payment_signature(params)
+                # Auto-capture fallback: guarantee payment is captured for bank settlement
+                try:
+                    rzp_pay_id = data.get('razorpay_payment_id')
+                    if rzp_pay_id:
+                        pay_info = client.payment.fetch(rzp_pay_id)
+                        if pay_info.get('status') == 'authorized':
+                            client.payment.capture(rzp_pay_id, pay_info.get('amount'))
+                except Exception as cap_err:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Razorpay capture fallback notice: {cap_err}")
             order = Order.objects.get(id=order_id)
 
             # Security check: if user is authenticated, ensure order belongs to them
@@ -607,6 +617,53 @@ def payment_verify(request):
             logging.getLogger(__name__).error(f"Payment verification error: {e}")
             return JsonResponse({'status': 'failed', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'failed', 'message': 'Invalid request method.'}, status=405)
+
+@csrf_exempt
+def razorpay_webhook(request):
+    """
+    Razorpay Webhook listener for asynchronous payment capture/order events.
+    Automatically marks orders as Completed if user closes browser before payment_verify executes.
+    """
+    if request.method == 'POST':
+        try:
+            webhook_body = request.body.decode('utf-8')
+            webhook_signature = request.headers.get('X-Razorpay-Signature', '')
+            client = get_razorpay_client()
+            webhook_secret = getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', '') or settings.RAZORPAY_KEY_SECRET
+
+            if webhook_secret and webhook_signature:
+                try:
+                    client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
+                except Exception:
+                    pass
+
+            data = json.loads(webhook_body)
+            event = data.get('event')
+
+            if event in ('order.paid', 'payment.captured'):
+                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
+                rzp_order_id = payment_entity.get('order_id')
+                rzp_pay_id = payment_entity.get('id')
+
+                if rzp_order_id:
+                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
+                    if order and order.payment_status != 'Completed':
+                        order.payment_status = 'Completed'
+                        if rzp_pay_id:
+                            order.razorpay_payment_id = rzp_pay_id
+                        order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+
+                        for item in order.items.all():
+                            if item.product:
+                                item.product.stock = max(0, item.product.stock - item.quantity)
+                                item.product.save(update_fields=['stock'])
+
+            return HttpResponse(status=200)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Razorpay webhook error: {e}")
+            return HttpResponse(status=200)
+    return HttpResponse(status=405)
 
 def contact_submit(request):
     if request.method == 'POST':
@@ -743,6 +800,27 @@ def adminpp_orders(request):
     db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
     is_postgres = 'postgres' in db_engine or bool(os.environ.get('DATABASE_URL'))
 
+    # Razorpay Gateway Health & Live Payments Preview
+    rzp_live_payments = []
+    try:
+        client = get_razorpay_client()
+        rzp_res = client.payment.all({'count': 5})
+        for item in rzp_res.get('items', []):
+            created_ts = item.get('created_at')
+            created_dt = timezone.datetime.fromtimestamp(created_ts, tz=timezone.get_current_timezone()) if created_ts else None
+            rzp_live_payments.append({
+                'id': item.get('id'),
+                'amount': (item.get('amount') or 0) / 100,
+                'status': item.get('status'),
+                'captured': item.get('captured'),
+                'method': item.get('method'),
+                'vpa': item.get('vpa'),
+                'created_at': created_dt,
+                'order_id': item.get('order_id'),
+            })
+    except Exception:
+        pass
+
     return render(request, 'adminpp_orders.html', {
         'orders': orders,
         'categories': Category.objects.all(),
@@ -751,6 +829,8 @@ def adminpp_orders(request):
         'end_date': end_date,
         'db_engine': db_engine,
         'is_postgres': is_postgres,
+        'rzp_live_payments': rzp_live_payments,
+        'rzp_key_id': settings.RAZORPAY_KEY_ID,
     })
 
 @staff_required

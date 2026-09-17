@@ -278,3 +278,57 @@ class ReturnHomeButtonTests(TestCase):
             content = res.content.decode('utf-8')
             self.assertIn(f'href="{reverse("home")}"', content, f"Home link missing in {url}")
 
+
+class RazorpayWebhookTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.category = Category.objects.create(name="Chains")
+        self.product = Product.objects.create(category=self.category, name="Cuban Chain", price=1000, stock=10)
+        self.order = Order.objects.create(
+            full_name="Webhook Tester",
+            phone_number="9876543210",
+            shipping_address="Calicut, Kerala",
+            total_price=1000,
+            razorpay_order_id="order_webhook_test_123",
+            payment_status="Pending"
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=self.product,
+            price=1000,
+            quantity=2
+        )
+
+    def test_webhook_marks_order_completed_and_deducts_stock(self):
+        payload = {
+            "event": "payment.captured",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_webhook_999",
+                        "order_id": "order_webhook_test_123",
+                        "status": "captured",
+                        "amount": 100000
+                    }
+                }
+            }
+        }
+        res = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_status, 'Completed')
+        self.assertEqual(self.order.razorpay_payment_id, 'pay_webhook_999')
+
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 8)  # 10 - 2
+
+    def test_webhook_get_method_rejected(self):
+        res = self.client.get(reverse('razorpay_webhook'))
+        self.assertEqual(res.status_code, 405)
+
+
