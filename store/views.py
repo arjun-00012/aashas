@@ -489,8 +489,11 @@ def contact_submit(request):
 
     return JsonResponse({'status': 'invalid'}, status=400)
 
+from functools import wraps
+
 # --- AdminPP Custom Dashboard ---
 def staff_required(view_func):
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('/login/?next=' + request.path)
@@ -635,10 +638,15 @@ def category_create_or_edit(request, pk=None):
     form = CategoryForm(request.POST or None, request.FILES or None, instance=category)
     if request.method == 'POST':
         if form.is_valid():
-            cat = form.save()
-            action_text = "updated" if pk else "created"
-            messages.success(request, f'Category "{cat.name}" has been {action_text} successfully!')
-            return redirect('adminpp_dashboard')
+            try:
+                cat = form.save()
+                action_text = "updated" if pk else "created"
+                messages.success(request, f'Category "{cat.name}" has been {action_text} successfully!')
+                return redirect('adminpp_dashboard')
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error saving category: {e}", exc_info=True)
+                messages.error(request, f"Error saving category: {str(e)}")
         else:
             messages.error(request, 'Please correct the form errors below.')
     return render(request, 'category_form.html', {'form': form, 'category': category})
@@ -657,10 +665,15 @@ def product_create_or_edit(request, pk=None):
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if request.method == 'POST':
         if form.is_valid():
-            p = form.save()
-            action_text = "updated" if pk else "created"
-            messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
-            return redirect('adminpp_dashboard')
+            try:
+                p = form.save()
+                action_text = "updated" if pk else "created"
+                messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
+                return redirect('adminpp_dashboard')
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error saving product: {e}", exc_info=True)
+                messages.error(request, f"Error saving product: {str(e)}")
         else:
             messages.error(request, 'Please correct the form errors below.')
     return render(request, 'product_form.html', {'form': form, 'product': product})

@@ -87,6 +87,16 @@ if CLOUDINARY_CLOUD_NAME:
         'API_KEY': CLOUDINARY_API_KEY,
         'API_SECRET': CLOUDINARY_API_SECRET,
     }
+    try:
+        import cloudinary
+        cloudinary.config(
+            cloud_name=CLOUDINARY_CLOUD_NAME,
+            api_key=CLOUDINARY_API_KEY,
+            api_secret=CLOUDINARY_API_SECRET,
+            secure=True
+        )
+    except Exception:
+        pass
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

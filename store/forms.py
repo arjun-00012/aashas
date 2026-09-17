@@ -47,11 +47,26 @@ class CategoryForm(forms.ModelForm):
                 size_mb = img.size / (1024 * 1024)
                 raise forms.ValidationError(f"File size too large ({size_mb:.1f} MB). Maximum allowed size is 5 MB.")
             try:
+                if hasattr(img, 'seek'):
+                    img.seek(0)
+                if hasattr(img, 'file') and hasattr(img.file, 'seek'):
+                    try:
+                        img.file.seek(0)
+                    except Exception:
+                        pass
                 from PIL import Image
                 trial_image = Image.open(img)
                 trial_image.verify()
             except Exception:
                 raise forms.ValidationError("Please upload a valid image file (WebP, PNG, JPG, JPEG).")
+            finally:
+                if hasattr(img, 'seek'):
+                    img.seek(0)
+                if hasattr(img, 'file') and hasattr(img.file, 'seek'):
+                    try:
+                        img.file.seek(0)
+                    except Exception:
+                        pass
         return img
 
 class ProductForm(forms.ModelForm):
@@ -83,9 +98,24 @@ class ProductForm(forms.ModelForm):
                 size_mb = img.size / (1024 * 1024)
                 raise forms.ValidationError(f"File size too large ({size_mb:.1f} MB). Maximum allowed size is 5 MB.")
             try:
+                if hasattr(img, 'seek'):
+                    img.seek(0)
+                if hasattr(img, 'file') and hasattr(img.file, 'seek'):
+                    try:
+                        img.file.seek(0)
+                    except Exception:
+                        pass
                 from PIL import Image
                 trial_image = Image.open(img)
                 trial_image.verify()
             except Exception:
                 raise forms.ValidationError("Please upload a valid image file (WebP, PNG, JPG, JPEG).")
+            finally:
+                if hasattr(img, 'seek'):
+                    img.seek(0)
+                if hasattr(img, 'file') and hasattr(img.file, 'seek'):
+                    try:
+                        img.file.seek(0)
+                    except Exception:
+                        pass
         return img

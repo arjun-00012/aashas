@@ -31,7 +31,12 @@ def optimize_image_file(image_field, max_dimension=1200):
     try:
         import os
         from PIL import Image
-        filepath = getattr(image_field, 'path', None)
+        filepath = None
+        try:
+            filepath = getattr(image_field, 'path', None)
+        except (NotImplementedError, AttributeError, ValueError):
+            filepath = None
+
         if filepath and os.path.exists(filepath):
             with Image.open(filepath) as img:
                 w, h = img.size
@@ -56,42 +61,73 @@ class Category(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+
+        # Reset image file pointer if present before saving
+        if self.image:
+            try:
+                if hasattr(self.image, 'seek'):
+                    self.image.seek(0)
+            except Exception:
+                pass
+            try:
+                if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
+                    self.image.file.seek(0)
+            except Exception:
+                pass
+
         super().save(*args, **kwargs)
 
         # Optimize image dimensions if uploaded locally
         if self.image:
             optimize_image_file(self.image, max_dimension=1000)
 
-        # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
+        # Automatically record Cloudinary secure URL if uploaded to Cloudinary
         if self.image and not self.image_url:
             try:
-                import os
-                import cloudinary.uploader
-                if hasattr(self.image, 'url') and str(self.image.url).startswith(('http://', 'https://')):
-                    self.image_url = self.image.url
+                img_url = ''
+                try:
+                    img_url = str(self.image.url)
+                except Exception:
+                    img_url = ''
+                if img_url and img_url.startswith(('http://', 'https://')):
+                    self.image_url = img_url
                     super().save(update_fields=['image_url'])
-                elif hasattr(self.image, 'path') and os.path.exists(self.image.path):
-                    res = cloudinary.uploader.upload(
-                        self.image.path,
-                        folder="ashas/categories",
-                        public_id=self.slug,
-                        overwrite=True
-                    )
-                    secure_url = res.get('secure_url')
-                    if secure_url:
-                        self.image_url = secure_url
-                        super().save(update_fields=['image_url'])
-                elif hasattr(self.image, 'file'):
-                    res = cloudinary.uploader.upload(
-                        self.image.file,
-                        folder="ashas/categories",
-                        public_id=self.slug,
-                        overwrite=True
-                    )
-                    secure_url = res.get('secure_url')
-                    if secure_url:
-                        self.image_url = secure_url
-                        super().save(update_fields=['image_url'])
+                else:
+                    import os
+                    import cloudinary.uploader
+                    filepath = None
+                    try:
+                        filepath = self.image.path
+                    except (NotImplementedError, AttributeError, ValueError):
+                        filepath = None
+
+                    if filepath and os.path.exists(filepath):
+                        res = cloudinary.uploader.upload(
+                            filepath,
+                            folder="ashas/categories",
+                            public_id=self.slug,
+                            overwrite=True
+                        )
+                        secure_url = res.get('secure_url')
+                        if secure_url:
+                            self.image_url = secure_url
+                            super().save(update_fields=['image_url'])
+                    else:
+                        try:
+                            if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
+                                self.image.file.seek(0)
+                                res = cloudinary.uploader.upload(
+                                    self.image.file,
+                                    folder="ashas/categories",
+                                    public_id=self.slug,
+                                    overwrite=True
+                                )
+                                secure_url = res.get('secure_url')
+                                if secure_url:
+                                    self.image_url = secure_url
+                                    super().save(update_fields=['image_url'])
+                        except Exception:
+                            pass
             except Exception:
                 pass
 
@@ -124,42 +160,72 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        # Reset image file pointer if present before saving
+        if self.image:
+            try:
+                if hasattr(self.image, 'seek'):
+                    self.image.seek(0)
+            except Exception:
+                pass
+            try:
+                if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
+                    self.image.file.seek(0)
+            except Exception:
+                pass
+
         super().save(*args, **kwargs)
 
         # Optimize image dimensions if uploaded locally
         if self.image:
             optimize_image_file(self.image, max_dimension=1200)
 
-        # Automatically upload local image to Cloudinary and record secure URL if image_url is empty
+        # Automatically record Cloudinary secure URL if uploaded to Cloudinary
         if self.image and not self.image_url:
             try:
-                import os
-                import cloudinary.uploader
-                if hasattr(self.image, 'url') and str(self.image.url).startswith(('http://', 'https://')):
-                    self.image_url = self.image.url
+                img_url = ''
+                try:
+                    img_url = str(self.image.url)
+                except Exception:
+                    img_url = ''
+                if img_url and img_url.startswith(('http://', 'https://')):
+                    self.image_url = img_url
                     super().save(update_fields=['image_url'])
-                elif hasattr(self.image, 'path') and os.path.exists(self.image.path):
-                    res = cloudinary.uploader.upload(
-                        self.image.path,
-                        folder="ashas/products",
-                        public_id=f"product_{self.id}",
-                        overwrite=True
-                    )
-                    secure_url = res.get('secure_url')
-                    if secure_url:
-                        self.image_url = secure_url
-                        super().save(update_fields=['image_url'])
-                elif hasattr(self.image, 'file'):
-                    res = cloudinary.uploader.upload(
-                        self.image.file,
-                        folder="ashas/products",
-                        public_id=f"product_{self.id}",
-                        overwrite=True
-                    )
-                    secure_url = res.get('secure_url')
-                    if secure_url:
-                        self.image_url = secure_url
-                        super().save(update_fields=['image_url'])
+                else:
+                    import os
+                    import cloudinary.uploader
+                    filepath = None
+                    try:
+                        filepath = self.image.path
+                    except (NotImplementedError, AttributeError, ValueError):
+                        filepath = None
+
+                    if filepath and os.path.exists(filepath):
+                        res = cloudinary.uploader.upload(
+                            filepath,
+                            folder="ashas/products",
+                            public_id=f"product_{self.id}",
+                            overwrite=True
+                        )
+                        secure_url = res.get('secure_url')
+                        if secure_url:
+                            self.image_url = secure_url
+                            super().save(update_fields=['image_url'])
+                    else:
+                        try:
+                            if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
+                                self.image.file.seek(0)
+                                res = cloudinary.uploader.upload(
+                                    self.image.file,
+                                    folder="ashas/products",
+                                    public_id=f"product_{self.id}",
+                                    overwrite=True
+                                )
+                                secure_url = res.get('secure_url')
+                                if secure_url:
+                                    self.image_url = secure_url
+                                    super().save(update_fields=['image_url'])
+                        except Exception:
+                            pass
             except Exception:
                 pass
 
