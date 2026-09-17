@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <!-- Force HTTPS & Upgrade Insecure Requests -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}ASHAS STORE | Accessorize Your Story{% endblock %}</title>
 
     {% load static %}
@@ -63,6 +64,7 @@
             scroll-behavior: smooth;
             scroll-padding-top: calc(var(--nav-height) + 16px);
             background-color: #FAF8F5;
+            scrollbar-gutter: stable;
         }
 
         body {
@@ -81,7 +83,6 @@
         /* Prevent Bootstrap offcanvas / modal scrollbar jump */
         body.modal-open,
         body.offcanvas-open {
-            padding-right: 0 !important;
             overflow: hidden !important;
         }
         .top-navbar {
@@ -717,7 +718,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Offcanvas Side Drawer (Left Menu with ASHAS Branding) */
+        /* Offcanvas Side Drawer (Clean, Zero-Blink Smooth Hardware Acceleration) */
         .offcanvas-ashas {
             background-color: #FAF8F5 !important;
             color: #171614 !important;
@@ -725,38 +726,20 @@
             width: 320px !important;
             max-width: 85vw !important;
             box-shadow: 12px 0 36px rgba(28, 25, 23, 0.12) !important;
-            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .offcanvas-backdrop {
             background-color: rgba(23, 22, 20, 0.45) !important;
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
-            transition: opacity 0.32s ease !important;
-        }
-
-        /* Subtle staggered micro-animation on drawer opening */
-        .offcanvas-ashas.show .drawer-header {
-            animation: drawerItemEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-        }
-
-        .offcanvas-ashas.show .drawer-section-title {
-            animation: drawerItemEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.09s both;
-        }
-
-        .offcanvas-ashas.show .drawer-link {
-            animation: drawerItemEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
-        }
-
-        @keyframes drawerItemEntrance {
-            from {
-                opacity: 0;
-                transform: translateX(-12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            transition: opacity 0.28s ease !important;
+            will-change: opacity;
         }
 
         .drawer-header {

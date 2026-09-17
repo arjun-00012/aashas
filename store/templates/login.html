@@ -27,12 +27,17 @@
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next_url|default:'' }}">
             <div class="mb-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Your username" required autofocus>
+                <label class="form-label small fw-semibold text-secondary mb-1">Username or Email</label>
+                <input type="text" name="username" class="form-control" placeholder="Your username or registered email" autocomplete="username" required autofocus>
             </div>
             <div class="mb-4">
                 <label class="form-label small fw-semibold text-secondary mb-1">Password</label>
-                <input type="password" name="password" class="form-control" placeholder="Your password" required>
+                <div class="input-group">
+                    <input type="password" name="password" id="loginPasswordInput" class="form-control" placeholder="Your password" autocomplete="current-password" required>
+                    <button type="button" class="btn btn-outline-secondary border" id="togglePasswordBtn" style="border-color: #dee2e6 !important;" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn btn-dark w-100 py-2 py-sm-3 fw-bold rounded-pill text-uppercase" style="letter-spacing: 0.05em; background: #171614; color: #FAF8F5;">Sign In</button>
         </form>
@@ -42,4 +47,21 @@
         </p>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const pwdInput = document.getElementById('loginPasswordInput');
+    const icon = document.getElementById('togglePasswordIcon');
+    if (toggleBtn && pwdInput && icon) {
+        toggleBtn.addEventListener('click', function() {
+            const isPassword = pwdInput.getAttribute('type') === 'password';
+            pwdInput.setAttribute('type', isPassword ? 'text' : 'password');
+            icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

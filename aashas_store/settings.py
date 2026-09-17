@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # Helps runserver serve static with WhiteNoise
     'django.contrib.staticfiles',
-    'store',
+    'store.apps.StoreConfig',
 ]
 
 # Cloudinary Storage Configuration
@@ -197,10 +197,15 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = media_dir
 
-# Session Settings - Long-lived session persistence
+# Session & Cookie Settings - Concurrent Multi-User Stability
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = False  # Avoid redundant DB session writes on GET requests to prevent table locks
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # Allows frontend JavaScript to read csrftoken for AJAX
+CSRF_USE_SESSIONS = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

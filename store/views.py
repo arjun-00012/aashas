@@ -116,40 +116,83 @@ def home(request):
 
 # --- Auth Views ---
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     next_url = request.POST.get('next') or request.GET.get('next') or ''
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = User.objects.create_user(
-                username=form.cleaned_data['username'],
+                username=form.cleaned_data['username'].strip(),
                 password=form.cleaned_data['password']
             )
             profile = user.profile
-            profile.phone_number = form.cleaned_data['phone_number']
+            profile.phone_number = form.cleaned_data['phone_number'].strip()
             profile.save()
+
+            # Preserve guest cart items for newly registered user
+            guest_cart = dict(request.session.get('cart', {}))
             login(request, user)
-            target = next_url if next_url.startswith('/') else 'home'
+            if guest_cart:
+                for pid_str, qty in guest_cart.items():
+                    try:
+                        prod = Product.objects.filter(id=int(pid_str), stock__gt=0).first()
+                        if prod and int(qty) > 0:
+                            c_item, created = CartItem.objects.get_or_create(user=user, product=prod)
+                            if created:
+                                c_item.quantity = min(int(qty), prod.stock)
+                            else:
+                                c_item.quantity = min(c_item.quantity + int(qty), prod.stock)
+                            c_item.save()
+                    except Exception:
+                        continue
+
+            target = next_url if (next_url and next_url.startswith('/') and not next_url.startswith('//')) else 'home'
             return redirect(target)
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form, 'next_url': next_url})
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     next_url = request.POST.get('next') or request.GET.get('next') or ''
     if request.method == 'POST':
-        u = request.POST.get('username')
-        p = request.POST.get('password')
+        u = (request.POST.get('username') or '').strip()
+        p = request.POST.get('password') or ''
+
+        # Support sign-in with registered email address
+        if '@' in u:
+            matching_user = User.objects.filter(email__iexact=u).first()
+            if matching_user:
+                u = matching_user.username
+
         user = authenticate(request, username=u, password=p)
         if user:
+            # Preserve guest cart items upon authentication
+            guest_cart = dict(request.session.get('cart', {}))
             login(request, user)
-            target = next_url if next_url.startswith('/') else 'home'
+            if guest_cart:
+                for pid_str, qty in guest_cart.items():
+                    try:
+                        prod = Product.objects.filter(id=int(pid_str), stock__gt=0).first()
+                        if prod and int(qty) > 0:
+                            c_item, created = CartItem.objects.get_or_create(user=user, product=prod)
+                            if created:
+                                c_item.quantity = min(int(qty), prod.stock)
+                            else:
+                                c_item.quantity = min(c_item.quantity + int(qty), prod.stock)
+                            c_item.save()
+                    except Exception:
+                        continue
+
+            target = next_url if (next_url and next_url.startswith('/') and not next_url.startswith('//')) else 'home'
             return redirect(target)
         return render(request, 'login.html', {'error': 'Invalid Username or Password.', 'next_url': next_url})
     return render(request, 'login.html', {'next_url': next_url})
 
 def logout_view(request):
     logout(request)
-    request.session.flush()
     return redirect('home')
 
 @login_required
