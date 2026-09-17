@@ -247,23 +247,7 @@ def login_view(request):
 
         user = authenticate(request, username=u, password=p)
         if user:
-            # Preserve guest cart items upon authentication
-            guest_cart = dict(request.session.get('cart', {}))
             login(request, user)
-            if guest_cart:
-                for pid_str, qty in guest_cart.items():
-                    try:
-                        prod = Product.objects.filter(id=int(pid_str), stock__gt=0).first()
-                        if prod and int(qty) > 0:
-                            c_item, created = CartItem.objects.get_or_create(user=user, product=prod)
-                            if created:
-                                c_item.quantity = min(int(qty), prod.stock)
-                            else:
-                                c_item.quantity = min(c_item.quantity + int(qty), prod.stock)
-                            c_item.save()
-                    except Exception:
-                        continue
-
             target = next_url if (next_url and next_url.startswith('/') and not next_url.startswith('//')) else 'home'
             return redirect(target)
         return render(request, 'login.html', {'error': 'Invalid Username or Password.', 'next_url': next_url})
@@ -283,18 +267,13 @@ def profile_view(request):
             return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=profile)
+    # Strictly show only personal orders belonging to this authenticated user account
     orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
-    # Enable Admin/Staff Preview: if staff user has no personal purchases, show store customer orders so they can test tracking UI
-    is_admin_preview = False
-    if not orders.exists() and (request.user.is_staff or request.user.is_superuser):
-        orders = Order.objects.filter(payment_status='Completed').prefetch_related('items__product').order_by('-created_at')
-        is_admin_preview = True
 
     return render(request, 'profile.html', {
         'form': form,
         'orders': orders,
         'profile': profile,
-        'is_admin_preview': is_admin_preview
     })
 
 # --- Cart Views ---
