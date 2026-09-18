@@ -2,9 +2,10 @@ import json
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
-from store.models import Category, Product, Order, OrderItem, Profile
+from store.models import Category, Product, Order, OrderItem, Profile, CartItem
+from unittest.mock import patch, MagicMock
 from store.forms import ProductForm, RegistrationForm
-from store.views import safe_referer
+from store.views import safe_referer, check_cart_has_shades, check_cart_has_test_bracelet, calculate_shipping_fee
 
 class CategorySlugTests(TestCase):
     def test_category_slug_collision_handling(self):
@@ -330,5 +331,203 @@ class RazorpayWebhookTests(TestCase):
     def test_webhook_get_method_rejected(self):
         res = self.client.get(reverse('razorpay_webhook'))
         self.assertEqual(res.status_code, 405)
+
+
+class ShippingCalculationTests(TestCase):
+    def setUp(self):
+        self.cat_shades = Category.objects.create(name="Shades", slug="shades")
+        self.cat_rings = Category.objects.create(name="Rings", slug="rings")
+        self.cat_bracelets = Category.objects.create(name="Bracelets", slug="bracelets")
+        self.shade_product = Product.objects.create(
+            category=self.cat_shades,
+            name="Y2K Retro Shades",
+            price=999.00,
+            stock=10
+        )
+        self.ring_product = Product.objects.create(
+            category=self.cat_rings,
+            name="Obsidian Ring",
+            price=499.00,
+            stock=10
+        )
+        self.bracelet_product = Product.objects.create(
+            category=self.cat_bracelets,
+            name="Matte Obsidian Stone Bracelet",
+            price=899.00,
+            discount_price=699.00,
+            stock=10
+        )
+
+    def test_check_cart_has_shades(self):
+        self.assertTrue(check_cart_has_shades([self.shade_product]))
+        self.assertFalse(check_cart_has_shades([self.ring_product]))
+        self.assertTrue(check_cart_has_shades([self.ring_product, self.shade_product]))
+
+    def test_calculate_shipping_outside_kerala(self):
+        # Outside Kerala is flat 95 regardless of products
+        fee_ring = calculate_shipping_fee([self.ring_product], delivery_region="outside_kerala")
+        fee_shade = calculate_shipping_fee([self.shade_product], delivery_region="outside_kerala")
+        self.assertEqual(fee_ring, 95.0)
+        self.assertEqual(fee_shade, 95.0)
+
+    def test_calculate_shipping_inside_kerala_shades(self):
+        # Inside Kerala with shades is 65
+        fee = calculate_shipping_fee([self.shade_product], delivery_region="kerala")
+        self.assertEqual(fee, 65.0)
+        # Inside Kerala with both shade and ring is 65
+        fee_mixed = calculate_shipping_fee([self.ring_product, self.shade_product], delivery_region="kerala")
+        self.assertEqual(fee_mixed, 65.0)
+
+    def test_calculate_shipping_inside_kerala_other_products(self):
+        # Inside Kerala for other products (no shades) is 55
+        fee = calculate_shipping_fee([self.ring_product], delivery_region="kerala")
+        self.assertEqual(fee, 55.0)
+
+    def test_calculate_shipping_featured_bracelet_is_one_rupee(self):
+        # Featured bracelet has special ₹1 shipping charge for testing
+        fee_kerala = calculate_shipping_fee([self.bracelet_product], delivery_region="kerala")
+        fee_outside = calculate_shipping_fee([self.bracelet_product], delivery_region="outside_kerala")
+        self.assertEqual(fee_kerala, 1.0)
+        self.assertEqual(fee_outside, 1.0)
+
+
+class CheckoutShippingIntegrationTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="testbuyer", password="testpassword123")
+        self.client.login(username="testbuyer", password="testpassword123")
+        
+        self.cat_shades = Category.objects.create(name="Shades", slug="shades")
+        self.cat_rings = Category.objects.create(name="Rings", slug="rings")
+        
+        self.shade_product = Product.objects.create(
+            category=self.cat_shades,
+            name="McStan Shades",
+            price=800.00,
+            stock=5
+        )
+        self.ring_product = Product.objects.create(
+            category=self.cat_rings,
+            name="Dragon Ring",
+            price=300.00,
+            stock=5
+        )
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_inside_kerala_other_products(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_55', 'amount': 35500}
+        mock_get_client.return_value = mock_client
+
+        # Put ring in cart (subtotal = 300)
+        CartItem.objects.create(user=self.user, product=self.ring_product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Buyer One',
+            'phone_number': '9876543210',
+            'shipping_address': 'Kozhikode, Kerala',
+            'delivery_region': 'kerala',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['subtotal'], 300.0)
+        self.assertEqual(data['shipping_fee'], 55.0)
+        self.assertEqual(data['total'], 355.0)
+        self.assertEqual(data['amount'], 35500)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(float(order.shipping_fee), 55.0)
+        self.assertEqual(float(order.total_price), 355.0)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_inside_kerala_with_shades(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_65', 'amount': 86500}
+        mock_get_client.return_value = mock_client
+
+        # Put shade in cart (subtotal = 800)
+        CartItem.objects.create(user=self.user, product=self.shade_product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Buyer Two',
+            'phone_number': '9876543210',
+            'shipping_address': 'Ernakulam, Kerala',
+            'delivery_region': 'kerala',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['shipping_fee'], 65.0)
+        self.assertEqual(data['total'], 865.0)
+        self.assertEqual(data['amount'], 86500)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(float(order.shipping_fee), 65.0)
+        self.assertEqual(float(order.total_price), 865.0)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_outside_kerala(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_95', 'amount': 39500}
+        mock_get_client.return_value = mock_client
+
+        # Put ring in cart (subtotal = 300)
+        CartItem.objects.create(user=self.user, product=self.ring_product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Buyer Three',
+            'phone_number': '9876543210',
+            'shipping_address': 'Bangalore, Karnataka',
+            'delivery_region': 'outside_kerala',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['shipping_fee'], 95.0)
+        self.assertEqual(data['total'], 395.0)
+        self.assertEqual(data['amount'], 39500)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(float(order.shipping_fee), 95.0)
+        self.assertEqual(float(order.total_price), 395.0)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_featured_bracelet_one_rupee_shipping(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_1', 'amount': 70000}
+        mock_get_client.return_value = mock_client
+
+        cat_bracelets = Category.objects.create(name="Bracelets", slug="bracelets")
+        bracelet = Product.objects.create(
+            category=cat_bracelets,
+            name="Matte Obsidian Stone Bracelet",
+            price=899.00,
+            discount_price=699.00,
+            stock=5
+        )
+
+        CartItem.objects.create(user=self.user, product=bracelet, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Tester',
+            'phone_number': '9876543210',
+            'shipping_address': 'Calicut, Kerala',
+            'delivery_region': 'kerala',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['subtotal'], 699.0)
+        self.assertEqual(data['shipping_fee'], 1.0)
+        self.assertEqual(data['total'], 700.0)
+        self.assertEqual(data['amount'], 70000)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(float(order.shipping_fee), 1.0)
+        self.assertEqual(float(order.total_price), 700.0)
+
 
 

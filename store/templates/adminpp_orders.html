@@ -565,6 +565,9 @@
                     <div>
                         <span class="text-muted small d-block" style="font-size: 0.7rem;">TOTAL PAID</span>
                         <strong class="fs-6 text-dark">₹{{ order.total_price }}</strong>
+                        {% if order.shipping_fee and order.shipping_fee > 0 %}
+                        <span class="d-block text-muted" style="font-size: 0.68rem;">(incl. ₹{{ order.shipping_fee }} ship)</span>
+                        {% endif %}
                     </div>
                     <div class="text-end">
                         <span class="text-muted small d-block" style="font-size: 0.7rem;">PAYMENT ID</span>
@@ -698,7 +701,12 @@
                         </td>
 
                         <!-- Total -->
-                        <td class="text-nowrap"><strong class="text-dark fs-6">₹{{ order.total_price }}</strong></td>
+                        <td class="text-nowrap">
+                            <strong class="text-dark fs-6">₹{{ order.total_price }}</strong>
+                            {% if order.shipping_fee and order.shipping_fee > 0 %}
+                            <small class="d-block text-muted" style="font-size: 0.68rem;">(₹{{ order.shipping_fee }} ship)</small>
+                            {% endif %}
+                        </td>
 
                         <!-- Post Office Tracking Details -->
                         <td style="min-width: 210px;" class="tracking-cell">

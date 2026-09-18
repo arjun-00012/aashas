@@ -273,6 +273,7 @@ class Order(models.Model):
     phone_number = models.CharField(max_length=20)
     shipping_address = models.TextField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Delivery charge based on destination and products")
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

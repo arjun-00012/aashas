@@ -222,6 +222,9 @@ RAZORPAY_KEY_ID = 'rzp_live_Tck3w9pvGwRGOY' if (not _env_key_id or _env_key_id.s
 _env_key_secret = (os.environ.get('RAZORPAY_KEY_SECRET') or '').strip()
 RAZORPAY_KEY_SECRET = 'uct85ngbFuvyRgdqhGYDFdG4' if (not _env_key_secret or 'YourTestKey' in _env_key_secret) else _env_key_secret
 
+# Razorpay Webhook Secret (optional, used to verify webhook signatures)
+RAZORPAY_WEBHOOK_SECRET = (os.environ.get('RAZORPAY_WEBHOOK_SECRET') or '').strip()
+
 # Hostinger / Custom SMTP Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.hostinger.com')

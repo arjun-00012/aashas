@@ -233,6 +233,76 @@
         font-family: 'Outfit', sans-serif;
     }
 
+    /* Shipping Region Selector */
+    .shipping-region-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.65rem;
+    }
+    @media (max-width: 575.98px) {
+        .shipping-region-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .region-option-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0.95rem;
+        border: 1.5px solid rgba(28, 25, 23, 0.12);
+        border-radius: 12px;
+        background: #FFFFFF;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        margin-bottom: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .region-option-card:hover {
+        border-color: rgba(28, 25, 23, 0.28);
+        background: #FAF8F5;
+    }
+    .region-option-card.selected {
+        border-color: var(--chk-dark);
+        background: #FAF8F5;
+        box-shadow: 0 2px 8px rgba(23, 22, 20, 0.05);
+    }
+    .region-option-card input[type="radio"] {
+        accent-color: var(--chk-dark);
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        margin: 0;
+        flex-shrink: 0;
+    }
+    .region-name {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--chk-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        line-height: 1.2;
+    }
+    .region-fee-text {
+        font-size: 0.75rem;
+        color: var(--chk-secondary);
+        display: block;
+        line-height: 1.25;
+        margin-top: 2px;
+    }
+
+    /* Policy Notice Fine Print */
+    .checkout-policy-fineprint {
+        font-size: 0.62rem;
+        line-height: 1.35;
+        color: #9c9790;
+        letter-spacing: 0.01em;
+        margin: 0.75rem 0 0;
+        text-align: center;
+    }
+
     /* Minimal Pay Button */
     .btn-pay-now {
         background-color: var(--chk-dark);
@@ -383,7 +453,7 @@
                     <span id="mobileSummaryToggleLabel" class="fw-semibold">Show order summary</span>
                     <i class="bi bi-chevron-down toggle-chevron text-muted" id="mobileSummaryChevron"></i>
                 </span>
-                <span class="fw-bold text-dark font-outfit fs-6">₹{{ total|floatformat:2 }}</span>
+                <span class="fw-bold text-dark font-outfit fs-6" id="mobileHeaderTotal">₹{{ total|floatformat:2 }}</span>
             </button>
             <div class="mobile-summary-body" id="mobileSummaryDrawer" style="display: none;">
                 <div class="summary-items-list mb-2" style="max-height: 220px; overflow-y: auto;">
@@ -412,15 +482,15 @@
                 </div>
                 <div class="summary-line">
                     <span>Subtotal</span>
-                    <span class="fw-semibold text-dark">₹{{ total|floatformat:2 }}</span>
+                    <span class="fw-semibold text-dark" id="mobileSummarySubtotal">₹{{ subtotal|floatformat:2 }}</span>
                 </div>
                 <div class="summary-line">
-                    <span>Delivery (India Post Speed Post)</span>
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">FREE</span>
+                    <span>Delivery (Speed Post)</span>
+                    <span class="fw-semibold text-dark font-outfit" id="mobileSummaryShipping">₹{{ shipping_fee|floatformat:2 }}</span>
                 </div>
                 <div class="summary-line total-line">
                     <span class="total-label">Total Payable</span>
-                    <span class="total-val">₹{{ total|floatformat:2 }}</span>
+                    <span class="total-val" id="mobileSummaryTotal">₹{{ total|floatformat:2 }}</span>
                 </div>
             </div>
         </div>
@@ -436,7 +506,7 @@
                     <div class="chk-card mb-3">
                         <div class="chk-card-title">
                             <span>1. Delivery Details</span>
-                            <span class="badge bg-light text-secondary border rounded-pill fw-normal" style="font-size: 0.68rem;">India Post</span>
+                            <span class="badge bg-light text-secondary border rounded-pill fw-normal" style="font-size: 0.68rem;">India Post Speed Post</span>
                         </div>
 
                         <div class="row g-2.5 g-sm-3">
@@ -448,6 +518,43 @@
                                 <label class="chk-label" for="phone_number">Mobile Number <span class="text-danger">*</span></label>
                                 <input type="tel" id="phone_number" class="chk-input" value="{{ default_phone }}" placeholder="10-digit mobile number" autocomplete="tel" required>
                             </div>
+
+                            <!-- Destination Selector -->
+                            <div class="col-12 mb-2">
+                                <label class="chk-label">Shipping Destination <span class="text-danger">*</span></label>
+                                <div class="shipping-region-grid">
+                                    <label class="region-option-card {% if delivery_region == 'kerala' %}selected{% endif %}" id="card_region_kerala" for="region_kerala">
+                                        <input type="radio" name="delivery_region" id="region_kerala" value="kerala" {% if delivery_region == 'kerala' %}checked{% endif %}>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <span class="region-name"><i class="bi bi-geo-alt-fill text-success"></i> Inside Kerala</span>
+                                            <span class="region-fee-text">
+                                                {% if has_bracelet %}
+                                                    <strong>₹1</strong> &bull; Featured bracelet test rate
+                                                {% elif has_shades %}
+                                                    <strong>₹65</strong> &bull; Shades order rate
+                                                {% else %}
+                                                    <strong>₹55</strong> &bull; Standard parcel
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </label>
+
+                                    <label class="region-option-card {% if delivery_region == 'outside_kerala' %}selected{% endif %}" id="card_region_outside" for="region_outside">
+                                        <input type="radio" name="delivery_region" id="region_outside" value="outside_kerala" {% if delivery_region == 'outside_kerala' %}checked{% endif %}>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <span class="region-name"><i class="bi bi-truck text-dark"></i> Outside Kerala</span>
+                                            <span class="region-fee-text">
+                                                {% if has_bracelet %}
+                                                    <strong>₹1</strong> &bull; Featured bracelet test rate
+                                                {% else %}
+                                                    <strong>₹95</strong> &bull; All-India Speed Post
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
                             <div class="col-12">
                                 <label class="chk-label" for="shipping_address">Delivery Address &amp; PIN Code <span class="text-danger">*</span></label>
                                 <textarea id="shipping_address" rows="3" class="chk-textarea" placeholder="House/Flat No, Street, Landmark, City, District, PIN Code" autocomplete="street-address" required>{{ default_address }}</textarea>
@@ -527,6 +634,11 @@
                                 <i class="bi bi-shield-lock text-success me-1"></i> 100% Encrypted &bull; Direct Bank Settlement
                             </small>
                         </div>
+
+                        <!-- Policy Notice Fine Print -->
+                        <div class="checkout-policy-fineprint">
+                            * Privacy &amp; Purchase Policy: All orders are final once placed. Strictly no refund, replacement, or cashback after payment completion. By proceeding with the payment, you agree to these store policies.
+                        </div>
                     </div>
 
                 </div>
@@ -566,16 +678,16 @@
 
                         <div class="summary-line">
                             <span>Subtotal</span>
-                            <span class="fw-semibold text-dark">₹{{ total|floatformat:2 }}</span>
+                            <span class="fw-semibold text-dark" id="desktopSummarySubtotal">₹{{ subtotal|floatformat:2 }}</span>
                         </div>
                         <div class="summary-line">
                             <span>Delivery (Speed Post)</span>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.68rem;">FREE</span>
+                            <span class="fw-semibold text-dark font-outfit" id="desktopSummaryShipping">₹{{ shipping_fee|floatformat:2 }}</span>
                         </div>
 
                         <div class="summary-line total-line">
                             <span class="total-label">Total</span>
-                            <span class="total-val">₹{{ total|floatformat:2 }}</span>
+                            <span class="total-val" id="desktopSummaryTotal">₹{{ total|floatformat:2 }}</span>
                         </div>
 
                         <div class="mt-3 pt-2 border-top text-center">
@@ -623,6 +735,79 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Pricing & Shipping calculations
+    const subtotal = {{ subtotal }};
+    const hasShades = {% if has_shades %}true{% else %}false{% endif %};
+    const hasBracelet = {% if has_bracelet %}true{% else %}false{% endif %};
+    const keralaShippingFee = hasBracelet ? 1.0 : (hasShades ? 65.0 : 55.0);
+    const outsideShippingFee = hasBracelet ? 1.0 : 95.0;
+
+    const regionCards = document.querySelectorAll('.region-option-card');
+    const regionRadios = document.querySelectorAll('input[name="delivery_region"]');
+
+    function getSelectedRegion() {
+        const checked = document.querySelector('input[name="delivery_region"]:checked');
+        return checked ? checked.value : '{{ delivery_region|default:"kerala" }}';
+    }
+
+    function getCurrentShippingFee() {
+        return getSelectedRegion() === 'outside_kerala' ? outsideShippingFee : keralaShippingFee;
+    }
+
+    function getCurrentTotal() {
+        return subtotal + getCurrentShippingFee();
+    }
+
+    function updateShippingAndTotals() {
+        const region = getSelectedRegion();
+        const fee = getCurrentShippingFee();
+        const grandTotal = getCurrentTotal();
+
+        const feeFormatted = '₹' + fee.toFixed(2);
+        const totalFormatted = '₹' + grandTotal.toFixed(2);
+
+        // Update card selected state
+        regionCards.forEach(c => c.classList.remove('selected'));
+        const activeCard = document.getElementById(region === 'outside_kerala' ? 'card_region_outside' : 'card_region_kerala');
+        if (activeCard) activeCard.classList.add('selected');
+
+        // Update order summaries
+        const mobShip = document.getElementById('mobileSummaryShipping');
+        const dskShip = document.getElementById('desktopSummaryShipping');
+        if (mobShip) mobShip.textContent = feeFormatted;
+        if (dskShip) dskShip.textContent = feeFormatted;
+
+        const mobTot = document.getElementById('mobileSummaryTotal');
+        const dskTot = document.getElementById('desktopSummaryTotal');
+        const mobHdrTot = document.getElementById('mobileHeaderTotal');
+        if (mobTot) mobTot.textContent = totalFormatted;
+        if (dskTot) dskTot.textContent = totalFormatted;
+        if (mobHdrTot) mobHdrTot.textContent = totalFormatted;
+
+        // Update Pay button
+        updateSelectedCard(getSelectedMethod());
+    }
+
+    regionRadios.forEach(r => {
+        r.addEventListener('change', updateShippingAndTotals);
+    });
+
+    // Auto-detect Outside Kerala on address entry
+    const addressInput = document.getElementById('shipping_address');
+    if (addressInput) {
+        addressInput.addEventListener('blur', function() {
+            const val = this.value.toLowerCase();
+            const outsideKeywords = ['tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore', 'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'];
+            if (outsideKeywords.some(kw => val.includes(kw)) && !val.includes('kerala')) {
+                const outRadio = document.getElementById('region_outside');
+                if (outRadio && !outRadio.checked) {
+                    outRadio.checked = true;
+                    updateShippingAndTotals();
+                }
+            }
+        });
+    }
+
     // Handle Payment Method selection
     const methodCards = document.querySelectorAll('.payment-option');
     const radios = document.querySelectorAll('input[name="payment_method"]');
@@ -632,14 +817,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const activeCard = document.getElementById('card_' + methodVal);
         if (activeCard) activeCard.classList.add('selected');
 
+        const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
         if (methodVal === 'upi') {
-            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA UPI';
+            btnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI';
         } else if (methodVal === 'card') {
-            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA CARD';
+            btnText.textContent = 'PAY ' + totalFormatted + ' VIA CARD';
         } else if (methodVal === 'netbanking') {
-            btnText.textContent = 'PAY ₹{{ total|floatformat:2 }} VIA NETBANKING';
+            btnText.textContent = 'PAY ' + totalFormatted + ' VIA NETBANKING';
         } else {
-            btnText.textContent = 'PROCEED TO PAY ₹{{ total|floatformat:2 }}';
+            btnText.textContent = 'PROCEED TO PAY ' + totalFormatted;
         }
     }
 
@@ -678,6 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const phoneNumber = document.getElementById('phone_number').value.trim();
         const shippingAddress = document.getElementById('shipping_address').value.trim();
         const selectedMethod = getSelectedMethod();
+        const selectedRegion = getSelectedRegion();
 
         if (!fullName || !phoneNumber || !shippingAddress) {
             showError("Please fill out all delivery details before proceeding.");
@@ -692,6 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('full_name', fullName);
         formData.append('phone_number', phoneNumber);
         formData.append('shipping_address', shippingAddress);
+        formData.append('delivery_region', selectedRegion);
         formData.append('payment_method', selectedMethod);
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 

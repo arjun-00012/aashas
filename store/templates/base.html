@@ -1534,10 +1534,12 @@
                 <div>
                     © {% now "Y" %} <strong>ASHAS™</strong> CLOTHING. All rights reserved. Accessorize Your Story.
                 </div>
-                <div class="d-flex align-items-center gap-3 text-white-50">
+                <div class="d-flex align-items-center gap-3 text-white-50 flex-wrap">
                     <span><i class="bi bi-shield-check text-success me-1"></i> 100% Authentic Quality</span>
                     <span class="d-none d-sm-inline">•</span>
                     <span class="d-none d-sm-inline"><i class="bi bi-truck me-1"></i> Express Pan-India Delivery</span>
+                    <span>•</span>
+                    <a href="#privacyPolicyModal" data-bs-toggle="modal" class="text-white-50 text-decoration-underline" style="font-size: 0.73rem;">Privacy &amp; Purchase Policy</a>
                     <span>•</span>
                     <span><i class="bi bi-lock-fill me-1"></i> 256-Bit SSL Secured</span>
                 </div>
@@ -2083,6 +2085,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+<!-- Privacy & Return Policy Modal -->
+<div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4" style="background: #FAF8F5; color: #171614;">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-check text-dark fs-5"></i>
+                    <h5 class="modal-title font-outfit fw-bold m-0" id="privacyPolicyModalLabel" style="letter-spacing: 0.04em;">PRIVACY &amp; PURCHASE POLICY</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" style="font-size: 0.85rem; line-height: 1.65; color: #4A4641;">
+                <h6 class="fw-bold text-dark font-outfit mb-2">1. Privacy &amp; Data Protection</h6>
+                <p class="mb-3">
+                    ASHAS STORE respects your privacy. All customer information (name, phone number, delivery address) submitted during checkout is strictly protected and used exclusively to process your order, dispatch parcels via India Post / courier, and provide real-time tracking updates. We never share or sell personal data.
+                </p>
+
+                <h6 class="fw-bold text-dark font-outfit mb-2">2. Strict No Refund, Replacement &amp; Cashback Policy</h6>
+                <p class="mb-2">
+                    <strong>All sales are final once orders are placed.</strong> Due to the exclusive limited editions and hygienic nature of our boutique apparel, jewelry, and eyewear:
+                </p>
+                <ul class="mb-3 ps-3">
+                    <li><strong>No Refunds:</strong> Payment once completed is strictly non-refundable under any circumstances.</li>
+                    <li><strong>No Replacements / Exchanges:</strong> Products once dispatched or delivered cannot be exchanged or replaced.</li>
+                    <li><strong>No Cashback:</strong> We do not offer cashback, credits, or monetary compensation post-payment.</li>
+                </ul>
+
+                <h6 class="fw-bold text-dark font-outfit mb-2">3. Shipping Rates &amp; Delivery</h6>
+                <p class="mb-2">
+                    Parcels are dispatched promptly from Kozhikode, Kerala via India Post Speed Post with live tracking:
+                </p>
+                <ul class="mb-3 ps-3">
+                    <li><strong>Inside Kerala:</strong> ₹65 for orders containing Shades (protective eyewear packaging); ₹55 for other products.</li>
+                    <li><strong>Outside Kerala:</strong> ₹95 flat pan-India delivery.</li>
+                </ul>
+
+                <h6 class="fw-bold text-dark font-outfit mb-2">4. Secured Payments</h6>
+                <p class="mb-0">
+                    All transactions are protected by 256-bit SSL encryption via Razorpay. Your banking and payment credentials are never stored on our servers.
+                </p>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-10 px-4 py-2.5">
+                <button type="button" class="btn btn-dark rounded-pill px-4 btn-sm fw-semibold" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

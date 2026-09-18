@@ -396,6 +396,72 @@ def update_cart(request, product_id, action):
             sync_cart_item(request, product, 0)
     return redirect('cart')
 
+# --- Shipping & Checkout Helpers ---
+def check_cart_has_shades(items):
+    """
+    Returns True if any product in the items list belongs to the 'Shades' category
+    or has 'shade' or 'sunglass' in its name/slug.
+    Accepts an iterable of Product objects, (Product, qty) tuples, or OrderItem objects.
+    """
+    for item in items:
+        prod = getattr(item, 'product', item)
+        if isinstance(prod, tuple):
+            prod = prod[0]
+        if not prod:
+            continue
+        cat = getattr(prod, 'category', None)
+        if cat:
+            cat_name = (getattr(cat, 'name', '') or '').lower()
+            cat_slug = (getattr(cat, 'slug', '') or '').lower()
+            if 'shade' in cat_name or 'shade' in cat_slug:
+                return True
+        prod_name = (getattr(prod, 'name', '') or '').lower()
+        if 'shade' in prod_name or 'sunglass' in prod_name:
+            return True
+    return False
+
+
+def check_cart_has_test_bracelet(items):
+    """
+    Returns True if the order contains the featured bracelet (Matte Obsidian Stone Bracelet, id 11 or bracelet).
+    Used for user's temporary test payment shipping rate (₹1).
+    """
+    for item in items:
+        prod = getattr(item, 'product', item)
+        if isinstance(prod, tuple):
+            prod = prod[0]
+        if not prod:
+            continue
+        if getattr(prod, 'id', None) == 11 or 'bracelet' in (getattr(prod, 'name', '') or '').lower():
+            return True
+        cat = getattr(prod, 'category', None)
+        if cat and 'bracelet' in (getattr(cat, 'slug', '') or getattr(cat, 'name', '') or '').lower():
+            return True
+    return False
+
+
+def calculate_shipping_fee(items, delivery_region='kerala'):
+    """
+    Shipping fee calculation rules:
+    - Featured Bracelet (temporary test rate): ₹1 flat
+    - Outside Kerala: ₹95 flat for any product
+    - Inside Kerala:
+      - ₹65 if order contains Shades
+      - ₹55 for other products
+    """
+    # Special ₹1 shipping charge for the featured bracelet for testing
+    if check_cart_has_test_bracelet(items):
+        return 1.0
+
+    region = (delivery_region or 'kerala').strip().lower()
+    if region == 'outside_kerala':
+        return 95.0
+    
+    # Inside Kerala
+    has_shades = check_cart_has_shades(items)
+    return 65.0 if has_shades else 55.0
+
+
 # --- Razorpay Checkout ---
 @login_required(login_url='login')
 def checkout_view(request):
@@ -404,7 +470,7 @@ def checkout_view(request):
         return redirect('home')
     
     valid_items = {}
-    total = 0
+    subtotal = 0.0
     stale_pids = []
     stock_adjusted = False
 
@@ -416,7 +482,7 @@ def checkout_view(request):
                 sync_cart_item(request, product, qty)
                 stock_adjusted = True
             valid_items[pid] = (product, qty)
-            total += float(product.current_price) * qty
+            subtotal += float(product.current_price) * qty
         else:
             stale_pids.append(pid)
 
@@ -434,7 +500,7 @@ def checkout_view(request):
         if stock_adjusted:
             messages.warning(request, "Item quantities adjusted based on current warehouse stock.")
 
-    if not valid_items or total <= 0:
+    if not valid_items or subtotal <= 0:
         if request.method == 'POST':
             return JsonResponse({'status': 'error', 'message': 'Your cart is empty or has invalid items.'}, status=400)
         messages.error(request, "The items in your bag are currently out of stock.")
@@ -442,15 +508,20 @@ def checkout_view(request):
     
     checkout_items = []
     item_count = 0
+    products_list = []
     for pid, (product, qty) in valid_items.items():
         sub = float(product.current_price) * qty
         item_count += qty
+        products_list.append(product)
         checkout_items.append({
             'product': product,
             'quantity': qty,
             'unit_price': float(product.current_price),
             'subtotal': sub
         })
+
+    has_shades = check_cart_has_shades(products_list)
+    has_bracelet = check_cart_has_test_bracelet(products_list)
 
     default_address = ''
     default_phone = ''
@@ -461,16 +532,35 @@ def checkout_view(request):
         default_phone = profile.phone_number or ''
         default_name = request.user.username
 
+    # Determine default delivery region from saved address if available
+    addr_lower = (default_address or '').lower()
+    is_outside = ('outside' in addr_lower) or (
+        'kerala' not in addr_lower and any(
+            st in addr_lower for st in [
+                'tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore',
+                'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'
+            ]
+        )
+    )
+    initial_region = 'outside_kerala' if is_outside else 'kerala'
+    initial_shipping_fee = calculate_shipping_fee(products_list, initial_region)
+    initial_total = round(subtotal + initial_shipping_fee, 2)
+
     if request.method == 'POST':
         full_name = (request.POST.get('full_name') or '').strip()
         phone = (request.POST.get('phone_number') or '').strip()
         address = (request.POST.get('shipping_address') or '').strip()
+        delivery_region = (request.POST.get('delivery_region') or initial_region).strip().lower()
 
         if not full_name or not phone or not address:
             return JsonResponse({'status': 'error', 'message': 'Please complete all required shipping details.'}, status=400)
 
-        if total <= 0:
+        if subtotal <= 0:
             return JsonResponse({'status': 'error', 'message': 'Invalid cart total.'}, status=400)
+
+        # Re-compute accurate shipping fee on backend
+        shipping_fee = calculate_shipping_fee(products_list, delivery_region)
+        grand_total = round(subtotal + shipping_fee, 2)
 
         # Automatically update user profile for subsequent visits
         if request.user.is_authenticated:
@@ -484,7 +574,7 @@ def checkout_view(request):
             except Exception:
                 pass
 
-        rzp_amount = int(round(total * 100))
+        rzp_amount = int(round(grand_total * 100))
         payment_method = (request.POST.get('payment_method') or 'upi').strip().lower()
 
         # Create Live Order via Razorpay API (Deposited to Merchant Bank Account)
@@ -498,6 +588,8 @@ def checkout_view(request):
                     'customer_name': full_name[:40],
                     'customer_phone': phone[:15],
                     'shipping_address': address[:100],
+                    'delivery_region': delivery_region,
+                    'shipping_fee': str(shipping_fee),
                     'payment_method': payment_method
                 }
             })
@@ -517,7 +609,8 @@ def checkout_view(request):
             full_name=full_name,
             phone_number=phone,
             shipping_address=address,
-            total_price=total,
+            shipping_fee=shipping_fee,
+            total_price=grand_total,
             razorpay_order_id=rzp_order_id,
             payment_status='Pending'
         )
@@ -534,6 +627,9 @@ def checkout_view(request):
             'status': 'success',
             'razorpay_key': settings.RAZORPAY_KEY_ID,
             'amount': rzp_amount,
+            'subtotal': subtotal,
+            'shipping_fee': shipping_fee,
+            'total': grand_total,
             'currency': 'INR',
             'razorpay_order_id': rzp_order_id,
             'db_order_id': order.id,
@@ -544,7 +640,15 @@ def checkout_view(request):
         })
 
     return render(request, 'checkout.html', {
-        'total': total,
+        'subtotal': subtotal,
+        'shipping_fee': initial_shipping_fee,
+        'total': initial_total,
+        'has_shades': has_shades,
+        'has_bracelet': has_bracelet,
+        'delivery_region': initial_region,
+        'shades_shipping_kerala': 65.0,
+        'other_shipping_kerala': 55.0,
+        'outside_shipping': 95.0,
         'checkout_items': checkout_items,
         'item_count': item_count,
         'default_address': default_address,
@@ -578,7 +682,17 @@ def payment_verify(request):
                 except Exception as cap_err:
                     import logging
                     logging.getLogger(__name__).warning(f"Razorpay capture fallback notice: {cap_err}")
-            order = Order.objects.get(id=order_id)
+            order = None
+            if order_id:
+                try:
+                    order = Order.objects.filter(id=int(order_id)).first()
+                except (ValueError, TypeError):
+                    order = None
+            if not order and data.get('razorpay_order_id'):
+                order = Order.objects.filter(razorpay_order_id=data.get('razorpay_order_id')).first()
+
+            if not order:
+                return JsonResponse({'status': 'failed', 'message': 'Order record not found.'}, status=404)
 
             # Security check: if user is authenticated, ensure order belongs to them
             if request.user.is_authenticated and order.user and order.user != request.user:
@@ -634,13 +748,26 @@ def razorpay_webhook(request):
             if webhook_secret and webhook_signature:
                 try:
                     client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
-                except Exception:
-                    pass
+                except Exception as sig_err:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Razorpay webhook signature notice: {sig_err}")
 
             data = json.loads(webhook_body)
             event = data.get('event')
 
-            if event in ('order.paid', 'payment.captured'):
+            # Auto-capture if payment was authorized so it never expires without settlement
+            if event == 'payment.authorized':
+                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
+                rzp_pay_id = payment_entity.get('id')
+                pay_amt = payment_entity.get('amount')
+                if rzp_pay_id and pay_amt:
+                    try:
+                        client.payment.capture(rzp_pay_id, pay_amt)
+                    except Exception as cap_err:
+                        import logging
+                        logging.getLogger(__name__).warning(f"Razorpay webhook auto-capture notice: {cap_err}")
+
+            if event in ('order.paid', 'payment.captured', 'payment.authorized'):
                 payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
                 rzp_order_id = payment_entity.get('order_id')
                 rzp_pay_id = payment_entity.get('id')

@@ -139,8 +139,13 @@
                             {% endfor %}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-2 pt-1">
-                            <span class="text-secondary small">Total Amount:</span>
-                            <span class="fw-bold text-dark fs-6">₹{{ order.total_price }}</span>
+                            <span class="text-secondary small">Total Paid:</span>
+                            <div class="text-end">
+                                <span class="fw-bold text-dark fs-6">₹{{ order.total_price }}</span>
+                                {% if order.shipping_fee and order.shipping_fee > 0 %}
+                                <span class="d-block text-muted" style="font-size: 0.72rem;">(Includes ₹{{ order.shipping_fee }} shipping)</span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
 
