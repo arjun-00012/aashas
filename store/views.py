@@ -194,6 +194,8 @@ def home(request):
         return HttpResponse("OK", content_type="text/plain", status=200)
     categories = Category.objects.prefetch_related('products').all()
     trending_products = Product.objects.filter(is_trending=True).select_related('category')
+    if not trending_products.exists():
+        trending_products = Product.objects.all().select_related('category').order_by('-created_at')[:8]
     return render(request, 'index.html', {
         'categories': categories,
         'trending_products': trending_products
