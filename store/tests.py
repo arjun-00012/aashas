@@ -711,6 +711,35 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertNotContains(response, 'id="section-shades"')
         self.assertNotContains(response, 'id="section-rings"')
 
+    def test_product_detail_view_renders_large_image_and_share_button(self):
+        """Product page renders large image, INR badge, uppercase title, RS. price, share button, Add to Cart, and Buy It Now."""
+        response = self.client.get(reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'product_detail.html')
+        self.assertContains(response, "VAMPIRE BAT RING")
+        self.assertContains(response, "RS. 299.00")
+        self.assertContains(response, "INR")
+        self.assertContains(response, "pdp-share-icon-btn")
+        self.assertContains(response, "ADD TO CART")
+        self.assertContains(response, "BUY IT NOW")
+        self.assertContains(response, "DESCRIPTION")
+        self.assertContains(response, "SHIPPING & DELIVERY")
+
+    def test_product_detail_slug_routing(self):
+        """Product page is accessible via slug or numeric id slug."""
+        response = self.client.get(reverse('product_detail_slug', kwargs={'slug': 'vampire-bat-ring'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "VAMPIRE BAT RING")
+
+    def test_buy_now_adds_item_and_redirects_to_checkout(self):
+        """Buy It Now view adds product to user's cart and immediately redirects to checkout."""
+        response = self.client.get(reverse('buy_now', kwargs={'product_id': self.ring_prod.id}))
+        self.assertRedirects(response, reverse('checkout'), fetch_redirect_response=False)
+        session = self.client.session
+        cart = session.get('cart', {})
+        self.assertEqual(cart.get(str(self.ring_prod.id)), 1)
+
+
 
 
 

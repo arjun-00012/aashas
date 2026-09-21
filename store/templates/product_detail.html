@@ -1,0 +1,713 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name|upper }} | ASHAS Official Store{% endblock %}
+{% block meta_description %}{{ product.description|default:'Discover the signature'|truncatewords:20 }} {{ product.name }}. Premium statement jewelry by ASHAS. Fast delivery across India.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =========================================================
+       Single Product / Instant Purchase Design (Reference Matched)
+       ========================================================= */
+    .pdp-wrapper {
+        background-color: #FAF8F5;
+        min-height: calc(100vh - var(--nav-height, 62px));
+        padding-top: 1.5rem;
+        padding-bottom: 4rem;
+    }
+
+    .pdp-breadcrumb {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    .pdp-breadcrumb a {
+        color: #8C867E;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .pdp-breadcrumb a:hover {
+        color: #171614;
+    }
+
+    .pdp-breadcrumb .active {
+        color: #171614;
+        font-weight: 700;
+    }
+
+    /* Left Column: Big Product Image Stage */
+    .pdp-image-stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        min-height: 440px;
+        max-height: 720px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #EAE7E1;
+        background-image: radial-gradient(circle at 50% 50%, #F5F3EF 0%, #E6E2DC 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(28, 25, 23, 0.06);
+    }
+
+    @media (min-width: 992px) {
+        .pdp-image-stage {
+            min-height: 580px;
+            aspect-ratio: 1 / 1;
+        }
+    }
+
+    .pdp-image-stage img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pdp-image-stage:hover img {
+        transform: scale(1.04);
+    }
+
+    /* Floating Country Currency Badge (Bottom Left of Image) */
+    .pdp-currency-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        border-radius: 6px;
+        padding: 5px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #171614;
+        box-shadow: 0 4px 12px rgba(28, 25, 23, 0.08);
+        z-index: 5;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .pdp-currency-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(28, 25, 23, 0.12);
+    }
+
+    .pdp-currency-flag {
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+
+    /* Right Column: Product Details & Actions */
+    .pdp-details-stage {
+        padding-left: 0;
+    }
+
+    @media (min-width: 992px) {
+        .pdp-details-stage {
+            padding-left: 2rem;
+            position: sticky;
+            top: calc(var(--nav-height, 62px) + 24px);
+        }
+    }
+
+    .pdp-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: #171614;
+        text-transform: uppercase;
+        line-height: 1.2;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Price and Share Row */
+    .pdp-price-share-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .pdp-price-group {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+    }
+
+    .pdp-price {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #171614;
+        letter-spacing: 0.02em;
+    }
+
+    .pdp-price-orig {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #8C867E;
+        text-decoration: line-through;
+    }
+
+    /* Share Icon Button (Reference Design) */
+    .pdp-share-icon-btn {
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(28, 25, 23, 0.2);
+        border-radius: 6px;
+        background: #FFFFFF;
+        color: #171614;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.04);
+        padding: 0;
+    }
+
+    .pdp-share-icon-btn:hover {
+        background: #171614;
+        color: #FFFFFF;
+        border-color: #171614;
+        transform: scale(1.05);
+    }
+
+    .pdp-share-icon-btn svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    /* Share Dropdown / Popover */
+    .pdp-share-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 260px;
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        border-radius: 12px;
+        padding: 12px;
+        z-index: 1050;
+        display: none;
+        animation: fadeInShare 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pdp-share-menu.show {
+        display: block;
+    }
+
+    @keyframes fadeInShare {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pdp-share-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #171614;
+    }
+
+    .pdp-share-options {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .pdp-share-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        color: #171614;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.18s ease;
+    }
+
+    .pdp-share-link:hover {
+        background: #FAF8F5;
+        color: #171614;
+    }
+
+    /* Action Buttons (ADD TO CART / BUY IT NOW) */
+    .pdp-btn-add-cart {
+        background: #FFFFFF;
+        border: 1.5px solid #171614;
+        color: #171614;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 14px 20px;
+        border-radius: 4px;
+        transition: all 0.22s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.04);
+    }
+
+    .pdp-btn-add-cart:hover {
+        background: #171614;
+        color: #FFFFFF;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(28, 25, 23, 0.12);
+    }
+
+    .pdp-btn-buy-now {
+        background: #000000;
+        border: 1.5px solid #000000;
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 14px 20px;
+        border-radius: 4px;
+        transition: all 0.22s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .pdp-btn-buy-now:hover {
+        background: #252320;
+        border-color: #252320;
+        color: #FFFFFF;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Minimal Collapsible Accordions (Reference Design) */
+    .pdp-accordion-group {
+        border-top: 1px solid rgba(28, 25, 23, 0.1);
+        margin-top: 1.5rem;
+    }
+
+    .pdp-accordion-item {
+        border-bottom: 1px solid rgba(28, 25, 23, 0.1);
+    }
+
+    .pdp-accordion-header {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 16px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #171614;
+        cursor: pointer;
+        outline: none;
+        transition: color 0.2s ease;
+    }
+
+    .pdp-accordion-header:hover {
+        color: #000000;
+    }
+
+    .pdp-chevron {
+        font-size: 0.78rem;
+        transition: transform 0.25s ease;
+    }
+
+    .pdp-accordion-header.collapsed .pdp-chevron {
+        transform: rotate(180deg);
+    }
+
+    .pdp-accordion-body {
+        padding-bottom: 18px;
+        font-size: 0.84rem;
+        color: #2C2A26;
+        line-height: 1.65;
+    }
+
+    .pdp-desc-quote {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #171614;
+        margin-bottom: 0.5rem;
+    }
+
+    .pdp-shipping-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .pdp-shipping-list li {
+        margin-bottom: 0.45rem;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .pdp-shipping-list li i {
+        font-size: 0.85rem;
+        color: #171614;
+    }
+
+    /* Trust Badges Strip */
+    .pdp-trust-strip {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+
+    .pdp-trust-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #635F59;
+        letter-spacing: 0.04em;
+    }
+
+    .pdp-trust-pill i {
+        font-size: 0.95rem;
+        color: #171614;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pdp-wrapper">
+    <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1360px;">
+        
+        <!-- Minimal Breadcrumbs -->
+        <nav aria-label="breadcrumb" class="pdp-breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">HOME</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name|upper }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.name|upper }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4 g-lg-5 align-items-start">
+            
+            <!-- =========================================================
+                 LEFT COLUMN: BIG PRODUCT IMAGE WITH CURRENCY BADGE
+                 ========================================================= -->
+            <div class="col-12 col-lg-7">
+                <div class="pdp-image-stage">
+                    {% if product.display_image %}
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" id="pdpMainImage" loading="eager" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                    {% else %}
+                        <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" id="pdpMainImage" loading="eager">
+                    {% endif %}
+
+                    <!-- Floating Country Currency Badge (Bottom Left) -->
+                    <div class="pdp-currency-badge" title="Prices shown in Indian Rupees (INR)" role="status">
+                        <span class="pdp-currency-flag">🇮🇳</span>
+                        <span>INR</span>
+                        <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 RIGHT COLUMN: TITLE, PRICE, SHARE, ACTIONS & ACCORDIONS
+                 ========================================================= -->
+            <div class="col-12 col-lg-5">
+                <div class="pdp-details-stage">
+                    
+                    <!-- Product Title (Bold Uppercase) -->
+                    <h1 class="pdp-title">{{ product.name|upper }}</h1>
+
+                    <!-- Price & Share Row (Reference Layout) -->
+                    <div class="pdp-price-share-bar">
+                        <div class="pdp-price-group">
+                            <span class="pdp-price">RS. {{ product.current_price|floatformat:2 }}</span>
+                            {% if product.discount_price %}
+                                <span class="pdp-price-orig">RS. {{ product.price|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Share Button & Popover -->
+                        <div class="pdp-share-wrapper position-relative">
+                            <button type="button" class="pdp-share-icon-btn" id="pdpShareTrigger" aria-label="Share this accessory" title="Share this accessory">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="18" cy="5" r="3"></circle>
+                                    <circle cx="6" cy="12" r="3"></circle>
+                                    <circle cx="18" cy="19" r="3"></circle>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                            </button>
+
+                            <!-- Multi-Platform Share Dropdown -->
+                            <div class="pdp-share-menu shadow-lg" id="pdpShareMenu">
+                                <div class="pdp-share-menu-header">
+                                    <span>Share Accessory</span>
+                                    <button type="button" class="btn-close" id="pdpCloseShareMenu" style="font-size: 0.65rem;" aria-label="Close"></button>
+                                </div>
+                                <div class="pdp-share-options">
+                                    <button type="button" class="pdp-share-link" id="pdpNativeShareBtn">
+                                        <i class="bi bi-share-fill text-dark"></i> <span>Share via Any App</span>
+                                    </button>
+                                    <a href="https://api.whatsapp.com/send?text=Check%20out%20{{ product.name|urlencode }}%20(RS.%20{{ product.current_price|floatformat:2 }})%20on%20ASHAS%20Store:%20{{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" class="pdp-share-link">
+                                        <i class="bi bi-whatsapp text-success"></i> <span>WhatsApp</span>
+                                    </a>
+                                    <button type="button" class="pdp-share-link" id="pdpCopyLinkBtn">
+                                        <i class="bi bi-link-45deg text-secondary"></i> <span id="copyLinkText">Copy Link</span>
+                                    </button>
+                                    <a href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text=Check%20out%20{{ product.name|urlencode }}%20on%20ASHAS" target="_blank" rel="noopener noreferrer" class="pdp-share-link">
+                                        <i class="bi bi-telegram text-primary"></i> <span>Telegram</span>
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?text=Check%20out%20{{ product.name|urlencode }}%20on%20ASHAS&url={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" class="pdp-share-link">
+                                        <i class="bi bi-twitter-x text-dark"></i> <span>X (Twitter)</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons: ADD TO CART & BUY IT NOW -->
+                    <div class="pdp-actions">
+                        {% if product.stock > 0 %}
+                            <button type="button" class="pdp-btn-add-cart w-100 mb-2 ajax-add-to-bag"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-add-url="{% url 'add_to_cart' product.id %}">
+                                <i class="bi bi-bag-plus"></i> ADD TO CART
+                            </button>
+                            <a href="{% url 'buy_now' product.id %}" class="pdp-btn-buy-now w-100">
+                                BUY IT NOW
+                            </a>
+                        {% else %}
+                            <button type="button" class="pdp-btn-add-cart w-100 disabled" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                <i class="bi bi-dash-circle"></i> SOLD OUT
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Accordions: DESCRIPTION & SHIPPING & DELIVERY -->
+                    <div class="pdp-accordion-group">
+                        
+                        <!-- Accordion 1: DESCRIPTION -->
+                        <div class="pdp-accordion-item">
+                            <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                                <span>DESCRIPTION</span>
+                                <i class="bi bi-chevron-up pdp-chevron"></i>
+                            </button>
+                            <div id="collapseDescription" class="collapse show">
+                                <div class="pdp-accordion-body">
+                                    {% if product.description %}
+                                        <p class="pdp-desc-quote mb-2">"{{ product.description }}"</p>
+                                    {% else %}
+                                        <p class="pdp-desc-quote mb-2">"STAINLESS STEEL"</p>
+                                    {% endif %}
+                                    <p class="small text-secondary mb-0">
+                                        Engineered with precision for lasting luster. Water-resistant, anti-tarnish, and skin-friendly for daily contemporary statement wear.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion 2: SHIPPING & DELIVERY -->
+                        <div class="pdp-accordion-item">
+                            <button class="pdp-accordion-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="false" aria-controls="collapseShipping">
+                                <span>SHIPPING & DELIVERY</span>
+                                <i class="bi bi-chevron-up pdp-chevron"></i>
+                            </button>
+                            <div id="collapseShipping" class="collapse">
+                                <div class="pdp-accordion-body">
+                                    <ul class="pdp-shipping-list small text-secondary">
+                                        <li><i class="bi bi-check2-circle text-dark"></i> <strong>Free Shipping:</strong> Complimentary express shipping on all prepaid orders across India.</li>
+                                        <li><i class="bi bi-check2-circle text-dark"></i> <strong>24-Hour Dispatch:</strong> Carefully inspected, packed, and dispatched within 24 hours.</li>
+                                        <li><i class="bi bi-check2-circle text-dark"></i> <strong>Delivery Timeline:</strong> Arrives within 3 - 5 business days via premium couriers.</li>
+                                        <li><i class="bi bi-check2-circle text-dark"></i> <strong>Payment Options:</strong> UPI, Debit/Credit Cards, Net Banking & Cash on Delivery (COD).</li>
+                                        <li><i class="bi bi-check2-circle text-dark"></i> <strong>Tracking:</strong> Live Speed Post tracking details sent to your SMS and WhatsApp.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Trust Strip -->
+                    <div class="pdp-trust-strip">
+                        <span class="pdp-trust-pill"><i class="bi bi-shield-check"></i> Authentic Quality</span>
+                        <span class="pdp-trust-pill"><i class="bi bi-truck"></i> Speed Post</span>
+                        <span class="pdp-trust-pill"><i class="bi bi-arrow-repeat"></i> Easy Support</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =========================================================
+             RELATED ACCESSORIES (5-Column Minimalist Grid)
+             ========================================================= -->
+        {% if related_products %}
+        <div class="mt-5 pt-5 border-top border-secondary border-opacity-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold fs-5 text-dark text-uppercase mb-0" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.08em;">
+                    YOU MAY ALSO LIKE
+                </h3>
+                <a href="{% url 'category_detail' product.category.slug %}" class="small fw-semibold text-dark text-decoration-none text-uppercase" style="letter-spacing: 0.06em;">
+                    VIEW ALL {{ product.category.name|upper }} <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="luxury-product-grid">
+                {% for item in related_products %}
+                <a href="{% url 'product_detail' item.id %}" class="luxury-product-card text-decoration-none">
+                    <div class="luxury-img-frame">
+                        {% if item.display_image %}
+                            <img src="{{ item.display_image }}" alt="{{ item.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                        {% else %}
+                            <img src="{% static 'images/ashas_badge.png' %}" alt="{{ item.name }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="luxury-product-info">
+                        <h4 class="luxury-product-title">{{ item.name|upper }}</h4>
+                        <div class="luxury-product-price-row">
+                            <span class="luxury-price">RS. {{ item.current_price|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // =========================================================
+    // Multi-Platform Share Logic (Web Share API + Fallback Menu)
+    // =========================================================
+    const shareTrigger = document.getElementById('pdpShareTrigger');
+    const shareMenu = document.getElementById('pdpShareMenu');
+    const closeShareMenu = document.getElementById('pdpCloseShareMenu');
+    const nativeShareBtn = document.getElementById('pdpNativeShareBtn');
+    const copyLinkBtn = document.getElementById('pdpCopyLinkBtn');
+    const copyLinkText = document.getElementById('copyLinkText');
+
+    const shareData = {
+        title: '{{ product.name|escapejs }} | ASHAS Official Store',
+        text: 'Check out {{ product.name|escapejs }} (RS. {{ product.current_price|floatformat:2 }}) on ASHAS Store:',
+        url: window.location.href
+    };
+
+    function triggerNativeShare() {
+        if (navigator.share) {
+            navigator.share(shareData).catch((err) => {
+                if (err.name !== 'AbortError') {
+                    if (shareMenu) shareMenu.classList.add('show');
+                }
+            });
+        } else {
+            if (shareMenu) shareMenu.classList.toggle('show');
+        }
+    }
+
+    if (shareTrigger) {
+        shareTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            triggerNativeShare();
+        });
+    }
+
+    if (nativeShareBtn) {
+        nativeShareBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {});
+            } else {
+                copyUrlToClipboard();
+            }
+        });
+    }
+
+    if (closeShareMenu) {
+        closeShareMenu.addEventListener('click', function() {
+            if (shareMenu) shareMenu.classList.remove('show');
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (shareMenu && !shareMenu.contains(e.target) && e.target !== shareTrigger) {
+            shareMenu.classList.remove('show');
+        }
+    });
+
+    function copyUrlToClipboard() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            if (copyLinkText) {
+                const orig = copyLinkText.innerText;
+                copyLinkText.innerText = 'Copied!';
+                setTimeout(() => {
+                    copyLinkText.innerText = orig;
+                }, 2000);
+            }
+            if (window.showAshasToast) {
+                window.showAshasToast('Link Copied', 'Product link copied to your clipboard.', '<i class="bi bi-clipboard-check-fill text-success"></i>');
+            }
+        }).catch(() => {
+            alert('Link copied to clipboard: ' + window.location.href);
+        });
+    }
+
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyUrlToClipboard();
+        });
+    }
+});
+</script>
+{% endblock %}

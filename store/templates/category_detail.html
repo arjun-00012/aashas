@@ -65,7 +65,7 @@
                  data-add-url="{% url 'add_to_cart' product.id %}">
                 
                 <!-- Square 1:1 Image Frame with Neutral Stone Backing -->
-                <div class="luxury-img-frame product-clickable-area" role="button" tabindex="0" title="Quick view {{ product.name }}" aria-label="Quick view {{ product.name }}">
+                <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
                     {% if product.display_image %}
                         <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                     {% else %}
@@ -88,18 +88,21 @@
                                 data-product-id="{{ product.id }}"
                                 data-product-name="{{ product.name }}"
                                 data-add-url="{% url 'add_to_cart' product.id %}"
-                                aria-label="Add {{ product.name }} to bag">
+                                aria-label="Add {{ product.name }} to bag"
+                                onclick="event.preventDefault(); event.stopPropagation();">
                             <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
                         </button>
                         {% endif %}
                     </div>
-                </div>
+                </a>
 
                 <!-- Product Details Block (Reference Design: Uppercase Name + RS. Price) -->
                 <div class="luxury-product-info">
-                    <h2 class="luxury-product-title product-clickable-area" role="button" tabindex="0" title="{{ product.name }}">
-                        {{ product.name|upper }}
-                    </h2>
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        <h2 class="luxury-product-title" title="{{ product.name }}">
+                            {{ product.name|upper }}
+                        </h2>
+                    </a>
                     <div class="luxury-product-price-row">
                         <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
                         {% if product.discount_price %}

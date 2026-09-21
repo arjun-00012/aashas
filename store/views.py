@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
@@ -220,6 +221,46 @@ def category_detail(request, slug):
         'categories': categories,
         'all_categories': categories,
     })
+
+def product_detail(request, pk=None, slug=None):
+    product = None
+    if pk:
+        product = get_object_or_404(Product, pk=pk)
+    elif slug:
+        clean_slug = slug.replace('.html', '').strip().lower()
+        if clean_slug.isdigit():
+            product = get_object_or_404(Product, pk=int(clean_slug))
+        else:
+            matching = [p for p in Product.objects.all() if slugify(p.name).lower() == clean_slug]
+            if matching:
+                product = matching[0]
+            else:
+                product = Product.objects.filter(name__iexact=clean_slug).first()
+        if not product:
+            raise Http404(f"Product '{slug}' not found.")
+    else:
+        raise Http404("Product not specified.")
+
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:5]
+    if not related_products.exists():
+        related_products = Product.objects.exclude(id=product.id)[:5]
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'related_products': related_products,
+    })
+
+def buy_now(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if product.stock <= 0:
+        messages.error(request, f'"{product.name}" is currently sold out.')
+        return redirect('product_detail', pk=product.id)
+
+    cart = get_user_cart(request)
+    pid = str(product.id)
+    qty = max(cart.get(pid, 0), 1)
+    sync_cart_item(request, product, qty)
+    return redirect('checkout')
 
 # --- Auth Views ---
 def register_view(request):

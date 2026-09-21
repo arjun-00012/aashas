@@ -778,7 +778,9 @@
                                 </div>
                             </div>
                             <div class="product-category-sub">{{ product.category.name|upper }}</div>
-                            <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
+                            <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark" title="View {{ product.name }}">
+                                <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
+                            </a>
                         </div>
                     </div>
                     <div>
@@ -834,6 +836,9 @@
                     <button type="button" id="qvAddBagBtn" class="btn btn-dark py-2 fw-semibold d-flex align-items-center justify-content-center" style="letter-spacing: 0.08em; background: #171614; border: 1px solid #171614; border-radius: 8px;">
                         <i class="bi bi-bag-plus me-1"></i> Add to Bag
                     </button>
+                    <a id="qvFullPageBtn" href="#" class="btn btn-outline-dark py-2 small fw-semibold d-flex align-items-center justify-content-center gap-1" style="border-radius: 8px; border-color: rgba(28, 25, 23, 0.25);">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> View Full Page & Share
+                    </a>
                     <a id="qvWhatsappBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark py-2 small fw-semibold d-flex align-items-center justify-content-center gap-1" style="border-radius: 8px; border-color: rgba(28, 25, 23, 0.2);">
                         <i class="bi bi-whatsapp text-success me-1"></i> Enquire on WhatsApp
                     </a>
@@ -1040,6 +1045,11 @@
             if (qvWhatsappBtn) {
                 const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
                 qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
+            }
+
+            const qvFullPageBtn = document.getElementById('qvFullPageBtn');
+            if (qvFullPageBtn && currentQvProduct) {
+                qvFullPageBtn.href = `/product/${currentQvProduct.id}/`;
             }
 
             if (bsQvModal) bsQvModal.show();
