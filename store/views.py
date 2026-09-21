@@ -744,7 +744,13 @@ def checkout_view(request):
             if len(pincode_digits) != 6:
                 return JsonResponse({'status': 'error', 'message': 'Please enter a valid 6-digit Indian Postal PIN code.'}, status=400)
             pincode = pincode_digits
-            delivery_region = determine_delivery_region(pincode=pincode, delivery_region=requested_region, address=address)
+            # MANDATORY ENFORCEMENT:
+            # If the PIN code is outside Kerala, the ₹95 shipping charge is strictly mandatory.
+            # Outside-Kerala customers have NO option to select or receive the Inside Kerala rate.
+            if not is_kerala_pincode(pincode):
+                delivery_region = 'outside_kerala'
+            else:
+                delivery_region = 'kerala'
         else:
             # Fallback when only delivery_region/address is passed
             delivery_region = determine_delivery_region(pincode=None, delivery_region=requested_region, address=address)

@@ -627,6 +627,37 @@ class CheckoutShippingIntegrationTests(TestCase):
         self.assertEqual(order.delivery_region, 'outside_kerala')
         self.assertEqual(float(order.shipping_fee), 95.0)
 
+    @patch('store.views.get_razorpay_client')
+    def test_outside_kerala_pincode_forces_mandatory_95_even_if_user_requests_kerala_rate(self, mock_get_client):
+        """User outside Kerala has no option to select Kerala rate; backend strictly enforces mandatory ₹95 fee."""
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_tamper_attempt', 'amount': 39500}
+        mock_get_client.return_value = mock_client
+
+        CartItem.objects.create(user=self.user, product=self.ring_product, quantity=1)
+
+        # Attempt to submit an outside-Kerala PIN with 'delivery_region': 'kerala'
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Sneaky Buyer',
+            'phone_number': '9876543210',
+            'pincode': '560001', # Bengaluru PIN
+            'city': 'Bengaluru',
+            'shipping_address': 'Brigade Road, Bengaluru',
+            'delivery_region': 'kerala', # Trying to cheat inside Kerala rate
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        # Mandatory ₹95 applied regardless of requested 'kerala' region!
+        self.assertEqual(data['shipping_fee'], 95.0)
+        self.assertEqual(data['delivery_region'], 'outside_kerala')
+        self.assertEqual(data['total'], 395.0)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(order.delivery_region, 'outside_kerala')
+        self.assertEqual(float(order.shipping_fee), 95.0)
+
     def test_profile_update_form_pincode_validation(self):
         profile = Profile.objects.get(user=self.user)
         
