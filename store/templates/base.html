@@ -1198,6 +1198,212 @@
         .footer-input-dark::placeholder {
             color: rgba(255, 255, 255, 0.4) !important;
         }
+
+        /* =========================================================
+           Luxury Minimalist 5-Column Product Grid (Reference Design)
+           ========================================================= */
+        .luxury-product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 28px 18px;
+        }
+
+        @media (max-width: 1200px) {
+            .luxury-product-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 24px 14px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .luxury-product-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 20px 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .luxury-product-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px 10px;
+            }
+        }
+
+        .luxury-product-card {
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .luxury-img-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #EAE7E1;
+            background-image: radial-gradient(circle at 50% 50%, #F5F3EF 0%, #E6E2DC 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+        }
+
+        .luxury-img-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .luxury-product-card:hover .luxury-img-frame img {
+            transform: scale(1.05);
+        }
+
+        .luxury-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(23, 22, 20, 0.15);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            pointer-events: none;
+        }
+
+        .luxury-product-card:hover .luxury-card-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .luxury-quickview-hint {
+            align-self: flex-end;
+            background: rgba(23, 22, 20, 0.85);
+            color: #FAF8F5;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .luxury-add-btn {
+            width: 100%;
+            background: #171614;
+            color: #FAF8F5;
+            border: none;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s ease, transform 0.15s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .luxury-add-btn:hover {
+            background: #000000;
+            transform: translateY(-1px);
+        }
+
+        .luxury-badge-soldout {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(23, 22, 20, 0.9);
+            color: #FAF8F5;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        .luxury-badge-sale {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #171614;
+            color: #FAF8F5;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        .luxury-product-info {
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .luxury-product-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #171614;
+            line-height: 1.28;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2em;
+            transition: color 0.2s ease;
+        }
+
+        .luxury-product-card:hover .luxury-product-title {
+            color: #000000;
+        }
+
+        .luxury-product-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .luxury-price {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #171614;
+            letter-spacing: 0.02em;
+        }
+
+        .luxury-price-orig {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #8C867E;
+            text-decoration: line-through;
+        }
+
+        @media (max-width: 576px) {
+            .luxury-card-overlay {
+                opacity: 1;
+                background: transparent;
+                justify-content: flex-end;
+            }
+            .luxury-quickview-hint {
+                display: none;
+            }
+            .luxury-add-btn {
+                padding: 6px 8px;
+                font-size: 0.65rem;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -1301,7 +1507,7 @@
                 <span class="badge bg-dark text-white rounded-pill px-2 py-0" style="font-size: 0.62rem; letter-spacing: 0.08em; background-color: #171614 !important;">CURATED</span>
             </a>
             {% for cat in all_categories %}
-            <a href="{% url 'home' %}#section-{{ cat.slug }}" class="drawer-link drawer-category-link" data-target-section="#section-{{ cat.slug }}" data-cat="{{ cat.slug }}">
+            <a href="{% url 'category_detail' cat.slug %}" class="drawer-link drawer-category-link" data-cat="{{ cat.slug }}">
                 <span>
                     {% if "watch" in cat.slug %}
                         <i class="bi bi-clock me-2"></i>
@@ -1423,10 +1629,10 @@
                 <div class="col-6 col-md-6 col-lg-2">
                     <h6 class="footer-heading">COLLECTIONS</h6>
                         <li><a href="{% url 'home' %}#section-trending"><i class="bi bi-chevron-right small text-white-50"></i> Trending &amp; New</a></li>
-                        <li><a href="{% url 'home' %}#section-chains"><i class="bi bi-chevron-right small text-white-50"></i> Necklaces &amp; Chains</a></li>
-                        <li><a href="{% url 'home' %}#section-bracelets"><i class="bi bi-chevron-right small text-white-50"></i> Bracelets &amp; Cuffs</a></li>
-                        <li><a href="{% url 'home' %}#section-rings"><i class="bi bi-chevron-right small text-white-50"></i> Rings &amp; Accents</a></li>
-                        <li><a href="{% url 'home' %}#section-shades"><i class="bi bi-chevron-right small text-white-50"></i> Shades &amp; Eyewear</a></li>
+                        <li><a href="{% url 'category_detail' 'chains' %}"><i class="bi bi-chevron-right small text-white-50"></i> Necklaces &amp; Chains</a></li>
+                        <li><a href="{% url 'category_detail' 'bracelets' %}"><i class="bi bi-chevron-right small text-white-50"></i> Bracelets &amp; Cuffs</a></li>
+                        <li><a href="{% url 'category_detail' 'rings' %}"><i class="bi bi-chevron-right small text-white-50"></i> Rings &amp; Accents</a></li>
+                        <li><a href="{% url 'category_detail' 'shades' %}"><i class="bi bi-chevron-right small text-white-50"></i> Shades &amp; Eyewear</a></li>
                         <li><a href="{% url 'cart' %}"><i class="bi bi-chevron-right small text-white-50"></i> Shopping Bag</a></li>
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}"><i class="bi bi-chevron-right small text-white-50"></i> My Account</a></li>

@@ -107,6 +107,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'store.middleware.SessionSecurityMiddleware',
 ]
 
 ROOT_URLCONF = 'aashas_store.urls'
@@ -199,15 +200,19 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = media_dir
 
-# Session & Cookie Settings - Concurrent Multi-User Stability
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
-SESSION_SAVE_EVERY_REQUEST = False  # Avoid redundant DB session writes on GET requests to prevent table locks
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Session & Cookie Security Settings - Strict Expiration and Protection
+SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 day maximum session duration
+SESSION_SAVE_EVERY_REQUEST = False  # Avoid redundant DB session writes on GET requests
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Terminate session automatically when browser is closed
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False  # Allows frontend JavaScript to read csrftoken for AJAX
 CSRF_USE_SESSIONS = False
+
+# Idle Inactivity Timeouts (in seconds)
+SESSION_IDLE_TIMEOUT_STAFF = 1800  # 30 minutes idle timeout for staff / admin
+SESSION_IDLE_TIMEOUT_CUSTOMER = 7200  # 2 hours idle timeout for regular members
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -1,0 +1,588 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name|upper }} | ASHAS Official Store{% endblock %}
+{% block meta_description %}Explore our signature {{ category.name }} collection. Premium contemporary statement accessories with fast delivery across India.{% endblock %}
+
+{% block content %}
+<div class="category-page-wrapper py-3 py-md-4">
+    <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1440px;">
+        
+        <!-- Breadcrumbs Navigation -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb luxury-breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">HOME</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name|upper }}</li>
+            </ol>
+        </nav>
+
+        <!-- Category Header -->
+        <div class="category-header-wrap mb-4 pb-3 border-bottom">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+                <div>
+                    <h1 class="category-main-title mb-1">{{ category.name|upper }}</h1>
+                    <p class="category-description text-secondary small mb-0">
+                        {% if category.description %}
+                            {{ category.description }}
+                        {% else %}
+                            Curated statement {{ category.name|lower }} designed with premium durability and signature modern aesthetics.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="category-meta-info d-flex align-items-center gap-2">
+                    <span class="badge luxury-count-badge">{{ products.count }} ITEM{{ products.count|pluralize|upper }}</span>
+                </div>
+            </div>
+
+            <!-- Quick Collection Switcher Pills -->
+            <div class="collection-pills-scroll mt-3 pt-2">
+                <div class="d-flex align-items-center gap-2 overflow-auto pb-1 collection-pills-track">
+                    <a href="{% url 'home' %}" class="collection-pill">
+                        ALL COLLECTIONS
+                    </a>
+                    {% for cat in all_categories %}
+                    <a href="{% url 'category_detail' cat.slug %}" class="collection-pill {% if cat.slug == category.slug %}active{% endif %}">
+                        {{ cat.name|upper }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Minimalist Product Grid (Exact Reference Image Design) -->
+        {% if products %}
+        <div class="luxury-product-grid">
+            {% for product in products %}
+            <div class="luxury-product-card"
+                 data-id="{{ product.id }}"
+                 data-name="{{ product.name }}"
+                 data-price="RS. {{ product.current_price|floatformat:2 }}"
+                 data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
+                 data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
+                 data-cat="{{ category.name }}"
+                 data-stock="{{ product.stock }}"
+                 data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                 data-add-url="{% url 'add_to_cart' product.id %}">
+                
+                <!-- Square 1:1 Image Frame with Neutral Stone Backing -->
+                <div class="luxury-img-frame product-clickable-area" role="button" tabindex="0" title="Quick view {{ product.name }}" aria-label="Quick view {{ product.name }}">
+                    {% if product.display_image %}
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                    {% else %}
+                        <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
+                    {% endif %}
+
+                    {% if product.stock <= 0 %}
+                        <span class="luxury-badge-soldout">SOLD OUT</span>
+                    {% elif product.discount_price %}
+                        <span class="luxury-badge-sale">SALE</span>
+                    {% endif %}
+
+                    <!-- Discreet Hover Action Bar -->
+                    <div class="luxury-card-overlay">
+                        <span class="luxury-quickview-hint">
+                            <i class="bi bi-eye"></i> Quick View
+                        </span>
+                        {% if product.stock > 0 %}
+                        <button type="button" class="luxury-add-btn ajax-add-to-bag"
+                                data-product-id="{{ product.id }}"
+                                data-product-name="{{ product.name }}"
+                                data-add-url="{% url 'add_to_cart' product.id %}"
+                                aria-label="Add {{ product.name }} to bag">
+                            <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Product Details Block (Reference Design: Uppercase Name + RS. Price) -->
+                <div class="luxury-product-info">
+                    <h2 class="luxury-product-title product-clickable-area" role="button" tabindex="0" title="{{ product.name }}">
+                        {{ product.name|upper }}
+                    </h2>
+                    <div class="luxury-product-price-row">
+                        <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
+                        {% if product.discount_price %}
+                            <span class="luxury-price-orig">RS. {{ product.price|floatformat:2 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="py-5 text-center my-5">
+            <div class="p-5 rounded-4 mx-auto" style="max-width: 480px; background: #FAF8F5; border: 1px solid rgba(28, 25, 23, 0.08);">
+                <i class="bi bi-box-seam fs-1 text-muted d-block mb-3"></i>
+                <h4 class="fw-bold tracking-wider text-dark mb-2" style="letter-spacing: 0.08em;">NEW ARRIVALS DROPPING SOON</h4>
+                <p class="text-secondary small mb-4">Our artisans are crafting new pieces for the {{ category.name }} collection. Discover our other statement pieces in the meantime.</p>
+                <a href="{% url 'home' %}" class="btn btn-dark rounded-pill px-4 py-2 small fw-bold text-uppercase" style="letter-spacing: 0.08em; background: #171614;">
+                    Explore All Collections
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Product Quick View Modal (Bootstrap 5) -->
+<div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
+            <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
+                <span class="badge" id="qvCategoryBadge" style="background: #F7F5F0; color: #635F59; border: 1px solid rgba(28, 25, 23, 0.1); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px;">COLLECTION</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2 pb-4 px-4 text-center">
+                <div class="qv-img-container" style="width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: #F7F5F0; border: 1px solid rgba(28, 25, 23, 0.06); margin-bottom: 1.25rem;">
+                    <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h4 class="fw-bold tracking-wide mb-2 text-dark" id="qvTitle" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;"></h4>
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                    <span class="fs-4 fw-bold text-dark" id="qvPrice" style="font-family: 'Outfit', sans-serif;"></span>
+                    <span class="luxury-price-orig" id="qvOrigPrice"></span>
+                </div>
+                <p class="text-secondary small mb-4" id="qvDesc" style="line-height: 1.6; font-size: 0.85rem;"></p>
+                <button type="button" class="btn w-100 py-3 fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2" id="qvAddBagBtn" style="background: #171614; color: #FAF8F5; border: 1.5px solid #171614; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.82rem; letter-spacing: 0.12em;">
+                    <i class="bi bi-bag-plus"></i> <span>Add to Bag</span>
+                </button>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" id="qvWhatsappBtn" style="font-size: 0.82rem; border-radius: 8px; border: 1.5px solid rgba(37, 211, 102, 0.5); color: #1B8341; background: #F0FDF4; text-decoration: none;">
+                    <i class="bi bi-whatsapp"></i> <span>Enquire on WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Luxury Minimalist 5-Column Grid Styling (Matches Reference Image) */
+.category-page-wrapper {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    min-height: 75vh;
+}
+
+.luxury-breadcrumb {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+}
+
+.luxury-breadcrumb a {
+    color: #8C867E;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.luxury-breadcrumb a:hover {
+    color: #171614;
+}
+
+.luxury-breadcrumb .active {
+    color: #171614;
+}
+
+.category-main-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #171614;
+}
+
+.luxury-count-badge {
+    background: #FAF8F5;
+    color: #171614;
+    border: 1px solid rgba(23, 22, 20, 0.14);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border-radius: 9999px;
+}
+
+/* Collection Switcher Pills */
+.collection-pills-scroll {
+    border-top: 1px solid rgba(23, 22, 20, 0.06);
+}
+
+.collection-pills-track::-webkit-scrollbar {
+    display: none;
+}
+.collection-pills-track {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.collection-pill {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #635F59;
+    background: #FAF8F5;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    border: 1px solid rgba(23, 22, 20, 0.08);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.collection-pill:hover {
+    color: #171614;
+    border-color: rgba(23, 22, 20, 0.25);
+    background: #F4F0EB;
+}
+
+.collection-pill.active {
+    background: #171614;
+    color: #FAF8F5;
+    border-color: #171614;
+}
+
+/* 5-Column Responsive Minimalist Product Grid */
+.luxury-product-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 28px 18px;
+}
+
+@media (max-width: 1200px) {
+    .luxury-product-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 24px 14px;
+    }
+}
+
+@media (max-width: 992px) {
+    .luxury-product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .luxury-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 10px;
+    }
+}
+
+/* Product Card Minimalist Architecture */
+.luxury-product-card {
+    background: transparent;
+    display: flex;
+    flex-column: column;
+    position: relative;
+    cursor: pointer;
+}
+
+/* 1:1 Aspect Ratio Image Frame with Neutral Stone Backing */
+.luxury-img-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #EAE7E1;
+    background-image: radial-gradient(circle at 50% 50%, #F5F3EF 0%, #E6E2DC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.luxury-img-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-product-card:hover .luxury-img-frame img {
+    transform: scale(1.05);
+}
+
+/* Subtle Hover Action Overlay */
+.luxury-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(23, 22, 20, 0.15);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    pointer-events: none;
+}
+
+.luxury-product-card:hover .luxury-card-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.luxury-quickview-hint {
+    align-self: flex-end;
+    background: rgba(23, 22, 20, 0.85);
+    color: #FAF8F5;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.luxury-add-btn {
+    width: 100%;
+    background: #171614;
+    color: #FAF8F5;
+    border: none;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.luxury-add-btn:hover {
+    background: #000000;
+    transform: translateY(-1px);
+}
+
+/* Reference Image Badges */
+.luxury-badge-soldout {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(23, 22, 20, 0.9);
+    color: #FAF8F5;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    z-index: 2;
+}
+
+.luxury-badge-sale {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #171614;
+    color: #FAF8F5;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    z-index: 2;
+}
+
+/* Product Info - Exact Layout From Image */
+.luxury-product-info {
+    margin-top: 8px;
+    text-align: left;
+}
+
+.luxury-product-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #171614;
+    line-height: 1.28;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2em;
+    transition: color 0.2s ease;
+}
+
+.luxury-product-card:hover .luxury-product-title {
+    color: #000000;
+}
+
+.luxury-product-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.luxury-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #171614;
+    letter-spacing: 0.02em;
+}
+
+.luxury-price-orig {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #8C867E;
+    text-decoration: line-through;
+}
+
+@media (max-width: 576px) {
+    .luxury-card-overlay {
+        opacity: 1;
+        background: transparent;
+        justify-content: flex-end;
+    }
+    .luxury-quickview-hint {
+        display: none;
+    }
+    .luxury-add-btn {
+        padding: 6px 8px;
+        font-size: 0.65rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick View Modal
+    const qvModalEl = document.getElementById('productQuickViewModal');
+    const bsQvModal = qvModalEl ? bootstrap.Modal.getOrCreateInstance(qvModalEl) : null;
+    const qvBadge = document.getElementById('qvCategoryBadge');
+    const qvImage = document.getElementById('qvImage');
+    const qvTitle = document.getElementById('qvTitle');
+    const qvPrice = document.getElementById('qvPrice');
+    const qvOrigPrice = document.getElementById('qvOrigPrice');
+    const qvDesc = document.getElementById('qvDesc');
+    const qvAddBagBtn = document.getElementById('qvAddBagBtn');
+    let currentQvProduct = null;
+
+    document.querySelectorAll('.product-clickable-area').forEach(trigger => {
+        const card = trigger.closest('.luxury-product-card');
+        if (!card) return;
+
+        trigger.addEventListener('click', function(e) {
+            // Ignore if clicked directly on the add button
+            if (e.target.closest('.ajax-add-to-bag')) return;
+
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = card.getAttribute('data-price');
+            const origPrice = card.getAttribute('data-orig-price') || '';
+            const desc = card.getAttribute('data-desc') || '';
+            const cat = card.getAttribute('data-cat') || 'COLLECTION';
+            const img = card.getAttribute('data-image') || '';
+            const addUrl = card.getAttribute('data-add-url');
+            const stock = parseInt(card.getAttribute('data-stock') || '1', 10);
+
+            currentQvProduct = { id, name, addUrl, stock };
+
+            if (qvBadge) qvBadge.innerText = cat.toUpperCase();
+            if (qvImage) {
+                qvImage.src = img;
+                qvImage.alt = name;
+            }
+            if (qvTitle) qvTitle.innerText = name;
+            if (qvPrice) qvPrice.innerText = price;
+            if (qvOrigPrice) {
+                qvOrigPrice.innerText = origPrice;
+                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
+            }
+            if (qvDesc) qvDesc.innerText = desc;
+
+            if (qvAddBagBtn) {
+                if (stock <= 0) {
+                    qvAddBagBtn.disabled = true;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                } else {
+                    qvAddBagBtn.disabled = false;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                }
+            }
+
+            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
+            if (qvWhatsappBtn) {
+                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
+                qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
+            }
+
+            if (bsQvModal) bsQvModal.show();
+        });
+    });
+
+    if (qvAddBagBtn) {
+        qvAddBagBtn.addEventListener('click', function() {
+            if (!currentQvProduct || currentQvProduct.stock <= 0) return;
+            handleAjaxAddToCart(qvAddBagBtn, currentQvProduct.addUrl, currentQvProduct.name);
+        });
+    }
+
+    // Direct card Add to Bag
+    document.querySelectorAll('.ajax-add-to-bag').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const url = this.getAttribute('data-add-url');
+            const name = this.getAttribute('data-product-name') || 'Item';
+            handleAjaxAddToCart(this, url, name);
+        });
+    });
+
+    async function handleAjaxAddToCart(btn, url, productName) {
+        if (!url) return;
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const res = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (window.updateNavbarCartCount && data.cart_item_count !== undefined) {
+                    window.updateNavbarCartCount(data.cart_item_count);
+                }
+
+                btn.innerHTML = '<i class="bi bi-check2"></i> Added';
+                btn.style.backgroundColor = '#25D366';
+                btn.style.color = '#FFFFFF';
+
+                if (window.showAshasToast) {
+                    window.showAshasToast('Added to Bag', `${productName} added to your shopping bag.`, '<i class="bi bi-bag-check-fill text-success"></i>', '{% url "cart" %}', 'View Bag');
+                }
+
+                setTimeout(() => {
+                    btn.innerHTML = origContent;
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                    btn.disabled = false;
+                }, 2000);
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                btn.innerHTML = '<i class="bi bi-exclamation-circle"></i>';
+                if (window.showAshasToast) {
+                    window.showAshasToast('Stock Limit', errData.message || 'Unable to add item.', '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
+                }
+                setTimeout(() => {
+                    btn.innerHTML = origContent;
+                    btn.disabled = false;
+                }, 2500);
+            }
+        } catch (err) {
+            window.location.href = url;
+        }
+    }
+});
+</script>
+{% endblock %}

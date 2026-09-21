@@ -3,6 +3,16 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('category/<slug:slug>/', views.category_detail, name='category_detail'),
+    path('rings/', views.category_detail, {'slug': 'rings'}, name='rings_page'),
+    path('ring.html', views.category_detail, {'slug': 'rings'}, name='ring_html'),
+    path('rings.html', views.category_detail, {'slug': 'rings'}, name='rings_html'),
+    path('shades/', views.category_detail, {'slug': 'shades'}, name='shades_page'),
+    path('chains/', views.category_detail, {'slug': 'chains'}, name='chains_page'),
+    path('watches/', views.category_detail, {'slug': 'watches'}, name='watches_page'),
+    path('bracelets/', views.category_detail, {'slug': 'bracelets'}, name='bracelets_page'),
+    path('caps/', views.category_detail, {'slug': 'caps'}, name='caps_page'),
+    path('belts/', views.category_detail, {'slug': 'belts'}, name='belts_page'),
     path('ping/', views.ping_view, name='ping'),
     path('health/', views.ping_view, name='health'),
     path('cron/', views.ping_view, name='cron'),

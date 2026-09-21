@@ -5,7 +5,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -155,7 +155,7 @@ def sitemap_xml_view(request):
     ]
     for cat in Category.objects.all():
         urls.append({
-            'loc': f'https://ashasstore.in/#section-{cat.slug}',
+            'loc': f'https://ashasstore.in/category/{cat.slug}/',
             'priority': '0.8',
             'changefreq': 'weekly'
         })
@@ -199,6 +199,26 @@ def home(request):
         'trending_products': trending_products
     })
 
+def category_detail(request, slug):
+    clean_slug = slug.replace('.html', '').strip().lower()
+    cat = Category.objects.filter(slug__iexact=clean_slug).first()
+    if not cat:
+        alt_slug = clean_slug.rstrip('s') if clean_slug.endswith('s') else f"{clean_slug}s"
+        cat = Category.objects.filter(slug__iexact=alt_slug).first()
+    if not cat:
+        cat = Category.objects.filter(name__iexact=clean_slug).first()
+    if not cat:
+        raise Http404(f"Category '{slug}' not found.")
+
+    products = cat.products.all().order_by('-created_at')
+    categories = Category.objects.all()
+    return render(request, 'category_detail.html', {
+        'category': cat,
+        'products': products,
+        'categories': categories,
+        'all_categories': categories,
+    })
+
 # --- Auth Views ---
 def register_view(request):
     if request.user.is_authenticated:
@@ -218,6 +238,8 @@ def register_view(request):
             # Preserve guest cart items for newly registered user
             guest_cart = dict(request.session.get('cart', {}))
             login(request, user)
+            request.session.set_expiry(0)  # Browser-close expiry by default
+            request.session['_last_activity'] = timezone.now().timestamp()
             if guest_cart:
                 for pid_str, qty in guest_cart.items():
                     try:
@@ -239,12 +261,22 @@ def register_view(request):
     return render(request, 'register.html', {'form': form, 'next_url': next_url})
 
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')
     next_url = request.POST.get('next') or request.GET.get('next') or ''
+    # Validate safe internal redirect target
+    safe_next = next_url if (next_url and next_url.startswith('/') and not next_url.startswith('//')) else ''
+
+    if request.user.is_authenticated:
+        if safe_next and safe_next != request.path:
+            return redirect(safe_next)
+        return redirect('home')
+
+    is_expired = request.GET.get('expired') == '1'
+    is_admin_target = bool(safe_next and any(adm in safe_next.lower() for adm in ['admin', 'adminpp']))
+
     if request.method == 'POST':
         u = (request.POST.get('username') or '').strip()
         p = request.POST.get('password') or ''
+        remember_me = request.POST.get('remember_me')
 
         # Support sign-in with registered email address
         if '@' in u:
@@ -255,13 +287,48 @@ def login_view(request):
         user = authenticate(request, username=u, password=p)
         if user:
             login(request, user)
-            target = next_url if (next_url and next_url.startswith('/') and not next_url.startswith('//')) else 'home'
-            return redirect(target)
-        return render(request, 'login.html', {'error': 'Invalid Username or Password.', 'next_url': next_url})
-    return render(request, 'login.html', {'next_url': next_url})
+
+            # Security: Staff & Superusers ALWAYS expire on browser close & have strict idle timeout
+            if user.is_staff or user.is_superuser:
+                request.session.set_expiry(0)  # Session strictly terminates when browser is closed
+            else:
+                # Regular customers can opt for Remember Me
+                if remember_me in ('1', 'on', 'true', True):
+                    request.session.set_expiry(60 * 60 * 24 * 14)  # 14 days
+                else:
+                    request.session.set_expiry(0)  # Closes on browser exit by default
+
+            # Initialize activity timestamp for idle security tracking
+            request.session['_last_activity'] = timezone.now().timestamp()
+
+            # Handle redirection & authorization
+            if safe_next:
+                if any(adm in safe_next.lower() for adm in ['admin', 'adminpp']) and not (user.is_staff or user.is_superuser):
+                    messages.warning(request, f"Signed in as {user.username}. Note: Staff privileges are required to access the Admin Portal.")
+                    return redirect('home')
+                return redirect(safe_next)
+
+            if user.is_staff or user.is_superuser:
+                return redirect('adminpp_dashboard')
+            return redirect('home')
+
+        return render(request, 'login.html', {
+            'error': 'Invalid username or password. Please verify your credentials and try again.',
+            'next_url': safe_next,
+            'is_expired': is_expired,
+            'is_admin_target': is_admin_target,
+        })
+
+    return render(request, 'login.html', {
+        'next_url': safe_next,
+        'is_expired': is_expired,
+        'is_admin_target': is_admin_target,
+    })
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
+    messages.info(request, "You have been safely signed out.")
     return redirect('home')
 
 @login_required

@@ -2,6 +2,7 @@ import json
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 from store.models import Category, Product, Order, OrderItem, Profile, CartItem
 from unittest.mock import patch, MagicMock
 from store.forms import ProductForm, RegistrationForm
@@ -528,6 +529,189 @@ class CheckoutShippingIntegrationTests(TestCase):
         order = Order.objects.get(id=data['db_order_id'])
         self.assertEqual(float(order.shipping_fee), 1.0)
         self.assertEqual(float(order.total_price), 700.0)
+
+
+class SessionSecurityTests(TestCase):
+    def setUp(self):
+        self.password = "SecTestPass123!"
+        self.customer_user = User.objects.create_user(
+            username="customer_user",
+            email="customer@example.com",
+            password=self.password
+        )
+        self.staff_user = User.objects.create_user(
+            username="staff_user",
+            email="staff@example.com",
+            password=self.password,
+            is_staff=True
+        )
+
+    def test_settings_session_expire_at_browser_close(self):
+        """Settings must enforce session termination upon browser closure."""
+        from django.conf import settings
+        self.assertTrue(settings.SESSION_EXPIRE_AT_BROWSER_CLOSE)
+        self.assertEqual(settings.SESSION_IDLE_TIMEOUT_STAFF, 1800)
+        self.assertEqual(settings.SESSION_IDLE_TIMEOUT_CUSTOMER, 7200)
+
+    def test_login_page_renders_clean_platform(self):
+        """Login page must render the luxury platform with member access and staff tabs."""
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "MEMBER ACCESS")
+        self.assertContains(response, "Staff / Admin")
+        self.assertContains(response, "Protected by Session Security")
+
+    def test_login_page_renders_expired_notice(self):
+        """Visiting login with ?expired=1 must render the session expired alert."""
+        response = self.client.get(f"{reverse('login')}?expired=1")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Session Expired")
+        self.assertContains(response, "Your previous session was closed due to inactivity or closing your browser.")
+
+    def test_login_page_renders_admin_target_notice(self):
+        """Visiting login with next targeting admin portal must render administrative verification notice."""
+        response = self.client.get(f"{reverse('login')}?next=/adminpp/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Administrative Verification")
+        self.assertContains(response, "Staff credentials with administrative privileges are required")
+
+    def test_staff_login_enforces_browser_close_expiry(self):
+        """When staff logs in, session must strictly expire on browser close."""
+        response = self.client.post(reverse('login'), {
+            'username': 'staff_user',
+            'password': self.password,
+        })
+        self.assertEqual(response.status_code, 302)
+        session = self.client.session
+        self.assertTrue(session.get_expire_at_browser_close())
+        self.assertIn('_last_activity', session)
+
+    def test_customer_login_remember_me_options(self):
+        """Customer without remember_me expires on browser close; with remember_me lasts longer."""
+        # Without remember_me
+        self.client.post(reverse('login'), {
+            'username': 'customer_user',
+            'password': self.password,
+        })
+        self.assertTrue(self.client.session.get_expire_at_browser_close())
+        self.client.logout()
+
+        # With remember_me
+        self.client.post(reverse('login'), {
+            'username': 'customer_user',
+            'password': self.password,
+            'remember_me': 'on',
+        })
+        self.assertFalse(self.client.session.get_expire_at_browser_close())
+
+    def test_middleware_idle_timeout_auto_logouts_staff(self):
+        """Staff inactive for more than 30 minutes (1800s) must be logged out and redirected."""
+        self.client.post(reverse('login'), {
+            'username': 'staff_user',
+            'password': self.password,
+        })
+        # Fast-forward last_activity by 1900 seconds in the past
+        s = self.client.session
+        s['_last_activity'] = timezone.now().timestamp() - 1900
+        s.save()
+
+        # Next request must detect timeout, log user out, and redirect to login?expired=1
+        response = self.client.get(reverse('profile'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/?expired=1', response.url)
+
+        # Confirm session is flushed and user is no longer logged in
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_middleware_idle_timeout_ajax_response(self):
+        """AJAX request on expired session must return 401 with JSON session_expired."""
+        self.client.post(reverse('login'), {
+            'username': 'staff_user',
+            'password': self.password,
+        })
+        s = self.client.session
+        s['_last_activity'] = timezone.now().timestamp() - 1900
+        s.save()
+
+        response = self.client.get(reverse('profile'), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 401)
+        data = response.json()
+        self.assertEqual(data.get('status'), 'session_expired')
+
+    def test_logout_flushes_session(self):
+        """Logging out must completely flush session and redirect safely."""
+        self.client.post(reverse('login'), {
+            'username': 'customer_user',
+            'password': self.password,
+        })
+        self.assertIn('_auth_user_id', self.client.session)
+
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_non_staff_logging_into_admin_target_redirects_safely(self):
+        """Non-staff member logging in targeting admin portal must be safely redirected with notice."""
+        response = self.client.post(f"{reverse('login')}?next=/adminpp/", {
+            'username': 'customer_user',
+            'password': self.password,
+            'next': '/adminpp/',
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Staff privileges are required to access the Admin Portal")
+
+
+class CategoryPagesAndCardDesignTests(TestCase):
+    def setUp(self):
+        self.cat_rings = Category.objects.create(name="Rings", slug="rings")
+        self.cat_shades = Category.objects.create(name="Shades", slug="shades")
+        self.ring_prod = Product.objects.create(
+            category=self.cat_rings,
+            name="Vampire Bat Ring",
+            price=399.00,
+            discount_price=299.00,
+            stock=5,
+            is_trending=True
+        )
+        self.shade_prod = Product.objects.create(
+            category=self.cat_shades,
+            name="Futuristic Y2K Shades",
+            price=499.00,
+            stock=3,
+            is_trending=False
+        )
+
+    def test_category_detail_view_renders_products(self):
+        """Dedicated category page renders products with 5-col minimalist cards and RS. pricing."""
+        response = self.client.get(reverse('category_detail', kwargs={'slug': 'rings'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'category_detail.html')
+        self.assertContains(response, "RINGS")
+        self.assertContains(response, "VAMPIRE BAT RING")
+        self.assertContains(response, "RS. 299.00")
+        self.assertContains(response, "luxury-product-grid")
+
+    def test_category_detail_404_for_invalid_slug(self):
+        """Invalid category slug must return 404."""
+        response = self.client.get(reverse('category_detail', kwargs={'slug': 'unknown-cat'}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_home_view_shows_trending_and_routes_categories_to_pages(self):
+        """Homepage must show Trending items and link collections to dedicated pages without rendering full stacked category lists."""
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+        # Trending section must be present
+        self.assertContains(response, "TRENDING NOW")
+        self.assertContains(response, "VAMPIRE BAT RING")
+        self.assertContains(response, "RS. 299.00")
+        # Category links must route to dedicated pages
+        self.assertContains(response, reverse('category_detail', kwargs={'slug': 'rings'}))
+        self.assertContains(response, reverse('category_detail', kwargs={'slug': 'shades'}))
+        # Stacked category product sections must NOT exist on home
+        self.assertNotContains(response, 'id="section-shades"')
+        self.assertNotContains(response, 'id="section-rings"')
+
+
 
 
 
