@@ -1,57 +1,756 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}ASHAS | Official Online Store | Luxury Statement Accessories{% endblock %}
+{% block title %}ASHAS | Official Online Store | Clothing &amp; Statement Accessories{% endblock %}
 {% block meta_description %}Official ASHAS online store. Discover signature rings, shades, cuban chains, watches, and curated statement accessories with fast delivery across India.{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* =========================================================
+       ASHAS Classic Luxury Design System
+       ========================================================= */
+
+    /* Hero Visual Showcase */
+    .hero-section {
+        padding: 0.75rem 0.5rem 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+    }
+
+    /* Mannequin Interactive Container */
+    .mannequin-container {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        touch-action: manipulation;
+        aspect-ratio: 3 / 4;
+        box-shadow: 0 14px 32px -8px rgba(28, 25, 23, 0.08);
+    }
+
+    @media (max-width: 575.98px) {
+        .mannequin-container {
+            max-width: 320px;
+            border-radius: 14px;
+        }
+    }
+
+    .mannequin-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+        transform-origin: 50% 50%;
+        transform: scale(1);
+    }
+
+    /* Mannequin Hotspots */
+    .hotspot {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+        z-index: 15;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .hotspot-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(23, 22, 20, 0.75);
+        border: 1.5px solid #FFFFFF;
+        animation: pulse-ring 2.2s infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(28, 25, 23, 0.25);
+    }
+
+    .hotspot-dot::after {
+        content: '';
+        width: 4px;
+        height: 4px;
+        background: #FFFFFF;
+        border-radius: 50%;
+        display: block;
+    }
+
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(23, 22, 20, 0.5); }
+        70% { box-shadow: 0 0 0 8px rgba(23, 22, 20, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(23, 22, 20, 0); }
+    }
+
+    /* Floating Item Popover Card */
+    .hover-card {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 10px 16px;
+        border-radius: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        width: calc(100% - 24px);
+        max-width: 310px;
+        text-align: center;
+        z-index: 25;
+        box-shadow: 0 14px 32px rgba(28, 25, 23, 0.12);
+    }
+
+    .hover-card.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .hover-card h6 {
+        color: #171614 !important;
+    }
+
+    .hover-card #cardActionBtn {
+        background: #171614 !important;
+        color: #FAF8F5 !important;
+        border: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .hover-card #cardActionBtn:hover {
+        background: #2E2B26 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* =========================================================
+       Minimalist Category Showcase
+       ========================================================= */
+    .blactify-category-showcase {
+        width: 100%;
+        max-width: 1100px;
+        margin: 1.25rem auto 2.25rem;
+        padding: 0 1rem;
+    }
+
+    .category-showcase-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .aesthetic-section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.78rem, 2vw, 0.92rem);
+        font-weight: 700;
+        letter-spacing: 0.32em;
+        color: #171614;
+        text-transform: uppercase;
+        margin: 0;
+        text-align: center;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px 8px;
+        justify-content: center;
+        align-items: start;
+    }
+
+    @media (max-width: 575.98px) {
+        .blactify-category-showcase {
+            margin: 0.75rem auto 1.5rem;
+            padding: 0 0.5rem;
+        }
+        .category-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 6px;
+        }
+        .category-thumb-wrapper {
+            width: clamp(60px, 19vw, 80px);
+            height: clamp(60px, 19vw, 80px);
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .trending-thumb-icon {
+            font-size: clamp(1.1rem, 3.2vw, 1.45rem);
+        }
+        .category-label {
+            margin-top: 5px;
+            font-size: clamp(0.55rem, 2vw, 0.68rem);
+            letter-spacing: 0.08em;
+            line-height: 1.15;
+            white-space: normal;
+            word-break: break-word;
+            max-width: 100%;
+        }
+    }
+
+    @media (min-width: 576px) and (max-width: 991.98px) {
+        .category-grid {
+            grid-template-columns: repeat(5, 1fr);
+            gap: 24px 16px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .category-grid {
+            grid-template-columns: repeat(9, 1fr);
+            gap: 20px 12px;
+        }
+    }
+
+    .category-item-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .category-item-link:hover {
+        transform: translateY(-4px);
+    }
+
+    .category-thumb-wrapper {
+        width: clamp(76px, 22vw, 110px);
+        height: clamp(76px, 22vw, 110px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #FFFFFF;
+        border-radius: 14px;
+        padding: 8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .category-item-link:hover .category-thumb-wrapper {
+        box-shadow: 0 10px 24px rgba(28, 25, 23, 0.1);
+        border-color: #171614;
+        transform: translateY(-2px) scale(1.02);
+    }
+
+    .category-item-trending .category-thumb-wrapper {
+        background: #171614;
+        border-color: #171614;
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.08);
+    }
+
+    .category-item-trending:hover .category-thumb-wrapper {
+        background: #2B2824;
+        border-color: #2B2824;
+        box-shadow: 0 10px 24px rgba(28, 25, 23, 0.16);
+        transform: translateY(-2px) scale(1.02);
+    }
+
+    .trending-thumb-icon {
+        font-size: clamp(1.4rem, 3.8vw, 1.85rem);
+        color: #FAF8F5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.25s ease;
+    }
+
+    .category-item-trending:hover .trending-thumb-icon {
+        transform: scale(1.08);
+        color: #FFFFFF;
+    }
+
+    .category-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .category-item-link:hover .category-thumb-img {
+        transform: scale(1.08);
+    }
+
+    .category-label {
+        margin-top: 10px;
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.68rem, 2vw, 0.78rem);
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: #635F59;
+        text-transform: uppercase;
+        text-align: center;
+        transition: color 0.2s ease, letter-spacing 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .category-item-link:hover .category-label {
+        color: #171614;
+        letter-spacing: 0.24em;
+    }
+
+    /* =========================================================
+       Trending Section & Horizontal Scroll Track
+       ========================================================= */
+    .category-section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        scroll-margin-top: calc(var(--nav-height) + 20px);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+        padding-bottom: 0.6rem;
+        margin-bottom: 1rem;
+        gap: 0.5rem;
+    }
+
+    .section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.92rem, 2.4vw, 1.2rem);
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        margin: 0;
+        text-transform: uppercase;
+        color: #171614;
+    }
+
+    .section-count {
+        font-size: 0.68rem;
+        color: #8C867E;
+        background: transparent;
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        padding: 1px 7px;
+        border-radius: 9999px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* Horizontal Product Carousel Track */
+    .product-scroll-track {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        gap: 14px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 6px 2px 16px 2px;
+    }
+
+    .product-scroll-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .product-scroll-item {
+        flex: 0 0 clamp(165px, 44vw, 220px);
+        max-width: 220px;
+        min-width: 155px;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 576px) {
+        .product-scroll-item {
+            flex: 0 0 clamp(200px, 30vw, 240px);
+            max-width: 240px;
+        }
+        .product-scroll-track {
+            gap: 18px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .product-scroll-item {
+            flex: 0 0 clamp(220px, 22vw, 260px);
+            max-width: 260px;
+        }
+        .product-scroll-track {
+            gap: 22px;
+        }
+    }
+
+    .scroll-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-color: rgba(28, 25, 23, 0.16) !important;
+        color: #171614 !important;
+        background: #FFFFFF;
+        transition: all 0.2s ease;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.05);
+    }
+
+    .scroll-btn:hover {
+        background: #171614 !important;
+        color: #FAF8F5 !important;
+        border-color: #171614 !important;
+        transform: scale(1.06);
+    }
+
+    /* Product Card Specifications - Classic Luxury Aesthetic */
+    .product-card {
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.09);
+        border-radius: 12px;
+        padding: 0.75rem !important;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(28, 25, 23, 0.03);
+    }
+
+    @media (min-width: 768px) {
+        .product-card {
+            padding: 0.95rem !important;
+            border-radius: 12px;
+        }
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(28, 25, 23, 0.24);
+        box-shadow: 0 16px 36px -6px rgba(28, 25, 23, 0.09), 0 2px 8px rgba(28, 25, 23, 0.03);
+    }
+
+    .product-img-wrapper {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #F7F5F0;
+        border: 1px solid rgba(28, 25, 23, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .product-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .product-card:hover .product-img-wrapper img {
+        transform: scale(1.06);
+    }
+
+    /* Classic Quick View Hover Hint (Desktop) */
+    .product-quick-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        background: rgba(23, 22, 20, 0.88);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #FAF8F5;
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+        z-index: 4;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card:hover .product-quick-hint {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .product-quick-hint {
+            display: none;
+        }
+    }
+
+    /* Category Subtitle */
+    .product-category-sub {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8C867E;
+        margin-top: 0.55rem;
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-name {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+        font-weight: 600;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.7em;
+        margin-bottom: 0.35rem;
+        color: #171614;
+        transition: color 0.2s ease;
+    }
+
+    .product-card:hover .product-name {
+        color: #38342E;
+    }
+
+    .product-price {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+        font-weight: 700;
+        color: #171614;
+        letter-spacing: -0.01em;
+    }
+
+    .product-price-orig {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #9C968E;
+        text-decoration: line-through;
+    }
+
+    .badge-sale {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #171614;
+        color: #FAF8F5;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        text-transform: uppercase;
+        z-index: 3;
+    }
+
+    .badge-trending-classic {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: #171614;
+        color: #FAF8F5;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .btn-add-cart {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.74rem !important;
+        font-weight: 700 !important;
+        padding: 8px 10px !important;
+        border-radius: 6px !important;
+        letter-spacing: 0.1em;
+        border: 1.5px solid #171614 !important;
+        color: #171614 !important;
+        background: #FFFFFF !important;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        text-transform: uppercase;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 1px 3px rgba(28, 25, 23, 0.05);
+    }
+
+    .btn-add-cart:hover, .btn-add-cart:active {
+        background: #171614 !important;
+        color: #FAF8F5 !important;
+        border-color: #171614 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(23, 22, 20, 0.18) !important;
+    }
+
+    .btn-add-cart:disabled, .btn-add-cart.btn-sold-out {
+        background: #F4F0EB !important;
+        color: #8C867E !important;
+        border: 1px solid rgba(28, 25, 23, 0.12) !important;
+        border-radius: 6px !important;
+        cursor: not-allowed;
+        opacity: 0.75;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .product-clickable-area {
+        cursor: pointer;
+        outline: none;
+    }
+
+    .product-scroll-track {
+        user-select: none;
+    }
+
+    .product-scroll-track.is-dragging {
+        cursor: grabbing !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="storefront-page py-3 py-md-4">
-    <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1440px;">
-        
-        <!-- =========================================================
-             1. CATEGORY COLLECTIONS SHOWCASE
-             ========================================================= -->
-        <section class="home-collections-section mb-5" aria-label="Browse Collections">
-            <div class="text-center mb-4">
-                <span class="collections-eyebrow">CURATED ACCESSORIES</span>
-                <h1 class="collections-main-title">COLLECTIONS</h1>
-            </div>
+<!-- =========================================================
+     1. HERO INTERACTIVE MODEL SHOWCASE (Hover Zoom & Hotspots)
+     ========================================================= -->
+<section class="hero-section text-center pt-2 pt-md-3 pb-2" aria-label="Interactive Model Showcase">
+    <h1 class="visually-hidden">ASHAS | Official Online Store — Contemporary Clothing &amp; Statement Accessories</h1>
 
-            <!-- Categories Horizontal Grid / Scroll -->
-            <div class="home-category-grid">
-                {% for cat in categories %}
-                <a href="{% url 'category_detail' cat.slug %}" class="home-category-card" title="Explore {{ cat.name }} Collection">
-                    <div class="home-category-thumb">
-                        {% if cat.display_image %}
-                            <img src="{{ cat.display_image }}" alt="{{ cat.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                        {% else %}
-                            <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                        {% endif %}
-                    </div>
-                    <span class="home-category-name">{{ cat.name|upper }}</span>
-                    <span class="home-category-count">{{ cat.products.count }} item{{ cat.products.count|pluralize }}</span>
-                </a>
-                {% endfor %}
-            </div>
-        </section>
+    <div class="mannequin-container" id="mannequinContainer" role="region" aria-label="Interactive Accessories Showcase">
+        <img src="{% static 'images/men1.jpg' %}" alt="ASHAS Signature Model wearing curated statement accessories" class="mannequin-img" id="mannequinImg">
 
-        <!-- =========================================================
-             2. TRENDING SESSION (5-Column Minimalist Design)
-             ========================================================= -->
+        <!-- Interactive Hotspots on Model -->
+        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Caps" data-x="56%" data-y="45%" title="Caps">
+            <div class="hotspot-dot"></div>
+        </div>
+        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Shades" data-x="54%" data-y="48%" title="Shades">
+            <div class="hotspot-dot"></div>
+        </div>
+        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Chains" data-x="50%" data-y="61%" title="Chains">
+            <div class="hotspot-dot"></div>
+        </div>
+        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Bracelets" data-x="21%" data-y="35%" title="Bracelets">
+            <div class="hotspot-dot"></div>
+        </div>
+        <div class="hotspot" style="top: 83%; left: 79%;" data-cat="watches" data-name="Watches" data-x="79%" data-y="83%" title="Watches">
+            <div class="hotspot-dot"></div>
+        </div>
+
+        <!-- Floating Popover Card on Hover -->
+        <div class="hover-card" id="hoverCard">
+            <h6 class="m-0 fw-semibold text-dark" id="cardTitle">Accessory</h6>
+            <button type="button" class="btn btn-sm btn-dark mt-2 px-3 rounded-pill fw-semibold" id="cardActionBtn">
+                Explore Collection <i class="bi bi-arrow-right-short"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     2. COLLECTIONS SHOWCASE (Circular Category Grid)
+     ========================================================= -->
+<section class="blactify-category-showcase" aria-label="Browse Collections">
+    <div class="category-showcase-header">
+        <h2 class="aesthetic-section-title">COLLECTIONS</h2>
+    </div>
+
+    <div class="category-grid" id="blactifyCategoryGrid">
         {% if trending_products %}
-        <section id="section-trending" class="home-trending-section mb-5 pt-2" aria-label="Trending Products">
-            <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom border-secondary border-opacity-10">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-stars text-dark fs-5"></i>
-                    <h2 class="trending-title mb-0">TRENDING NOW</h2>
+        <a href="#section-trending" class="category-item-link category-item-trending" data-cat="trending" title="Trending Collection">
+            <div class="category-thumb-wrapper">
+                <div class="trending-thumb-icon">
+                    <i class="bi bi-stars"></i>
                 </div>
-                <span class="badge luxury-count-badge">{{ trending_products.count }} ITEM{{ trending_products.count|pluralize|upper }}</span>
             </div>
+            <span class="category-label">Trending</span>
+        </a>
+        {% endif %}
+        {% for cat in categories %}
+        <a href="{% url 'category_detail' cat.slug %}" class="category-item-link" data-cat="{{ cat.slug }}" title="Explore {{ cat.name }} Collection">
+            <div class="category-thumb-wrapper">
+                {% if cat.display_image %}
+                    <img src="{{ cat.display_image }}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                {% else %}
+                    <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                {% endif %}
+            </div>
+            <span class="category-label">{{ cat.name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
 
-            <!-- 5-Column Minimalist Product Grid (Exact Reference Image Design) -->
-            <div class="luxury-product-grid">
-                {% for product in trending_products %}
-                <div class="luxury-product-card"
+<!-- =========================================================
+     3. TRENDING SESSION (Interactive Carousel with Classic Hover)
+     ========================================================= -->
+<div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px;">
+    {% if trending_products %}
+    <section id="section-trending" class="category-section mb-5 pt-3" aria-label="Trending Products">
+        <div class="section-header">
+            <div class="min-w-0 flex-grow-1 pe-2">
+                <div class="section-title-wrap">
+                    <i class="bi bi-stars text-dark" style="font-size: 1.05rem;"></i>
+                    <h2 class="section-title text-truncate">TRENDING NOW</h2>
+                    <span class="section-count">{{ trending_products.count }}</span>
+                </div>
+            </div>
+            {% if trending_products.count > 1 %}
+            <div class="scroll-nav-btns d-flex gap-1 ms-1">
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', -1)" aria-label="Scroll left" title="Scroll left">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', 1)" aria-label="Scroll right" title="Scroll right">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Horizontal Scroll Track for Trending Items -->
+        <div class="product-scroll-track" id="scrollTrack-trending">
+            {% for product in trending_products %}
+            <div class="product-scroll-item">
+                <div class="product-card h-100 d-flex flex-column justify-content-between"
                      data-id="{{ product.id }}"
                      data-name="{{ product.name }}"
                      data-price="RS. {{ product.current_price|floatformat:2 }}"
@@ -61,224 +760,231 @@
                      data-stock="{{ product.stock }}"
                      data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                      data-add-url="{% url 'add_to_cart' product.id %}">
-                    
-                    <!-- Square 1:1 Image Frame with Neutral Stone Backing -->
-                    <div class="luxury-img-frame product-clickable-area" role="button" tabindex="0" title="Quick view {{ product.name }}" aria-label="Quick view {{ product.name }}">
-                        {% if product.display_image %}
-                            <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                        {% else %}
-                            <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
-                        {% endif %}
-
-                        {% if product.stock <= 0 %}
-                            <span class="luxury-badge-soldout">SOLD OUT</span>
-                        {% elif product.discount_price %}
-                            <span class="luxury-badge-sale">SALE</span>
-                        {% endif %}
-
-                        <div class="luxury-card-overlay">
-                            <span class="luxury-quickview-hint">
-                                <i class="bi bi-eye"></i> Quick View
-                            </span>
-                            {% if product.stock > 0 %}
-                            <button type="button" class="luxury-add-btn ajax-add-to-bag"
+                    <div>
+                        <!-- Interactive Preview Area with Hover Zoom -->
+                        <div class="product-clickable-area" role="button" tabindex="0" aria-label="Quick view {{ product.name }}">
+                            <div class="product-img-wrapper">
+                                {% if product.display_image %}
+                                    <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                                {% else %}
+                                    <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
+                                {% endif %}
+                                <span class="badge-trending-classic"><i class="bi bi-stars"></i>TRENDING</span>
+                                {% if product.discount_price %}
+                                    <span class="badge-sale">SALE</span>
+                                {% endif %}
+                                <div class="product-quick-hint">
+                                    <i class="bi bi-eye me-1"></i> Quick View
+                                </div>
+                            </div>
+                            <div class="product-category-sub">{{ product.category.name|upper }}</div>
+                            <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="product-price">RS. {{ product.current_price|floatformat:2 }}</span>
+                            {% if product.discount_price %}
+                                <span class="product-price-orig">RS. {{ product.price|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.stock > 0 %}
+                            <button type="button" class="btn btn-add-cart w-100 ajax-add-to-bag d-inline-flex align-items-center justify-content-center gap-1"
                                     data-product-id="{{ product.id }}"
                                     data-product-name="{{ product.name }}"
                                     data-add-url="{% url 'add_to_cart' product.id %}"
                                     aria-label="Add {{ product.name }} to bag">
-                                <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
+                                <i class="bi bi-bag-plus"></i> <span>ADD TO BAG</span>
                             </button>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Product Title & RS. Price (Reference Design) -->
-                    <div class="luxury-product-info">
-                        <h3 class="luxury-product-title product-clickable-area" role="button" tabindex="0" title="{{ product.name }}">
-                            {{ product.name|upper }}
-                        </h3>
-                        <div class="luxury-product-price-row">
-                            <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
-                            {% if product.discount_price %}
-                                <span class="luxury-price-orig">RS. {{ product.price|floatformat:2 }}</span>
-                            {% endif %}
-                        </div>
+                        {% else %}
+                            <button type="button" class="btn btn-add-cart btn-sold-out w-100 d-inline-flex align-items-center justify-content-center gap-1" disabled aria-label="{{ product.name }} is sold out">
+                                <i class="bi bi-dash-circle"></i> <span>OUT OF STOCK</span>
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        </section>
-        {% endif %}
-
-    </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </div>
 
-<!-- Product Quick View Modal -->
+<!-- =========================================================
+     4. PRODUCT QUICK VIEW MODAL
+     ========================================================= -->
 <div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
         <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
             <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
-                <span class="badge" id="qvCategoryBadge" style="background: #F7F5F0; color: #635F59; border: 1px solid rgba(28, 25, 23, 0.1); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px;">COLLECTION</span>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <span class="badge" id="qvCategoryBadge" style="background: #FAF8F5; color: #171614; font-size: 0.65rem; letter-spacing: 0.14em; padding: 5px 12px; border-radius: 9999px; border: 1px solid rgba(28, 25, 23, 0.12);">COLLECTION</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: none; opacity: 0.7;"></button>
             </div>
-            <div class="modal-body pt-2 pb-4 px-4 text-center">
-                <div class="qv-img-container" style="width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: #F7F5F0; border: 1px solid rgba(28, 25, 23, 0.06); margin-bottom: 1.25rem;">
-                    <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="modal-body p-4 pt-2">
+                <div class="text-center mb-3 rounded-3 overflow-hidden d-flex align-items-center justify-content-center" id="qvImageWrapper" style="background: #FAF8F5; aspect-ratio: 1 / 1; max-height: 280px; margin: 0 auto; border: 1px solid rgba(28, 25, 23, 0.08);">
+                    <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
-                <h4 class="fw-bold tracking-wide mb-2 text-dark" id="qvTitle" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;"></h4>
-                <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
-                    <span class="fs-4 fw-bold text-dark" id="qvPrice" style="font-family: 'Outfit', sans-serif;"></span>
-                    <span class="luxury-price-orig" id="qvOrigPrice"></span>
+                <h4 id="qvTitle" class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.02em;"></h4>
+                <div class="d-flex align-items-baseline gap-2 mb-3">
+                    <span id="qvPrice" class="fs-4 fw-bold" style="color: #171614; font-family: 'Outfit', sans-serif;"></span>
+                    <span id="qvOrigPrice" class="text-decoration-line-through text-secondary small" style="display: none;"></span>
                 </div>
-                <p class="text-secondary small mb-4" id="qvDesc" style="line-height: 1.6; font-size: 0.85rem;"></p>
-                <button type="button" class="btn w-100 py-3 fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2" id="qvAddBagBtn" style="background: #171614; color: #FAF8F5; border: 1.5px solid #171614; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.82rem; letter-spacing: 0.12em;">
-                    <i class="bi bi-bag-plus"></i> <span>Add to Bag</span>
-                </button>
-                <a href="#" target="_blank" rel="noopener noreferrer" class="btn w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" id="qvWhatsappBtn" style="font-size: 0.82rem; border-radius: 8px; border: 1.5px solid rgba(37, 211, 102, 0.5); color: #1B8341; background: #F0FDF4; text-decoration: none;">
-                    <i class="bi bi-whatsapp"></i> <span>Enquire on WhatsApp</span>
-                </a>
+                <p id="qvDesc" class="small mb-4 text-secondary" style="line-height: 1.6;"></p>
+                <div class="d-grid gap-2">
+                    <button type="button" id="qvAddBagBtn" class="btn btn-dark py-2 fw-semibold d-flex align-items-center justify-content-center" style="letter-spacing: 0.08em; background: #171614; border: 1px solid #171614; border-radius: 8px;">
+                        <i class="bi bi-bag-plus me-1"></i> Add to Bag
+                    </button>
+                    <a id="qvWhatsappBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark py-2 small fw-semibold d-flex align-items-center justify-content-center gap-1" style="border-radius: 8px; border-color: rgba(28, 25, 23, 0.2);">
+                        <i class="bi bi-whatsapp text-success me-1"></i> Enquire on WhatsApp
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-/* Storefront Clean Architecture Styles */
-.storefront-page {
-    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-    min-height: 75vh;
-}
-
-.collections-eyebrow {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.28em;
-    color: #8C867E;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.collections-main-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.4rem, 2.8vw, 1.85rem);
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    color: #171614;
-    text-transform: uppercase;
-    margin: 0;
-}
-
-.trending-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.15rem, 2.4vw, 1.45rem);
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    color: #171614;
-    text-transform: uppercase;
-}
-
-/* Category Collections Grid */
-.home-category-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 16px 12px;
-    justify-content: center;
-}
-
-@media (max-width: 1200px) {
-    .home-category-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 16px 10px;
-    }
-}
-
-@media (max-width: 768px) {
-    .home-category-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px 8px;
-    }
-}
-
-@media (max-width: 480px) {
-    .home-category-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px 6px;
-    }
-}
-
-.home-category-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
-}
-
-.home-category-card:hover {
-    transform: translateY(-4px);
-}
-
-.home-category-thumb {
-    width: 100%;
-    max-width: 110px;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #F4F0EB;
-    border: 1.5px solid rgba(23, 22, 20, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(28, 25, 23, 0.05);
-    transition: border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.home-category-card:hover .home-category-thumb {
-    border-color: #171614;
-    box-shadow: 0 8px 20px rgba(28, 25, 23, 0.12);
-}
-
-.home-category-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-}
-
-.home-category-card:hover .home-category-thumb img {
-    transform: scale(1.06);
-}
-
-.home-category-name {
-    font-size: clamp(0.68rem, 1.8vw, 0.78rem);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: #171614;
-    line-height: 1.2;
-    margin-bottom: 2px;
-}
-
-.home-category-count {
-    font-size: 0.65rem;
-    font-weight: 500;
-    color: #8C867E;
-    letter-spacing: 0.04em;
-}
-</style>
+<!-- Back to Top Button -->
+<button type="button" class="btn btn-dark rounded-circle position-fixed shadow-lg" id="backToTopBtn" aria-label="Back to top" style="bottom: 24px; right: 24px; width: 44px; height: 44px; display: none; z-index: 1040; background: #171614; border: 1px solid rgba(255, 255, 255, 0.15); align-items: center; justify-content: center;">
+    <i class="bi bi-arrow-up"></i>
+</button>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Quick View Modal Initialization
+    // =========================================================
+    // 1. Interactive Mannequin Hotspot Zoom Logic
+    // =========================================================
+    const container = document.getElementById('mannequinContainer');
+    const mannequinImg = document.getElementById('mannequinImg');
+    const spots = document.querySelectorAll('.hotspot');
+    const hoverCard = document.getElementById('hoverCard');
+    const cardTitle = document.getElementById('cardTitle');
+    const cardActionBtn = document.getElementById('cardActionBtn');
+
+    let isZoomed = false;
+    let activeCategory = null;
+
+    function applyZoom(x, y, name, cat) {
+        isZoomed = true;
+        activeCategory = cat;
+
+        const scaleVal = window.innerWidth < 576 ? 1.75 : (window.innerWidth < 768 ? 2.0 : 2.3);
+        
+        mannequinImg.style.transformOrigin = `${x} ${y}`;
+        mannequinImg.style.transform = `scale(${scaleVal})`;
+
+        cardTitle.innerText = name;
+        if (cardActionBtn) {
+            cardActionBtn.innerHTML = `Explore ${name} <i class="bi bi-arrow-right-short"></i>`;
+        }
+        hoverCard.classList.add('active');
+    }
+
+    function resetZoom() {
+        if (!isZoomed) return;
+        isZoomed = false;
+        activeCategory = null;
+        mannequinImg.style.transform = 'scale(1)';
+        hoverCard.classList.remove('active');
+        if (cardActionBtn) {
+            cardActionBtn.innerHTML = `Explore Collection <i class="bi bi-arrow-right-short"></i>`;
+        }
+    }
+
+    spots.forEach(spot => {
+        const x = spot.getAttribute('data-x');
+        const y = spot.getAttribute('data-y');
+        const name = spot.getAttribute('data-name');
+        const cat = spot.getAttribute('data-cat');
+
+        spot.addEventListener('mouseenter', () => {
+            if (window.matchMedia('(hover: hover)').matches) {
+                applyZoom(x, y, name, cat);
+            }
+        });
+
+        spot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyZoom(x, y, name, cat);
+        });
+    });
+
+    if (container) {
+        container.addEventListener('mouseleave', () => {
+            if (window.matchMedia('(hover: hover)').matches) {
+                resetZoom();
+            }
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (container && !container.contains(e.target)) {
+            resetZoom();
+        }
+    });
+
+    if (cardActionBtn) {
+        cardActionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeCategory) {
+                window.location.href = `/category/${activeCategory}/`;
+            }
+        });
+    }
+
+    // =========================================================
+    // 2. Desktop Mouse Drag-to-Scroll on Horizontal Tracks
+    // =========================================================
+    document.querySelectorAll('.product-scroll-track').forEach(track => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        track.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button') || e.target.closest('a')) return;
+            isDown = true;
+            track.classList.add('is-dragging');
+            startX = e.pageX - track.offsetLeft;
+            scrollLeft = track.scrollLeft;
+        });
+
+        track.addEventListener('mouseleave', () => {
+            isDown = false;
+            track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener('mouseup', () => {
+            isDown = false;
+            track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            track.scrollLeft = scrollLeft - walk;
+        });
+    });
+
+    // Horizontal Scroll Function for Buttons
+    function scrollSection(slug, direction) {
+        const track = document.getElementById(`scrollTrack-${slug}`);
+        if (!track) return;
+        const scrollAmount = track.offsetWidth * 0.75 * direction;
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    // =========================================================
+    // 3. Product Quick View Modal Trigger
+    // =========================================================
     const qvModalEl = document.getElementById('productQuickViewModal');
-    const bsQvModal = qvModalEl ? bootstrap.Modal.getOrCreateInstance(qvModalEl) : null;
+    let bsQvModal = null;
+    if (qvModalEl && typeof bootstrap !== 'undefined') {
+        bsQvModal = new bootstrap.Modal(qvModalEl);
+    }
+
+    let currentQvProduct = null;
     const qvBadge = document.getElementById('qvCategoryBadge');
     const qvImage = document.getElementById('qvImage');
     const qvTitle = document.getElementById('qvTitle');
@@ -286,28 +992,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const qvOrigPrice = document.getElementById('qvOrigPrice');
     const qvDesc = document.getElementById('qvDesc');
     const qvAddBagBtn = document.getElementById('qvAddBagBtn');
-    let currentQvProduct = null;
 
     document.querySelectorAll('.product-clickable-area').forEach(trigger => {
-        const card = trigger.closest('.luxury-product-card');
-        if (!card) return;
+        function openModal() {
+            const card = trigger.closest('.product-card');
+            if (!card) return;
 
-        trigger.addEventListener('click', function(e) {
-            if (e.target.closest('.ajax-add-to-bag')) return;
-
-            const id = card.getAttribute('data-id');
             const name = card.getAttribute('data-name');
             const price = card.getAttribute('data-price');
-            const origPrice = card.getAttribute('data-orig-price') || '';
-            const desc = card.getAttribute('data-desc') || '';
-            const cat = card.getAttribute('data-cat') || 'COLLECTION';
-            const img = card.getAttribute('data-image') || '';
+            const origPrice = card.getAttribute('data-orig-price');
+            const desc = card.getAttribute('data-desc');
+            const cat = card.getAttribute('data-cat');
+            const stock = parseInt(card.getAttribute('data-stock') || '0', 10);
+            const img = card.getAttribute('data-image');
             const addUrl = card.getAttribute('data-add-url');
-            const stock = parseInt(card.getAttribute('data-stock') || '1', 10);
 
-            currentQvProduct = { id, name, addUrl, stock };
+            currentQvProduct = { id: card.getAttribute('data-id'), name, price, origPrice, desc, cat, stock, img, addUrl };
 
-            if (qvBadge) qvBadge.innerText = cat.toUpperCase();
+            if (qvBadge) qvBadge.innerText = cat ? cat.toUpperCase() : 'COLLECTION';
             if (qvImage) {
                 qvImage.src = img;
                 qvImage.alt = name;
@@ -324,9 +1026,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (stock <= 0) {
                     qvAddBagBtn.disabled = true;
                     qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                    qvAddBagBtn.style.opacity = '0.65';
+                    qvAddBagBtn.style.cursor = 'not-allowed';
                 } else {
                     qvAddBagBtn.disabled = false;
                     qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                    qvAddBagBtn.style.opacity = '';
+                    qvAddBagBtn.style.cursor = '';
                 }
             }
 
@@ -337,73 +1043,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (bsQvModal) bsQvModal.show();
+        }
+
+        trigger.addEventListener('click', openModal);
+        trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openModal();
+            }
         });
     });
 
     if (qvAddBagBtn) {
         qvAddBagBtn.addEventListener('click', function() {
-            if (!currentQvProduct || currentQvProduct.stock <= 0) return;
-            handleAjaxAddToCart(qvAddBagBtn, currentQvProduct.addUrl, currentQvProduct.name);
+            if (!currentQvProduct) return;
+            qvAddBagBtn.setAttribute('data-add-url', currentQvProduct.addUrl);
+            qvAddBagBtn.setAttribute('data-product-name', currentQvProduct.name);
+            handleAjaxAddToCart(qvAddBagBtn);
         });
     }
 
-    // AJAX Add to Bag Direct on Card
-    document.querySelectorAll('.ajax-add-to-bag').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const url = this.getAttribute('data-add-url');
-            const name = this.getAttribute('data-product-name') || 'Item';
-            handleAjaxAddToCart(this, url, name);
-        });
-    });
-
-    async function handleAjaxAddToCart(btn, url, productName) {
-        if (!url) return;
-        const origContent = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-        try {
-            const res = await fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                if (window.updateNavbarCartCount && data.cart_item_count !== undefined) {
-                    window.updateNavbarCartCount(data.cart_item_count);
-                }
-
-                btn.innerHTML = '<i class="bi bi-check2"></i> Added';
-                btn.style.backgroundColor = '#25D366';
-                btn.style.color = '#FFFFFF';
-
-                if (window.showAshasToast) {
-                    window.showAshasToast('Added to Bag', `${productName} added to your shopping bag.`, '<i class="bi bi-bag-check-fill text-success"></i>', '{% url "cart" %}', 'View Bag');
-                }
-
-                setTimeout(() => {
-                    btn.innerHTML = origContent;
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
-                    btn.disabled = false;
-                }, 2000);
+    // =========================================================
+    // 4. Back to Top Button
+    // =========================================================
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 400) {
+                backToTopBtn.style.display = 'flex';
             } else {
-                const errData = await res.json().catch(() => ({}));
-                btn.innerHTML = '<i class="bi bi-exclamation-circle"></i>';
-                if (window.showAshasToast) {
-                    window.showAshasToast('Stock Limit', errData.message || 'Unable to add item.', '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
-                }
-                setTimeout(() => {
-                    btn.innerHTML = origContent;
-                    btn.disabled = false;
-                }, 2500);
+                backToTopBtn.style.display = 'none';
             }
-        } catch (err) {
-            window.location.href = url;
-        }
+        }, { passive: true });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     }
-});
 </script>
 {% endblock %}
