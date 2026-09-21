@@ -739,6 +739,41 @@ class CategoryPagesAndCardDesignTests(TestCase):
         cart = session.get('cart', {})
         self.assertEqual(cart.get(str(self.ring_prod.id)), 1)
 
+    def test_sitemap_xml_includes_product_urls(self):
+        """Dynamic sitemap must include product URLs for Google indexing."""
+        response = self.client.get(reverse('sitemap_xml'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"/product/{self.ring_prod.id}/")
+        self.assertContains(response, f"/product/{self.shade_prod.id}/")
+
+    def test_ajax_add_to_cart_returns_json_and_updates_count(self):
+        """AJAX request to add_to_cart must return 200 JSON with cart_item_count."""
+        response = self.client.get(
+            reverse('add_to_cart', kwargs={'product_id': self.ring_prod.id}),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['cart_item_count'], 1)
+        self.assertEqual(data['product_id'], self.ring_prod.id)
+
+    def test_product_detail_open_graph_tags(self):
+        """Product detail page must render product-specific Open Graph and Twitter Card tags."""
+        response = self.client.get(reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'property="og:title" content="VAMPIRE BAT RING | RS. 299.00 | ASHAS Official Store"')
+        self.assertContains(response, 'name="twitter:title" content="VAMPIRE BAT RING | ASHAS"')
+
+    def test_cart_page_links_items_to_product_detail(self):
+        """Cart page must link product thumbnail and name to product detail page."""
+        # Add product to cart
+        self.client.get(reverse('add_to_cart', kwargs={'product_id': self.ring_prod.id}))
+        response = self.client.get(reverse('cart'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
+
+
 
 
 

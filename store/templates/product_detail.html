@@ -4,6 +4,15 @@
 {% block title %}{{ product.name|upper }} | ASHAS Official Store{% endblock %}
 {% block meta_description %}{{ product.description|default:'Discover the signature'|truncatewords:20 }} {{ product.name }}. Premium statement jewelry by ASHAS. Fast delivery across India.{% endblock %}
 
+{% block og_title %}{{ product.name|upper }} | RS. {{ product.current_price|floatformat:2 }} | ASHAS Official Store{% endblock %}
+{% block og_description %}{{ product.description|default:'Premium statement jewelry and contemporary accessories by ASHAS. Designed for lasting luster and everyday luxury. Fast delivery across India.' }}{% endblock %}
+{% block og_image %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
+{% block og_image_secure %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
+{% block og_image_alt %}{{ product.name }}{% endblock %}
+{% block twitter_title %}{{ product.name|upper }} | ASHAS{% endblock %}
+{% block twitter_description %}{{ product.description|default:'Contemporary statement accessory by ASHAS.' }}{% endblock %}
+{% block twitter_image %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
+
 {% block extra_css %}
 <style>
     /* =========================================================

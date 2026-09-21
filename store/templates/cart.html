@@ -90,15 +90,19 @@
                 <tr class="border-secondary border-opacity-25">
                     <td>
                         <div class="d-flex align-items-center gap-3">
-                            {% if item.product.display_image %}
-                                <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                            {% else %}
-                                <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0">
-                                    <i class="bi bi-image text-secondary fs-5"></i>
-                                </div>
-                            {% endif %}
+                            <a href="{% url 'product_detail' item.product.id %}" class="flex-shrink-0" title="View {{ item.product.name }}">
+                                {% if item.product.display_image %}
+                                    <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                                {% else %}
+                                    <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-secondary fs-5"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
                             <div class="min-w-0 flex-grow-1">
-                                <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
+                                <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
+                                    <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
+                                </a>
                                 <small class="text-secondary d-block mt-1">{{ item.product.category.name }}</small>
                             </div>
                         </div>
@@ -128,17 +132,21 @@
         {% for item in cart_items %}
         <div class="p-3 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
             <div class="d-flex gap-2 gap-sm-3 align-items-start">
-                {% if item.product.display_image %}
-                    <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25 flex-shrink-0" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                {% else %}
-                    <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0">
-                        <i class="bi bi-image text-secondary fs-5"></i>
-                    </div>
-                {% endif %}
+                <a href="{% url 'product_detail' item.product.id %}" class="flex-shrink-0" title="View {{ item.product.name }}">
+                    {% if item.product.display_image %}
+                        <img src="{{ item.product.display_image }}" class="cart-thumb border border-secondary border-opacity-25" alt="{{ item.product.name }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                    {% else %}
+                        <div class="cart-thumb border border-secondary border-opacity-25 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-image text-secondary fs-5"></i>
+                        </div>
+                    {% endif %}
+                </a>
                 
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex justify-content-between align-items-start gap-2">
-                        <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
+                        <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
+                            <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
+                        </a>
                         <a href="{% url 'update_cart' item.product.id 'remove' %}" class="btn-remove-cart flex-shrink-0" title="Remove item" aria-label="Remove {{ item.product.name }}">
                             <i class="bi bi-trash3 fs-6"></i>
                         </a>

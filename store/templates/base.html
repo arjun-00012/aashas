@@ -30,20 +30,20 @@
     <meta property="og:site_name" content="ASHAS">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ashasstore.in{{ request.path }}">
-    <meta property="og:title" content="ASHAS | Official Online Store | Clothing &amp; Statement Accessories">
-    <meta property="og:description" content="Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories. Fast delivery across India.">
-    <meta property="og:image" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
-    <meta property="og:image:secure_url" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
+    <meta property="og:title" content="{% block og_title %}ASHAS | Official Online Store | Clothing &amp; Statement Accessories{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories. Fast delivery across India.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
+    <meta property="og:image:secure_url" content="{% block og_image_secure %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     <meta property="og:image:type" content="image/png">
-    <meta property="og:image:alt" content="ASHAS Official Store Logo">
+    <meta property="og:image:alt" content="{% block og_image_alt %}ASHAS Official Store Logo{% endblock %}">
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ASHAS | Official Online Store">
-    <meta name="twitter:description" content="Discover official ASHAS clothing and luxury statement accessories. Fast delivery across India.">
-    <meta name="twitter:image" content="https://ashasstore.in{% static 'images/ashas_badge.png' %}">
+    <meta name="twitter:title" content="{% block twitter_title %}ASHAS | Official Online Store{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Discover official ASHAS clothing and luxury statement accessories. Fast delivery across India.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
 
     <!-- Schema.org JSON-LD Structured Data for Google Brand Entity & Sitelinks -->
     <script type="application/ld+json">
@@ -1829,6 +1829,80 @@ window.updateNavbarCartCount = function(count) {
         countEl.classList.add('bag-pulse');
     }
 };
+
+// Global Universal AJAX Add-to-Bag Handler
+window.handleAjaxAddToCart = async function(btn, explicitUrl = null, explicitName = null) {
+    if (!btn) return;
+    const url = explicitUrl || btn.getAttribute('data-add-url') || (btn.getAttribute('data-product-id') ? `/cart/add/${btn.getAttribute('data-product-id')}/` : btn.getAttribute('href'));
+    if (!url) return;
+
+    const productName = explicitName || btn.getAttribute('data-product-name') || 'Accessory';
+    const origHtml = btn.innerHTML;
+    const isPdpBtn = btn.classList.contains('pdp-btn-add-cart');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="ms-1">Adding...</span>';
+
+    try {
+        const res = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (window.updateNavbarCartCount && data.cart_item_count !== undefined) {
+                window.updateNavbarCartCount(data.cart_item_count);
+            }
+
+            btn.innerHTML = '<i class="bi bi-check2"></i> <span class="ms-1">Added</span>';
+            if (isPdpBtn) {
+                btn.style.backgroundColor = '#171614';
+                btn.style.color = '#FAF8F5';
+            } else {
+                btn.style.backgroundColor = '#25D366';
+                btn.style.color = '#FFFFFF';
+            }
+
+            if (window.showAshasToast) {
+                window.showAshasToast(
+                    'Added to Bag',
+                    `${productName} added to your shopping bag.`,
+                    '<i class="bi bi-bag-check-fill text-success"></i>',
+                    '/cart/',
+                    'View Bag'
+                );
+            }
+
+            setTimeout(() => {
+                btn.innerHTML = origHtml;
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            const errData = await res.json().catch(() => ({}));
+            btn.innerHTML = '<i class="bi bi-exclamation-circle"></i> <span class="ms-1">Limit Reached</span>';
+            if (window.showAshasToast) {
+                window.showAshasToast('Stock Limit', errData.message || 'Unable to add item to bag.', '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
+            }
+            setTimeout(() => {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }, 2500);
+        }
+    } catch (err) {
+        window.location.href = url;
+    }
+};
+
+// Delegated Click Listener for Any Element with .ajax-add-to-bag
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.ajax-add-to-bag');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    window.handleAjaxAddToCart(btn);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const drawerEl = document.getElementById('ashasSideDrawer');

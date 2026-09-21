@@ -1069,7 +1069,7 @@
             if (!currentQvProduct) return;
             qvAddBagBtn.setAttribute('data-add-url', currentQvProduct.addUrl);
             qvAddBagBtn.setAttribute('data-product-name', currentQvProduct.name);
-            handleAjaxAddToCart(qvAddBagBtn);
+            window.handleAjaxAddToCart(qvAddBagBtn);
         });
     }
 

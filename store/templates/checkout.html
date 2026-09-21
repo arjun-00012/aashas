@@ -459,15 +459,19 @@
                 <div class="summary-items-list mb-2" style="max-height: 220px; overflow-y: auto;">
                     {% for item in checkout_items %}
                     <div class="summary-item-row">
-                        {% if item.product.display_image %}
-                            <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                        {% else %}
-                            <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
-                                <i class="bi bi-image"></i>
-                            </div>
-                        {% endif %}
+                        <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0" title="View {{ item.product.name }}">
+                            {% if item.product.display_image %}
+                                <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                            {% else %}
+                                <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            {% endif %}
+                        </a>
                         <div class="flex-grow-1 min-w-0">
-                            <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
+                            <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
+                                <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
+                            </a>
                             <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}</small>
                         </div>
                         <div class="text-end fw-semibold text-dark small">
@@ -654,15 +658,19 @@
                         <div class="summary-items-list mb-3" style="max-height: 240px; overflow-y: auto;">
                             {% for item in checkout_items %}
                             <div class="summary-item-row">
-                                {% if item.product.display_image %}
-                                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                                {% else %}
-                                    <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
-                                        <i class="bi bi-image"></i>
-                                    </div>
-                                {% endif %}
+                                <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0" title="View {{ item.product.name }}">
+                                    {% if item.product.display_image %}
+                                        <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="summary-item-thumb" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                                    {% else %}
+                                        <div class="summary-item-thumb d-flex align-items-center justify-content-center text-muted">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    {% endif %}
+                                </a>
                                 <div class="flex-grow-1 min-w-0">
-                                    <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
+                                    <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
+                                        <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
+                                    </a>
                                     <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}</small>
                                 </div>
                                 <div class="text-end fw-semibold text-dark small">
