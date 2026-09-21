@@ -773,6 +773,33 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
 
+    def test_dynamic_category_page_generation_when_category_added_manually(self):
+        """When a category is created manually, its dedicated page, shortcuts (.html, direct slug), and navigation work automatically."""
+        new_cat = Category.objects.create(name="Luxury Pendants")
+        self.assertEqual(new_cat.slug, "luxury-pendants")
+
+        # 1. /category/<slug>/
+        resp = self.client.get(f'/category/{new_cat.slug}/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "LUXURY PENDANTS")
+        self.assertContains(resp, "NEW ARRIVALS DROPPING SOON")
+
+        # 2. /<slug>/
+        resp = self.client.get(f'/{new_cat.slug}/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "LUXURY PENDANTS")
+
+        # 3. /<slug>.html
+        resp = self.client.get(f'/{new_cat.slug}.html')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "LUXURY PENDANTS")
+
+        # 4. Appears automatically on home collections
+        home_resp = self.client.get(reverse('home'))
+        self.assertContains(home_resp, "Luxury Pendants")
+        self.assertContains(home_resp, f"/category/{new_cat.slug}/")
+
+
 
 
 

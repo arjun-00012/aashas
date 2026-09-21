@@ -543,6 +543,9 @@
                                 </td>
                                 <td class="fw-semibold text-dark">{{ cat.name }}</td>
                                 <td class="text-end text-nowrap">
+                                    <a href="{% url 'category_detail' cat.slug %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm btn-action me-1" title="View Live Page (/category/{{ cat.slug }}/)">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
                                     <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-dark btn-sm btn-action me-1" title="Edit Category">
                                         <i class="bi bi-pencil"></i>
                                     </a>

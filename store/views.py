@@ -1142,7 +1142,7 @@ def category_create_or_edit(request, pk=None):
             try:
                 cat = form.save()
                 action_text = "updated" if pk else "created"
-                messages.success(request, f'Category "{cat.name}" has been {action_text} successfully!')
+                messages.success(request, f'Category "{cat.name}" has been {action_text} successfully! Live page created: /category/{cat.slug}/')
                 return redirect('adminpp_dashboard')
             except Exception as e:
                 import logging

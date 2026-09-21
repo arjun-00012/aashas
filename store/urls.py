@@ -4,6 +4,9 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('category/<slug:slug>/', views.category_detail, name='category_detail'),
+    path('collection/<slug:slug>/', views.category_detail, name='category_collection'),
+    path('c/<slug:slug>/', views.category_detail, name='category_short'),
+    path('<slug:slug>.html', views.category_detail, name='category_html_direct'),
     path('rings/', views.category_detail, {'slug': 'rings'}, name='rings_page'),
     path('ring.html', views.category_detail, {'slug': 'rings'}, name='ring_html'),
     path('rings.html', views.category_detail, {'slug': 'rings'}, name='rings_html'),
@@ -49,4 +52,7 @@ urlpatterns = [
     path('adminpp/product/delete/<int:pk>/', views.product_delete, name='product_delete'),
     path('adminpp/product/toggle-trending/<int:pk>/', views.product_toggle_trending, name='product_toggle_trending'),
     path('adminpp/inquiry/delete/<int:pk>/', views.inquiry_delete, name='inquiry_delete'),
+    
+    # Catch-all direct category shortcut (e.g. /wallets/, /pendants/, /rings/)
+    path('<slug:slug>/', views.category_detail, name='category_direct'),
 ]
