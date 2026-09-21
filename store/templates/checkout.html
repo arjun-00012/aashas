@@ -514,18 +514,55 @@
                         </div>
 
                         <div class="row g-2.5 g-sm-3">
-                            <div class="col-12 col-sm-6 mb-2 mb-sm-0">
+                            <div class="col-12 col-sm-6 mb-2">
                                 <label class="chk-label" for="full_name">Recipient Name <span class="text-danger">*</span></label>
                                 <input type="text" id="full_name" class="chk-input" value="{{ default_name }}" placeholder="Full Name" autocomplete="name" required>
                             </div>
-                            <div class="col-12 col-sm-6 mb-2 mb-sm-0">
+                            <div class="col-12 col-sm-6 mb-2">
                                 <label class="chk-label" for="phone_number">Mobile Number <span class="text-danger">*</span></label>
                                 <input type="tel" id="phone_number" class="chk-input" value="{{ default_phone }}" placeholder="10-digit mobile number" autocomplete="tel" required>
                             </div>
 
-                            <!-- Destination Selector -->
+                            <!-- Dedicated Postal PIN Code & City Section -->
+                            <div class="col-12 col-sm-6 mb-2">
+                                <label class="chk-label" for="pincode">
+                                    Postal PIN Code <span class="text-danger">*</span>
+                                </label>
+                                <div class="position-relative">
+                                    <input type="text" id="pincode" name="pincode" class="chk-input pe-5" 
+                                           value="{{ default_pincode }}" 
+                                           placeholder="6-digit PIN (e.g. 673001)" 
+                                           maxlength="6" 
+                                           inputmode="numeric" 
+                                           autocomplete="postal-code" required>
+                                    <span id="pincodeBadge" class="position-absolute top-50 end-0 translate-middle-y me-3 pointer-events-none"></span>
+                                </div>
+                                <div id="pincodeHint" class="small mt-1" style="font-size: 0.72rem; min-height: 18px;">
+                                    <span class="text-muted"><i class="bi bi-geo"></i> Enter 6-digit PIN to calculate shipping automatically</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mb-2">
+                                <label class="chk-label" for="city">City / District <span class="text-danger">*</span></label>
+                                <input type="text" id="city" name="city" class="chk-input" value="{{ default_city }}" placeholder="e.g. Kozhikode, Kochi, Bengaluru" autocomplete="address-level2" required>
+                                <div class="small mt-1 text-muted" style="font-size: 0.72rem; min-height: 18px;">
+                                    <span>Used for post office dispatch routing</span>
+                                </div>
+                            </div>
+
+                            <!-- Street Address -->
                             <div class="col-12 mb-2">
-                                <label class="chk-label">Shipping Destination <span class="text-danger">*</span></label>
+                                <label class="chk-label" for="shipping_address">Delivery Address (House/Building, Street, Landmark) <span class="text-danger">*</span></label>
+                                <textarea id="shipping_address" rows="2" class="chk-textarea" placeholder="House/Flat No, Apartment/Building, Street, Landmark" autocomplete="street-address" required>{{ default_address }}</textarea>
+                            </div>
+
+                            <!-- Destination & Shipping Rate (Auto-Calculated by PIN) -->
+                            <div class="col-12 mb-1">
+                                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                    <label class="chk-label m-0">Shipping Rate</label>
+                                    <span id="pincodeAutoBadge" class="badge bg-light text-secondary border rounded-pill fw-normal" style="font-size: 0.68rem;">
+                                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Auto-updated via PIN
+                                    </span>
+                                </div>
                                 <div class="shipping-region-grid">
                                     <label class="region-option-card {% if delivery_region == 'kerala' %}selected{% endif %}" id="card_region_kerala" for="region_kerala">
                                         <input type="radio" name="delivery_region" id="region_kerala" value="kerala" {% if delivery_region == 'kerala' %}checked{% endif %}>
@@ -537,8 +574,9 @@
                                                 {% elif has_shades %}
                                                     <strong>₹65</strong> &bull; Shades order rate
                                                 {% else %}
-                                                    <strong>₹55</strong> &bull; Standard parcel
+                                                    <strong>₹55</strong> &bull; Kerala Speed Post
                                                 {% endif %}
+                                                <span class="d-block text-muted" style="font-size: 0.68rem;">PIN starts with 67, 68, 69</span>
                                             </span>
                                         </div>
                                     </label>
@@ -553,15 +591,11 @@
                                                 {% else %}
                                                     <strong>₹95</strong> &bull; All-India Speed Post
                                                 {% endif %}
+                                                <span class="d-block text-muted" style="font-size: 0.68rem;">Rest of India PIN codes</span>
                                             </span>
                                         </div>
                                     </label>
                                 </div>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="chk-label" for="shipping_address">Delivery Address &amp; PIN Code <span class="text-danger">*</span></label>
-                                <textarea id="shipping_address" rows="3" class="chk-textarea" placeholder="House/Flat No, Street, Landmark, City, District, PIN Code" autocomplete="street-address" required>{{ default_address }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -800,6 +834,81 @@ document.addEventListener('DOMContentLoaded', function() {
         r.addEventListener('change', updateShippingAndTotals);
     });
 
+    // Real-Time PIN Code Detection & Shipping Calculation
+    const pincodeInput = document.getElementById('pincode');
+    const cityInput = document.getElementById('city');
+    const pincodeBadge = document.getElementById('pincodeBadge');
+    const pincodeHint = document.getElementById('pincodeHint');
+    const autoBadge = document.getElementById('pincodeAutoBadge');
+
+    function checkPincodeRegion(pin) {
+        if (!pin) return null;
+        const cleaned = pin.replace(/\D/g, '');
+        if (cleaned.length !== 6) return null;
+        // Kerala & Lakshadweep postal circle: starts with 67, 68, or 69
+        return ['67', '68', '69'].some(prefix => cleaned.startsWith(prefix)) ? 'kerala' : 'outside_kerala';
+    }
+
+    function handlePincodeInput() {
+        if (!pincodeInput) return;
+        let val = pincodeInput.value.replace(/\D/g, '').slice(0, 6);
+        pincodeInput.value = val;
+
+        if (val.length === 6) {
+            const detectedRegion = checkPincodeRegion(val);
+            if (detectedRegion === 'kerala') {
+                const keralaRadio = document.getElementById('region_kerala');
+                if (keralaRadio) keralaRadio.checked = true;
+                if (pincodeBadge) {
+                    pincodeBadge.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-6" title="Kerala Postal Zone Verified"></i>';
+                }
+                if (pincodeHint) {
+                    pincodeHint.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Kerala PIN verified &bull; Speed Post ₹' + keralaShippingFee.toFixed(0) + '</span>';
+                }
+                if (autoBadge) {
+                    autoBadge.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal';
+                    autoBadge.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Inside Kerala Applied';
+                }
+            } else {
+                const outRadio = document.getElementById('region_outside');
+                if (outRadio) outRadio.checked = true;
+                if (pincodeBadge) {
+                    pincodeBadge.innerHTML = '<i class="bi bi-truck text-dark fs-6" title="Rest of India (Outside Kerala)"></i>';
+                }
+                if (pincodeHint) {
+                    pincodeHint.innerHTML = '<span class="text-dark fw-semibold"><i class="bi bi-truck me-1"></i>Outside Kerala &bull; All-India Speed Post ₹' + outsideShippingFee.toFixed(0) + '</span>';
+                }
+                if (autoBadge) {
+                    autoBadge.className = 'badge bg-dark text-white rounded-pill fw-normal';
+                    autoBadge.innerHTML = '<i class="bi bi-truck me-1"></i>Outside Kerala Applied';
+                }
+            }
+            updateShippingAndTotals();
+        } else if (val.length > 0) {
+            if (pincodeBadge) {
+                pincodeBadge.innerHTML = '<span class="spinner-grow spinner-grow-sm text-secondary" style="width: 8px; height: 8px;"></span>';
+            }
+            if (pincodeHint) {
+                const remaining = 6 - val.length;
+                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-three-dots me-1"></i>Enter ' + remaining + ' more digit' + (remaining > 1 ? 's' : '') + ' to calculate shipping</span>';
+            }
+        } else {
+            if (pincodeBadge) pincodeBadge.innerHTML = '';
+            if (pincodeHint) {
+                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-geo me-1"></i>Enter 6-digit PIN to calculate shipping automatically</span>';
+            }
+        }
+    }
+
+    if (pincodeInput) {
+        pincodeInput.addEventListener('input', handlePincodeInput);
+        pincodeInput.addEventListener('change', handlePincodeInput);
+        pincodeInput.addEventListener('blur', handlePincodeInput);
+        if (pincodeInput.value) {
+            handlePincodeInput();
+        }
+    }
+
     // Auto-detect Outside Kerala on address entry
     const addressInput = document.getElementById('shipping_address');
     if (addressInput) {
@@ -870,12 +979,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const fullName = document.getElementById('full_name').value.trim();
         const phoneNumber = document.getElementById('phone_number').value.trim();
+        const pincodeVal = pincodeInput ? pincodeInput.value.replace(/\D/g, '').trim() : '';
+        const cityVal = cityInput ? cityInput.value.trim() : '';
         const shippingAddress = document.getElementById('shipping_address').value.trim();
         const selectedMethod = getSelectedMethod();
         const selectedRegion = getSelectedRegion();
 
         if (!fullName || !phoneNumber || !shippingAddress) {
             showError("Please fill out all delivery details before proceeding.");
+            return;
+        }
+
+        if (!pincodeVal || pincodeVal.length !== 6) {
+            showError("Please enter a valid 6-digit Indian Postal PIN code.");
+            if (pincodeInput) pincodeInput.focus();
+            return;
+        }
+
+        if (!cityVal) {
+            showError("Please enter your city / district for delivery routing.");
+            if (cityInput) cityInput.focus();
             return;
         }
 
@@ -886,9 +1009,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('full_name', fullName);
         formData.append('phone_number', phoneNumber);
+        formData.append('pincode', pincodeVal);
+        formData.append('city', cityVal);
         formData.append('shipping_address', shippingAddress);
         formData.append('delivery_region', selectedRegion);
         formData.append('payment_method', selectedMethod);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
         try {

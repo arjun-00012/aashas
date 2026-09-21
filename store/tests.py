@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.utils import timezone
 from store.models import Category, Product, Order, OrderItem, Profile, CartItem
 from unittest.mock import patch, MagicMock
-from store.forms import ProductForm, RegistrationForm
-from store.views import safe_referer, check_cart_has_shades, check_cart_has_test_bracelet, calculate_shipping_fee
+from store.forms import ProductForm, RegistrationForm, ProfileUpdateForm
+from store.views import safe_referer, check_cart_has_shades, check_cart_has_test_bracelet, calculate_shipping_fee, is_kerala_pincode, determine_delivery_region
 
 class CategorySlugTests(TestCase):
     def test_category_slug_collision_handling(self):
@@ -391,6 +391,38 @@ class ShippingCalculationTests(TestCase):
         self.assertEqual(fee_kerala, 1.0)
         self.assertEqual(fee_outside, 1.0)
 
+    def test_is_kerala_pincode(self):
+        # Kerala postal circle PIN codes (67xxxx, 68xxxx, 69xxxx)
+        self.assertTrue(is_kerala_pincode("673001"))  # Kozhikode
+        self.assertTrue(is_kerala_pincode("682001"))  # Kochi
+        self.assertTrue(is_kerala_pincode("695001"))  # Thiruvananthapuram
+        self.assertTrue(is_kerala_pincode("670001"))  # Kannur
+        self.assertTrue(is_kerala_pincode("673 001")) # Spaces handled
+        self.assertTrue(is_kerala_pincode(682001))    # Integer handled
+
+        # Outside Kerala
+        self.assertFalse(is_kerala_pincode("560001")) # Bengaluru, Karnataka
+        self.assertFalse(is_kerala_pincode("110001")) # New Delhi
+        self.assertFalse(is_kerala_pincode("400001")) # Mumbai, Maharashtra
+        self.assertFalse(is_kerala_pincode("600001")) # Chennai, Tamil Nadu
+        self.assertFalse(is_kerala_pincode("700001")) # Kolkata, West Bengal
+        self.assertFalse(is_kerala_pincode("123"))    # Too short
+        self.assertFalse(is_kerala_pincode(""))       # Empty
+
+    def test_calculate_shipping_with_pincode(self):
+        # Kerala PIN (673001) -> ₹55 for rings, ₹65 for shades
+        self.assertEqual(calculate_shipping_fee([self.ring_product], pincode="673001"), 55.0)
+        self.assertEqual(calculate_shipping_fee([self.shade_product], pincode="682001"), 65.0)
+        self.assertEqual(calculate_shipping_fee([self.ring_product, self.shade_product], pincode="695001"), 65.0)
+
+        # Outside Kerala PIN (560001, 110001) -> ₹95 flat
+        self.assertEqual(calculate_shipping_fee([self.ring_product], pincode="560001"), 95.0)
+        self.assertEqual(calculate_shipping_fee([self.shade_product], pincode="110001"), 95.0)
+
+        # Featured bracelet always ₹1 regardless of PIN
+        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="673001"), 1.0)
+        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="560001"), 1.0)
+
 
 class CheckoutShippingIntegrationTests(TestCase):
     def setUp(self):
@@ -529,6 +561,95 @@ class CheckoutShippingIntegrationTests(TestCase):
         order = Order.objects.get(id=data['db_order_id'])
         self.assertEqual(float(order.shipping_fee), 1.0)
         self.assertEqual(float(order.total_price), 700.0)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_with_kerala_pincode_auto_calculates_kerala_shipping(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_kerala_pin', 'amount': 35500}
+        mock_get_client.return_value = mock_client
+
+        CartItem.objects.create(user=self.user, product=self.ring_product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Kerala Buyer',
+            'phone_number': '9876543210',
+            'pincode': '673001',
+            'city': 'Kozhikode',
+            'shipping_address': 'Flat 4A, Marine Heights',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['shipping_fee'], 55.0)
+        self.assertEqual(data['delivery_region'], 'kerala')
+        self.assertEqual(data['pincode'], '673001')
+        self.assertEqual(data['total'], 355.0)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(order.pincode, '673001')
+        self.assertEqual(order.city, 'Kozhikode')
+        self.assertEqual(order.delivery_region, 'kerala')
+        self.assertEqual(float(order.shipping_fee), 55.0)
+
+        # Profile is updated automatically
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.pincode, '673001')
+        self.assertEqual(profile.city, 'Kozhikode')
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_with_outside_kerala_pincode_auto_calculates_outside_shipping(self, mock_get_client):
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_outside_pin', 'amount': 39500}
+        mock_get_client.return_value = mock_client
+
+        CartItem.objects.create(user=self.user, product=self.ring_product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'Bangalore Buyer',
+            'phone_number': '9876543210',
+            'pincode': '560001',
+            'city': 'Bengaluru',
+            'shipping_address': 'MG Road, Residency Building',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['shipping_fee'], 95.0)
+        self.assertEqual(data['delivery_region'], 'outside_kerala')
+        self.assertEqual(data['pincode'], '560001')
+        self.assertEqual(data['total'], 395.0)
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(order.pincode, '560001')
+        self.assertEqual(order.city, 'Bengaluru')
+        self.assertEqual(order.delivery_region, 'outside_kerala')
+        self.assertEqual(float(order.shipping_fee), 95.0)
+
+    def test_profile_update_form_pincode_validation(self):
+        profile = Profile.objects.get(user=self.user)
+        
+        # Valid 6-digit Kerala PIN
+        form_valid = ProfileUpdateForm({
+            'phone_number': '9876543210',
+            'pincode': '673001',
+            'city': 'Kozhikode',
+            'address': 'Beach Road'
+        }, instance=profile)
+        self.assertTrue(form_valid.is_valid())
+        saved = form_valid.save()
+        self.assertEqual(saved.pincode, '673001')
+
+        # Invalid PIN (not 6 digits)
+        form_invalid = ProfileUpdateForm({
+            'phone_number': '9876543210',
+            'pincode': '123',
+            'city': 'Kozhikode',
+            'address': 'Beach Road'
+        }, instance=profile)
+        self.assertFalse(form_invalid.is_valid())
+        self.assertIn('pincode', form_invalid.errors)
 
 
 class SessionSecurityTests(TestCase):

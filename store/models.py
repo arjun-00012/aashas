@@ -8,6 +8,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    pincode = models.CharField(max_length=10, blank=True, null=True, help_text="Postal PIN Code")
+    city = models.CharField(max_length=100, blank=True, null=True, help_text="City / District")
+    state = models.CharField(max_length=100, blank=True, null=True, help_text="State")
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -272,6 +275,10 @@ class Order(models.Model):
     full_name = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=20)
     shipping_address = models.TextField()
+    pincode = models.CharField(max_length=10, blank=True, null=True, help_text="Postal PIN Code")
+    city = models.CharField(max_length=100, blank=True, null=True, help_text="City / District")
+    state = models.CharField(max_length=100, blank=True, null=True, help_text="State")
+    delivery_region = models.CharField(max_length=50, blank=True, null=True, default='kerala', help_text="Inside Kerala vs Outside Kerala")
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Delivery charge based on destination and products")
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)

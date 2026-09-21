@@ -30,7 +30,7 @@ class RegistrationForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['phone_number', 'address']
+        fields = ['phone_number', 'address', 'pincode', 'city', 'state']
 
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number', '').strip()
@@ -40,6 +40,16 @@ class ProfileUpdateForm(forms.ModelForm):
             if len(digits) < 10 or len(digits) > 13:
                 raise forms.ValidationError("Please enter a valid 10-digit mobile number.")
         return phone
+
+    def clean_pincode(self):
+        pin = (self.cleaned_data.get('pincode') or '').strip()
+        if pin:
+            import re
+            digits = re.sub(r'\D', '', pin)
+            if len(digits) != 6:
+                raise forms.ValidationError("Please enter a valid 6-digit Indian Postal PIN code.")
+            return digits
+        return pin
 
 class CategoryForm(forms.ModelForm):
     class Meta:

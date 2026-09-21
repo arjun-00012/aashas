@@ -556,12 +556,65 @@ def check_cart_has_test_bracelet(items):
     return False
 
 
-def calculate_shipping_fee(items, delivery_region='kerala'):
+def is_kerala_pincode(pincode):
+    """
+    Checks if an Indian Postal PIN code belongs to Kerala / Lakshadweep postal circle.
+    Kerala PIN codes strictly start with 67, 68, or 69 (ranges 670001 - 695615).
+    """
+    if not pincode:
+        return False
+    import re
+    digits = re.sub(r'\D', '', str(pincode))
+    return len(digits) == 6 and digits.startswith(('67', '68', '69'))
+
+
+def determine_delivery_region(pincode=None, delivery_region=None, address=None):
+    """
+    Determines delivery region ('kerala' or 'outside_kerala') based on:
+    1. PIN code (primary authority): starts with 67, 68, 69 -> 'kerala'; other 6 digits -> 'outside_kerala'.
+    2. Explicit delivery_region parameter if provided ('kerala' or 'outside_kerala').
+    3. Text address parsing for state keywords and PIN codes as fallback.
+    """
+    if pincode:
+        import re
+        digits = re.sub(r'\D', '', str(pincode))
+        if len(digits) == 6:
+            return 'kerala' if digits.startswith(('67', '68', '69')) else 'outside_kerala'
+
+    if delivery_region:
+        clean_reg = str(delivery_region).strip().lower()
+        if clean_reg in ('kerala', 'inside_kerala'):
+            return 'kerala'
+        if clean_reg in ('outside_kerala', 'outside'):
+            return 'outside_kerala'
+
+    if address:
+        addr_lower = address.lower()
+        import re
+        # Look for 6-digit pin in address text
+        match_kerala = re.search(r'\b(6[7-9]\d{4})\b', addr_lower)
+        if match_kerala:
+            return 'kerala'
+        match_other = re.search(r'\b([1-57-9]\d{5}|6[0-6]\d{4})\b', addr_lower)
+        if match_other:
+            return 'outside_kerala'
+        if 'kerala' in addr_lower:
+            return 'kerala'
+        if any(st in addr_lower for st in [
+            'tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore',
+            'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'
+        ]):
+            return 'outside_kerala'
+
+    return 'kerala'
+
+
+def calculate_shipping_fee(items, delivery_region='kerala', pincode=None):
     """
     Shipping fee calculation rules:
     - Featured Bracelet (temporary test rate): ₹1 flat
-    - Outside Kerala: ₹95 flat for any product
-    - Inside Kerala:
+    - Outside Kerala (PIN outside 67-69 or explicitly outside): ₹95 flat
+    - Inside Kerala (PIN 67xxxx, 68xxxx, 69xxxx or inside Kerala):
       - ₹65 if order contains Shades
       - ₹55 for other products
     """
@@ -569,7 +622,7 @@ def calculate_shipping_fee(items, delivery_region='kerala'):
     if check_cart_has_test_bracelet(items):
         return 1.0
 
-    region = (delivery_region or 'kerala').strip().lower()
+    region = determine_delivery_region(pincode=pincode, delivery_region=delivery_region)
     if region == 'outside_kerala':
         return 95.0
     
@@ -642,41 +695,75 @@ def checkout_view(request):
     default_address = ''
     default_phone = ''
     default_name = ''
+    default_pincode = ''
+    default_city = ''
+    default_state = ''
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(user=request.user)
         default_address = profile.address or ''
         default_phone = profile.phone_number or ''
+        default_pincode = profile.pincode or ''
+        default_city = profile.city or ''
+        default_state = profile.state or ''
         default_name = request.user.username
 
-    # Determine default delivery region from saved address if available
-    addr_lower = (default_address or '').lower()
-    is_outside = ('outside' in addr_lower) or (
-        'kerala' not in addr_lower and any(
-            st in addr_lower for st in [
-                'tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore',
-                'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'
-            ]
-        )
-    )
-    initial_region = 'outside_kerala' if is_outside else 'kerala'
-    initial_shipping_fee = calculate_shipping_fee(products_list, initial_region)
+        # If pincode not yet stored separately, try extracting 6 digits from address text
+        if not default_pincode and default_address:
+            import re
+            m = re.search(r'\b([1-9]\d{5})\b', default_address)
+            if m:
+                default_pincode = m.group(1)
+
+    # Determine default delivery region from PIN code or saved address
+    initial_region = determine_delivery_region(pincode=default_pincode, address=default_address)
+    initial_shipping_fee = calculate_shipping_fee(products_list, delivery_region=initial_region, pincode=default_pincode)
     initial_total = round(subtotal + initial_shipping_fee, 2)
 
     if request.method == 'POST':
         full_name = (request.POST.get('full_name') or '').strip()
         phone = (request.POST.get('phone_number') or '').strip()
         address = (request.POST.get('shipping_address') or '').strip()
-        delivery_region = (request.POST.get('delivery_region') or initial_region).strip().lower()
+        pincode = (request.POST.get('pincode') or '').strip()
+        city = (request.POST.get('city') or '').strip()
+        state = (request.POST.get('state') or '').strip()
+        requested_region = (request.POST.get('delivery_region') or initial_region).strip().lower()
 
         if not full_name or not phone or not address:
             return JsonResponse({'status': 'error', 'message': 'Please complete all required shipping details.'}, status=400)
 
+        # Validate PIN code
+        import re
+        pincode_digits = re.sub(r'\D', '', pincode)
+        # If pincode was not sent in dedicated field, try extracting 6 digits from address
+        if not pincode_digits and address:
+            m = re.search(r'\b([1-9]\d{5})\b', address)
+            if m:
+                pincode_digits = m.group(1)
+
+        if pincode_digits:
+            if len(pincode_digits) != 6:
+                return JsonResponse({'status': 'error', 'message': 'Please enter a valid 6-digit Indian Postal PIN code.'}, status=400)
+            pincode = pincode_digits
+            delivery_region = determine_delivery_region(pincode=pincode, delivery_region=requested_region, address=address)
+        else:
+            # Fallback when only delivery_region/address is passed
+            delivery_region = determine_delivery_region(pincode=None, delivery_region=requested_region, address=address)
+            pincode = '673001' if delivery_region == 'kerala' else '560001'
+
         if subtotal <= 0:
             return JsonResponse({'status': 'error', 'message': 'Invalid cart total.'}, status=400)
 
-        # Re-compute accurate shipping fee on backend
-        shipping_fee = calculate_shipping_fee(products_list, delivery_region)
+        # Re-compute accurate shipping fee on backend based on PIN code & product types
+        shipping_fee = calculate_shipping_fee(products_list, delivery_region=delivery_region, pincode=pincode)
         grand_total = round(subtotal + shipping_fee, 2)
+
+        # Build clean full address representation for shipping labels & admin
+        full_shipping_address = address
+        if pincode not in full_shipping_address:
+            if city and city.lower() not in full_shipping_address.lower():
+                full_shipping_address = f"{address}, {city} - {pincode}"
+            else:
+                full_shipping_address = f"{address} - {pincode}"
 
         # Automatically update user profile for subsequent visits
         if request.user.is_authenticated:
@@ -686,6 +773,11 @@ def checkout_view(request):
                     prof.phone_number = phone
                 if address:
                     prof.address = address
+                prof.pincode = pincode
+                if city:
+                    prof.city = city
+                if state:
+                    prof.state = state
                 prof.save()
             except Exception:
                 pass
@@ -703,7 +795,8 @@ def checkout_view(request):
                 'notes': {
                     'customer_name': full_name[:40],
                     'customer_phone': phone[:15],
-                    'shipping_address': address[:100],
+                    'shipping_address': full_shipping_address[:100],
+                    'pincode': pincode,
                     'delivery_region': delivery_region,
                     'shipping_fee': str(shipping_fee),
                     'payment_method': payment_method
@@ -724,7 +817,11 @@ def checkout_view(request):
             user=request.user if request.user.is_authenticated else None,
             full_name=full_name,
             phone_number=phone,
-            shipping_address=address,
+            shipping_address=full_shipping_address,
+            pincode=pincode,
+            city=city,
+            state=state or ('Kerala' if delivery_region == 'kerala' else ''),
+            delivery_region=delivery_region,
             shipping_fee=shipping_fee,
             total_price=grand_total,
             razorpay_order_id=rzp_order_id,
@@ -745,6 +842,8 @@ def checkout_view(request):
             'amount': rzp_amount,
             'subtotal': subtotal,
             'shipping_fee': shipping_fee,
+            'delivery_region': delivery_region,
+            'pincode': pincode,
             'total': grand_total,
             'currency': 'INR',
             'razorpay_order_id': rzp_order_id,
@@ -770,6 +869,9 @@ def checkout_view(request):
         'default_address': default_address,
         'default_phone': default_phone,
         'default_name': default_name,
+        'default_pincode': default_pincode,
+        'default_city': default_city,
+        'default_state': default_state,
         'user_email': request.user.email if request.user.is_authenticated else '',
         'razorpay_key': settings.RAZORPAY_KEY_ID,
     })
@@ -1004,7 +1106,7 @@ def adminpp_orders(request):
         ws = wb.active
         ws.title = "Orders Data"
 
-        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'Items Purchased', 'Categories', 'Total Price', 'Payment ID', 'Tracking ID', 'Carrier', 'Shipping Status', 'Date']
+        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'PIN Code', 'Region', 'Items Purchased', 'Categories', 'Total Price', 'Shipping Fee', 'Payment ID', 'Tracking ID', 'Carrier', 'Shipping Status', 'Date']
         ws.append(headers)
 
         header_fill = PatternFill(start_color="1F2937", end_color="1F2937", fill_type="solid")
@@ -1024,9 +1126,12 @@ def adminpp_orders(request):
                 o.full_name,
                 o.phone_number,
                 o.shipping_address,
+                o.pincode or '',
+                o.delivery_region or '',
                 items_str,
                 cats_str,
                 float(o.total_price),
+                float(o.shipping_fee or 0.0),
                 o.razorpay_payment_id or '',
                 o.tracking_id or 'Not Assigned',
                 o.carrier or 'India Post',
