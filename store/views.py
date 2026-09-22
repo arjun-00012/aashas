@@ -203,9 +203,11 @@ def home(request):
     trending_products = Product.objects.filter(is_trending=True).select_related('category')
     if not trending_products.exists():
         trending_products = Product.objects.all().select_related('category').order_by('-created_at')[:8]
+    pinterest_products = Product.objects.all().select_related('category').order_by('-created_at')[:16]
     return render(request, 'index.html', {
         'categories': categories,
-        'trending_products': trending_products
+        'trending_products': trending_products,
+        'pinterest_products': pinterest_products
     })
 
 def category_detail(request, slug):

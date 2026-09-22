@@ -648,249 +648,663 @@
     }
 
     /* =========================================================
-       Pinterest Curated Lookbook / Aesthetic Editorial Showcase
+       Authentic Pinterest Board UI & Masonry Design System
        ========================================================= */
-    .lookbook-section {
+    .pinterest-board-section {
         width: 100%;
-        margin-top: 2.5rem;
+        margin-top: 3.5rem;
+        margin-bottom: 4rem;
     }
 
-    .lookbook-header {
+    /* Pinterest Profile & Board Header */
+    .pinterest-profile-header {
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        border-radius: 24px;
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 8px 24px -4px rgba(28, 25, 23, 0.05);
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(28, 25, 23, 0.08);
-        padding-bottom: 1rem;
+        gap: 1.25rem;
     }
 
     @media (min-width: 768px) {
-        .lookbook-header {
+        .pinterest-profile-header {
             flex-direction: row;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
+            padding: 1.75rem 2.25rem;
         }
     }
 
-    .lookbook-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #E60023;
-        color: #FFFFFF;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        box-shadow: 0 2px 8px rgba(230, 0, 35, 0.25);
-    }
-
-    .lookbook-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: clamp(1.1rem, 2.8vw, 1.45rem);
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #171614;
-        margin: 6px 0 2px;
-    }
-
-    .lookbook-subtitle {
-        color: #635F59;
-        font-size: 0.82rem;
-        margin: 0;
-        max-width: 580px;
-        line-height: 1.5;
-    }
-
-    /* Pinterest Card Grid */
-    .lookbook-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 18px;
-    }
-
-    @media (min-width: 576px) {
-        .lookbook-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-    }
-
-    @media (min-width: 992px) {
-        .lookbook-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 22px;
-        }
-    }
-
-    .lookbook-card {
-        position: relative;
-        border-radius: 16px;
-        overflow: hidden;
-        background: #FFFFFF;
-        border: 1px solid rgba(28, 25, 23, 0.1);
-        box-shadow: 0 8px 24px -4px rgba(28, 25, 23, 0.08);
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+    .pinterest-profile-brand {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 16px;
     }
 
-    .lookbook-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 40px -8px rgba(28, 25, 23, 0.16);
-        border-color: rgba(28, 25, 23, 0.28);
-    }
-
-    .lookbook-img-wrapper {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 3 / 4;
+    .pinterest-brand-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #171614;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
-        background: #FAF8F5;
+        border: 2px solid #FFFFFF;
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.18);
+        flex-shrink: 0;
+        position: relative;
     }
 
-    .lookbook-img {
+    .pinterest-brand-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        display: block;
     }
 
-    .lookbook-card:hover .lookbook-img {
-        transform: scale(1.05);
+    .pinterest-title-block h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        color: #171614;
+        margin: 0 0 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
-    /* Pulsing Hotspot Pins on Images */
-    .lookbook-pin {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        z-index: 10;
+    .pinterest-icon-badge {
+        color: #E60023;
+        font-size: 1.4rem;
+        line-height: 1;
+    }
+
+    .pinterest-desc-text {
+        font-size: 0.84rem;
+        color: #635F59;
+        margin-bottom: 4px;
+        line-height: 1.45;
+    }
+
+    .pinterest-meta-stats {
+        font-size: 0.78rem;
+        color: #8C867E;
+        font-weight: 600;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pinterest-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-pinterest-save-board {
+        background: #E60023 !important;
+        border: 1.5px solid #E60023 !important;
+        color: #FFFFFF !important;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 9px 20px;
+        border-radius: 24px;
+        transition: all 0.22s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(230, 0, 35, 0.32);
         cursor: pointer;
     }
 
-    .lookbook-pin-dot {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
+    .btn-pinterest-save-board:hover {
+        background: #ad081b !important;
+        border-color: #ad081b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(230, 0, 35, 0.42);
+    }
+
+    .btn-pinterest-save-board.following {
+        background: #171614 !important;
+        border-color: #171614 !important;
+        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.2);
+    }
+
+    .btn-pinterest-pill {
+        background: #F4F0EB;
+        border: 1px solid rgba(28, 25, 23, 0.12);
+        color: #171614;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 18px;
+        border-radius: 24px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+
+    .btn-pinterest-pill:hover {
+        background: #171614;
+        color: #FFFFFF;
+        border-color: #171614;
+        transform: translateY(-1px);
+    }
+
+    /* Pinterest Filter Chips Strip */
+    .pinterest-tabs-strip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        margin-bottom: 1.75rem;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .pinterest-tabs-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pinterest-tab-chip {
+        background: #FFFFFF;
+        border: 1.5px solid rgba(28, 25, 23, 0.12);
+        color: #635F59;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        padding: 8px 18px;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
+    }
+
+    .pinterest-tab-chip:hover {
+        background: #F4F0EB;
+        color: #171614;
+        border-color: rgba(28, 25, 23, 0.28);
+        transform: translateY(-1px);
+    }
+
+    .pinterest-tab-chip.active {
+        background: #171614;
+        color: #FFFFFF;
+        border-color: #171614;
+        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.22);
+    }
+
+    .pinterest-tab-chip.active .badge {
+        background: rgba(255, 255, 255, 0.22) !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Pinterest Masonry Layout */
+    .pinterest-masonry-grid {
+        column-count: 2;
+        column-gap: 14px;
+        width: 100%;
+    }
+
+    @media (min-width: 576px) {
+        .pinterest-masonry-grid {
+            column-count: 2;
+            column-gap: 16px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .pinterest-masonry-grid {
+            column-count: 3;
+            column-gap: 18px;
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .pinterest-masonry-grid {
+            column-count: 4;
+            column-gap: 20px;
+        }
+    }
+
+    /* Pin Card Item with Entrance Animation */
+    @keyframes pinFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .pin-card-item {
+        break-inside: avoid;
+        margin-bottom: 20px;
+        display: inline-block;
+        width: 100%;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        animation: pinFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+
+    .pin-card-item.hidden-pin {
+        display: none !important;
+    }
+
+    /* Pin Media Stage */
+    .pin-media-stage {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #FAF8F5;
+        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.06);
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        cursor: pointer;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+    }
+
+    .pin-media-stage.pin-ratio-square {
+        aspect-ratio: 1 / 1;
+    }
+
+    .pin-media-stage.pin-ratio-portrait {
+        aspect-ratio: 4 / 5;
+    }
+
+    .pin-media-stage.pin-ratio-tall {
+        aspect-ratio: 3 / 4;
+    }
+
+    .pin-card-item:hover .pin-media-stage {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 42px -6px rgba(28, 25, 23, 0.18);
+        border-color: rgba(28, 25, 23, 0.22);
+    }
+
+    .pin-media-stage img.pin-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pin-card-item:hover .pin-media-stage img.pin-img {
+        transform: scale(1.06);
+    }
+
+    /* Pinterest Multi-Photo Badge (e.g. 4 photos) */
+    .pin-photo-count-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(23, 22, 20, 0.8);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #FAF8F5;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: opacity 0.2s ease;
+    }
+
+    .pin-card-item:hover .pin-photo-count-badge {
+        opacity: 0;
+    }
+
+    /* Pin Hover Overlay */
+    .pin-hover-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0.6) 100%);
+        opacity: 0;
+        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        z-index: 6;
+        pointer-events: none;
+    }
+
+    .pin-card-item:hover .pin-hover-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    @media (hover: none) {
+        .pin-hover-overlay {
+            opacity: 1;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 42%, rgba(0,0,0,0.52) 100%);
+            pointer-events: auto;
+        }
+    }
+
+    /* Pin Top Bar */
+    .pin-top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .pin-cat-pill {
+        background: rgba(23, 22, 20, 0.78);
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 14px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .pin-save-btn {
+        background: #E60023;
+        color: #FFFFFF;
+        border: none;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        padding: 7px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .pin-save-btn:hover {
+        background: #ad081b;
+        transform: scale(1.06);
+    }
+
+    .pin-save-btn.saved {
+        background: #171614 !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+
+    @keyframes heartPop {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.35); color: #FF2E51; }
+        100% { transform: scale(1); }
+    }
+
+    .heart-pop-anim {
+        animation: heartPop 0.35s ease;
+    }
+
+    /* Pin Bottom Bar */
+    .pin-bottom-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 6px;
+    }
+
+    .pin-dest-pill {
         background: rgba(255, 255, 255, 0.95);
+        color: #171614 !important;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        transition: all 0.18s ease;
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .pin-dest-pill:hover {
+        background: #FFFFFF;
+        transform: scale(1.04);
+        color: #000000 !important;
+    }
+
+    .pin-action-icons {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pin-circle-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.94);
+        color: #171614;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    }
+
+    .pin-circle-btn:hover {
+        background: #FFFFFF;
+        transform: scale(1.12);
+        color: #E60023;
+    }
+
+    /* Pulsing Product Hotspot on Editorial Pins */
+    .pinterest-hotspot {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 8;
+        cursor: pointer;
+    }
+
+    .pinterest-hotspot-dot {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #FFFFFF;
         border: 2px solid #171614;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(28, 25, 23, 0.3);
-        animation: pinRipple 2.4s infinite;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        animation: pinterestPulse 2.2s infinite;
         transition: transform 0.2s ease, background 0.2s ease;
         color: #171614;
         font-size: 0.72rem;
     }
 
-    .lookbook-pin:hover .lookbook-pin-dot,
-    .lookbook-pin.active .lookbook-pin-dot {
+    .pinterest-hotspot:hover .pinterest-hotspot-dot,
+    .pinterest-hotspot.active .pinterest-hotspot-dot {
         background: #171614;
         color: #FFFFFF;
-        transform: scale(1.15);
+        transform: scale(1.2);
         animation: none;
     }
 
-    @keyframes pinRipple {
-        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 4px 12px rgba(28, 25, 23, 0.3); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0), 0 4px 12px rgba(28, 25, 23, 0.3); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 4px 12px rgba(28, 25, 23, 0.3); }
+    @keyframes pinterestPulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.35); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0), 0 2px 8px rgba(0, 0, 0, 0.35); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 2px 8px rgba(0, 0, 0, 0.35); }
     }
 
-    /* Popover product card attached to hotspot */
-    .lookbook-tag-card {
+    .pinterest-hotspot-card {
         position: absolute;
-        bottom: calc(100% + 8px);
+        bottom: calc(100% + 10px);
         left: 50%;
-        transform: translateX(-50%) translateY(10px);
+        transform: translateX(-50%) translateY(8px);
         background: rgba(255, 255, 255, 0.98);
         border: 1px solid rgba(28, 25, 23, 0.14);
-        border-radius: 10px;
-        padding: 8px 12px;
+        border-radius: 14px;
+        padding: 9px 12px;
         white-space: nowrap;
-        box-shadow: 0 10px 28px rgba(28, 25, 23, 0.18);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         opacity: 0;
         pointer-events: none;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: 20;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 25;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
-    .lookbook-pin:hover .lookbook-tag-card,
-    .lookbook-pin.active .lookbook-tag-card {
+    .pinterest-hotspot:hover .pinterest-hotspot-card,
+    .pinterest-hotspot.active .pinterest-hotspot-card {
         opacity: 1;
         pointer-events: auto;
         transform: translateX(-50%) translateY(0);
     }
 
-    /* Card Footer Info Bar */
-    .lookbook-card-footer {
-        padding: 12px 14px;
-        background: #FFFFFF;
-        border-top: 1px solid rgba(28, 25, 23, 0.06);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+    /* Below Pin Info Strip */
+    .pin-meta-info {
+        padding: 9px 4px 4px 4px;
     }
 
-    .lookbook-card-meta {
+    .pin-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #171614;
+        margin: 0 0 5px 0;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .pin-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .pin-title a:hover {
+        color: #635F59;
+        text-decoration: underline;
+    }
+
+    .pin-author-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 6px;
     }
 
-    .lookbook-card-tag {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #8C867E;
+    .pin-author {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.74rem;
+        color: #635F59;
+        font-weight: 600;
     }
 
-    .lookbook-card-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: #171614;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
-    .lookbook-shop-btn {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #171614;
-        background: transparent;
-        color: #171614;
-        text-decoration: none;
-        display: inline-flex;
+    .pin-author-avatar {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #171614;
+        display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        transition: all 0.2s ease;
-        margin-top: 4px;
+        overflow: hidden;
     }
 
-    .lookbook-shop-btn:hover {
+    .pin-author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pin-price-tag {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #171614;
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
+    /* Pinterest Toast Notification */
+    .pinterest-toast-container {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
         background: #171614;
-        color: #FFFFFF;
+        color: #FAF8F5;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 12px 22px;
+        border-radius: 9999px;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        z-index: 2100;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pinterest-toast-container.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
     }
 </style>
 {% endblock %}
@@ -1058,219 +1472,443 @@
     {% endif %}
 
     <!-- =========================================================
-         4. PINTEREST CURATED LOOKBOOK / AESTHETIC EDIT
+         4. AUTHENTIC PINTEREST VISUAL MOODBOARD & PRODUCT PINS
          ========================================================= -->
-    <section id="section-lookbook" class="lookbook-section mb-5 pt-3" aria-label="Curated Lookbook on Pinterest">
-        <div class="lookbook-header">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span class="lookbook-badge">
-                        <i class="bi bi-pinterest"></i> Curated on Pinterest
-                    </span>
-                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;">Aesthetic Lookbook</span>
+    <section id="section-lookbook" class="pinterest-board-section lookbook-section mb-5 pt-3" aria-label="Official Pinterest Moodboard & Curated Accessories">
+        <!-- Pinterest Profile & Board Header -->
+        <div class="pinterest-profile-header">
+            <div class="pinterest-profile-brand">
+                <div class="pinterest-brand-avatar" title="ASHAS Official Brand">
+                    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Official" loading="lazy">
                 </div>
-                <h2 class="lookbook-title">THE AESTHETIC EDIT</h2>
-                <p class="lookbook-subtitle">
-                    Contemporary street styling & statement accessories curated from our moodboards. Tap any pulsing pin to discover and shop the featured pieces.
-                </p>
+                <div class="pinterest-title-block">
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="badge d-inline-flex align-items-center gap-1" style="background: #E60023; color: #FFFFFF; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 9999px;">
+                            <i class="bi bi-pinterest"></i> Curated on Pinterest
+                        </span>
+                        <span class="badge bg-light text-secondary border rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;">THE AESTHETIC EDIT</span>
+                    </div>
+                    <h2>
+                        ASHAS STORE
+                        <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.05rem;" title="Verified Store"></i>
+                    </h2>
+                    <div class="pinterest-desc-text">
+                        Aesthetic street style moodboard &amp; statement accessory catalog. Curated in Kozhikode, shipping all across India.
+                    </div>
+                    <div class="pinterest-meta-stats">
+                        <span><i class="bi bi-pin-angle-fill text-danger me-1"></i> 20 Curated Pins</span>
+                        <span>•</span>
+                        <span><i class="bi bi-camera-fill text-dark me-1"></i> 4 Editorial Shoots</span>
+                        <span>•</span>
+                        <span><i class="bi bi-geo-alt-fill text-secondary me-1"></i> Kerala, India</span>
+                    </div>
+                </div>
             </div>
-            <div class="mt-2 mt-md-0 d-flex gap-2">
-                <a href="#blactifyCategoryGrid" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.76rem; letter-spacing: 0.04em;">
-                    <i class="bi bi-grid-fill"></i> All Collections
-                </a>
+
+            <div class="pinterest-header-actions">
+                <button type="button" class="btn-pinterest-save-board" id="pinterestFollowBtn" aria-label="Save or follow board">
+                    <i class="bi bi-pin-angle-fill"></i> <span>Save Board</span>
+                </button>
+                <button type="button" class="btn-pinterest-pill" id="pinterestShareBoardBtn" aria-label="Share board">
+                    <i class="bi bi-share-fill"></i> <span>Share</span>
+                </button>
             </div>
         </div>
 
-        <div class="lookbook-grid">
-            <!-- Look 1: Cyber Noir Edit -->
-            <div class="lookbook-card">
-                <div class="lookbook-img-wrapper">
-                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="ASHAS Noir Streetwear Silhouette Look" class="lookbook-img" loading="lazy">
+        <!-- Pinterest Category Filter Strip -->
+        <div class="pinterest-tabs-strip" id="pinterestFilterTabs" role="tablist" aria-label="Filter pins by category">
+            <button type="button" class="pinterest-tab-chip active" data-filter="all" role="tab" aria-selected="true">
+                <i class="bi bi-grid-fill"></i> All Pins <span class="badge bg-secondary rounded-pill ms-1">20</span>
+            </button>
+            <button type="button" class="pinterest-tab-chip" data-filter="editorial" role="tab" aria-selected="false">
+                <i class="bi bi-stars text-warning"></i> Editorial Shoots <span class="badge bg-secondary rounded-pill ms-1">4</span>
+            </button>
+            <button type="button" class="pinterest-tab-chip" data-filter="rings" role="tab" aria-selected="false">
+                <i class="bi bi-gem"></i> Rings
+            </button>
+            <button type="button" class="pinterest-tab-chip" data-filter="shades" role="tab" aria-selected="false">
+                <i class="bi bi-sunglasses"></i> Shades
+            </button>
+            <button type="button" class="pinterest-tab-chip" data-filter="chains" role="tab" aria-selected="false">
+                <i class="bi bi-link-45deg"></i> Chains
+            </button>
+            <button type="button" class="pinterest-tab-chip" data-filter="accs" role="tab" aria-selected="false">
+                <i class="bi bi-watch"></i> Watches &amp; Accessories
+            </button>
+        </div>
+
+        <!-- Pinterest Masonry Waterfall Grid -->
+        <div class="pinterest-masonry-grid" id="pinterestMasonryGrid">
+            <!-- Editorial Look 1 -->
+            <div class="pin-card-item" data-category="editorial shades chains" data-pin-id="editorial-1">
+                <div class="pin-media-stage pin-ratio-tall">
+                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="ASHAS Noir Streetwear Silhouette Look" class="pin-img" loading="lazy">
                     
-                    <!-- Hotspot 1: Sunglasses -->
-                    <div class="lookbook-pin" style="top: 30%; left: 49%;" title="Dark WOST Rimless Shades">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <!-- Pulsing Hotspot 1: Dark WOST Sunglasses -->
+                    <div class="pinterest-hotspot" style="top: 32%; left: 49%;" title="Dark WOST Sunglasses">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Dark WOST Sunglasses</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Trending Shades</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Dark WOST Sunglasses</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 250.00</span>
                             </div>
-                            <a href="/product/2/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/2/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
-                    <!-- Hotspot 2: Cuban Chain -->
-                    <div class="lookbook-pin" style="top: 45%; left: 53%;" title="Obsidian Cuban Chain">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <!-- Pulsing Hotspot 2: Obsidian Cuban Chain -->
+                    <div class="pinterest-hotspot" style="top: 46%; left: 53%;" title="Obsidian Cuban Chain">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Obsidian Cuban Chain</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Stainless Steel</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Obsidian Cuban Chain</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1299.00</span>
                             </div>
-                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hover Overlay -->
+                    <div class="pin-hover-overlay">
+                        <div class="pin-top-bar">
+                            <span class="pin-cat-pill">EDITORIAL • SHADES</span>
+                            <button type="button" class="pin-save-btn" data-pin-id="editorial-1" aria-label="Save pin">
+                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
+                            </button>
+                        </div>
+                        <div class="pin-bottom-bar">
+                            <a href="{% url 'category_detail' 'shades' %}" class="pin-dest-pill" title="Explore Shades">
+                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
+                            </a>
+                            <div class="pin-action-icons">
+                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/shades/" data-title="ASHAS Noir Silhouette Look" title="Share Pin">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lookbook-card-footer">
-                    <div class="lookbook-card-meta">
-                        <span class="lookbook-card-tag">LOOK 01 • CYBER NOIR</span>
-                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                <div class="pin-meta-info">
+                    <h3 class="pin-title"><a href="{% url 'category_detail' 'shades' %}">The Noir Silhouette • Street Eyewear &amp; Steel</a></h3>
+                    <div class="pin-author-row">
+                        <div class="pin-author">
+                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
+                            <span>ASHAS Official</span>
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                        </div>
+                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 01</span>
                     </div>
-                    <h3 class="lookbook-card-title">The Noir Silhouette</h3>
-                    <a href="{% url 'category_detail' 'shades' %}" class="lookbook-shop-btn">
-                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
-                    </a>
                 </div>
             </div>
 
-            <!-- Look 2: Silver Armor Stack -->
-            <div class="lookbook-card">
-                <div class="lookbook-img-wrapper">
-                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="ASHAS Silver Signet Stack Look" class="lookbook-img" loading="lazy">
+            <!-- Editorial Look 2 -->
+            <div class="pin-card-item" data-category="editorial rings accs" data-pin-id="editorial-2">
+                <div class="pin-media-stage pin-ratio-tall">
+                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="ASHAS Silver Signet Stack Look" class="pin-img" loading="lazy">
                     
                     <!-- Hotspot 1: Wolf Ring -->
-                    <div class="lookbook-pin" style="top: 44%; left: 36%;" title="Wolf Ring">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 44%; left: 36%;" title="Wolf Ring">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Wolf Ring</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Signature Piece</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Wolf Ring</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 899.00</span>
                             </div>
-                            <a href="/product/1/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/1/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
                     <!-- Hotspot 2: Signet Ring -->
-                    <div class="lookbook-pin" style="top: 55%; left: 54%;" title="Signet Ring">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 55%; left: 54%;" title="Signet Ring">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Silver Signet Ring</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Stainless Steel</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Silver Signet Ring</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 899.00</span>
                             </div>
-                            <a href="/product/9/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/9/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
                     <!-- Hotspot 3: Stone Bracelet -->
-                    <div class="lookbook-pin" style="top: 31%; left: 74%;" title="Obsidian Bracelet">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 31%; left: 74%;" title="Obsidian Bracelet">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Obsidian Bracelet</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Bracelets</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Obsidian Stone Bracelet</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 699.00</span>
                             </div>
-                            <a href="/product/11/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/11/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hover Overlay -->
+                    <div class="pin-hover-overlay">
+                        <div class="pin-top-bar">
+                            <span class="pin-cat-pill">EDITORIAL • RINGS</span>
+                            <button type="button" class="pin-save-btn" data-pin-id="editorial-2" aria-label="Save pin">
+                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
+                            </button>
+                        </div>
+                        <div class="pin-bottom-bar">
+                            <a href="{% url 'category_detail' 'rings' %}" class="pin-dest-pill" title="Explore Rings">
+                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
+                            </a>
+                            <div class="pin-action-icons">
+                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/rings/" data-title="ASHAS Silver Signet Stack" title="Share Pin">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lookbook-card-footer">
-                    <div class="lookbook-card-meta">
-                        <span class="lookbook-card-tag">LOOK 02 • STATEMENT ARMOR</span>
-                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                <div class="pin-meta-info">
+                    <h3 class="pin-title"><a href="{% url 'category_detail' 'rings' %}">Silver Signet Stack • Heavy Armor &amp; Stone</a></h3>
+                    <div class="pin-author-row">
+                        <div class="pin-author">
+                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
+                            <span>ASHAS Official</span>
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                        </div>
+                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 02</span>
                     </div>
-                    <h3 class="lookbook-card-title">Silver Signet Stack</h3>
-                    <a href="{% url 'category_detail' 'rings' %}" class="lookbook-shop-btn">
-                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
-                    </a>
                 </div>
             </div>
 
-            <!-- Look 3: Street Steel & Chrono -->
-            <div class="lookbook-card">
-                <div class="lookbook-img-wrapper">
-                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="ASHAS City Street Steel and Chrono Look" class="lookbook-img" loading="lazy">
+            <!-- Editorial Look 3 -->
+            <div class="pin-card-item" data-category="editorial chains accs" data-pin-id="editorial-3">
+                <div class="pin-media-stage pin-ratio-tall">
+                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="ASHAS City Street Steel and Chrono Look" class="pin-img" loading="lazy">
                     
-                    <!-- Hotspot 1: Layered Cuban Chain -->
-                    <div class="lookbook-pin" style="top: 41%; left: 51%;" title="Heavy Cuban Chain">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <!-- Hotspot 1: Heavy Cuban Chain -->
+                    <div class="pinterest-hotspot" style="top: 41%; left: 51%;" title="Heavy Cuban Chain">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Heavy Cuban Chain</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Double Layered</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Heavy Cuban Chain</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1299.00</span>
                             </div>
-                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
                     <!-- Hotspot 2: Chrono Noir Watch -->
-                    <div class="lookbook-pin" style="top: 55%; left: 52%;" title="Chrono Noir Watch">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 55%; left: 52%;" title="Chrono Noir Watch">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Chrono Noir Watch</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Precision Steel</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Chrono Noir Watch</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1999.00</span>
                             </div>
-                            <a href="/product/5/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/5/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hover Overlay -->
+                    <div class="pin-hover-overlay">
+                        <div class="pin-top-bar">
+                            <span class="pin-cat-pill">EDITORIAL • CHAINS</span>
+                            <button type="button" class="pin-save-btn" data-pin-id="editorial-3" aria-label="Save pin">
+                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
+                            </button>
+                        </div>
+                        <div class="pin-bottom-bar">
+                            <a href="{% url 'category_detail' 'chains' %}" class="pin-dest-pill" title="Explore Chains">
+                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
+                            </a>
+                            <div class="pin-action-icons">
+                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/chains/" data-title="ASHAS City Steel & Cuban Chain" title="Share Pin">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lookbook-card-footer">
-                    <div class="lookbook-card-meta">
-                        <span class="lookbook-card-tag">LOOK 03 • STREET STEEL</span>
-                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                <div class="pin-meta-info">
+                    <h3 class="pin-title"><a href="{% url 'category_detail' 'chains' %}">City Lights &amp; Cuban Chain • Street Precision Steel</a></h3>
+                    <div class="pin-author-row">
+                        <div class="pin-author">
+                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
+                            <span>ASHAS Official</span>
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                        </div>
+                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 03</span>
                     </div>
-                    <h3 class="lookbook-card-title">City Lights &amp; Cuban Chain</h3>
-                    <a href="{% url 'category_detail' 'chains' %}" class="lookbook-shop-btn">
-                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
-                    </a>
                 </div>
             </div>
 
-            <!-- Look 4: Architectural Essentials -->
-            <div class="lookbook-card">
-                <div class="lookbook-img-wrapper">
-                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="ASHAS Minimalist Architectural Essentials Flatlay" class="lookbook-img" loading="lazy">
+            <!-- Editorial Look 4 -->
+            <div class="pin-card-item" data-category="editorial chains shades rings" data-pin-id="editorial-4">
+                <div class="pin-media-stage pin-ratio-tall">
+                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="ASHAS Minimalist Architectural Essentials Flatlay" class="pin-img" loading="lazy">
                     
                     <!-- Hotspot 1: Center Chain -->
-                    <div class="lookbook-pin" style="top: 48%; left: 49%;" title="Pendant Cuban Chain">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 48%; left: 49%;" title="Pendant Cuban Chain">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Pendant Cuban Chain</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Curated Chain</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Pendant Cuban Chain</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1199.00</span>
                             </div>
-                            <a href="/product/10/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/10/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
                     <!-- Hotspot 2: Retro Shades -->
-                    <div class="lookbook-pin" style="top: 42%; left: 82%;" title="Retro Shades">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <div class="pinterest-hotspot" style="top: 42%; left: 82%;" title="Retro Shades">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Retro Shades</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">UV400 Protection</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Retro Shades</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 199.00</span>
                             </div>
-                            <a href="/product/22/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/22/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
                         </div>
                     </div>
 
-                    <!-- Hotspot 3: Silver Rings Stack -->
-                    <div class="lookbook-pin" style="top: 47%; left: 18%;" title="Silver Ring Stack">
-                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
-                        <div class="lookbook-tag-card">
+                    <!-- Hotspot 3: Dragon Talon Ring -->
+                    <div class="pinterest-hotspot" style="top: 47%; left: 18%;" title="Dragon Talon Ring">
+                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
+                        <div class="pinterest-hotspot-card">
                             <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Silver Statement Ring</div>
-                                <span class="text-secondary" style="font-size: 0.68rem;">Rings Collection</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Dragon Talon Ring</div>
+                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1199.00</span>
                             </div>
-                            <a href="/product/21/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                            <a href="/product/17/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hover Overlay -->
+                    <div class="pin-hover-overlay">
+                        <div class="pin-top-bar">
+                            <span class="pin-cat-pill">EDITORIAL • FLATLAY</span>
+                            <button type="button" class="pin-save-btn" data-pin-id="editorial-4" aria-label="Save pin">
+                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
+                            </button>
+                        </div>
+                        <div class="pin-bottom-bar">
+                            <a href="{% url 'category_detail' 'rings' %}" class="pin-dest-pill" title="Explore Essentials">
+                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
+                            </a>
+                            <div class="pin-action-icons">
+                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/" data-title="ASHAS Architectural Flatlay" title="Share Pin">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lookbook-card-footer">
-                    <div class="lookbook-card-meta">
-                        <span class="lookbook-card-tag">LOOK 04 • ESSENTIALS</span>
-                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                <div class="pin-meta-info">
+                    <h3 class="pin-title"><a href="{% url 'category_detail' 'rings' %}">Architectural Flatlay • Curated Daily Essentials</a></h3>
+                    <div class="pin-author-row">
+                        <div class="pin-author">
+                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
+                            <span>ASHAS Official</span>
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                        </div>
+                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 04</span>
                     </div>
-                    <h3 class="lookbook-card-title">Architectural Flatlay</h3>
-                    <a href="{% url 'category_detail' 'rings' %}" class="lookbook-shop-btn">
-                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
-                    </a>
                 </div>
             </div>
+
+            {% for product in pinterest_products %}
+                <div class="pin-card-item"
+                     data-category="{% if product.category.slug == 'rings' %}rings{% elif product.category.slug == 'shades' %}shades{% elif product.category.slug == 'chains' %}chains{% else %}accs{% endif %}"
+                     data-pin-id="prod-{{ product.id }}">
+                    <div class="pin-media-stage {% if forloop.counter|divisibleby:3 %}pin-ratio-portrait{% elif forloop.counter|divisibleby:2 %}pin-ratio-square{% else %}pin-ratio-tall{% endif %}">
+                        {% if product.display_image %}
+                            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="pin-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                        {% else %}
+                            <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" class="pin-img" loading="lazy">
+                        {% endif %}
+
+                        {% if product.photo_count > 1 %}
+                            <div class="pin-photo-count-badge">
+                                <i class="bi bi-images"></i> {{ product.photo_count }} Photos
+                            </div>
+                        {% endif %}
+
+                        <!-- Pinterest Hover Overlay -->
+                        <div class="pin-hover-overlay">
+                            <div class="pin-top-bar">
+                                <span class="pin-cat-pill">{{ product.category.name }}</span>
+                                <button type="button" class="pin-save-btn" data-pin-id="prod-{{ product.id }}" aria-label="Save {{ product.name }}">
+                                    <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
+                                </button>
+                            </div>
+                            <div class="pin-bottom-bar">
+                                <a href="{% url 'product_detail' product.id %}" class="pin-dest-pill" title="Shop {{ product.name }}">
+                                    <i class="bi bi-arrow-up-right"></i> ashasstore.in
+                                </a>
+                                <div class="pin-action-icons">
+                                    <button type="button"
+                                            class="pin-circle-btn pin-quickview-btn"
+                                            data-id="{{ product.id }}"
+                                            data-name="{{ product.name }}"
+                                            data-price="RS. {{ product.current_price|floatformat:2 }}"
+                                            data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
+                                            data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
+                                            data-cat="{{ product.category.name }}"
+                                            data-stock="{{ product.stock }}"
+                                            data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                                            data-add-url="{% url 'add_to_cart' product.id %}"
+                                            title="Quick View {{ product.name }}"
+                                            aria-label="Quick View {{ product.name }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    {% if product.stock > 0 %}
+                                    <button type="button"
+                                            class="pin-circle-btn pin-addcart-btn"
+                                            data-product-id="{{ product.id }}"
+                                            data-product-name="{{ product.name }}"
+                                            data-add-url="{% url 'add_to_cart' product.id %}"
+                                            title="Add {{ product.name }} to Bag"
+                                            aria-label="Add {{ product.name }} to Bag">
+                                        <i class="bi bi-bag-plus"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button type="button"
+                                            class="pin-circle-btn pin-share-btn"
+                                            data-url="https://ashasstore.in/product/{{ product.id }}/"
+                                            data-title="{{ product.name }}"
+                                            title="Share {{ product.name }}"
+                                            aria-label="Share {{ product.name }}">
+                                        <i class="bi bi-share"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pin-meta-info">
+                        <h3 class="pin-title">
+                            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                        </h3>
+                        <div class="pin-author-row">
+                            <div class="pin-author">
+                                <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
+                                <span>ASHAS Official</span>
+                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                            </div>
+                            <span class="pin-price-tag">RS. {{ product.current_price|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Footer link back to collections -->
+        <div class="text-center mt-4 pt-2">
+            <a href="#blactifyCategoryGrid" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.82rem; letter-spacing: 0.05em;">
+                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Browse All Store Collections
+            </a>
         </div>
     </section>
+</div>
+
+<!-- Pinterest Toast Notification Container -->
+<div id="pinterestToast" class="pinterest-toast-container" role="status" aria-live="polite">
+    <i class="bi bi-pin-angle-fill text-danger fs-6" id="pinterestToastIcon"></i>
+    <span id="pinterestToastMsg">Saved to your Pinterest inspiration board!</span>
 </div>
 
 <!-- =========================================================
@@ -1553,24 +2191,262 @@
     }
 
     // =========================================================
-    // 5. Pinterest Lookbook Hotspot Pins Interaction
+    // 5. Pinterest Toast Notification Helper
     // =========================================================
-    const lookbookPins = document.querySelectorAll('.lookbook-pin');
-    lookbookPins.forEach(pin => {
-        pin.addEventListener('click', (e) => {
-            // Prevent event from bubbling to document
+    let toastTimeout = null;
+    function showPinterestToast(msg, icon = 'bi-pin-angle-fill') {
+        const toast = document.getElementById('pinterestToast');
+        const toastMsg = document.getElementById('pinterestToastMsg');
+        const toastIcon = document.getElementById('pinterestToastIcon');
+        if (!toast || !toastMsg) return;
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+
+        toastMsg.innerText = msg;
+        if (toastIcon) {
+            toastIcon.className = `bi ${icon} text-danger fs-6`;
+        }
+
+        toast.classList.add('show');
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3200);
+    }
+
+    // =========================================================
+    // 6. Pinterest Category Filter Tabs with Smooth Animation
+    // =========================================================
+    const filterTabs = document.querySelectorAll('.pinterest-tab-chip');
+    const pinCards = document.querySelectorAll('.pin-card-item');
+
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+
+            const filter = tab.getAttribute('data-filter');
+
+            pinCards.forEach((card, index) => {
+                const cats = card.getAttribute('data-category') || '';
+                const shouldShow = (filter === 'all') || cats.split(' ').includes(filter);
+
+                if (shouldShow) {
+                    card.classList.remove('hidden-pin');
+                    // Reset and re-trigger smooth entrance animation
+                    card.style.animation = 'none';
+                    card.offsetHeight; // Trigger reflow
+                    const staggerDelay = Math.min(index * 0.04, 0.35);
+                    card.style.animation = `pinFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${staggerDelay}s backwards`;
+                } else {
+                    card.classList.add('hidden-pin');
+                }
+            });
+        });
+    });
+
+    // =========================================================
+    // 7. Pinterest Save Pin Micro-Animation & LocalStorage Persistence
+    // =========================================================
+    let savedPins = [];
+    try {
+        savedPins = JSON.parse(localStorage.getItem('ashas_saved_pins') || '[]');
+    } catch(e) {
+        savedPins = [];
+    }
+
+    function updateSavedPinUI(btn, isSaved) {
+        if (isSaved) {
+            btn.classList.add('saved');
+            btn.innerHTML = '<i class="bi bi-bookmark-check-fill heart-pop-anim"></i> <span>Saved</span>';
+        } else {
+            btn.classList.remove('saved');
+            btn.innerHTML = '<i class="bi bi-pin-angle-fill"></i> <span>Save</span>';
+        }
+    }
+
+    document.querySelectorAll('.pin-save-btn').forEach(btn => {
+        const pinId = btn.getAttribute('data-pin-id');
+        if (savedPins.includes(pinId)) {
+            updateSavedPinUI(btn, true);
+        }
+
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
-            const wasActive = pin.classList.contains('active');
-            lookbookPins.forEach(p => p.classList.remove('active'));
+
+            const isCurrentlySaved = savedPins.includes(pinId);
+            if (isCurrentlySaved) {
+                savedPins = savedPins.filter(id => id !== pinId);
+                updateSavedPinUI(btn, false);
+                showPinterestToast('Pin removed from your saved board.', 'bi-bookmark-x');
+            } else {
+                savedPins.push(pinId);
+                updateSavedPinUI(btn, true);
+                showPinterestToast('📌 Saved to your Pinterest inspiration board!', 'bi-heart-fill');
+            }
+
+            try {
+                localStorage.setItem('ashas_saved_pins', JSON.stringify(savedPins));
+            } catch(e) {}
+        });
+    });
+
+    // =========================================================
+    // 8. Pinterest Board Follow & Share Buttons
+    // =========================================================
+    const followBoardBtn = document.getElementById('pinterestFollowBtn');
+    let isFollowingBoard = localStorage.getItem('ashas_following_board') === 'true';
+    if (followBoardBtn) {
+        if (isFollowingBoard) {
+            followBoardBtn.classList.add('following');
+            followBoardBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> <span>Following</span>';
+        }
+
+        followBoardBtn.addEventListener('click', () => {
+            isFollowingBoard = !isFollowingBoard;
+            localStorage.setItem('ashas_following_board', isFollowingBoard);
+            if (isFollowingBoard) {
+                followBoardBtn.classList.add('following');
+                followBoardBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> <span>Following</span>';
+                showPinterestToast('✨ You are now following the ASHAS Official Board!', 'bi-stars');
+            } else {
+                followBoardBtn.classList.remove('following');
+                followBoardBtn.innerHTML = '<i class="bi bi-pin-angle-fill"></i> <span>Save Board</span>';
+                showPinterestToast('Unfollowed ASHAS Official Board.', 'bi-pin-angle');
+            }
+        });
+    }
+
+    const shareBoardBtn = document.getElementById('pinterestShareBoardBtn');
+    if (shareBoardBtn) {
+        shareBoardBtn.addEventListener('click', () => {
+            const url = 'https://ashasstore.in/#section-pinterest-board';
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showPinterestToast('🔗 Board link copied to clipboard!', 'bi-clipboard-check');
+                }).catch(() => {
+                    showPinterestToast('🔗 Link: ' + url, 'bi-link-45deg');
+                });
+            } else {
+                showPinterestToast('🔗 Link: ' + url, 'bi-link-45deg');
+            }
+        });
+    }
+
+    // Share Individual Pin Button
+    document.querySelectorAll('.pin-share-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const url = btn.getAttribute('data-url') || window.location.href;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showPinterestToast('🔗 Product link copied to clipboard!', 'bi-clipboard-check');
+                }).catch(() => {
+                    showPinterestToast('🔗 ' + url, 'bi-link-45deg');
+                });
+            } else {
+                showPinterestToast('🔗 ' + url, 'bi-link-45deg');
+            }
+        });
+    });
+
+    // =========================================================
+    // 9. Pinterest Pin Quick View & Direct Add to Bag
+    // =========================================================
+    document.querySelectorAll('.pin-quickview-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const name = btn.getAttribute('data-name');
+            const price = btn.getAttribute('data-price');
+            const origPrice = btn.getAttribute('data-orig-price');
+            const desc = btn.getAttribute('data-desc');
+            const cat = btn.getAttribute('data-cat');
+            const stock = parseInt(btn.getAttribute('data-stock') || '0', 10);
+            const img = btn.getAttribute('data-image');
+            const addUrl = btn.getAttribute('data-add-url');
+            const id = btn.getAttribute('data-id');
+
+            currentQvProduct = { id, name, price, origPrice, desc, cat, stock, img, addUrl };
+
+            if (qvBadge) qvBadge.innerText = cat ? cat.toUpperCase() : 'COLLECTION';
+            if (qvImage) {
+                qvImage.src = img;
+                qvImage.alt = name;
+            }
+            if (qvTitle) qvTitle.innerText = name;
+            if (qvPrice) qvPrice.innerText = price;
+            if (qvOrigPrice) {
+                qvOrigPrice.innerText = origPrice;
+                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
+            }
+            if (qvDesc) qvDesc.innerText = desc;
+
+            if (qvAddBagBtn) {
+                if (stock <= 0) {
+                    qvAddBagBtn.disabled = true;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                    qvAddBagBtn.style.opacity = '0.65';
+                    qvAddBagBtn.style.cursor = 'not-allowed';
+                } else {
+                    qvAddBagBtn.disabled = false;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                    qvAddBagBtn.style.opacity = '';
+                    qvAddBagBtn.style.cursor = '';
+                }
+            }
+
+            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
+            if (qvWhatsappBtn) {
+                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
+                qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
+            }
+
+            const qvFullPageBtn = document.getElementById('qvFullPageBtn');
+            if (qvFullPageBtn) {
+                qvFullPageBtn.href = `/product/${id}/`;
+            }
+
+            if (bsQvModal) bsQvModal.show();
+        });
+    });
+
+    // Pin Quick Add to Bag Action
+    document.querySelectorAll('.pin-addcart-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.handleAjaxAddToCart === 'function') {
+                window.handleAjaxAddToCart(btn);
+                showPinterestToast('🛍️ Added to bag!', 'bi-bag-check-fill');
+            }
+        });
+    });
+
+    // =========================================================
+    // 10. Pinterest Hotspot Pins on Editorial Shoots
+    // =========================================================
+    const editorialHotspots = document.querySelectorAll('.pinterest-hotspot');
+    editorialHotspots.forEach(spot => {
+        spot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasActive = spot.classList.contains('active');
+            editorialHotspots.forEach(s => s.classList.remove('active'));
             if (!wasActive) {
-                pin.classList.add('active');
+                spot.classList.add('active');
             }
         });
     });
 
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.lookbook-pin')) {
-            lookbookPins.forEach(p => p.classList.remove('active'));
+        if (!e.target.closest('.pinterest-hotspot')) {
+            editorialHotspots.forEach(s => s.classList.remove('active'));
         }
     });
 </script>

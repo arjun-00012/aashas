@@ -955,7 +955,7 @@ class CategoryPagesAndCardDesignTests(TestCase):
 class ProductFourPhotoAndLookbookTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.category = Category.objects.create(name="Rings")
+        self.category, _ = Category.objects.get_or_create(name="Rings", defaults={'slug': 'rings'})
         self.product_multi = Product.objects.create(
             category=self.category,
             name="Four Photo Signet Ring",
