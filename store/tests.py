@@ -1020,13 +1020,20 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertContains(resp, 'https://example.com/photo3.webp')
         self.assertContains(resp, 'https://example.com/photo4.webp')
 
-    def test_index_page_renders_pinterest_curated_lookbook(self):
-        """Index page must render the Pinterest lookbook section below trending section."""
+    def test_index_page_renders_oldtheory_style_spotlights_and_collections(self):
+        """Index page must render Old Theory editorial sections below trending section."""
         resp = self.client.get(reverse('home'))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'id="section-lookbook"')
-        self.assertContains(resp, 'THE AESTHETIC EDIT')
-        self.assertContains(resp, 'Curated on Pinterest')
+        self.assertContains(resp, 'Beyond the basics.')
+        self.assertContains(resp, 'Timeless classics')
+        self.assertContains(resp, 'Latest addition')
+        self.assertContains(resp, 'Shop Favorite Collections')
+        self.assertContains(resp, 'The New Arrivals')
+        self.assertContains(resp, 'The Signature Line')
+        self.assertContains(resp, 'The Limited Edition')
+        self.assertContains(resp, 'The Collectives')
+        self.assertContains(resp, 'Frequently Asked')
         self.assertContains(resp, 'look_1.jpg')
         self.assertContains(resp, 'look_2.jpg')
         self.assertContains(resp, 'look_3.jpg')

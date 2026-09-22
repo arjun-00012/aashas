@@ -648,663 +648,727 @@
     }
 
     /* =========================================================
-       Authentic Pinterest Board UI & Masonry Design System
+       Old Theory Signature Editorial Design System
        ========================================================= */
-    .pinterest-board-section {
-        width: 100%;
-        margin-top: 3.5rem;
-        margin-bottom: 4rem;
+    .font-urbanist {
+        font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     }
 
-    /* Pinterest Profile & Board Header */
-    .pinterest-profile-header {
-        background: #FFFFFF;
-        border: 1px solid rgba(28, 25, 23, 0.08);
-        border-radius: 24px;
-        padding: 1.5rem 1.75rem;
-        margin-bottom: 1.75rem;
-        box-shadow: 0 8px 24px -4px rgba(28, 25, 23, 0.05);
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
+    .font-ibm-plex-sans {
+        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    }
+
+    .font-inter {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    }
+
+    .oldtheory-editorial-wrapper {
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    /* 1. Full-Width Spotlight */
+    .full-width-spotlight-section {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        background: #000000;
+    }
+
+    .full-width-spotlight-stage {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
     }
 
     @media (min-width: 768px) {
-        .pinterest-profile-header {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.75rem 2.25rem;
+        .full-width-spotlight-stage {
+            height: 600px;
         }
     }
 
-    .pinterest-profile-brand {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .pinterest-brand-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #171614;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        border: 2px solid #FFFFFF;
-        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.18);
-        flex-shrink: 0;
-        position: relative;
-    }
-
-    .pinterest-brand-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .pinterest-title-block h2 {
-        font-family: 'Outfit', sans-serif;
-        font-size: clamp(1.25rem, 2.5vw, 1.6rem);
-        font-weight: 800;
-        letter-spacing: 0.03em;
-        color: #171614;
-        margin: 0 0 4px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .pinterest-icon-badge {
-        color: #E60023;
-        font-size: 1.4rem;
-        line-height: 1;
-    }
-
-    .pinterest-desc-text {
-        font-size: 0.84rem;
-        color: #635F59;
-        margin-bottom: 4px;
-        line-height: 1.45;
-    }
-
-    .pinterest-meta-stats {
-        font-size: 0.78rem;
-        color: #8C867E;
-        font-weight: 600;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .pinterest-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .btn-pinterest-save-board {
-        background: #E60023 !important;
-        border: 1.5px solid #E60023 !important;
-        color: #FFFFFF !important;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        padding: 9px 20px;
-        border-radius: 24px;
-        transition: all 0.22s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 14px rgba(230, 0, 35, 0.32);
-        cursor: pointer;
-    }
-
-    .btn-pinterest-save-board:hover {
-        background: #ad081b !important;
-        border-color: #ad081b !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(230, 0, 35, 0.42);
-    }
-
-    .btn-pinterest-save-board.following {
-        background: #171614 !important;
-        border-color: #171614 !important;
-        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.2);
-    }
-
-    .btn-pinterest-pill {
-        background: #F4F0EB;
-        border: 1px solid rgba(28, 25, 23, 0.12);
-        color: #171614;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 600;
-        padding: 9px 18px;
-        border-radius: 24px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-    }
-
-    .btn-pinterest-pill:hover {
-        background: #171614;
-        color: #FFFFFF;
-        border-color: #171614;
-        transform: translateY(-1px);
-    }
-
-    /* Pinterest Filter Chips Strip */
-    .pinterest-tabs-strip {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        margin-bottom: 1.75rem;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .pinterest-tabs-strip::-webkit-scrollbar {
-        display: none;
-    }
-
-    .pinterest-tab-chip {
-        background: #FFFFFF;
-        border: 1.5px solid rgba(28, 25, 23, 0.12);
-        color: #635F59;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        padding: 8px 18px;
-        border-radius: 24px;
-        cursor: pointer;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        white-space: nowrap;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
-    }
-
-    .pinterest-tab-chip:hover {
-        background: #F4F0EB;
-        color: #171614;
-        border-color: rgba(28, 25, 23, 0.28);
-        transform: translateY(-1px);
-    }
-
-    .pinterest-tab-chip.active {
-        background: #171614;
-        color: #FFFFFF;
-        border-color: #171614;
-        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.22);
-    }
-
-    .pinterest-tab-chip.active .badge {
-        background: rgba(255, 255, 255, 0.22) !important;
-        color: #FFFFFF !important;
-    }
-
-    /* Pinterest Masonry Layout */
-    .pinterest-masonry-grid {
-        column-count: 2;
-        column-gap: 14px;
-        width: 100%;
-    }
-
-    @media (min-width: 576px) {
-        .pinterest-masonry-grid {
-            column-count: 2;
-            column-gap: 16px;
+    @media (min-width: 1024px) {
+        .full-width-spotlight-stage {
+            height: 680px;
         }
     }
 
-    @media (min-width: 768px) {
-        .pinterest-masonry-grid {
-            column-count: 3;
-            column-gap: 18px;
-        }
-    }
-
-    @media (min-width: 1100px) {
-        .pinterest-masonry-grid {
-            column-count: 4;
-            column-gap: 20px;
-        }
-    }
-
-    /* Pin Card Item with Entrance Animation */
-    @keyframes pinFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(18px) scale(0.97);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    .pin-card-item {
-        break-inside: avoid;
-        margin-bottom: 20px;
-        display: inline-block;
-        width: 100%;
-        transition: opacity 0.35s ease, transform 0.35s ease;
-        animation: pinFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    }
-
-    .pin-card-item.hidden-pin {
-        display: none !important;
-    }
-
-    /* Pin Media Stage */
-    .pin-media-stage {
-        position: relative;
-        border-radius: 18px;
-        overflow: hidden;
-        background: #FAF8F5;
-        box-shadow: 0 4px 14px rgba(28, 25, 23, 0.06);
-        border: 1px solid rgba(28, 25, 23, 0.08);
-        cursor: pointer;
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
-    }
-
-    .pin-media-stage.pin-ratio-square {
-        aspect-ratio: 1 / 1;
-    }
-
-    .pin-media-stage.pin-ratio-portrait {
-        aspect-ratio: 4 / 5;
-    }
-
-    .pin-media-stage.pin-ratio-tall {
-        aspect-ratio: 3 / 4;
-    }
-
-    .pin-card-item:hover .pin-media-stage {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 42px -6px rgba(28, 25, 23, 0.18);
-        border-color: rgba(28, 25, 23, 0.22);
-    }
-
-    .pin-media-stage img.pin-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .pin-card-item:hover .pin-media-stage img.pin-img {
-        transform: scale(1.06);
-    }
-
-    /* Pinterest Multi-Photo Badge (e.g. 4 photos) */
-    .pin-photo-count-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(23, 22, 20, 0.8);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        color: #FAF8F5;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        z-index: 4;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        transition: opacity 0.2s ease;
-    }
-
-    .pin-card-item:hover .pin-photo-count-badge {
-        opacity: 0;
-    }
-
-    /* Pin Hover Overlay */
-    .pin-hover-overlay {
+    .full-width-spotlight-img {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0.6) 100%);
-        opacity: 0;
-        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 12px;
-        z-index: 6;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
+        transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .full-width-spotlight-section:hover .full-width-spotlight-img {
+        transform: scale(1.04);
+    }
+
+    .full-width-spotlight-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.48) 42%, rgba(0, 0, 0, 0.16) 72%, transparent 100%);
         pointer-events: none;
     }
 
-    .pin-card-item:hover .pin-hover-overlay {
-        opacity: 1;
-        pointer-events: auto;
+    .full-width-spotlight-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        height: 100%;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 2rem 1.25rem 3.5rem;
+        text-align: center;
     }
 
-    @media (hover: none) {
-        .pin-hover-overlay {
-            opacity: 1;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 42%, rgba(0,0,0,0.52) 100%);
-            pointer-events: auto;
+    @media (min-width: 768px) {
+        .full-width-spotlight-content {
+            padding: 3rem 2rem 5rem;
         }
     }
 
-    /* Pin Top Bar */
-    .pin-top-bar {
-        display: flex;
+    .full-width-spotlight-title {
+        font-family: 'Urbanist', sans-serif;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 500;
+        color: #FFFFFF;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+
+    .full-width-spotlight-desc {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.92rem, 2vw, 1.1rem);
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+        max-width: 580px;
+        margin: 0 auto 1.75rem auto;
+        line-height: 1.6;
+    }
+
+    .full-width-spotlight-btn {
+        display: inline-flex;
         align-items: center;
-        justify-content: space-between;
-        width: 100%;
+        justify-content: center;
         gap: 8px;
-    }
-
-    .pin-cat-pill {
-        background: rgba(23, 22, 20, 0.78);
-        color: #FFFFFF;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 4px 10px;
-        border-radius: 14px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-    }
-
-    .pin-save-btn {
-        background: #E60023;
-        color: #FFFFFF;
-        border: none;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        padding: 7px 16px;
-        border-radius: 20px;
+        background: transparent;
+        border: 1px solid #FFFFFF;
+        color: #FFFFFF !important;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 500;
+        padding: 13px 32px;
+        border-radius: 9999px;
+        text-decoration: none;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease, box-shadow 0.35s ease;
         cursor: pointer;
+    }
+
+    .full-width-spotlight-btn:hover {
+        transform: translateY(-2px);
+        background-color: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        color: #FFFFFF !important;
+    }
+
+    .full-width-spotlight-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    .full-width-spotlight-btn-icon {
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .full-width-spotlight-btn:hover .full-width-spotlight-btn-icon {
+        transform: translate(2px, -2px);
+    }
+
+    /* 2. Side-by-Side Spotlight (2 Columns) */
+    .side-by-side-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .side-by-side-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .side-by-side-panel {
+        position: relative;
+        display: block;
+        height: 520px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        background: #171614;
+        cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+        .side-by-side-panel {
+            height: 620px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .side-by-side-panel {
+            height: 680px;
+        }
+    }
+
+    .side-by-side-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .side-by-side-panel:hover .side-by-side-img {
+        transform: scale(1.05);
+    }
+
+    .side-by-side-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 45%, rgba(0, 0, 0, 0.2) 100%);
+        pointer-events: none;
+    }
+
+    .side-by-side-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
+        text-align: center;
+    }
+
+    .side-by-side-title {
+        font-family: 'Urbanist', sans-serif;
+        font-size: clamp(1.85rem, 3.8vw, 2.6rem);
+        font-weight: 500;
+        color: #FFFFFF;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.15;
+    }
+
+    .side-by-side-desc {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0 0 1rem 0;
+        max-width: 380px;
+        line-height: 1.5;
+    }
+
+    .side-by-side-btn-wrap {
+        margin-top: 0.5rem;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    @media (min-width: 768px) and (hover: hover) {
+        .side-by-side-panel .side-by-side-btn-wrap {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .side-by-side-panel:hover .side-by-side-btn-wrap {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .side-by-side-btn {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-    }
-
-    .pin-save-btn:hover {
-        background: #ad081b;
-        transform: scale(1.06);
-    }
-
-    .pin-save-btn.saved {
-        background: #171614 !important;
+        justify-content: center;
+        gap: 8px;
+        background: transparent;
+        border: 1px solid #FFFFFF;
         color: #FFFFFF !important;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 500;
+        padding: 10px 28px;
+        border-radius: 9999px;
+        transition: all 0.3s ease-out;
     }
 
-    @keyframes heartPop {
-        0% { transform: scale(1); }
-        40% { transform: scale(1.35); color: #FF2E51; }
-        100% { transform: scale(1); }
+    .side-by-side-btn:hover {
+        background-color: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.95);
     }
 
-    .heart-pop-anim {
-        animation: heartPop 0.35s ease;
+    /* 3. Infinite Scrolling Marquee */
+    .infinite-marquee-section {
+        background: #FAF8F5;
+        border-top: 1px solid rgba(28, 25, 23, 0.1);
+        border-bottom: 1px solid rgba(28, 25, 23, 0.1);
+        overflow: hidden;
+        white-space: nowrap;
+        user-select: none;
     }
 
-    /* Pin Bottom Bar */
-    .pin-bottom-bar {
+    .infinite-marquee-track {
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        padding: 1.25rem 0;
+        animation: infiniteMarqueeScroll 45s linear infinite;
+    }
+
+    .infinite-marquee-track:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes infiniteMarqueeScroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+
+    .infinite-marquee-item {
+        font-family: 'Inter', sans-serif;
+        font-size: clamp(0.92rem, 1.8vw, 1.15rem);
+        font-weight: 600;
+        color: #171614;
+        letter-spacing: -0.01em;
+        flex-shrink: 0;
+    }
+
+    .infinite-marquee-separator {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 1.75rem;
+        flex-shrink: 0;
+    }
+
+    .infinite-marquee-line {
+        display: block;
+        height: 18px;
+        width: 0;
+        border-left: 1px dashed #9F9F9F;
+    }
+
+    /* 4. Shop Favorite Collections (Asymmetric 3-Card Collage) */
+    .favorite-collections-section {
+        padding: 4rem 1rem 4.5rem;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+        .favorite-collections-section {
+            padding: 5rem 2rem 5.5rem;
+        }
+    }
+
+    .favorite-collections-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .favorite-collections-title {
+        font-family: 'Urbanist', sans-serif;
+        font-size: clamp(1.85rem, 4vw, 2.6rem);
+        font-weight: 500;
+        color: #171614;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.02em;
+    }
+
+    .favorite-collections-subtitle {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+        color: #635F59;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .collage-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    @media (min-width: 992px) {
+        .collage-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .collage-panel-span-2 {
+            grid-column: span 2;
+        }
+    }
+
+    .collage-panel {
+        position: relative;
+        display: block;
+        min-height: 440px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        background: #EAE5DE;
+        cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+        .collage-panel {
+            min-height: 480px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .collage-panel {
+            min-height: 520px;
+        }
+    }
+
+    .collage-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .collage-panel:hover .collage-img {
+        transform: scale(1.05);
+    }
+
+    .collage-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.42) 52%, transparent 100%);
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+    }
+
+    .collage-panel:hover .collage-overlay {
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.54) 52%, rgba(0, 0, 0, 0.25) 75%, transparent 100%);
+    }
+
+    .collage-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 2.5rem 1.5rem 2.5rem;
+        text-align: center;
+    }
+
+    @media (min-width: 768px) {
+        .collage-content {
+            padding: 3.5rem 2.5rem 3rem;
+        }
+    }
+
+    .collage-headline {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+        font-weight: 600;
+        color: #FFFFFF;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.25;
+    }
+
+    .collage-desc {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.85rem, 1.4vw, 0.98rem);
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0 0 1.25rem 0;
+        max-width: 440px;
+        line-height: 1.55;
+    }
+
+    .collage-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #FFFFFF;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-bottom: 1px solid #FFFFFF;
+        padding-bottom: 2px;
+        transition: opacity 0.25s ease;
+    }
+
+    .collage-panel:hover .collage-btn {
+        opacity: 0.8;
+    }
+
+    .collage-btn i {
+        font-size: 0.72rem;
+        transition: transform 0.3s ease-out;
+    }
+
+    .collage-panel:hover .collage-btn i {
+        transform: translateX(4px);
+    }
+
+    /* 5. Split Spotlight */
+    .split-spotlight-section {
+        width: 100%;
+        background: #FFFFFF;
+    }
+
+    .split-spotlight-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 560px;
+    }
+
+    @media (min-width: 992px) {
+        .split-spotlight-grid {
+            grid-template-columns: 1fr 1fr;
+            min-height: 640px;
+        }
+    }
+
+    .split-spotlight-media {
+        position: relative;
+        min-height: 360px;
+        overflow: hidden;
+        background: #171614;
+    }
+
+    @media (min-width: 992px) {
+        .split-spotlight-media {
+            min-height: 100%;
+        }
+    }
+
+    .split-spotlight-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .split-spotlight-media:hover .split-spotlight-img {
+        transform: scale(1.04);
+    }
+
+    .split-spotlight-text-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #F8F8F8;
+        padding: 3rem 1.75rem;
+    }
+
+    @media (min-width: 768px) {
+        .split-spotlight-text-panel {
+            padding: 4rem 3.5rem;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .split-spotlight-text-panel {
+            padding: 5rem 5rem;
+        }
+    }
+
+    .split-spotlight-tag {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: #4B5563;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .split-spotlight-headline {
+        font-family: 'Urbanist', sans-serif;
+        font-size: clamp(2rem, 4.2vw, 3.25rem);
+        font-weight: 600;
+        line-height: 1.12;
+        color: #171614;
+        margin: 0 0 1rem 0;
+        letter-spacing: -0.02em;
+    }
+
+    .split-spotlight-desc {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.92rem, 1.8vw, 1.08rem);
+        font-weight: 400;
+        line-height: 1.65;
+        color: #635F59;
+        margin: 0 0 2rem 0;
+        max-width: 520px;
+    }
+
+    .split-spotlight-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: 1.5px solid #171717;
+        color: #171717 !important;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 500;
+        padding: 13px 32px;
+        border-radius: 9999px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        width: max-content;
+    }
+
+    .split-spotlight-btn:hover {
+        background: #171717;
+        color: #FFFFFF !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 6. Customer Testimonials */
+    .testimonials-section {
+        background: #FAF8F5;
+        padding: 4.5rem 1rem 5rem;
+    }
+
+    @media (min-width: 768px) {
+        .testimonials-section {
+            padding: 5.5rem 2rem 6rem;
+        }
+    }
+
+    .testimonials-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .testimonial-stars {
+        color: #171614;
+        font-size: 1.15rem;
+        margin-bottom: 1.25rem;
+        letter-spacing: 3px;
+    }
+
+    .testimonial-quote {
+        font-family: 'Inter', sans-serif;
+        font-size: clamp(1.2rem, 2.8vw, 2.1rem);
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.03em;
+        color: #171614;
+        max-width: 880px;
+        margin: 0 auto 1.5rem auto;
+    }
+
+    .testimonial-author {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.95rem;
+        font-style: italic;
+        color: #635F59;
+        margin: 0;
+    }
+
+    /* 7. FAQ Accordion */
+    .faq-section {
+        background: #FFFFFF;
+        padding: 4.5rem 1rem 5.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .faq-section {
+            padding: 5.5rem 2rem 6.5rem;
+        }
+    }
+
+    .faq-container {
+        max-width: 780px;
+        margin: 0 auto;
+    }
+
+    .faq-title {
+        font-family: 'Urbanist', sans-serif;
+        font-size: clamp(1.85rem, 3.8vw, 2.6rem);
+        font-weight: 500;
+        color: #171614;
+        text-align: center;
+        margin: 0 0 2.5rem 0;
+        letter-spacing: -0.02em;
+    }
+
+    .faq-accordion {
+        border-top: 1px solid rgba(28, 25, 23, 0.12);
+    }
+
+    .faq-item {
+        border-bottom: 1px solid rgba(28, 25, 23, 0.12);
+    }
+
+    .faq-summary {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 100%;
-        gap: 6px;
-    }
-
-    .pin-dest-pill {
-        background: rgba(255, 255, 255, 0.95);
-        color: #171614 !important;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.74rem;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 20px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-        transition: all 0.18s ease;
-        max-width: 130px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .pin-dest-pill:hover {
-        background: #FFFFFF;
-        transform: scale(1.04);
-        color: #000000 !important;
-    }
-
-    .pin-action-icons {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .pin-circle-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.94);
-        color: #171614;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
+        padding: 1.35rem 0;
         cursor: pointer;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-    }
-
-    .pin-circle-btn:hover {
-        background: #FFFFFF;
-        transform: scale(1.12);
-        color: #E60023;
-    }
-
-    /* Pulsing Product Hotspot on Editorial Pins */
-    .pinterest-hotspot {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        z-index: 8;
-        cursor: pointer;
-    }
-
-    .pinterest-hotspot-dot {
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        background: #FFFFFF;
-        border: 2px solid #171614;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-        animation: pinterestPulse 2.2s infinite;
-        transition: transform 0.2s ease, background 0.2s ease;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: clamp(0.98rem, 2vw, 1.12rem);
+        font-weight: 400;
         color: #171614;
-        font-size: 0.72rem;
-    }
-
-    .pinterest-hotspot:hover .pinterest-hotspot-dot,
-    .pinterest-hotspot.active .pinterest-hotspot-dot {
-        background: #171614;
-        color: #FFFFFF;
-        transform: scale(1.2);
-        animation: none;
-    }
-
-    @keyframes pinterestPulse {
-        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.35); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0), 0 2px 8px rgba(0, 0, 0, 0.35); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 2px 8px rgba(0, 0, 0, 0.35); }
-    }
-
-    .pinterest-hotspot-card {
-        position: absolute;
-        bottom: calc(100% + 10px);
-        left: 50%;
-        transform: translateX(-50%) translateY(8px);
-        background: rgba(255, 255, 255, 0.98);
-        border: 1px solid rgba(28, 25, 23, 0.14);
-        border-radius: 14px;
-        padding: 9px 12px;
-        white-space: nowrap;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: 25;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .pinterest-hotspot:hover .pinterest-hotspot-card,
-    .pinterest-hotspot.active .pinterest-hotspot-card {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    /* Below Pin Info Strip */
-    .pin-meta-info {
-        padding: 9px 4px 4px 4px;
-    }
-
-    .pin-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #171614;
-        margin: 0 0 5px 0;
-        line-height: 1.35;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .pin-title a {
-        color: inherit;
-        text-decoration: none;
+        list-style: none;
         transition: color 0.2s ease;
     }
 
-    .pin-title a:hover {
+    .faq-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .faq-summary:hover {
         color: #635F59;
-        text-decoration: underline;
     }
 
-    .pin-author-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 6px;
-    }
-
-    .pin-author {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.74rem;
-        color: #635F59;
-        font-weight: 600;
-    }
-
-    .pin-author-avatar {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #171614;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .pin-author-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .pin-price-tag {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.78rem;
-        font-weight: 800;
+    .faq-chevron {
+        font-size: 0.85rem;
         color: #171614;
-        background: #FAF8F5;
-        border: 1px solid rgba(28, 25, 23, 0.1);
-        padding: 2px 8px;
-        border-radius: 6px;
+        transition: transform 0.28s ease;
+        flex-shrink: 0;
+        margin-left: 1rem;
     }
 
-    /* Pinterest Toast Notification */
-    .pinterest-toast-container {
-        position: fixed;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%) translateY(100px);
-        background: #171614;
-        color: #FAF8F5;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.84rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        padding: 12px 22px;
-        border-radius: 9999px;
-        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        z-index: 2100;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    details[open] .faq-chevron {
+        transform: rotate(180deg);
     }
 
-    .pinterest-toast-container.show {
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-        pointer-events: auto;
+    .faq-content {
+        padding-bottom: 1.35rem;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.65;
+        color: #635F59;
     }
 </style>
 {% endblock %}
@@ -1468,448 +1532,286 @@
             </div>
             {% endfor %}
         </div>
-    </section>
+</div>
+    {% else %}
+</div>
     {% endif %}
 
     <!-- =========================================================
-         4. AUTHENTIC PINTEREST VISUAL MOODBOARD & PRODUCT PINS
+         4. OLDTHEORY EDITORIAL DESIGN SYSTEM:
+            - Full-Width Spotlight ("Beyond the basics.")
+            - Side-by-Side Spotlight (2-Columns: "Timeless classics" & "Latest addition")
+            - Infinite Scrolling Marquee Ticker
+            - Shop Favorite Collections (Asymmetric 3-Card Collage)
+            - Split Spotlight (50/50 "The Collectives")
+            - Customer Testimonials (Focused 5-Star Quotes)
+            - Frequently Asked Questions (FAQ Accordion)
          ========================================================= -->
-    <section id="section-lookbook" class="pinterest-board-section lookbook-section mb-5 pt-3" aria-label="Official Pinterest Moodboard & Curated Accessories">
-        <!-- Pinterest Profile & Board Header -->
-        <div class="pinterest-profile-header">
-            <div class="pinterest-profile-brand">
-                <div class="pinterest-brand-avatar" title="ASHAS Official Brand">
-                    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS Official" loading="lazy">
+    <div id="section-lookbook" class="oldtheory-editorial-wrapper" aria-label="Official Editorial Collections">
+
+        <!-- 1. FULL-WIDTH SPOTLIGHT ("Beyond the basics.") -->
+        <section class="full-width-spotlight-section" aria-label="Beyond the basics spotlight">
+            <div class="full-width-spotlight-stage">
+                <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="Beyond the basics — ASHAS Statement Accessories" class="full-width-spotlight-img" loading="lazy">
+                <div class="full-width-spotlight-overlay" aria-hidden="true"></div>
+                <div class="full-width-spotlight-content">
+                    <div class="w-100" style="max-width: 860px;">
+                        <h2 class="full-width-spotlight-title">Beyond the basics.</h2>
+                        <p class="full-width-spotlight-desc">beyond the basics, introducing pieces that challenge the ordinary and redefine what modern style can be.</p>
+                        <div class="d-flex justify-content-center">
+                            <a href="{% url 'category_detail' 'shades' %}" class="full-width-spotlight-btn" title="Explore Shades">
+                                <span>Explore</span>
+                                <svg class="full-width-spotlight-btn-icon shrink-0" width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="pinterest-title-block">
-                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                        <span class="badge d-inline-flex align-items-center gap-1" style="background: #E60023; color: #FFFFFF; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 9999px;">
-                            <i class="bi bi-pinterest"></i> Curated on Pinterest
+            </div>
+        </section>
+
+        <!-- 2. SIDE-BY-SIDE SPOTLIGHT (2 Columns) -->
+        <section class="side-by-side-section" aria-label="Featured Collection Spotlights">
+            <div class="side-by-side-grid">
+                <!-- Column 1: Timeless classics -->
+                <a href="{% url 'category_detail' 'rings' %}" class="side-by-side-panel" aria-label="Timeless classics — Explore Rings">
+                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="Timeless classics" class="side-by-side-img" loading="lazy">
+                    <div class="side-by-side-overlay" aria-hidden="true"></div>
+                    <div class="side-by-side-content">
+                        <h2 class="side-by-side-title">Timeless classics</h2>
+                        <p class="side-by-side-desc">Our classic collections</p>
+                        <div class="side-by-side-btn-wrap">
+                            <span class="side-by-side-btn">
+                                <span>Explore</span>
+                                <svg width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Column 2: Latest addition -->
+                <a href="{% url 'category_detail' 'chains' %}" class="side-by-side-panel" aria-label="Latest addition — Explore Chains">
+                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="Latest addition" class="side-by-side-img" loading="lazy">
+                    <div class="side-by-side-overlay" aria-hidden="true"></div>
+                    <div class="side-by-side-content">
+                        <h2 class="side-by-side-title">Latest addition</h2>
+                        <p class="side-by-side-desc">For the everyday essential</p>
+                        <div class="side-by-side-btn-wrap">
+                            <span class="side-by-side-btn">
+                                <span>Explore</span>
+                                <svg width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 3. INFINITE SCROLLING MARQUEE TICKER -->
+        <section class="infinite-marquee-section" aria-label="Promotional messages">
+            <div class="infinite-marquee-track">
+                <span class="infinite-marquee-item">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+
+                <!-- Duplicate track items for smooth infinite loop -->
+                <span class="infinite-marquee-item" aria-hidden="true">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+            </div>
+        </section>
+
+        <!-- 4. SHOP FAVORITE COLLECTIONS (Simple Grid Collage) -->
+        <section class="favorite-collections-section" aria-label="Shop Favorite Collections">
+            <div class="favorite-collections-header">
+                <h2 class="favorite-collections-title">Shop Favorite Collections</h2>
+                <p class="favorite-collections-subtitle">Find exactly what you're looking for with our curated collections</p>
+            </div>
+
+            <div class="collage-grid">
+                <!-- Card 1: The New Arrivals -->
+                <a href="{% url 'category_detail' 'shades' %}" class="collage-panel" aria-label="The New Arrivals — Explore">
+                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="The New Arrivals" class="collage-img" loading="lazy">
+                    <div class="collage-overlay" aria-hidden="true"></div>
+                    <div class="collage-content">
+                        <h3 class="collage-headline">The New Arrivals</h3>
+                        <p class="collage-desc">This is the perfect spot to rotate seasonal drops, new arrivals, or exclusive limited editions.</p>
+                        <span class="collage-btn">
+                            <span>Explore</span>
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </span>
-                        <span class="badge bg-light text-secondary border rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;">THE AESTHETIC EDIT</span>
                     </div>
-                    <h2>
-                        ASHAS STORE
-                        <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.05rem;" title="Verified Store"></i>
-                    </h2>
-                    <div class="pinterest-desc-text">
-                        Aesthetic street style moodboard &amp; statement accessory catalog. Curated in Kozhikode, shipping all across India.
+                </a>
+
+                <!-- Card 2: The Signature Line -->
+                <a href="{% url 'category_detail' 'rings' %}" class="collage-panel" aria-label="The Signature Line — Explore">
+                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="The Signature Line" class="collage-img" loading="lazy">
+                    <div class="collage-overlay" aria-hidden="true"></div>
+                    <div class="collage-content">
+                        <h3 class="collage-headline">The Signature Line</h3>
+                        <p class="collage-desc">Use this space to highlight your most popular items or a curated set that defines your brand's identity.</p>
+                        <span class="collage-btn">
+                            <span>Explore</span>
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        </span>
                     </div>
-                    <div class="pinterest-meta-stats">
-                        <span><i class="bi bi-pin-angle-fill text-danger me-1"></i> 20 Curated Pins</span>
-                        <span>•</span>
-                        <span><i class="bi bi-camera-fill text-dark me-1"></i> 4 Editorial Shoots</span>
-                        <span>•</span>
-                        <span><i class="bi bi-geo-alt-fill text-secondary me-1"></i> Kerala, India</span>
+                </a>
+
+                <!-- Card 3: The Limited Edition (Spans 2 Columns) -->
+                <a href="{% url 'category_detail' 'chains' %}" class="collage-panel collage-panel-span-2" aria-label="The Limited Edition — Explore">
+                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="The Limited Edition" class="collage-img" loading="lazy">
+                    <div class="collage-overlay" aria-hidden="true"></div>
+                    <div class="collage-content">
+                        <h3 class="collage-headline">The Limited Edition</h3>
+                        <p class="collage-desc">Group your core essentials here so new visitors know exactly where to start their journey.</p>
+                        <span class="collage-btn">
+                            <span>Explore</span>
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 5. SPLIT SPOTLIGHT (50/50 Editorial) -->
+        <section class="split-spotlight-section" aria-label="The Collectives Spotlight">
+            <div class="split-spotlight-grid">
+                <div class="split-spotlight-media">
+                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="The Collectives" class="split-spotlight-img" loading="lazy">
+                </div>
+                <div class="split-spotlight-text-panel">
+                    <p class="split-spotlight-tag">ASHAS</p>
+                    <h2 class="split-spotlight-headline">The Collectives</h2>
+                    <p class="split-spotlight-desc">Explain the exclusivity of the drop, whether it's a limited run or a new seasonal color.</p>
+                    <div>
+                        <a href="#blactifyCategoryGrid" class="split-spotlight-btn" title="Shop Now">
+                            <span>Shop Now</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.8rem;" aria-hidden="true"></i>
+                        </a>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="pinterest-header-actions">
-                <button type="button" class="btn-pinterest-save-board" id="pinterestFollowBtn" aria-label="Save or follow board">
-                    <i class="bi bi-pin-angle-fill"></i> <span>Save Board</span>
-                </button>
-                <button type="button" class="btn-pinterest-pill" id="pinterestShareBoardBtn" aria-label="Share board">
-                    <i class="bi bi-share-fill"></i> <span>Share</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Pinterest Category Filter Strip -->
-        <div class="pinterest-tabs-strip" id="pinterestFilterTabs" role="tablist" aria-label="Filter pins by category">
-            <button type="button" class="pinterest-tab-chip active" data-filter="all" role="tab" aria-selected="true">
-                <i class="bi bi-grid-fill"></i> All Pins <span class="badge bg-secondary rounded-pill ms-1">20</span>
-            </button>
-            <button type="button" class="pinterest-tab-chip" data-filter="editorial" role="tab" aria-selected="false">
-                <i class="bi bi-stars text-warning"></i> Editorial Shoots <span class="badge bg-secondary rounded-pill ms-1">4</span>
-            </button>
-            <button type="button" class="pinterest-tab-chip" data-filter="rings" role="tab" aria-selected="false">
-                <i class="bi bi-gem"></i> Rings
-            </button>
-            <button type="button" class="pinterest-tab-chip" data-filter="shades" role="tab" aria-selected="false">
-                <i class="bi bi-sunglasses"></i> Shades
-            </button>
-            <button type="button" class="pinterest-tab-chip" data-filter="chains" role="tab" aria-selected="false">
-                <i class="bi bi-link-45deg"></i> Chains
-            </button>
-            <button type="button" class="pinterest-tab-chip" data-filter="accs" role="tab" aria-selected="false">
-                <i class="bi bi-watch"></i> Watches &amp; Accessories
-            </button>
-        </div>
-
-        <!-- Pinterest Masonry Waterfall Grid -->
-        <div class="pinterest-masonry-grid" id="pinterestMasonryGrid">
-            <!-- Editorial Look 1 -->
-            <div class="pin-card-item" data-category="editorial shades chains" data-pin-id="editorial-1">
-                <div class="pin-media-stage pin-ratio-tall">
-                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="ASHAS Noir Streetwear Silhouette Look" class="pin-img" loading="lazy">
-                    
-                    <!-- Pulsing Hotspot 1: Dark WOST Sunglasses -->
-                    <div class="pinterest-hotspot" style="top: 32%; left: 49%;" title="Dark WOST Sunglasses">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Dark WOST Sunglasses</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 250.00</span>
-                            </div>
-                            <a href="/product/2/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Pulsing Hotspot 2: Obsidian Cuban Chain -->
-                    <div class="pinterest-hotspot" style="top: 46%; left: 53%;" title="Obsidian Cuban Chain">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Obsidian Cuban Chain</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1299.00</span>
-                            </div>
-                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hover Overlay -->
-                    <div class="pin-hover-overlay">
-                        <div class="pin-top-bar">
-                            <span class="pin-cat-pill">EDITORIAL • SHADES</span>
-                            <button type="button" class="pin-save-btn" data-pin-id="editorial-1" aria-label="Save pin">
-                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
-                            </button>
-                        </div>
-                        <div class="pin-bottom-bar">
-                            <a href="{% url 'category_detail' 'shades' %}" class="pin-dest-pill" title="Explore Shades">
-                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
-                            </a>
-                            <div class="pin-action-icons">
-                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/shades/" data-title="ASHAS Noir Silhouette Look" title="Share Pin">
-                                    <i class="bi bi-share"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- 6. FOCUSED CUSTOMER TESTIMONIALS -->
+        <section class="testimonials-section" aria-label="Customer Testimonials">
+            <div class="testimonials-container">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
                 </div>
-                <div class="pin-meta-info">
-                    <h3 class="pin-title"><a href="{% url 'category_detail' 'shades' %}">The Noir Silhouette • Street Eyewear &amp; Steel</a></h3>
-                    <div class="pin-author-row">
-                        <div class="pin-author">
-                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
-                            <span>ASHAS Official</span>
-                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
+                <blockquote class="m-0">
+                    <p class="testimonial-quote">
+                        "I've tried several alternatives, but the quality here is on a completely different level. You can tell that every detail was considered, from the materials to the way it was packaged. It's rare to find a brand that actually delivers on its promises, but this is definitely one of them."
+                    </p>
+                </blockquote>
+                <p class="testimonial-author">— Nikitha Hari</p>
+            </div>
+        </section>
+
+        <!-- 7. FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) -->
+        <section class="faq-section" aria-label="Frequently Asked Questions">
+            <div class="faq-container">
+                <h2 class="faq-title">Frequently Asked</h2>
+
+                <div class="faq-accordion" role="region" aria-label="FAQ Accordion">
+                    <details class="faq-item">
+                        <summary class="faq-summary">
+                            <span>How can I track my order?</span>
+                            <i class="bi bi-chevron-down faq-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="faq-content">
+                            <p class="m-0">Once your order is shipped, you'll receive a tracking link via SMS or WhatsApp with your consignment details.</p>
                         </div>
-                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 01</span>
-                    </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-summary">
+                            <span>How long will it take to receive my order?</span>
+                            <i class="bi bi-chevron-down faq-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="faq-content">
+                            <p class="m-0">Delivery times vary by destination. Most orders arrive within 2-6 business days after dispatch. You will receive tracking details once your order ships.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-summary">
+                            <span>What countries do you ship to?</span>
+                            <i class="bi bi-chevron-down faq-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="faq-content">
+                            <p class="m-0">We ship across India with free shipping on all orders.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-summary">
+                            <span>When am I eligible for a replacement?</span>
+                            <i class="bi bi-chevron-down faq-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="faq-content">
+                            <p class="mb-2">You can request a free replacement if:</p>
+                            <ul class="mb-0 ps-3">
+                                <li>You received the wrong item.</li>
+                                <li>The product has a manufacturing defect.</li>
+                                <li>You received the wrong size.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-summary">
+                            <span>Why should I trust ASHAS page?</span>
+                            <i class="bi bi-chevron-down faq-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="faq-content">
+                            <p class="mb-1"><strong>GST Registered Business</strong></p>
+                            <p class="mb-1"><strong>Free Shipping Across India</strong></p>
+                            <p class="mb-1"><strong>Secure Payments (UPI / Card)</strong></p>
+                            <p class="mb-1"><strong>Quality Checked Before Dispatch</strong></p>
+                            <p class="mb-0"><strong>24*7 Customer Support via WhatsApp</strong></p>
+                        </div>
+                    </details>
                 </div>
             </div>
+        </section>
 
-            <!-- Editorial Look 2 -->
-            <div class="pin-card-item" data-category="editorial rings accs" data-pin-id="editorial-2">
-                <div class="pin-media-stage pin-ratio-tall">
-                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="ASHAS Silver Signet Stack Look" class="pin-img" loading="lazy">
-                    
-                    <!-- Hotspot 1: Wolf Ring -->
-                    <div class="pinterest-hotspot" style="top: 44%; left: 36%;" title="Wolf Ring">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Wolf Ring</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 899.00</span>
-                            </div>
-                            <a href="/product/1/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotspot 2: Signet Ring -->
-                    <div class="pinterest-hotspot" style="top: 55%; left: 54%;" title="Signet Ring">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Silver Signet Ring</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 899.00</span>
-                            </div>
-                            <a href="/product/9/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotspot 3: Stone Bracelet -->
-                    <div class="pinterest-hotspot" style="top: 31%; left: 74%;" title="Obsidian Bracelet">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Obsidian Stone Bracelet</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 699.00</span>
-                            </div>
-                            <a href="/product/11/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hover Overlay -->
-                    <div class="pin-hover-overlay">
-                        <div class="pin-top-bar">
-                            <span class="pin-cat-pill">EDITORIAL • RINGS</span>
-                            <button type="button" class="pin-save-btn" data-pin-id="editorial-2" aria-label="Save pin">
-                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
-                            </button>
-                        </div>
-                        <div class="pin-bottom-bar">
-                            <a href="{% url 'category_detail' 'rings' %}" class="pin-dest-pill" title="Explore Rings">
-                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
-                            </a>
-                            <div class="pin-action-icons">
-                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/rings/" data-title="ASHAS Silver Signet Stack" title="Share Pin">
-                                    <i class="bi bi-share"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pin-meta-info">
-                    <h3 class="pin-title"><a href="{% url 'category_detail' 'rings' %}">Silver Signet Stack • Heavy Armor &amp; Stone</a></h3>
-                    <div class="pin-author-row">
-                        <div class="pin-author">
-                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
-                            <span>ASHAS Official</span>
-                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
-                        </div>
-                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 02</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Editorial Look 3 -->
-            <div class="pin-card-item" data-category="editorial chains accs" data-pin-id="editorial-3">
-                <div class="pin-media-stage pin-ratio-tall">
-                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="ASHAS City Street Steel and Chrono Look" class="pin-img" loading="lazy">
-                    
-                    <!-- Hotspot 1: Heavy Cuban Chain -->
-                    <div class="pinterest-hotspot" style="top: 41%; left: 51%;" title="Heavy Cuban Chain">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Heavy Cuban Chain</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1299.00</span>
-                            </div>
-                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotspot 2: Chrono Noir Watch -->
-                    <div class="pinterest-hotspot" style="top: 55%; left: 52%;" title="Chrono Noir Watch">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Chrono Noir Watch</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1999.00</span>
-                            </div>
-                            <a href="/product/5/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hover Overlay -->
-                    <div class="pin-hover-overlay">
-                        <div class="pin-top-bar">
-                            <span class="pin-cat-pill">EDITORIAL • CHAINS</span>
-                            <button type="button" class="pin-save-btn" data-pin-id="editorial-3" aria-label="Save pin">
-                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
-                            </button>
-                        </div>
-                        <div class="pin-bottom-bar">
-                            <a href="{% url 'category_detail' 'chains' %}" class="pin-dest-pill" title="Explore Chains">
-                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
-                            </a>
-                            <div class="pin-action-icons">
-                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/category/chains/" data-title="ASHAS City Steel & Cuban Chain" title="Share Pin">
-                                    <i class="bi bi-share"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pin-meta-info">
-                    <h3 class="pin-title"><a href="{% url 'category_detail' 'chains' %}">City Lights &amp; Cuban Chain • Street Precision Steel</a></h3>
-                    <div class="pin-author-row">
-                        <div class="pin-author">
-                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
-                            <span>ASHAS Official</span>
-                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
-                        </div>
-                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 03</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Editorial Look 4 -->
-            <div class="pin-card-item" data-category="editorial chains shades rings" data-pin-id="editorial-4">
-                <div class="pin-media-stage pin-ratio-tall">
-                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="ASHAS Minimalist Architectural Essentials Flatlay" class="pin-img" loading="lazy">
-                    
-                    <!-- Hotspot 1: Center Chain -->
-                    <div class="pinterest-hotspot" style="top: 48%; left: 49%;" title="Pendant Cuban Chain">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Pendant Cuban Chain</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1199.00</span>
-                            </div>
-                            <a href="/product/10/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotspot 2: Retro Shades -->
-                    <div class="pinterest-hotspot" style="top: 42%; left: 82%;" title="Retro Shades">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Retro Shades</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 199.00</span>
-                            </div>
-                            <a href="/product/22/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotspot 3: Dragon Talon Ring -->
-                    <div class="pinterest-hotspot" style="top: 47%; left: 18%;" title="Dragon Talon Ring">
-                        <div class="pinterest-hotspot-dot"><i class="bi bi-plus-lg"></i></div>
-                        <div class="pinterest-hotspot-card">
-                            <div class="text-start">
-                                <div class="fw-bold text-dark" style="font-size: 0.78rem;">Dragon Talon Ring</div>
-                                <span class="text-danger fw-bold" style="font-size: 0.72rem;">RS. 1199.00</span>
-                            </div>
-                            <a href="/product/17/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.7rem;">View</a>
-                        </div>
-                    </div>
-
-                    <!-- Hover Overlay -->
-                    <div class="pin-hover-overlay">
-                        <div class="pin-top-bar">
-                            <span class="pin-cat-pill">EDITORIAL • FLATLAY</span>
-                            <button type="button" class="pin-save-btn" data-pin-id="editorial-4" aria-label="Save pin">
-                                <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
-                            </button>
-                        </div>
-                        <div class="pin-bottom-bar">
-                            <a href="{% url 'category_detail' 'rings' %}" class="pin-dest-pill" title="Explore Essentials">
-                                <i class="bi bi-arrow-up-right"></i> ashasstore.in
-                            </a>
-                            <div class="pin-action-icons">
-                                <button type="button" class="pin-circle-btn pin-share-btn" data-url="https://ashasstore.in/" data-title="ASHAS Architectural Flatlay" title="Share Pin">
-                                    <i class="bi bi-share"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pin-meta-info">
-                    <h3 class="pin-title"><a href="{% url 'category_detail' 'rings' %}">Architectural Flatlay • Curated Daily Essentials</a></h3>
-                    <div class="pin-author-row">
-                        <div class="pin-author">
-                            <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
-                            <span>ASHAS Official</span>
-                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
-                        </div>
-                        <span class="pin-price-tag" style="background: #FFF0F2; color: #E60023; border-color: rgba(230,0,35,0.2);">LOOK 04</span>
-                    </div>
-                </div>
-            </div>
-
-            {% for product in pinterest_products %}
-                <div class="pin-card-item"
-                     data-category="{% if product.category.slug == 'rings' %}rings{% elif product.category.slug == 'shades' %}shades{% elif product.category.slug == 'chains' %}chains{% else %}accs{% endif %}"
-                     data-pin-id="prod-{{ product.id }}">
-                    <div class="pin-media-stage {% if forloop.counter|divisibleby:3 %}pin-ratio-portrait{% elif forloop.counter|divisibleby:2 %}pin-ratio-square{% else %}pin-ratio-tall{% endif %}">
-                        {% if product.display_image %}
-                            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="pin-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                        {% else %}
-                            <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" class="pin-img" loading="lazy">
-                        {% endif %}
-
-                        {% if product.photo_count > 1 %}
-                            <div class="pin-photo-count-badge">
-                                <i class="bi bi-images"></i> {{ product.photo_count }} Photos
-                            </div>
-                        {% endif %}
-
-                        <!-- Pinterest Hover Overlay -->
-                        <div class="pin-hover-overlay">
-                            <div class="pin-top-bar">
-                                <span class="pin-cat-pill">{{ product.category.name }}</span>
-                                <button type="button" class="pin-save-btn" data-pin-id="prod-{{ product.id }}" aria-label="Save {{ product.name }}">
-                                    <i class="bi bi-pin-angle-fill"></i> <span>Save</span>
-                                </button>
-                            </div>
-                            <div class="pin-bottom-bar">
-                                <a href="{% url 'product_detail' product.id %}" class="pin-dest-pill" title="Shop {{ product.name }}">
-                                    <i class="bi bi-arrow-up-right"></i> ashasstore.in
-                                </a>
-                                <div class="pin-action-icons">
-                                    <button type="button"
-                                            class="pin-circle-btn pin-quickview-btn"
-                                            data-id="{{ product.id }}"
-                                            data-name="{{ product.name }}"
-                                            data-price="RS. {{ product.current_price|floatformat:2 }}"
-                                            data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
-                                            data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
-                                            data-cat="{{ product.category.name }}"
-                                            data-stock="{{ product.stock }}"
-                                            data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
-                                            data-add-url="{% url 'add_to_cart' product.id %}"
-                                            title="Quick View {{ product.name }}"
-                                            aria-label="Quick View {{ product.name }}">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    {% if product.stock > 0 %}
-                                    <button type="button"
-                                            class="pin-circle-btn pin-addcart-btn"
-                                            data-product-id="{{ product.id }}"
-                                            data-product-name="{{ product.name }}"
-                                            data-add-url="{% url 'add_to_cart' product.id %}"
-                                            title="Add {{ product.name }} to Bag"
-                                            aria-label="Add {{ product.name }} to Bag">
-                                        <i class="bi bi-bag-plus"></i>
-                                    </button>
-                                    {% endif %}
-                                    <button type="button"
-                                            class="pin-circle-btn pin-share-btn"
-                                            data-url="https://ashasstore.in/product/{{ product.id }}/"
-                                            data-title="{{ product.name }}"
-                                            title="Share {{ product.name }}"
-                                            aria-label="Share {{ product.name }}">
-                                        <i class="bi bi-share"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pin-meta-info">
-                        <h3 class="pin-title">
-                            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
-                        </h3>
-                        <div class="pin-author-row">
-                            <div class="pin-author">
-                                <span class="pin-author-avatar"><img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS"></span>
-                                <span>ASHAS Official</span>
-                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.72rem;"></i>
-                            </div>
-                            <span class="pin-price-tag">RS. {{ product.current_price|floatformat:2 }}</span>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <!-- Footer link back to collections -->
-        <div class="text-center mt-4 pt-2">
-            <a href="#blactifyCategoryGrid" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.82rem; letter-spacing: 0.05em;">
-                <i class="bi bi-grid-3x3-gap-fill me-1"></i> Browse All Store Collections
-            </a>
-        </div>
-    </section>
-</div>
-
-<!-- Pinterest Toast Notification Container -->
-<div id="pinterestToast" class="pinterest-toast-container" role="status" aria-live="polite">
-    <i class="bi bi-pin-angle-fill text-danger fs-6" id="pinterestToastIcon"></i>
-    <span id="pinterestToastMsg">Saved to your Pinterest inspiration board!</span>
-</div>
+    </div>
 
 <!-- =========================================================
      4. PRODUCT QUICK VIEW MODAL
@@ -2190,264 +2092,5 @@
         });
     }
 
-    // =========================================================
-    // 5. Pinterest Toast Notification Helper
-    // =========================================================
-    let toastTimeout = null;
-    function showPinterestToast(msg, icon = 'bi-pin-angle-fill') {
-        const toast = document.getElementById('pinterestToast');
-        const toastMsg = document.getElementById('pinterestToastMsg');
-        const toastIcon = document.getElementById('pinterestToastIcon');
-        if (!toast || !toastMsg) return;
-
-        if (toastTimeout) clearTimeout(toastTimeout);
-
-        toastMsg.innerText = msg;
-        if (toastIcon) {
-            toastIcon.className = `bi ${icon} text-danger fs-6`;
-        }
-
-        toast.classList.add('show');
-        toastTimeout = setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3200);
-    }
-
-    // =========================================================
-    // 6. Pinterest Category Filter Tabs with Smooth Animation
-    // =========================================================
-    const filterTabs = document.querySelectorAll('.pinterest-tab-chip');
-    const pinCards = document.querySelectorAll('.pin-card-item');
-
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            filterTabs.forEach(t => {
-                t.classList.remove('active');
-                t.setAttribute('aria-selected', 'false');
-            });
-            tab.classList.add('active');
-            tab.setAttribute('aria-selected', 'true');
-
-            const filter = tab.getAttribute('data-filter');
-
-            pinCards.forEach((card, index) => {
-                const cats = card.getAttribute('data-category') || '';
-                const shouldShow = (filter === 'all') || cats.split(' ').includes(filter);
-
-                if (shouldShow) {
-                    card.classList.remove('hidden-pin');
-                    // Reset and re-trigger smooth entrance animation
-                    card.style.animation = 'none';
-                    card.offsetHeight; // Trigger reflow
-                    const staggerDelay = Math.min(index * 0.04, 0.35);
-                    card.style.animation = `pinFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${staggerDelay}s backwards`;
-                } else {
-                    card.classList.add('hidden-pin');
-                }
-            });
-        });
-    });
-
-    // =========================================================
-    // 7. Pinterest Save Pin Micro-Animation & LocalStorage Persistence
-    // =========================================================
-    let savedPins = [];
-    try {
-        savedPins = JSON.parse(localStorage.getItem('ashas_saved_pins') || '[]');
-    } catch(e) {
-        savedPins = [];
-    }
-
-    function updateSavedPinUI(btn, isSaved) {
-        if (isSaved) {
-            btn.classList.add('saved');
-            btn.innerHTML = '<i class="bi bi-bookmark-check-fill heart-pop-anim"></i> <span>Saved</span>';
-        } else {
-            btn.classList.remove('saved');
-            btn.innerHTML = '<i class="bi bi-pin-angle-fill"></i> <span>Save</span>';
-        }
-    }
-
-    document.querySelectorAll('.pin-save-btn').forEach(btn => {
-        const pinId = btn.getAttribute('data-pin-id');
-        if (savedPins.includes(pinId)) {
-            updateSavedPinUI(btn, true);
-        }
-
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const isCurrentlySaved = savedPins.includes(pinId);
-            if (isCurrentlySaved) {
-                savedPins = savedPins.filter(id => id !== pinId);
-                updateSavedPinUI(btn, false);
-                showPinterestToast('Pin removed from your saved board.', 'bi-bookmark-x');
-            } else {
-                savedPins.push(pinId);
-                updateSavedPinUI(btn, true);
-                showPinterestToast('📌 Saved to your Pinterest inspiration board!', 'bi-heart-fill');
-            }
-
-            try {
-                localStorage.setItem('ashas_saved_pins', JSON.stringify(savedPins));
-            } catch(e) {}
-        });
-    });
-
-    // =========================================================
-    // 8. Pinterest Board Follow & Share Buttons
-    // =========================================================
-    const followBoardBtn = document.getElementById('pinterestFollowBtn');
-    let isFollowingBoard = localStorage.getItem('ashas_following_board') === 'true';
-    if (followBoardBtn) {
-        if (isFollowingBoard) {
-            followBoardBtn.classList.add('following');
-            followBoardBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> <span>Following</span>';
-        }
-
-        followBoardBtn.addEventListener('click', () => {
-            isFollowingBoard = !isFollowingBoard;
-            localStorage.setItem('ashas_following_board', isFollowingBoard);
-            if (isFollowingBoard) {
-                followBoardBtn.classList.add('following');
-                followBoardBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> <span>Following</span>';
-                showPinterestToast('✨ You are now following the ASHAS Official Board!', 'bi-stars');
-            } else {
-                followBoardBtn.classList.remove('following');
-                followBoardBtn.innerHTML = '<i class="bi bi-pin-angle-fill"></i> <span>Save Board</span>';
-                showPinterestToast('Unfollowed ASHAS Official Board.', 'bi-pin-angle');
-            }
-        });
-    }
-
-    const shareBoardBtn = document.getElementById('pinterestShareBoardBtn');
-    if (shareBoardBtn) {
-        shareBoardBtn.addEventListener('click', () => {
-            const url = 'https://ashasstore.in/#section-pinterest-board';
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    showPinterestToast('🔗 Board link copied to clipboard!', 'bi-clipboard-check');
-                }).catch(() => {
-                    showPinterestToast('🔗 Link: ' + url, 'bi-link-45deg');
-                });
-            } else {
-                showPinterestToast('🔗 Link: ' + url, 'bi-link-45deg');
-            }
-        });
-    }
-
-    // Share Individual Pin Button
-    document.querySelectorAll('.pin-share-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const url = btn.getAttribute('data-url') || window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    showPinterestToast('🔗 Product link copied to clipboard!', 'bi-clipboard-check');
-                }).catch(() => {
-                    showPinterestToast('🔗 ' + url, 'bi-link-45deg');
-                });
-            } else {
-                showPinterestToast('🔗 ' + url, 'bi-link-45deg');
-            }
-        });
-    });
-
-    // =========================================================
-    // 9. Pinterest Pin Quick View & Direct Add to Bag
-    // =========================================================
-    document.querySelectorAll('.pin-quickview-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const name = btn.getAttribute('data-name');
-            const price = btn.getAttribute('data-price');
-            const origPrice = btn.getAttribute('data-orig-price');
-            const desc = btn.getAttribute('data-desc');
-            const cat = btn.getAttribute('data-cat');
-            const stock = parseInt(btn.getAttribute('data-stock') || '0', 10);
-            const img = btn.getAttribute('data-image');
-            const addUrl = btn.getAttribute('data-add-url');
-            const id = btn.getAttribute('data-id');
-
-            currentQvProduct = { id, name, price, origPrice, desc, cat, stock, img, addUrl };
-
-            if (qvBadge) qvBadge.innerText = cat ? cat.toUpperCase() : 'COLLECTION';
-            if (qvImage) {
-                qvImage.src = img;
-                qvImage.alt = name;
-            }
-            if (qvTitle) qvTitle.innerText = name;
-            if (qvPrice) qvPrice.innerText = price;
-            if (qvOrigPrice) {
-                qvOrigPrice.innerText = origPrice;
-                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
-            }
-            if (qvDesc) qvDesc.innerText = desc;
-
-            if (qvAddBagBtn) {
-                if (stock <= 0) {
-                    qvAddBagBtn.disabled = true;
-                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
-                    qvAddBagBtn.style.opacity = '0.65';
-                    qvAddBagBtn.style.cursor = 'not-allowed';
-                } else {
-                    qvAddBagBtn.disabled = false;
-                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
-                    qvAddBagBtn.style.opacity = '';
-                    qvAddBagBtn.style.cursor = '';
-                }
-            }
-
-            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
-            if (qvWhatsappBtn) {
-                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
-                qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
-            }
-
-            const qvFullPageBtn = document.getElementById('qvFullPageBtn');
-            if (qvFullPageBtn) {
-                qvFullPageBtn.href = `/product/${id}/`;
-            }
-
-            if (bsQvModal) bsQvModal.show();
-        });
-    });
-
-    // Pin Quick Add to Bag Action
-    document.querySelectorAll('.pin-addcart-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.handleAjaxAddToCart === 'function') {
-                window.handleAjaxAddToCart(btn);
-                showPinterestToast('🛍️ Added to bag!', 'bi-bag-check-fill');
-            }
-        });
-    });
-
-    // =========================================================
-    // 10. Pinterest Hotspot Pins on Editorial Shoots
-    // =========================================================
-    const editorialHotspots = document.querySelectorAll('.pinterest-hotspot');
-    editorialHotspots.forEach(spot => {
-        spot.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const wasActive = spot.classList.contains('active');
-            editorialHotspots.forEach(s => s.classList.remove('active'));
-            if (!wasActive) {
-                spot.classList.add('active');
-            }
-        });
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.pinterest-hotspot')) {
-            editorialHotspots.forEach(s => s.classList.remove('active'));
-        }
-    });
 </script>
 {% endblock %}
