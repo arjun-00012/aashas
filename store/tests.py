@@ -706,11 +706,10 @@ class SessionSecurityTests(TestCase):
         self.assertEqual(settings.SESSION_IDLE_TIMEOUT_CUSTOMER, 7200)
 
     def test_login_page_renders_clean_platform(self):
-        """Login page must render the luxury platform with member access and staff tabs."""
+        """Login page must render the unified luxury platform for both members and staff."""
         response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "MEMBER ACCESS")
-        self.assertContains(response, "Staff / Admin")
+        self.assertContains(response, "SIGN IN")
         self.assertContains(response, "Protected by Session Security")
 
     def test_login_page_renders_expired_notice(self):
@@ -866,14 +865,15 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertNotContains(response, 'id="section-rings"')
 
     def test_product_detail_view_renders_large_image_and_share_button(self):
-        """Product page renders large image, INR badge without flag, uppercase title, RS. price, share button, Add to Cart, Buy It Now, and WhatsApp enquiry."""
+        """Product page renders large image without INR badge or flag, uppercase title, RS. price, share button, Add to Cart, Buy It Now, and WhatsApp enquiry."""
         response = self.client.get(reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'product_detail.html')
         self.assertContains(response, "VAMPIRE BAT RING")
         self.assertContains(response, "RS. 299.00")
-        self.assertContains(response, "INR")
+        self.assertNotContains(response, "INR")
         self.assertNotContains(response, "🇮🇳")
+        self.assertNotContains(response, "pdp-currency-badge")
         self.assertContains(response, "pdp-share-icon-btn")
         self.assertContains(response, "ADD TO CART")
         self.assertContains(response, "BUY IT NOW")
@@ -1014,7 +1014,7 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertEqual(saved.display_image, 'https://example.com/f1.webp')
 
     def test_product_detail_page_renders_four_photo_carousel(self):
-        """PDP must render the interactive thumbnail carousel with all 4 photos below main image."""
+        """PDP must render the interactive thumbnail carousel with all 4 photos below main image and no INR badge."""
         resp = self.client.get(reverse('product_detail', kwargs={'pk': self.product_multi.id}))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'id="pdpCarouselWrapper"')
@@ -1023,9 +1023,11 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertContains(resp, 'https://example.com/photo2.webp')
         self.assertContains(resp, 'https://example.com/photo3.webp')
         self.assertContains(resp, 'https://example.com/photo4.webp')
+        self.assertNotContains(resp, 'pdp-currency-badge')
+        self.assertNotContains(resp, '>INR<')
 
     def test_index_page_renders_oldtheory_style_spotlights_and_collections(self):
-        """Index page must render Old Theory editorial sections below trending section."""
+        """Index page must render Old Theory editorial sections below trending section with 7 unique photos."""
         resp = self.client.get(reverse('home'))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'id="section-lookbook"')
@@ -1043,6 +1045,14 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertContains(resp, 'look_2.jpg')
         self.assertContains(resp, 'look_3.jpg')
         self.assertContains(resp, 'look_4.jpg')
+        self.assertContains(resp, 'look_5.jpg')
+        self.assertContains(resp, 'look_6.jpg')
+        self.assertContains(resp, 'look_7.jpg')
+        self.assertContains(resp, 'FREE SHIPPING ACROSS INDIA')
+        self.assertContains(resp, 'EFFORTLESS 2-DAY REPLACEMENTS')
+        self.assertContains(resp, 'data-cat="rings"')
+        self.assertContains(resp, 'data-cat="chains"')
+        self.assertContains(resp, 'data-cat="shades"')
 
 
 

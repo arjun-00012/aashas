@@ -18,23 +18,13 @@
             </span>
         </div>
 
-        <!-- Role Access Switcher Tabs -->
-        <div class="auth-role-tabs mb-4 p-1 rounded-pill bg-light d-flex border" id="authRoleTabs">
-            <button type="button" class="auth-tab-btn flex-fill rounded-pill py-2 small fw-semibold {% if not is_admin_target %}active{% endif %}" id="tabCustomerBtn">
-                <i class="bi bi-person me-1"></i> Member Sign In
-            </button>
-            <button type="button" class="auth-tab-btn flex-fill rounded-pill py-2 small fw-semibold {% if is_admin_target %}active{% endif %}" id="tabStaffBtn">
-                <i class="bi bi-shield-lock me-1"></i> Staff / Admin
-            </button>
-        </div>
-
-        <!-- Dynamic Title & Subtitle based on active tab -->
+        <!-- Unified Authentication Title -->
         <div class="text-center mb-4">
             <h1 class="auth-title h4 fw-bold mb-1 text-dark" id="authHeading">
-                {% if is_admin_target %}STAFF PORTAL{% else %}MEMBER ACCESS{% endif %}
+                SIGN IN
             </h1>
             <p class="auth-subtitle text-secondary small mb-0" id="authSubheading">
-                {% if is_admin_target %}Enter authorized administrator credentials to manage the store{% else %}Sign in to manage your bag, checkout, and personal orders{% endif %}
+                Enter your username or email address and password to access your account.
             </p>
         </div>
 
@@ -65,7 +55,7 @@
                 <div class="flex-grow-1">
                     <div class="fw-bold small text-dark text-uppercase tracking-wider">Administrative Verification</div>
                     <div class="small text-secondary mt-0-5" style="font-size: 0.82rem; line-height: 1.4;">
-                        You are accessing a protected admin area. Staff credentials with administrative privileges are required.
+                        Staff credentials with administrative privileges are required to access this area.
                     </div>
                 </div>
             </div>
@@ -230,25 +220,6 @@
     gap: 0.35rem;
 }
 
-.auth-role-tabs {
-    background: #F4F0EB !important;
-    border-color: rgba(23, 22, 20, 0.08) !important;
-}
-
-.auth-tab-btn {
-    border: none;
-    background: transparent;
-    color: #635F59;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.auth-tab-btn.active {
-    background: #171614;
-    color: #FAF8F5;
-    box-shadow: 0 4px 12px rgba(23, 22, 20, 0.15);
-}
-
 .auth-title {
     letter-spacing: 0.08em;
     font-size: 1.25rem;
@@ -342,67 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
             pwdInput.setAttribute('type', isPassword ? 'text' : 'password');
             icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
         });
-    }
-
-    // Role Tab Switching (Member vs Staff/Admin)
-    const tabCustomerBtn = document.getElementById('tabCustomerBtn');
-    const tabStaffBtn = document.getElementById('tabStaffBtn');
-    const authHeading = document.getElementById('authHeading');
-    const authSubheading = document.getElementById('authSubheading');
-    const usernameLabel = document.getElementById('usernameLabel');
-    const usernameInput = document.getElementById('usernameInput');
-    const usernameIcon = document.getElementById('usernameIcon');
-    const sessionExpiryHint = document.getElementById('sessionExpiryHint');
-    const rememberMeRow = document.getElementById('rememberMeRow');
-    const rememberMeCheckbox = document.getElementById('rememberMeCheckbox');
-    const registerSection = document.getElementById('registerSection');
-    const nextUrlInput = document.getElementById('nextUrlInput');
-
-    function selectTab(isStaff) {
-        if (isStaff) {
-            tabStaffBtn.classList.add('active');
-            tabCustomerBtn.classList.remove('active');
-            authHeading.textContent = 'STAFF & ADMIN PORTAL';
-            authSubheading.textContent = 'Sign in with administrator credentials to manage inventory and orders';
-            usernameLabel.textContent = 'Admin Username';
-            usernameInput.placeholder = 'Authorized staff username';
-            usernameIcon.className = 'bi bi-shield-lock-fill text-warning';
-            sessionExpiryHint.innerHTML = '<i class="bi bi-shield-shaded text-danger"></i> Closes on browser exit';
-            // For security, uncheck and hide persistent "remember me" on admin tab
-            if (rememberMeCheckbox) rememberMeCheckbox.checked = false;
-            if (rememberMeRow) rememberMeRow.style.display = 'none';
-            if (registerSection) registerSection.style.display = 'none';
-            // Pre-route next to admin dashboard if no other specific path is targeted
-            if (nextUrlInput && (!nextUrlInput.value || nextUrlInput.value === '/' || nextUrlInput.value.includes('profile'))) {
-                nextUrlInput.value = '/adminpp/';
-            }
-        } else {
-            tabCustomerBtn.classList.add('active');
-            tabStaffBtn.classList.remove('active');
-            authHeading.textContent = 'MEMBER ACCESS';
-            authSubheading.textContent = 'Sign in to manage your bag, checkout, and personal orders';
-            usernameLabel.textContent = 'Username or Email';
-            usernameInput.placeholder = 'Enter username or registered email';
-            usernameIcon.className = 'bi bi-person-fill text-muted';
-            sessionExpiryHint.innerHTML = '<i class="bi bi-hourglass-split"></i> Auto-expires when idle';
-            if (rememberMeRow) rememberMeRow.style.display = 'flex';
-            if (registerSection) registerSection.style.display = 'block';
-            // Reset next if it was set to adminpp by switching
-            if (nextUrlInput && nextUrlInput.value === '/adminpp/') {
-                nextUrlInput.value = '';
-            }
-        }
-    }
-
-    if (tabCustomerBtn && tabStaffBtn) {
-        tabCustomerBtn.addEventListener('click', function() { selectTab(false); });
-        tabStaffBtn.addEventListener('click', function() { selectTab(true); });
-    }
-
-    // Auto-select staff tab if admin is targeted
-    const isAdminTarget = {% if is_admin_target %}true{% else %}false{% endif %};
-    if (isAdminTarget) {
-        selectTab(true);
     }
 
     // Form submission animation state

@@ -22,20 +22,22 @@
     .mannequin-container {
         position: relative;
         width: 100%;
-        max-width: 420px;
+        max-width: 440px;
+        max-height: 75vh;
+        aspect-ratio: 736 / 981;
         margin: 0 auto;
         border-radius: 16px;
         overflow: hidden;
         background: #FAF8F5;
         border: 1px solid rgba(28, 25, 23, 0.08);
         touch-action: manipulation;
-        aspect-ratio: 3 / 4;
         box-shadow: 0 14px 32px -8px rgba(28, 25, 23, 0.08);
     }
 
     @media (max-width: 575.98px) {
         .mannequin-container {
-            max-width: 320px;
+            max-width: min(88vw, 360px);
+            max-height: 70vh;
             border-radius: 14px;
         }
     }
@@ -91,6 +93,35 @@
         0% { box-shadow: 0 0 0 0 rgba(23, 22, 20, 0.5); }
         70% { box-shadow: 0 0 0 8px rgba(23, 22, 20, 0); }
         100% { box-shadow: 0 0 0 0 rgba(23, 22, 20, 0); }
+    }
+
+    .hotspot-badge {
+        position: absolute;
+        left: 50%;
+        top: calc(100% + 2px);
+        transform: translateX(-50%);
+        background: rgba(23, 22, 20, 0.88);
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 4px;
+        pointer-events: none;
+        white-space: nowrap;
+        opacity: 0.92;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .hotspot:hover .hotspot-badge,
+    .hotspot:active .hotspot-badge {
+        opacity: 1;
+        background: #000000;
+        transform: translateX(-50%) translateY(2px);
     }
 
     /* Floating Item Popover Card */
@@ -1264,20 +1295,29 @@
         <img src="{% static 'images/men1.jpg' %}" alt="ASHAS Signature Model wearing curated statement accessories" class="mannequin-img" id="mannequinImg">
 
         <!-- Interactive Hotspots on Model -->
-        <div class="hotspot" style="top: 45%; left: 56%;" data-cat="caps" data-name="Caps" data-x="56%" data-y="45%" title="Caps">
+        <div class="hotspot" style="top: 43%; left: 55%;" data-cat="caps" data-name="Caps" data-x="55%" data-y="43%" title="Caps" role="button" aria-label="Caps on Model">
             <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Caps</span>
         </div>
-        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Shades" data-x="54%" data-y="48%" title="Shades">
+        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Shades" data-x="54%" data-y="48%" title="Shades" role="button" aria-label="Shades on Model">
             <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Shades</span>
         </div>
-        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Chains" data-x="50%" data-y="61%" title="Chains">
+        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Chains" data-x="50%" data-y="61%" title="Chains" role="button" aria-label="Chains on Model">
             <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Chains</span>
         </div>
-        <div class="hotspot" style="top: 35%; left: 21%;" data-cat="bracelets" data-name="Bracelets" data-x="21%" data-y="35%" title="Bracelets">
+        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Rings" data-x="24%" data-y="58%" title="Rings" role="button" aria-label="Rings on Model">
             <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Rings</span>
         </div>
-        <div class="hotspot" style="top: 83%; left: 79%;" data-cat="watches" data-name="Watches" data-x="79%" data-y="83%" title="Watches">
+        <div class="hotspot" style="top: 33%; left: 22%;" data-cat="bracelets" data-name="Bracelets" data-x="22%" data-y="33%" title="Bracelets" role="button" aria-label="Bracelets on Model">
             <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Bracelets</span>
+        </div>
+        <div class="hotspot" style="top: 83%; left: 79%;" data-cat="watches" data-name="Watches" data-x="79%" data-y="83%" title="Watches" role="button" aria-label="Watches on Model">
+            <div class="hotspot-dot"></div>
+            <span class="hotspot-badge">Watches</span>
         </div>
 
         <!-- Floating Popover Card on Hover -->
@@ -1427,10 +1467,10 @@
                 <div class="full-width-spotlight-content">
                     <div class="w-100" style="max-width: 860px;">
                         <h2 class="full-width-spotlight-title">Beyond the basics.</h2>
-                        <p class="full-width-spotlight-desc">beyond the basics, introducing pieces that challenge the ordinary and redefine what modern style can be.</p>
+                        <p class="full-width-spotlight-desc">Challenging the ordinary with futuristic rimless shades, gothic silver, and architectural statement pieces designed to redefine modern street luxury.</p>
                         <div class="d-flex justify-content-center">
                             <a href="{% url 'category_detail' 'shades' %}" class="full-width-spotlight-btn" title="Explore Shades">
-                                <span>Explore</span>
+                                <span>Explore Shades</span>
                                 <svg class="full-width-spotlight-btn-icon shrink-0" width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
                                 </svg>
@@ -1444,16 +1484,16 @@
         <!-- 2. SIDE-BY-SIDE SPOTLIGHT (2 Columns) -->
         <section class="side-by-side-section" aria-label="Featured Collection Spotlights">
             <div class="side-by-side-grid">
-                <!-- Column 1: Timeless classics -->
+                <!-- Column 1: Timeless classics (Rings) -->
                 <a href="{% url 'category_detail' 'rings' %}" class="side-by-side-panel" aria-label="Timeless classics — Explore Rings">
-                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="Timeless classics" class="side-by-side-img" loading="lazy">
+                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="Timeless classics — Luxury Rings" class="side-by-side-img" loading="lazy">
                     <div class="side-by-side-overlay" aria-hidden="true"></div>
                     <div class="side-by-side-content">
                         <h2 class="side-by-side-title">Timeless classics</h2>
-                        <p class="side-by-side-desc">Our classic collections</p>
+                        <p class="side-by-side-desc">Signature stainless steel rings and signets sculpted for everyday statement wear</p>
                         <div class="side-by-side-btn-wrap">
                             <span class="side-by-side-btn">
-                                <span>Explore</span>
+                                <span>Explore Rings</span>
                                 <svg width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
                                 </svg>
@@ -1462,16 +1502,16 @@
                     </div>
                 </a>
 
-                <!-- Column 2: Latest addition -->
+                <!-- Column 2: Latest addition (Chains) -->
                 <a href="{% url 'category_detail' 'chains' %}" class="side-by-side-panel" aria-label="Latest addition — Explore Chains">
-                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="Latest addition" class="side-by-side-img" loading="lazy">
+                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="Latest addition — Heavy Cuban Chains" class="side-by-side-img" loading="lazy">
                     <div class="side-by-side-overlay" aria-hidden="true"></div>
                     <div class="side-by-side-content">
                         <h2 class="side-by-side-title">Latest addition</h2>
-                        <p class="side-by-side-desc">For the everyday essential</p>
+                        <p class="side-by-side-desc">Heavy Cuban link chains and brutalist curb necklaces engineered with rust-proof durability</p>
                         <div class="side-by-side-btn-wrap">
                             <span class="side-by-side-btn">
-                                <span>Explore</span>
+                                <span>Explore Chains</span>
                                 <svg width="10" height="10" viewBox="0 0 10.215 10.215" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <path d="M7,16.084,16.084,7m0,0H7.908m8.176,0v8.176" transform="translate(-6.434 -6.434)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"/>
                                 </svg>
@@ -1482,42 +1522,34 @@
             </div>
         </section>
 
-        <!-- 3. INFINITE SCROLLING MARQUEE TICKER -->
-        <section class="infinite-marquee-section" aria-label="Promotional messages">
+        <!-- 3. INFINITE SCROLLING MARQUEE TICKER (ASHAS Store Benefits) -->
+        <section class="infinite-marquee-section" aria-label="ASHAS Store Guarantees">
             <div class="infinite-marquee-track">
-                <span class="infinite-marquee-item">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-item">🚚 FREE SHIPPING ACROSS INDIA</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-item">📦 EFFORTLESS 2-DAY REPLACEMENTS</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-item">⚡️ DISPATCH WITHIN 2-3 DAYS</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-item">✨ 100% QUALITY CHECKED</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-item">💬 24*7 WHATSAPP SUPPORT</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">📦 Effortless 2-day returns</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">⚡️ Dispatch within 2-3 days</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-item">🔒 SECURE PAYMENTS (UPI / CARDS)</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
 
                 <!-- Duplicate track items for smooth infinite loop -->
-                <span class="infinite-marquee-item" aria-hidden="true">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-item" aria-hidden="true">🚚 FREE SHIPPING ACROSS INDIA</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">📦 Effortless 2-day returns</span>
+                <span class="infinite-marquee-item" aria-hidden="true">📦 EFFORTLESS 2-DAY REPLACEMENTS</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">⚡️ Dispatch within 2-3 days</span>
+                <span class="infinite-marquee-item" aria-hidden="true">⚡️ DISPATCH WITHIN 2-3 DAYS</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-item" aria-hidden="true">✨ 100% QUALITY CHECKED</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">🚚 offer worldwide shipping</span>
+                <span class="infinite-marquee-item" aria-hidden="true">💬 24*7 WHATSAPP SUPPORT</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">📦 Effortless 2-day returns</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">⚡️ Dispatch within 2-3 days</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">🌿 Sustainability focused</span>
+                <span class="infinite-marquee-item" aria-hidden="true">🔒 SECURE PAYMENTS (UPI / CARDS)</span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
             </div>
         </section>
@@ -1530,43 +1562,43 @@
             </div>
 
             <div class="collage-grid">
-                <!-- Card 1: The New Arrivals -->
-                <a href="{% url 'category_detail' 'shades' %}" class="collage-panel" aria-label="The New Arrivals — Explore">
-                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="The New Arrivals" class="collage-img" loading="lazy">
+                <!-- Card 1: The New Arrivals (Shades) -->
+                <a href="{% url 'category_detail' 'shades' %}" class="collage-panel" aria-label="The New Arrivals — Explore Shades">
+                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="The New Arrivals — Cyberpunk Shades" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
                     <div class="collage-content">
                         <h3 class="collage-headline">The New Arrivals</h3>
-                        <p class="collage-desc">This is the perfect spot to rotate seasonal drops, new arrivals, or exclusive limited editions.</p>
+                        <p class="collage-desc">Cyberpunk rimless eyewear and tinted shades designed with UV400 clarity and metallic frames.</p>
                         <span class="collage-btn">
-                            <span>Explore</span>
+                            <span>Explore Shades</span>
                             <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </span>
                     </div>
                 </a>
 
-                <!-- Card 2: The Signature Line -->
-                <a href="{% url 'category_detail' 'rings' %}" class="collage-panel" aria-label="The Signature Line — Explore">
-                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="The Signature Line" class="collage-img" loading="lazy">
+                <!-- Card 2: The Signature Line (Rings) -->
+                <a href="{% url 'category_detail' 'rings' %}" class="collage-panel" aria-label="The Signature Line — Explore Rings">
+                    <img src="{% static 'images/lookbook/look_5.jpg' %}" alt="The Signature Line — Curated Rings" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
                     <div class="collage-content">
                         <h3 class="collage-headline">The Signature Line</h3>
-                        <p class="collage-desc">Use this space to highlight your most popular items or a curated set that defines your brand's identity.</p>
+                        <p class="collage-desc">Curated gothic rings and hand-finished jewelry crafted for distinct individuality.</p>
                         <span class="collage-btn">
-                            <span>Explore</span>
+                            <span>Explore Rings</span>
                             <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </span>
                     </div>
                 </a>
 
-                <!-- Card 3: The Limited Edition (Spans 2 Columns) -->
-                <a href="{% url 'category_detail' 'chains' %}" class="collage-panel collage-panel-span-2" aria-label="The Limited Edition — Explore">
-                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="The Limited Edition" class="collage-img" loading="lazy">
+                <!-- Card 3: The Limited Edition (Chains - Spans 2 Columns) -->
+                <a href="{% url 'category_detail' 'chains' %}" class="collage-panel collage-panel-span-2" aria-label="The Limited Edition — Explore Chains">
+                    <img src="{% static 'images/lookbook/look_6.jpg' %}" alt="The Limited Edition — Industrial Curb Chains" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
                     <div class="collage-content">
                         <h3 class="collage-headline">The Limited Edition</h3>
-                        <p class="collage-desc">Group your core essentials here so new visitors know exactly where to start their journey.</p>
+                        <p class="collage-desc">Heavyweight chain links, textured pendants, and limited drops built to withstand the elements.</p>
                         <span class="collage-btn">
-                            <span>Explore</span>
+                            <span>Explore Chains</span>
                             <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </span>
                     </div>
@@ -1578,12 +1610,12 @@
         <section class="split-spotlight-section" aria-label="The Collectives Spotlight">
             <div class="split-spotlight-grid">
                 <div class="split-spotlight-media">
-                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="The Collectives" class="split-spotlight-img" loading="lazy">
+                    <img src="{% static 'images/lookbook/look_7.jpg' %}" alt="The Collectives — Exclusive Limited Drops" class="split-spotlight-img" loading="lazy">
                 </div>
                 <div class="split-spotlight-text-panel">
                     <p class="split-spotlight-tag">ASHAS</p>
                     <h2 class="split-spotlight-headline">The Collectives</h2>
-                    <p class="split-spotlight-desc">Explain the exclusivity of the drop, whether it's a limited run or a new seasonal color.</p>
+                    <p class="split-spotlight-desc">Exclusive seasonal drops and curated dark aesthetic jewelry collections designed in limited batches.</p>
                     <div>
                         <a href="#blactifyCategoryGrid" class="split-spotlight-btn" title="Shop Now">
                             <span>Shop Now</span>
@@ -1694,7 +1726,11 @@
 
         spot.addEventListener('click', (e) => {
             e.stopPropagation();
-            applyZoom(x, y, name, cat);
+            if (isZoomed && activeCategory === cat) {
+                window.location.href = `/category/${cat}/`;
+            } else {
+                applyZoom(x, y, name, cat);
+            }
         });
     });
 

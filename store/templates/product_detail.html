@@ -83,39 +83,6 @@
         transform: scale(1.04);
     }
 
-    /* Floating Country Currency Badge (Bottom Left of Image) */
-    .pdp-currency-badge {
-        position: absolute;
-        bottom: 16px;
-        left: 16px;
-        background: #FFFFFF;
-        border: 1px solid rgba(28, 25, 23, 0.12);
-        border-radius: 6px;
-        padding: 5px 10px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.76rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: #171614;
-        box-shadow: 0 4px 12px rgba(28, 25, 23, 0.08);
-        z-index: 5;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .pdp-currency-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(28, 25, 23, 0.12);
-    }
-
-    .pdp-currency-flag {
-        font-size: 1.05rem;
-        line-height: 1;
-    }
-
     /* Right Column: Product Details & Actions */
     .pdp-details-stage {
         padding-left: 0;
@@ -634,12 +601,6 @@
                     {% else %}
                         <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" id="pdpMainImage" loading="eager">
                     {% endif %}
-
-                    <!-- Floating Country Currency Badge (Bottom Left) -->
-                    <div class="pdp-currency-badge" title="Prices shown in Indian Rupees (INR)" role="status">
-                        <span>INR</span>
-                        <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i>
-                    </div>
                 </div>
 
                 <!-- 4-Photo Interactive Thumbnail Carousel Strip (Below First Image) -->
