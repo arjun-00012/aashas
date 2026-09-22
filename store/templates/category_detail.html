@@ -21,13 +21,6 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
                 <div>
                     <h1 class="category-main-title mb-1">{{ category.name|upper }}</h1>
-                    <p class="category-description text-secondary small mb-0">
-                        {% if category.description %}
-                            {{ category.description }}
-                        {% else %}
-                            Curated statement {{ category.name|lower }} designed with premium durability and signature modern aesthetics.
-                        {% endif %}
-                    </p>
                 </div>
                 <div class="category-meta-info d-flex align-items-center gap-2">
                     <span class="badge luxury-count-badge">{{ products.count }} ITEM{{ products.count|pluralize|upper }}</span>
@@ -74,8 +67,8 @@
 
                     {% if product.stock <= 0 %}
                         <span class="luxury-badge-soldout">SOLD OUT</span>
-                    {% elif product.discount_price %}
-                        <span class="luxury-badge-sale">SALE</span>
+                    {% elif product.is_trending %}
+                        <span class="luxury-badge-newdrop"><i class="bi bi-stars"></i> NEW DROP</span>
                     {% endif %}
 
                     <!-- Discreet Hover Action Bar -->

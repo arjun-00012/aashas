@@ -834,7 +834,7 @@ class CategoryPagesAndCardDesignTests(TestCase):
         )
 
     def test_category_detail_view_renders_products(self):
-        """Dedicated category page renders products with 5-col minimalist cards and RS. pricing."""
+        """Dedicated category page renders products with 5-col minimalist cards and RS. pricing without description."""
         response = self.client.get(reverse('category_detail', kwargs={'slug': 'rings'}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'category_detail.html')
@@ -842,6 +842,7 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertContains(response, "VAMPIRE BAT RING")
         self.assertContains(response, "RS. 299.00")
         self.assertContains(response, "luxury-product-grid")
+        self.assertNotContains(response, "Curated statement rings designed with")
 
     def test_category_detail_404_for_invalid_slug(self):
         """Invalid category slug must return 404."""
@@ -849,11 +850,12 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_home_view_shows_trending_and_routes_categories_to_pages(self):
-        """Homepage must show Trending items and link collections to dedicated pages without rendering full stacked category lists."""
+        """Homepage must show New Drop items and link collections to dedicated pages without rendering full stacked category lists."""
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
-        # Trending section must be present
-        self.assertContains(response, "TRENDING NOW")
+        # New Drop section must be present
+        self.assertContains(response, "NEW DROP")
+        self.assertNotContains(response, "TRENDING NOW")
         self.assertContains(response, "VAMPIRE BAT RING")
         self.assertContains(response, "RS. 299.00")
         # Category links must route to dedicated pages
@@ -864,16 +866,18 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertNotContains(response, 'id="section-rings"')
 
     def test_product_detail_view_renders_large_image_and_share_button(self):
-        """Product page renders large image, INR badge, uppercase title, RS. price, share button, Add to Cart, and Buy It Now."""
+        """Product page renders large image, INR badge without flag, uppercase title, RS. price, share button, Add to Cart, Buy It Now, and WhatsApp enquiry."""
         response = self.client.get(reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'product_detail.html')
         self.assertContains(response, "VAMPIRE BAT RING")
         self.assertContains(response, "RS. 299.00")
         self.assertContains(response, "INR")
+        self.assertNotContains(response, "🇮🇳")
         self.assertContains(response, "pdp-share-icon-btn")
         self.assertContains(response, "ADD TO CART")
         self.assertContains(response, "BUY IT NOW")
+        self.assertContains(response, "ENQUIRE ON WHATSAPP")
         self.assertContains(response, "DESCRIPTION")
         self.assertContains(response, "SHIPPING & DELIVERY")
 

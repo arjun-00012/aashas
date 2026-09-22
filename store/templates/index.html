@@ -1300,13 +1300,13 @@
 
     <div class="category-grid" id="blactifyCategoryGrid">
         {% if trending_products %}
-        <a href="#section-trending" class="category-item-link category-item-trending" data-cat="trending" title="Trending Collection">
+        <a href="#section-trending" class="category-item-link category-item-trending" data-cat="trending" title="New Drop Collection">
             <div class="category-thumb-wrapper">
                 <div class="trending-thumb-icon">
                     <i class="bi bi-stars"></i>
                 </div>
             </div>
-            <span class="category-label">Trending</span>
+            <span class="category-label">New Drop</span>
         </a>
         {% endif %}
         {% for cat in categories %}
@@ -1325,16 +1325,16 @@
 </section>
 
 <!-- =========================================================
-     3. TRENDING SESSION (Interactive Carousel with Classic Hover)
+     3. NEW DROP SESSION (Interactive Carousel with Classic Hover)
      ========================================================= -->
 <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px;">
     {% if trending_products %}
-    <section id="section-trending" class="category-section mb-5 pt-3" aria-label="Trending Products">
+    <section id="section-trending" class="category-section mb-5 pt-3" aria-label="New Drop Products">
         <div class="section-header">
             <div class="min-w-0 flex-grow-1 pe-2">
                 <div class="section-title-wrap">
                     <i class="bi bi-stars text-dark" style="font-size: 1.05rem;"></i>
-                    <h2 class="section-title text-truncate">TRENDING NOW</h2>
+                    <h2 class="section-title text-truncate">NEW DROP</h2>
                     <span class="section-count">{{ trending_products.count }}</span>
                 </div>
             </div>
@@ -1365,27 +1365,19 @@
                      data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                      data-add-url="{% url 'add_to_cart' product.id %}">
                     <div>
-                        <!-- Interactive Preview Area with Hover Zoom -->
-                        <div class="product-clickable-area" role="button" tabindex="0" aria-label="Quick view {{ product.name }}">
+                        <!-- Direct Link to PDP -->
+                        <a href="{% url 'product_detail' product.id %}" class="product-clickable-area text-decoration-none d-block text-dark" title="View {{ product.name }}" aria-label="View {{ product.name }}">
                             <div class="product-img-wrapper">
                                 {% if product.display_image %}
                                     <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                                 {% else %}
                                     <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
                                 {% endif %}
-                                <span class="badge-trending-classic"><i class="bi bi-stars"></i>TRENDING</span>
-                                {% if product.discount_price %}
-                                    <span class="badge-sale">SALE</span>
-                                {% endif %}
-                                <div class="product-quick-hint">
-                                    <i class="bi bi-eye me-1"></i> Quick View
-                                </div>
+                                <span class="badge-trending-classic"><i class="bi bi-stars"></i> NEW DROP</span>
                             </div>
                             <div class="product-category-sub">{{ product.category.name|upper }}</div>
-                            <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark" title="View {{ product.name }}">
-                                <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
-                            </a>
-                        </div>
+                            <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
+                        </a>
                     </div>
                     <div>
                         <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -1773,100 +1765,7 @@
     }
 
     // =========================================================
-    // 3. Product Quick View Modal Trigger
-    // =========================================================
-    const qvModalEl = document.getElementById('productQuickViewModal');
-    let bsQvModal = null;
-    if (qvModalEl && typeof bootstrap !== 'undefined') {
-        bsQvModal = new bootstrap.Modal(qvModalEl);
-    }
-
-    let currentQvProduct = null;
-    const qvBadge = document.getElementById('qvCategoryBadge');
-    const qvImage = document.getElementById('qvImage');
-    const qvTitle = document.getElementById('qvTitle');
-    const qvPrice = document.getElementById('qvPrice');
-    const qvOrigPrice = document.getElementById('qvOrigPrice');
-    const qvDesc = document.getElementById('qvDesc');
-    const qvAddBagBtn = document.getElementById('qvAddBagBtn');
-
-    document.querySelectorAll('.product-clickable-area').forEach(trigger => {
-        function openModal() {
-            const card = trigger.closest('.product-card');
-            if (!card) return;
-
-            const name = card.getAttribute('data-name');
-            const price = card.getAttribute('data-price');
-            const origPrice = card.getAttribute('data-orig-price');
-            const desc = card.getAttribute('data-desc');
-            const cat = card.getAttribute('data-cat');
-            const stock = parseInt(card.getAttribute('data-stock') || '0', 10);
-            const img = card.getAttribute('data-image');
-            const addUrl = card.getAttribute('data-add-url');
-
-            currentQvProduct = { id: card.getAttribute('data-id'), name, price, origPrice, desc, cat, stock, img, addUrl };
-
-            if (qvBadge) qvBadge.innerText = cat ? cat.toUpperCase() : 'COLLECTION';
-            if (qvImage) {
-                qvImage.src = img;
-                qvImage.alt = name;
-            }
-            if (qvTitle) qvTitle.innerText = name;
-            if (qvPrice) qvPrice.innerText = price;
-            if (qvOrigPrice) {
-                qvOrigPrice.innerText = origPrice;
-                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
-            }
-            if (qvDesc) qvDesc.innerText = desc;
-
-            if (qvAddBagBtn) {
-                if (stock <= 0) {
-                    qvAddBagBtn.disabled = true;
-                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
-                    qvAddBagBtn.style.opacity = '0.65';
-                    qvAddBagBtn.style.cursor = 'not-allowed';
-                } else {
-                    qvAddBagBtn.disabled = false;
-                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
-                    qvAddBagBtn.style.opacity = '';
-                    qvAddBagBtn.style.cursor = '';
-                }
-            }
-
-            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
-            if (qvWhatsappBtn) {
-                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
-                qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
-            }
-
-            const qvFullPageBtn = document.getElementById('qvFullPageBtn');
-            if (qvFullPageBtn && currentQvProduct) {
-                qvFullPageBtn.href = `/product/${currentQvProduct.id}/`;
-            }
-
-            if (bsQvModal) bsQvModal.show();
-        }
-
-        trigger.addEventListener('click', openModal);
-        trigger.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openModal();
-            }
-        });
-    });
-
-    if (qvAddBagBtn) {
-        qvAddBagBtn.addEventListener('click', function() {
-            if (!currentQvProduct) return;
-            qvAddBagBtn.setAttribute('data-add-url', currentQvProduct.addUrl);
-            qvAddBagBtn.setAttribute('data-product-name', currentQvProduct.name);
-            window.handleAjaxAddToCart(qvAddBagBtn);
-        });
-    }
-
-    // =========================================================
-    // 4. Back to Top Button
+    // 3. Back to Top Button
     // =========================================================
     const backToTopBtn = document.getElementById('backToTopBtn');
     if (backToTopBtn) {
