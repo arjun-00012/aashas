@@ -644,9 +644,14 @@
                                         {% endif %}
                                         <div class="min-w-0">
                                             <div class="fw-semibold text-dark text-truncate" style="max-width: 170px;" title="{{ p.name }}">{{ p.name }}</div>
-                                            {% if p.discount_price %}
-                                                <small class="badge bg-danger" style="font-size: 0.6rem;">SALE</small>
-                                            {% endif %}
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                {% if p.discount_price %}
+                                                    <small class="badge bg-danger" style="font-size: 0.6rem;">SALE</small>
+                                                {% endif %}
+                                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.65rem;" title="{{ p.photo_count }} of 4 gallery photos configured">
+                                                    <i class="bi bi-images me-1"></i>{{ p.photo_count }}/4
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

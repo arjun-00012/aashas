@@ -159,8 +159,14 @@ class Category(models.Model):
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
-    image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to product image (optional)")
+    image = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 1 - Main Cover Image")
+    image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to Photo 1 (optional)")
+    image_2 = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 2 (optional)")
+    image_2_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to Photo 2 (optional)")
+    image_3 = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 3 (optional)")
+    image_3_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to Photo 3 (optional)")
+    image_4 = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 4 (optional)")
+    image_4_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to Photo 4 (optional)")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -169,90 +175,129 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        # Reset image file pointer if present before saving
-        if self.image:
-            try:
-                if hasattr(self.image, 'seek'):
-                    self.image.seek(0)
-            except Exception:
-                pass
-            try:
-                if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
-                    self.image.file.seek(0)
-            except Exception:
-                pass
+        # Reset image file pointers if present before saving
+        for img_field in [self.image, self.image_2, self.image_3, self.image_4]:
+            if img_field:
+                try:
+                    if hasattr(img_field, 'seek'):
+                        img_field.seek(0)
+                except Exception:
+                    pass
+                try:
+                    if hasattr(img_field, 'file') and hasattr(img_field.file, 'seek'):
+                        img_field.file.seek(0)
+                except Exception:
+                    pass
 
         super().save(*args, **kwargs)
 
         # Optimize image dimensions if uploaded locally
-        if self.image:
-            optimize_image_file(self.image, max_dimension=1200)
+        for img_field in [self.image, self.image_2, self.image_3, self.image_4]:
+            if img_field:
+                optimize_image_file(img_field, max_dimension=1200)
 
         # Automatically record Cloudinary secure URL if uploaded to Cloudinary
-        if self.image and not self.image_url:
-            try:
-                img_url = ''
+        image_slots = [
+            (self.image, 'image_url', ''),
+            (self.image_2, 'image_2_url', '_2'),
+            (self.image_3, 'image_3_url', '_3'),
+            (self.image_4, 'image_4_url', '_4'),
+        ]
+        updates = []
+        for file_val, url_attr, suffix in image_slots:
+            curr_url = getattr(self, url_attr, None)
+            if file_val and not curr_url:
                 try:
-                    img_url = str(self.image.url)
-                except Exception:
                     img_url = ''
-                if img_url and img_url.startswith(('http://', 'https://')):
-                    self.image_url = img_url
-                    super().save(update_fields=['image_url'])
-                else:
-                    import os
-                    import cloudinary.uploader
-                    filepath = None
                     try:
-                        filepath = self.image.path
-                    except (NotImplementedError, AttributeError, ValueError):
-                        filepath = None
-
-                    if filepath and os.path.exists(filepath):
-                        res = cloudinary.uploader.upload(
-                            filepath,
-                            folder="ashas/products",
-                            public_id=f"product_{self.id}",
-                            overwrite=True
-                        )
-                        secure_url = res.get('secure_url')
-                        if secure_url:
-                            self.image_url = secure_url
-                            super().save(update_fields=['image_url'])
+                        img_url = str(file_val.url)
+                    except Exception:
+                        img_url = ''
+                    if img_url and img_url.startswith(('http://', 'https://')):
+                        setattr(self, url_attr, img_url)
+                        updates.append(url_attr)
                     else:
+                        import os
+                        import cloudinary.uploader
+                        filepath = None
                         try:
-                            if hasattr(self.image, 'file') and hasattr(self.image.file, 'seek'):
-                                self.image.file.seek(0)
-                                res = cloudinary.uploader.upload(
-                                    self.image.file,
-                                    folder="ashas/products",
-                                    public_id=f"product_{self.id}",
-                                    overwrite=True
-                                )
-                                secure_url = res.get('secure_url')
-                                if secure_url:
-                                    self.image_url = secure_url
-                                    super().save(update_fields=['image_url'])
-                        except Exception:
-                            pass
-            except Exception:
-                pass
+                            filepath = file_val.path
+                        except (NotImplementedError, AttributeError, ValueError):
+                            filepath = None
+
+                        public_id_str = f"product_{self.id}{suffix}"
+                        if filepath and os.path.exists(filepath):
+                            res = cloudinary.uploader.upload(
+                                filepath,
+                                folder="ashas/products",
+                                public_id=public_id_str,
+                                overwrite=True
+                            )
+                            secure_url = res.get('secure_url')
+                            if secure_url:
+                                setattr(self, url_attr, secure_url)
+                                updates.append(url_attr)
+                        else:
+                            try:
+                                if hasattr(file_val, 'file') and hasattr(file_val.file, 'seek'):
+                                    file_val.file.seek(0)
+                                    res = cloudinary.uploader.upload(
+                                        file_val.file,
+                                        folder="ashas/products",
+                                        public_id=public_id_str,
+                                        overwrite=True
+                                    )
+                                    secure_url = res.get('secure_url')
+                                    if secure_url:
+                                        setattr(self, url_attr, secure_url)
+                                        updates.append(url_attr)
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+        if updates:
+            super().save(update_fields=updates)
 
     @property
     def current_price(self):
         return self.discount_price if self.discount_price else self.price
 
-    @property
-    def display_image(self):
-        # Prioritize direct cloud link if available
-        if self.image_url:
-            return self.image_url
-        if self.image:
+    def _resolve_image_url(self, file_field, url_field_val):
+        if url_field_val:
+            return url_field_val
+        if file_field:
             try:
-                return self.image.url
+                return file_field.url
             except Exception:
                 pass
         return ''
+
+    @property
+    def display_image(self):
+        # Prioritize direct cloud link if available
+        return self._resolve_image_url(self.image, self.image_url)
+
+    @property
+    def gallery_images(self):
+        """
+        Returns an ordered list of all available images (up to 4),
+        with the primary first image guaranteed at index 0.
+        """
+        images = []
+        for file_val, url_val in [
+            (self.image, self.image_url),
+            (self.image_2, self.image_2_url),
+            (self.image_3, self.image_3_url),
+            (self.image_4, self.image_4_url),
+        ]:
+            resolved = self._resolve_image_url(file_val, url_val)
+            if resolved and resolved not in images:
+                images.append(resolved)
+        return images
+
+    @property
+    def photo_count(self):
+        return len(self.gallery_images)
 
     def __str__(self):
         return self.name

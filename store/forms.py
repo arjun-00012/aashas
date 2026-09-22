@@ -99,12 +99,25 @@ class CategoryForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['category', 'name', 'image', 'image_url', 'price', 'discount_price', 'description', 'stock', 'is_trending']
+        fields = [
+            'category', 'name', 
+            'image', 'image_url', 
+            'image_2', 'image_2_url', 
+            'image_3', 'image_3_url', 
+            'image_4', 'image_4_url', 
+            'price', 'discount_price', 'description', 'stock', 'is_trending'
+        ]
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Wolf Ring, Noir Sunglasses'}),
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
-            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/product.webp (Optional direct URL)'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-1.webp (Optional direct URL)'}),
+            'image_2': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'image_2_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-2.webp (Optional direct URL)'}),
+            'image_3': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'image_3_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-3.webp (Optional direct URL)'}),
+            'image_4': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'image_4_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-4.webp (Optional direct URL)'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '999'}),
             'discount_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '799 (Leave empty if not on sale)'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '10'}),
@@ -112,13 +125,19 @@ class ProductForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Product details, sizing, material...'}),
         }
         help_texts = {
-            'image': 'Recommended: 1000 × 1000 px to 1200 × 1200 px (1:1 Square). Max 5 MB. Formats: WebP, PNG, JPG.',
-            'image_url': 'Direct high-res link to product image (e.g. Cloudinary, CDN, Imgur).',
+            'image': 'Photo 1 (Cover / Main Photo) - Recommended: 1000 × 1000 px (1:1 Square). Max 5 MB.',
+            'image_url': 'Direct high-res link to Photo 1 (e.g. Cloudinary, CDN, Imgur).',
+            'image_2': 'Photo 2 (Side / Angle View) - Recommended: 1:1 Square. Max 5 MB.',
+            'image_2_url': 'Direct link to Photo 2 (optional).',
+            'image_3': 'Photo 3 (On-Model / Wearing View) - Recommended: 1:1 Square. Max 5 MB.',
+            'image_3_url': 'Direct link to Photo 3 (optional).',
+            'image_4': 'Photo 4 (Detail / Packaging View) - Recommended: 1:1 Square. Max 5 MB.',
+            'image_4_url': 'Direct link to Photo 4 (optional).',
             'is_trending': 'Feature this item prominently in the homepage Trending Now section.',
         }
 
-    def clean_image(self):
-        img = self.cleaned_data.get('image')
+    def _validate_image_field(self, field_name):
+        img = self.cleaned_data.get(field_name)
         if img:
             max_bytes = 5 * 1024 * 1024  # 5MB
             if hasattr(img, 'size') and img.size > max_bytes:
@@ -146,6 +165,18 @@ class ProductForm(forms.ModelForm):
                     except Exception:
                         pass
         return img
+
+    def clean_image(self):
+        return self._validate_image_field('image')
+
+    def clean_image_2(self):
+        return self._validate_image_field('image_2')
+
+    def clean_image_3(self):
+        return self._validate_image_field('image_3')
+
+    def clean_image_4(self):
+        return self._validate_image_field('image_4')
 
     def clean(self):
         cleaned_data = super().clean()

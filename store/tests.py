@@ -952,6 +952,88 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertContains(home_resp, f"/category/{new_cat.slug}/")
 
 
+class ProductFourPhotoAndLookbookTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.category = Category.objects.create(name="Rings")
+        self.product_multi = Product.objects.create(
+            category=self.category,
+            name="Four Photo Signet Ring",
+            price=1299.00,
+            image_url="https://example.com/photo1.webp",
+            image_2_url="https://example.com/photo2.webp",
+            image_3_url="https://example.com/photo3.webp",
+            image_4_url="https://example.com/photo4.webp",
+            stock=5
+        )
+        self.product_single = Product.objects.create(
+            category=self.category,
+            name="Single Photo Ring",
+            price=899.00,
+            image_url="https://example.com/single.webp",
+            stock=3
+        )
+
+    def test_product_display_image_is_always_first_photo(self):
+        """Primary display_image must always return the first photo (image / image_url)."""
+        self.assertEqual(self.product_multi.display_image, "https://example.com/photo1.webp")
+        self.assertEqual(self.product_single.display_image, "https://example.com/single.webp")
+
+    def test_gallery_images_property_ordering_and_count(self):
+        """gallery_images must return all valid photos with Photo 1 guaranteed at index 0."""
+        self.assertEqual(self.product_multi.photo_count, 4)
+        gallery = self.product_multi.gallery_images
+        self.assertEqual(len(gallery), 4)
+        self.assertEqual(gallery[0], "https://example.com/photo1.webp")
+        self.assertEqual(gallery[1], "https://example.com/photo2.webp")
+        self.assertEqual(gallery[2], "https://example.com/photo3.webp")
+        self.assertEqual(gallery[3], "https://example.com/photo4.webp")
+
+        self.assertEqual(self.product_single.photo_count, 1)
+        self.assertEqual(self.product_single.gallery_images, ["https://example.com/single.webp"])
+
+    def test_product_form_supports_four_photos(self):
+        """ProductForm must accept all 4 photo URL and file fields."""
+        form = ProductForm(data={
+            'category': self.category.id,
+            'name': 'Form Tested Ring',
+            'price': 999,
+            'image_url': 'https://example.com/f1.webp',
+            'image_2_url': 'https://example.com/f2.webp',
+            'image_3_url': 'https://example.com/f3.webp',
+            'image_4_url': 'https://example.com/f4.webp',
+            'stock': 10
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        saved = form.save()
+        self.assertEqual(saved.photo_count, 4)
+        self.assertEqual(saved.display_image, 'https://example.com/f1.webp')
+
+    def test_product_detail_page_renders_four_photo_carousel(self):
+        """PDP must render the interactive thumbnail carousel with all 4 photos below main image."""
+        resp = self.client.get(reverse('product_detail', kwargs={'pk': self.product_multi.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="pdpCarouselWrapper"')
+        self.assertContains(resp, 'class="pdp-thumbnails-strip"')
+        self.assertContains(resp, 'https://example.com/photo1.webp')
+        self.assertContains(resp, 'https://example.com/photo2.webp')
+        self.assertContains(resp, 'https://example.com/photo3.webp')
+        self.assertContains(resp, 'https://example.com/photo4.webp')
+
+    def test_index_page_renders_pinterest_curated_lookbook(self):
+        """Index page must render the Pinterest lookbook section below trending section."""
+        resp = self.client.get(reverse('home'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="section-lookbook"')
+        self.assertContains(resp, 'THE AESTHETIC EDIT')
+        self.assertContains(resp, 'Curated on Pinterest')
+        self.assertContains(resp, 'look_1.jpg')
+        self.assertContains(resp, 'look_2.jpg')
+        self.assertContains(resp, 'look_3.jpg')
+        self.assertContains(resp, 'look_4.jpg')
+
+
+
 
 
 

@@ -646,6 +646,252 @@
     .product-scroll-track.is-dragging {
         cursor: grabbing !important;
     }
+
+    /* =========================================================
+       Pinterest Curated Lookbook / Aesthetic Editorial Showcase
+       ========================================================= */
+    .lookbook-section {
+        width: 100%;
+        margin-top: 2.5rem;
+    }
+
+    .lookbook-header {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+        padding-bottom: 1rem;
+    }
+
+    @media (min-width: 768px) {
+        .lookbook-header {
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+    }
+
+    .lookbook-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #E60023;
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        box-shadow: 0 2px 8px rgba(230, 0, 35, 0.25);
+    }
+
+    .lookbook-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.1rem, 2.8vw, 1.45rem);
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #171614;
+        margin: 6px 0 2px;
+    }
+
+    .lookbook-subtitle {
+        color: #635F59;
+        font-size: 0.82rem;
+        margin: 0;
+        max-width: 580px;
+        line-height: 1.5;
+    }
+
+    /* Pinterest Card Grid */
+    .lookbook-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 18px;
+    }
+
+    @media (min-width: 576px) {
+        .lookbook-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .lookbook-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+        }
+    }
+
+    .lookbook-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #FFFFFF;
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        box-shadow: 0 8px 24px -4px rgba(28, 25, 23, 0.08);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lookbook-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px -8px rgba(28, 25, 23, 0.16);
+        border-color: rgba(28, 25, 23, 0.28);
+    }
+
+    .lookbook-img-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+        background: #FAF8F5;
+    }
+
+    .lookbook-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        display: block;
+    }
+
+    .lookbook-card:hover .lookbook-img {
+        transform: scale(1.05);
+    }
+
+    /* Pulsing Hotspot Pins on Images */
+    .lookbook-pin {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        cursor: pointer;
+    }
+
+    .lookbook-pin-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid #171614;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(28, 25, 23, 0.3);
+        animation: pinRipple 2.4s infinite;
+        transition: transform 0.2s ease, background 0.2s ease;
+        color: #171614;
+        font-size: 0.72rem;
+    }
+
+    .lookbook-pin:hover .lookbook-pin-dot,
+    .lookbook-pin.active .lookbook-pin-dot {
+        background: #171614;
+        color: #FFFFFF;
+        transform: scale(1.15);
+        animation: none;
+    }
+
+    @keyframes pinRipple {
+        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 4px 12px rgba(28, 25, 23, 0.3); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0), 0 4px 12px rgba(28, 25, 23, 0.3); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 4px 12px rgba(28, 25, 23, 0.3); }
+    }
+
+    /* Popover product card attached to hotspot */
+    .lookbook-tag-card {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(28, 25, 23, 0.14);
+        border-radius: 10px;
+        padding: 8px 12px;
+        white-space: nowrap;
+        box-shadow: 0 10px 28px rgba(28, 25, 23, 0.18);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .lookbook-pin:hover .lookbook-tag-card,
+    .lookbook-pin.active .lookbook-tag-card {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Card Footer Info Bar */
+    .lookbook-card-footer {
+        padding: 12px 14px;
+        background: #FFFFFF;
+        border-top: 1px solid rgba(28, 25, 23, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .lookbook-card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .lookbook-card-tag {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8C867E;
+    }
+
+    .lookbook-card-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #171614;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .lookbook-shop-btn {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #171614;
+        background: transparent;
+        color: #171614;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        margin-top: 4px;
+    }
+
+    .lookbook-shop-btn:hover {
+        background: #171614;
+        color: #FFFFFF;
+    }
 </style>
 {% endblock %}
 
@@ -810,6 +1056,221 @@
         </div>
     </section>
     {% endif %}
+
+    <!-- =========================================================
+         4. PINTEREST CURATED LOOKBOOK / AESTHETIC EDIT
+         ========================================================= -->
+    <section id="section-lookbook" class="lookbook-section mb-5 pt-3" aria-label="Curated Lookbook on Pinterest">
+        <div class="lookbook-header">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="lookbook-badge">
+                        <i class="bi bi-pinterest"></i> Curated on Pinterest
+                    </span>
+                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;">Aesthetic Lookbook</span>
+                </div>
+                <h2 class="lookbook-title">THE AESTHETIC EDIT</h2>
+                <p class="lookbook-subtitle">
+                    Contemporary street styling & statement accessories curated from our moodboards. Tap any pulsing pin to discover and shop the featured pieces.
+                </p>
+            </div>
+            <div class="mt-2 mt-md-0 d-flex gap-2">
+                <a href="#blactifyCategoryGrid" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.76rem; letter-spacing: 0.04em;">
+                    <i class="bi bi-grid-fill"></i> All Collections
+                </a>
+            </div>
+        </div>
+
+        <div class="lookbook-grid">
+            <!-- Look 1: Cyber Noir Edit -->
+            <div class="lookbook-card">
+                <div class="lookbook-img-wrapper">
+                    <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="ASHAS Noir Streetwear Silhouette Look" class="lookbook-img" loading="lazy">
+                    
+                    <!-- Hotspot 1: Sunglasses -->
+                    <div class="lookbook-pin" style="top: 30%; left: 49%;" title="Dark WOST Rimless Shades">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Dark WOST Sunglasses</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Trending Shades</span>
+                            </div>
+                            <a href="/product/2/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 2: Cuban Chain -->
+                    <div class="lookbook-pin" style="top: 45%; left: 53%;" title="Obsidian Cuban Chain">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Obsidian Cuban Chain</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Stainless Steel</span>
+                            </div>
+                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="lookbook-card-footer">
+                    <div class="lookbook-card-meta">
+                        <span class="lookbook-card-tag">LOOK 01 • CYBER NOIR</span>
+                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <h3 class="lookbook-card-title">The Noir Silhouette</h3>
+                    <a href="{% url 'category_detail' 'shades' %}" class="lookbook-shop-btn">
+                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Look 2: Silver Armor Stack -->
+            <div class="lookbook-card">
+                <div class="lookbook-img-wrapper">
+                    <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="ASHAS Silver Signet Stack Look" class="lookbook-img" loading="lazy">
+                    
+                    <!-- Hotspot 1: Wolf Ring -->
+                    <div class="lookbook-pin" style="top: 44%; left: 36%;" title="Wolf Ring">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Wolf Ring</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Signature Piece</span>
+                            </div>
+                            <a href="/product/1/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 2: Signet Ring -->
+                    <div class="lookbook-pin" style="top: 55%; left: 54%;" title="Signet Ring">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Silver Signet Ring</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Stainless Steel</span>
+                            </div>
+                            <a href="/product/9/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 3: Stone Bracelet -->
+                    <div class="lookbook-pin" style="top: 31%; left: 74%;" title="Obsidian Bracelet">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Obsidian Bracelet</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Bracelets</span>
+                            </div>
+                            <a href="/product/11/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="lookbook-card-footer">
+                    <div class="lookbook-card-meta">
+                        <span class="lookbook-card-tag">LOOK 02 • STATEMENT ARMOR</span>
+                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <h3 class="lookbook-card-title">Silver Signet Stack</h3>
+                    <a href="{% url 'category_detail' 'rings' %}" class="lookbook-shop-btn">
+                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Look 3: Street Steel & Chrono -->
+            <div class="lookbook-card">
+                <div class="lookbook-img-wrapper">
+                    <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="ASHAS City Street Steel and Chrono Look" class="lookbook-img" loading="lazy">
+                    
+                    <!-- Hotspot 1: Layered Cuban Chain -->
+                    <div class="lookbook-pin" style="top: 41%; left: 51%;" title="Heavy Cuban Chain">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Heavy Cuban Chain</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Double Layered</span>
+                            </div>
+                            <a href="/product/20/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 2: Chrono Noir Watch -->
+                    <div class="lookbook-pin" style="top: 55%; left: 52%;" title="Chrono Noir Watch">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Chrono Noir Watch</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Precision Steel</span>
+                            </div>
+                            <a href="/product/5/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="lookbook-card-footer">
+                    <div class="lookbook-card-meta">
+                        <span class="lookbook-card-tag">LOOK 03 • STREET STEEL</span>
+                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <h3 class="lookbook-card-title">City Lights &amp; Cuban Chain</h3>
+                    <a href="{% url 'category_detail' 'chains' %}" class="lookbook-shop-btn">
+                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Look 4: Architectural Essentials -->
+            <div class="lookbook-card">
+                <div class="lookbook-img-wrapper">
+                    <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="ASHAS Minimalist Architectural Essentials Flatlay" class="lookbook-img" loading="lazy">
+                    
+                    <!-- Hotspot 1: Center Chain -->
+                    <div class="lookbook-pin" style="top: 48%; left: 49%;" title="Pendant Cuban Chain">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Pendant Cuban Chain</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Curated Chain</span>
+                            </div>
+                            <a href="/product/10/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 2: Retro Shades -->
+                    <div class="lookbook-pin" style="top: 42%; left: 82%;" title="Retro Shades">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Retro Shades</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">UV400 Protection</span>
+                            </div>
+                            <a href="/product/22/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+
+                    <!-- Hotspot 3: Silver Rings Stack -->
+                    <div class="lookbook-pin" style="top: 47%; left: 18%;" title="Silver Ring Stack">
+                        <div class="lookbook-pin-dot"><i class="bi bi-plus"></i></div>
+                        <div class="lookbook-tag-card">
+                            <div class="text-start">
+                                <div class="fw-bold text-dark" style="font-size: 0.76rem;">Silver Statement Ring</div>
+                                <span class="text-secondary" style="font-size: 0.68rem;">Rings Collection</span>
+                            </div>
+                            <a href="/product/21/" class="btn btn-dark btn-sm rounded-pill px-2 py-0 fw-bold" style="font-size: 0.68rem;">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="lookbook-card-footer">
+                    <div class="lookbook-card-meta">
+                        <span class="lookbook-card-tag">LOOK 04 • ESSENTIALS</span>
+                        <i class="bi bi-stars text-warning" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <h3 class="lookbook-card-title">Architectural Flatlay</h3>
+                    <a href="{% url 'category_detail' 'rings' %}" class="lookbook-shop-btn">
+                        <span>Shop The Look</span> <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 <!-- =========================================================
@@ -1090,5 +1551,27 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+
+    // =========================================================
+    // 5. Pinterest Lookbook Hotspot Pins Interaction
+    // =========================================================
+    const lookbookPins = document.querySelectorAll('.lookbook-pin');
+    lookbookPins.forEach(pin => {
+        pin.addEventListener('click', (e) => {
+            // Prevent event from bubbling to document
+            e.stopPropagation();
+            const wasActive = pin.classList.contains('active');
+            lookbookPins.forEach(p => p.classList.remove('active'));
+            if (!wasActive) {
+                pin.classList.add('active');
+            }
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.lookbook-pin')) {
+            lookbookPins.forEach(p => p.classList.remove('active'));
+        }
+    });
 </script>
 {% endblock %}

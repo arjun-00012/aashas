@@ -141,6 +141,83 @@
             height: 100%;
             object-fit: contain;
         }
+
+        /* 4-Photo Upload Cards */
+        .photo-card-slot {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.2s ease;
+        }
+        .photo-card-slot:hover {
+            border-color: var(--border-highlight);
+            box-shadow: 0 4px 14px rgba(28, 25, 23, 0.05);
+        }
+        .photo-slot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .photo-slot-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .photo-slot-badge.primary {
+            background: #171614;
+            color: #FFFFFF;
+        }
+        .photo-slot-badge.secondary {
+            background: #FFFFFF;
+            color: #635F59;
+            border: 1px solid rgba(28, 25, 23, 0.14);
+        }
+        .gallery-live-strip {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .gallery-live-thumb {
+            width: 74px;
+            height: 74px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-subtle);
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .gallery-live-thumb.primary {
+            border-color: #171614;
+            border-width: 2px;
+        }
+        .gallery-live-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .gallery-live-tag {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(23, 22, 20, 0.85);
+            color: #FFFFFF;
+            font-size: 0.58rem;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+        }
     </style>
 </head>
 <body class="py-4 py-md-5 px-3">
@@ -247,36 +324,142 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6">
-                    <label class="form-label-custom">Upload Image File</label>
-                    {{ form.image }}
-                    <div class="form-text small text-secondary mt-1">Select square photo (WebP, PNG, JPG). Max 5 MB.</div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <label class="form-label-custom">OR Direct Image URL (Cloud-Safe)</label>
-                    {{ form.image_url }}
-                    <div class="form-text small text-secondary mt-1">Direct link to image (e.g. Cloudinary, CDN, or web link).</div>
-                </div>
-
-                <!-- Live Image Preview & Resolution Inspector -->
-                <div class="col-12">
-                    <div class="d-flex align-items-center gap-3 p-2 rounded-3 border" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
-                        <div class="preview-box">
-                            <img id="productImagePreview" src="{% if product and product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Product Preview">
+                <!-- 4-Photo Media Gallery Management -->
+                <div class="col-12 mt-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <label class="form-label-custom m-0">Product Photos (Up to 4 Photos)</label>
+                            <small class="text-secondary d-block" style="font-size: 0.74rem;">
+                                <strong>Photo 1</strong> is the primary cover displayed on cards and catalogs. Photos 2, 3, and 4 populate the interactive thumbnail carousel on the product detail page.
+                            </small>
                         </div>
-                        <div class="min-w-0 flex-grow-1">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="small text-dark fw-bold" id="previewTitle">Image Preview</span>
-                                <span class="badge bg-secondary bg-opacity-10 text-dark border border-secondary border-opacity-25 rounded-pill px-2 py-0" id="previewStatusBadge" style="font-size: 0.68rem;">1:1 Square</span>
+                        <span class="badge bg-dark rounded-pill px-2 py-1" style="font-size: 0.68rem;">4 Photo Slots</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Photo 1 (Primary Cover) -->
+                        <div class="col-12 col-md-6">
+                            <div class="photo-card-slot h-100">
+                                <div class="photo-slot-header">
+                                    <span class="photo-slot-badge primary"><i class="bi bi-star-fill text-warning me-1"></i>Photo 1 (Cover / Main)</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark" id="badgeSlot1" style="font-size: 0.65rem;">Primary</span>
+                                </div>
+                                <div class="d-flex gap-3 align-items-start mb-2">
+                                    <div class="preview-box flex-shrink-0" style="width: 68px; height: 68px;">
+                                        <img id="previewSlot1" src="{% if product and product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Photo 1 Preview">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <label class="form-label-custom mb-1" style="font-size: 0.72rem;">Upload File</label>
+                                        {{ form.image }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label-custom mb-1" style="font-size: 0.72rem;">OR Direct URL</label>
+                                    {{ form.image_url }}
+                                </div>
                             </div>
-                            <span class="small text-secondary d-block text-truncate" id="previewSpecs">
-                                {% if product and product.image %}File: {{ product.image.name }}{% elif product and product.image_url %}URL: {{ product.image_url }}{% else %}No image selected{% endif %}
+                        </div>
+
+                        <!-- Photo 2 (Side / Angle) -->
+                        <div class="col-12 col-md-6">
+                            <div class="photo-card-slot h-100">
+                                <div class="photo-slot-header">
+                                    <span class="photo-slot-badge secondary">Photo 2 (Side / Angle)</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark" id="badgeSlot2" style="font-size: 0.65rem;">Optional</span>
+                                </div>
+                                <div class="d-flex gap-3 align-items-start mb-2">
+                                    <div class="preview-box flex-shrink-0" style="width: 68px; height: 68px;">
+                                        <img id="previewSlot2" src="{% if product and product.image_2_url %}{{ product.image_2_url }}{% elif product and product.image_2 %}{{ product.image_2.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Photo 2 Preview">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <label class="form-label-custom mb-1" style="font-size: 0.72rem;">Upload File</label>
+                                        {{ form.image_2 }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label-custom mb-1" style="font-size: 0.72rem;">OR Direct URL</label>
+                                    {{ form.image_2_url }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo 3 (On-Model / Wearing) -->
+                        <div class="col-12 col-md-6">
+                            <div class="photo-card-slot h-100">
+                                <div class="photo-slot-header">
+                                    <span class="photo-slot-badge secondary">Photo 3 (On-Model / Wearing)</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark" id="badgeSlot3" style="font-size: 0.65rem;">Optional</span>
+                                </div>
+                                <div class="d-flex gap-3 align-items-start mb-2">
+                                    <div class="preview-box flex-shrink-0" style="width: 68px; height: 68px;">
+                                        <img id="previewSlot3" src="{% if product and product.image_3_url %}{{ product.image_3_url }}{% elif product and product.image_3 %}{{ product.image_3.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Photo 3 Preview">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <label class="form-label-custom mb-1" style="font-size: 0.72rem;">Upload File</label>
+                                        {{ form.image_3 }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label-custom mb-1" style="font-size: 0.72rem;">OR Direct URL</label>
+                                    {{ form.image_3_url }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo 4 (Detail / Packaging) -->
+                        <div class="col-12 col-md-6">
+                            <div class="photo-card-slot h-100">
+                                <div class="photo-slot-header">
+                                    <span class="photo-slot-badge secondary">Photo 4 (Detail / Packaging)</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark" id="badgeSlot4" style="font-size: 0.65rem;">Optional</span>
+                                </div>
+                                <div class="d-flex gap-3 align-items-start mb-2">
+                                    <div class="preview-box flex-shrink-0" style="width: 68px; height: 68px;">
+                                        <img id="previewSlot4" src="{% if product and product.image_4_url %}{{ product.image_4_url }}{% elif product and product.image_4 %}{{ product.image_4.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Photo 4 Preview">
+                                    </div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <label class="form-label-custom mb-1" style="font-size: 0.72rem;">Upload File</label>
+                                        {{ form.image_4 }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label-custom mb-1" style="font-size: 0.72rem;">OR Direct URL</label>
+                                    {{ form.image_4_url }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live PDP Carousel Thumbnail Preview -->
+                    <div class="mt-3 p-3 rounded-3 border" style="background: #FFFFFF; border-color: var(--border-subtle) !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="small fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">
+                                <i class="bi bi-eye me-1"></i> Live PDP Carousel Preview (Bottom of Main Image)
                             </span>
+                            <span class="small text-secondary" id="activePhotoCountText">Showing active photos</span>
+                        </div>
+                        <div class="gallery-live-strip" id="galleryLiveStrip">
+                            <div class="gallery-live-thumb primary" title="Photo 1 (Primary Cover)">
+                                <img id="stripThumb1" src="{% if product and product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Thumb 1">
+                                <span class="gallery-live-tag">#1 COVER</span>
+                            </div>
+                            <div class="gallery-live-thumb" title="Photo 2">
+                                <img id="stripThumb2" src="{% if product and product.image_2_url %}{{ product.image_2_url }}{% elif product and product.image_2 %}{{ product.image_2.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Thumb 2">
+                                <span class="gallery-live-tag">#2</span>
+                            </div>
+                            <div class="gallery-live-thumb" title="Photo 3">
+                                <img id="stripThumb3" src="{% if product and product.image_3_url %}{{ product.image_3_url }}{% elif product and product.image_3 %}{{ product.image_3.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Thumb 3">
+                                <span class="gallery-live-tag">#3</span>
+                            </div>
+                            <div class="gallery-live-thumb" title="Photo 4">
+                                <img id="stripThumb4" src="{% if product and product.image_4_url %}{{ product.image_4_url }}{% elif product and product.image_4 %}{{ product.image_4.url }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}" alt="Thumb 4">
+                                <span class="gallery-live-tag">#4</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 mt-3">
                     <label class="form-label-custom">Description (Optional)</label>
                     {{ form.description }}
                 </div>
@@ -295,60 +478,58 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     (function(){
-        const fileInput = document.querySelector('input[type="file"]');
-        const urlInput = document.querySelector('input[type="url"]');
-        const previewImg = document.getElementById('productImagePreview');
-        const previewSpecs = document.getElementById('previewSpecs');
-        const statusBadge = document.getElementById('previewStatusBadge');
+        const defaultBadge = "{% static 'images/ashas_badge.png' %}";
+        const slots = [
+            { fileId: 'id_image', urlId: 'id_image_url', previewId: 'previewSlot1', thumbId: 'stripThumb1', badgeId: 'badgeSlot1', isPrimary: true },
+            { fileId: 'id_image_2', urlId: 'id_image_2_url', previewId: 'previewSlot2', thumbId: 'stripThumb2', badgeId: 'badgeSlot2', isPrimary: false },
+            { fileId: 'id_image_3', urlId: 'id_image_3_url', previewId: 'previewSlot3', thumbId: 'stripThumb3', badgeId: 'badgeSlot3', isPrimary: false },
+            { fileId: 'id_image_4', urlId: 'id_image_4_url', previewId: 'previewSlot4', thumbId: 'stripThumb4', badgeId: 'badgeSlot4', isPrimary: false },
+        ];
 
-        function updateImageInfo(src, name, sizeBytes) {
-            if (!src) return;
-            previewImg.src = src;
-            const img = new Image();
-            img.onload = function() {
-                const w = img.naturalWidth;
-                const h = img.naturalHeight;
-                const ratio = (w / h).toFixed(2);
-                let sizeStr = '';
-                if (sizeBytes) {
-                    sizeStr = (sizeBytes / 1024).toFixed(1) + ' KB';
-                }
-                if (ratio >= 0.95 && ratio <= 1.05) {
-                    statusBadge.className = 'badge bg-success text-white rounded-pill px-2 py-0';
-                    statusBadge.innerText = `✓ ${w} × ${h} px (1:1 Ideal)`;
-                } else {
-                    statusBadge.className = 'badge bg-warning text-dark rounded-pill px-2 py-0';
-                    statusBadge.innerText = `⚠️ ${w} × ${h} px (${ratio > 1 ? 'Landscape' : 'Portrait'} - 1:1 Recommended)`;
-                }
-                previewSpecs.innerText = `${name || 'Selected'} • ${w} × ${h} px ${sizeStr ? '• ' + sizeStr : ''}`;
-            };
-            img.src = src;
-        }
+        function setupSlot(slot, index) {
+            const fileEl = document.getElementById(slot.fileId);
+            const urlEl = document.getElementById(slot.urlId);
+            const previewEl = document.getElementById(slot.previewId);
+            const thumbEl = document.getElementById(slot.thumbId);
+            const badgeEl = document.getElementById(slot.badgeId);
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                const file = e.target.files && e.target.files[0];
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert("Selected file is larger than 5 MB (" + (file.size / (1024*1024)).toFixed(1) + " MB). Please choose an image under 5 MB.");
+            function updateSlotImage(src, isSelected) {
+                if (!src) return;
+                if (previewEl) previewEl.src = src;
+                if (thumbEl) thumbEl.src = src;
+                if (badgeEl && isSelected) {
+                    badgeEl.className = 'badge bg-success text-white';
+                    badgeEl.innerText = 'Ready';
+                }
+            }
+
+            if (fileEl) {
+                fileEl.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert("Photo " + (index + 1) + " exceeds 5 MB. Please select a smaller file.");
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            updateSlotImage(evt.target.result, true);
+                        };
+                        reader.readAsDataURL(file);
                     }
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        updateImageInfo(evt.target.result, file.name, file.size);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+                });
+            }
+
+            if (urlEl) {
+                urlEl.addEventListener('input', function() {
+                    const val = urlEl.value.trim();
+                    if (val.startsWith('http://') || val.startsWith('https://')) {
+                        updateSlotImage(val, true);
+                    }
+                });
+            }
         }
 
-        if (urlInput) {
-            urlInput.addEventListener('input', function() {
-                const val = urlInput.value.trim();
-                if (val.startsWith('http://') || val.startsWith('https://')) {
-                    updateImageInfo(val, 'Direct Link', null);
-                }
-            });
-        }
+        slots.forEach((s, i) => setupSlot(s, i));
     })();
 </script>
 </body>

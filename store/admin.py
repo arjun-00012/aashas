@@ -22,17 +22,53 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'image_preview', 'price', 'discount_price', 'stock', 'created_at')
-    list_filter = ('category', 'created_at')
+    list_display = ('name', 'category', 'image_preview', 'photo_count_display', 'price', 'discount_price', 'stock', 'is_trending', 'created_at')
+    list_filter = ('category', 'is_trending', 'created_at')
     search_fields = ('name', 'description')
     list_editable = ('price', 'discount_price', 'stock')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('category', 'name', 'description', 'is_trending')
+        }),
+        ('Photo 1 (Primary / Cover Photo)', {
+            'fields': ('image', 'image_url'),
+            'description': 'Main product image displayed in catalogs, trending lists, cart, and preview cards.'
+        }),
+        ('Photo 2 (Side / Angle View)', {
+            'fields': ('image_2', 'image_2_url'),
+            'classes': ('collapse',)
+        }),
+        ('Photo 3 (On-Model / Wearing View)', {
+            'fields': ('image_3', 'image_3_url'),
+            'classes': ('collapse',)
+        }),
+        ('Photo 4 (Detail / Packaging View)', {
+            'fields': ('image_4', 'image_4_url'),
+            'classes': ('collapse',)
+        }),
+        ('Pricing & Inventory', {
+            'fields': ('price', 'discount_price', 'stock')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    readonly_fields = ('created_at',)
 
     def image_preview(self, obj):
         img_url = obj.display_image
         if img_url:
             return format_html('<img src="{}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" />', img_url)
         return '-'
-    image_preview.short_description = 'Preview'
+    image_preview.short_description = 'Cover'
+
+    def photo_count_display(self, obj):
+        count = obj.photo_count
+        color = '#16a34a' if count >= 4 else ('#ca8a04' if count > 1 else '#64748b')
+        return format_html('<span style="background: {}; color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">{} / 4</span>', color, count)
+    photo_count_display.short_description = 'Photos'
 
 
 class OrderItemInline(admin.TabularInline):
