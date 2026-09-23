@@ -568,14 +568,14 @@
         padding: 8px;
     }
 
-    .product-img-wrapper img {
+    .product-img-wrapper > img {
         width: 100%;
         height: 100%;
         object-fit: contain;
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .product-card:hover .product-img-wrapper img {
+    .product-card:hover .product-img-wrapper > img {
         transform: scale(1.06);
     }
 
@@ -689,24 +689,14 @@
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        padding: 3px 8px 3px 4px;
+        padding: 4px 9px;
         border-radius: 9999px;
         border: 1px solid rgba(226, 186, 120, 0.45);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         z-index: 3;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-    }
-
-    .badge-thumb-mini {
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid rgba(226, 186, 120, 0.6);
-        display: inline-block;
-        flex-shrink: 0;
+        gap: 4px;
     }
 
     @media (max-width: 576px) {
@@ -1690,7 +1680,7 @@
                                 {% else %}
                                     <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
                                 {% endif %}
-                                <span class="badge-trending-classic"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="" class="badge-thumb-mini"> NEW DROP</span>
+                                <span class="badge-trending-classic">NEW DROP</span>
                             </div>
                             <div class="product-category-sub">{{ product.category.name|upper }}</div>
                             <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
