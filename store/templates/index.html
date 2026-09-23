@@ -1289,15 +1289,42 @@
 
     .split-spotlight-media {
         position: relative;
-        min-height: clamp(280px, 40vh, 360px);
+        min-height: clamp(340px, 48vh, 520px);
         overflow: hidden;
-        background: #171614;
+        background: #121110;
+        user-select: none;
     }
 
     @media (min-width: 992px) {
         .split-spotlight-media {
             min-height: 100%;
         }
+    }
+
+    .sss-carousel-track {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sss-carousel-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+        transform: scale(1.03);
+        z-index: 1;
+    }
+
+    .sss-carousel-slide.active {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+        z-index: 2;
     }
 
     .split-spotlight-img {
@@ -1310,8 +1337,135 @@
         transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .split-spotlight-media:hover .split-spotlight-img {
+    .split-spotlight-media:hover .sss-carousel-slide.active .split-spotlight-img {
         transform: scale(1.04);
+    }
+
+    .sss-carousel-vignette {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 35%, transparent 65%, rgba(0, 0, 0, 0.55) 100%);
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .sss-slide-badge {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        z-index: 4;
+        background: rgba(18, 17, 16, 0.82);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(226, 186, 120, 0.45);
+        color: #FCFCFB;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Navigation Arrows */
+    .sss-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(18, 17, 16, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #FCFCFB;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-size: 0.95rem;
+        padding: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .sss-nav-btn:hover {
+        background: #171614;
+        border-color: #E2BA78;
+        color: #E2BA78;
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 6px 20px rgba(226, 186, 120, 0.35);
+    }
+
+    .sss-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
+    }
+
+    .sss-prev {
+        left: 16px;
+    }
+
+    .sss-next {
+        right: 16px;
+    }
+
+    @media (max-width: 576px) {
+        .sss-nav-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 0.82rem;
+        }
+        .sss-prev {
+            left: 10px;
+        }
+        .sss-next {
+            right: 10px;
+        }
+        .sss-slide-badge {
+            top: 12px;
+            left: 12px;
+            font-size: 0.58rem;
+            padding: 4px 9px;
+        }
+    }
+
+    /* Minimalist Dots Indicators */
+    .sss-indicators {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(18, 17, 16, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .sss-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.4);
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .sss-dot.active {
+        width: 26px;
+        background: linear-gradient(90deg, #E2BA78 0%, #FAF8F5 100%);
+        box-shadow: 0 0 10px rgba(226, 186, 120, 0.65);
     }
 
     .split-spotlight-text-panel {
@@ -1779,8 +1933,49 @@
         <!-- 5. SPLIT SPOTLIGHT (50/50 Editorial) -->
         <section class="split-spotlight-section" aria-label="The Collectives Spotlight">
             <div class="split-spotlight-grid">
-                <div class="split-spotlight-media">
-                    <img src="{% static 'images/lookbook/look_7.jpg' %}" alt="The Collectives — Exclusive Limited Drops" class="split-spotlight-img" loading="lazy">
+                <div class="split-spotlight-media" id="sssCarouselContainer" aria-label="The Collectives 4 Images Carousel">
+                    <!-- Carousel Slides Track -->
+                    <div class="sss-carousel-track" id="sssCarouselTrack">
+                        <!-- Slide 1 -->
+                        <div class="sss-carousel-slide active" data-slide="0">
+                            <img src="{% static 'images/lookbook/collectives_1.jpg' %}" alt="The Collectives — Signature Cuban Chains & Rings" class="split-spotlight-img" loading="lazy">
+                            <div class="sss-slide-badge">01 / 04 &bull; CHAINS &amp; RINGS</div>
+                        </div>
+                        <!-- Slide 2 -->
+                        <div class="sss-carousel-slide" data-slide="1">
+                            <img src="{% static 'images/lookbook/collectives_2.jpg' %}" alt="The Collectives — Sculptural Signet Bands & Titanium Timepiece" class="split-spotlight-img" loading="lazy">
+                            <div class="sss-slide-badge">02 / 04 &bull; RINGS &amp; WATCHES</div>
+                        </div>
+                        <!-- Slide 3 -->
+                        <div class="sss-carousel-slide" data-slide="2">
+                            <img src="{% static 'images/lookbook/collectives_3.jpg' %}" alt="The Collectives — Rimless Cyberpunk Eyewear & Geometric Pendant" class="split-spotlight-img" loading="lazy">
+                            <div class="sss-slide-badge">03 / 04 &bull; SHADES &amp; PENDANTS</div>
+                        </div>
+                        <!-- Slide 4 -->
+                        <div class="sss-carousel-slide" data-slide="3">
+                            <img src="{% static 'images/lookbook/collectives_4.jpg' %}" alt="The Collectives — Gothic Layered Chains & Obsidian Medallion" class="split-spotlight-img" loading="lazy">
+                            <div class="sss-slide-badge">04 / 04 &bull; STATEMENT PIECES</div>
+                        </div>
+                    </div>
+
+                    <!-- Ambient Vignette Overlay -->
+                    <div class="sss-carousel-vignette" aria-hidden="true"></div>
+
+                    <!-- Navigation Arrows -->
+                    <button type="button" class="sss-nav-btn sss-prev" id="sssPrevBtn" aria-label="Previous photo" title="Previous photo">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="sss-nav-btn sss-next" id="sssNextBtn" aria-label="Next photo" title="Next photo">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                    <!-- Indicators / Dots -->
+                    <div class="sss-indicators" id="sssIndicators" role="tablist" aria-label="Carousel pagination">
+                        <button type="button" class="sss-dot active" data-index="0" aria-label="Slide 1" role="tab" aria-selected="true"></button>
+                        <button type="button" class="sss-dot" data-index="1" aria-label="Slide 2" role="tab" aria-selected="false"></button>
+                        <button type="button" class="sss-dot" data-index="2" aria-label="Slide 3" role="tab" aria-selected="false"></button>
+                        <button type="button" class="sss-dot" data-index="3" aria-label="Slide 4" role="tab" aria-selected="false"></button>
+                    </div>
                 </div>
                 <div class="split-spotlight-text-panel">
                     <p class="split-spotlight-tag">ASHAS</p>
@@ -2043,6 +2238,129 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+
+    // =========================================================
+    // 4. SSS (Split Spotlight Section) 4-Images Carousel
+    // =========================================================
+    (function initSSSCarousel() {
+        const container = document.getElementById('sssCarouselContainer');
+        if (!container) return;
+
+        const slides = container.querySelectorAll('.sss-carousel-slide');
+        const dots = container.querySelectorAll('.sss-dot');
+        const prevBtn = document.getElementById('sssPrevBtn');
+        const nextBtn = document.getElementById('sssNextBtn');
+
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let autoPlayTimer = null;
+        const autoPlayInterval = 4500;
+
+        function showSlide(index) {
+            if (index < 0) {
+                currentIndex = slides.length - 1;
+            } else if (index >= slides.length) {
+                currentIndex = 0;
+            } else {
+                currentIndex = index;
+            }
+
+            slides.forEach((slide, i) => {
+                if (i === currentIndex) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                if (i === currentIndex) {
+                    dot.classList.add('active');
+                    dot.setAttribute('aria-selected', 'true');
+                } else {
+                    dot.classList.remove('active');
+                    dot.setAttribute('aria-selected', 'false');
+                }
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        function startAutoPlay() {
+            stopAutoPlay();
+            autoPlayTimer = setInterval(nextSlide, autoPlayInterval);
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = null;
+            }
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                nextSlide();
+                startAutoPlay();
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                prevSlide();
+                startAutoPlay();
+            });
+        }
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSlide(i);
+                startAutoPlay();
+            });
+        });
+
+        // Pause on desktop hover
+        container.addEventListener('mouseenter', stopAutoPlay);
+        container.addEventListener('mouseleave', startAutoPlay);
+
+        // Touch Swipe gestures for Mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.changedTouches && e.changedTouches.length) {
+                touchStartX = e.changedTouches[0].screenX;
+            }
+            stopAutoPlay();
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            if (e.changedTouches && e.changedTouches.length) {
+                touchEndX = e.changedTouches[0].screenX;
+                const diffX = touchStartX - touchEndX;
+                if (Math.abs(diffX) > 40) {
+                    if (diffX > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+            }
+            startAutoPlay();
+        }, { passive: true });
+
+        startAutoPlay();
+    })();
 
 </script>
 {% endblock %}
