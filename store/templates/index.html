@@ -12,49 +12,28 @@
 
     /* Hero Visual Showcase */
     .hero-section {
-        padding: 0;
-        margin: 0;
+        padding: 1.25rem 0.75rem 0.75rem;
         width: 100%;
         max-width: 100%;
         position: relative;
     }
 
-    /* Mannequin Interactive Container */
+    /* Mannequin Interactive Container - Framed with full image like mobile screen */
     .mannequin-container {
         position: relative;
         width: 100%;
-        max-width: 100%;
+        max-width: 440px;
+        max-height: 75vh;
+        aspect-ratio: 736 / 981;
         margin: 0 auto;
+        border-radius: 16px;
         overflow: hidden;
-        background: #0D0D0C;
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.08);
         touch-action: manipulation;
+        box-shadow: 0 14px 36px -8px rgba(28, 25, 23, 0.1);
     }
 
-    /* Desktop: 100% width down to nav bar with high-fashion full-bleed stage */
-    @media (min-width: 768px) {
-        .hero-section {
-            padding: 0;
-            margin: 0;
-        }
-        .mannequin-container {
-            width: 100%;
-            max-width: 100%;
-            height: calc(100vh - var(--nav-height, 62px));
-            max-height: 840px;
-            min-height: 540px;
-            border-radius: 0;
-            border: none;
-            box-shadow: none;
-        }
-        .mannequin-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 25%;
-        }
-    }
-
-    /* Mobile: sleek contained view fitting screen nicely */
     @media (max-width: 767.98px) {
         .hero-section {
             padding: 0.75rem 0.5rem 0.5rem;
@@ -62,25 +41,20 @@
         .mannequin-container {
             max-width: min(88vw, 360px);
             max-height: 70vh;
-            aspect-ratio: 736 / 981;
             border-radius: 14px;
-            border: 1px solid rgba(28, 25, 23, 0.08);
-            box-shadow: 0 14px 32px -8px rgba(28, 25, 23, 0.08);
-            background: #FAF8F5;
-        }
-        .mannequin-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
     }
 
     .mannequin-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         display: block;
         transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
         transform-origin: 50% 50%;
         transform: scale(1);
     }
+
 
     /* Subtle editorial bottom shade overlay */
     .mannequin-shade-overlay {
@@ -1726,47 +1700,6 @@
         }
     }
 
-    // Dynamic hotspot coordinate synchronization for desktop 100% full-width view
-    function syncHotspotPositions() {
-        if (!spots.length) return;
-        if (window.innerWidth < 768) {
-            spots.forEach(spot => {
-                spot.style.left = spot.getAttribute('data-x');
-                spot.style.top = spot.getAttribute('data-y');
-            });
-            return;
-        }
-        if (!container || !mannequinImg) return;
-        const cw = container.clientWidth;
-        const ch = container.clientHeight;
-        const iw = 736;
-        const ih = 981;
-        const scale = Math.max(cw / iw, ch / ih);
-        const dw = iw * scale;
-        const dh = ih * scale;
-        const ox = (cw - dw) * 0.5;
-        const oy = (ch - dh) * 0.25;
-
-        spots.forEach(spot => {
-            const u = parseFloat(spot.getAttribute('data-x')) / 100;
-            const v = parseFloat(spot.getAttribute('data-y')) / 100;
-            const px = ox + u * dw;
-            const py = oy + v * dh;
-            spot.style.left = `${(px / cw) * 100}%`;
-            spot.style.top = `${(py / ch) * 100}%`;
-        });
-    }
-
-    window.addEventListener('resize', syncHotspotPositions);
-    window.addEventListener('load', syncHotspotPositions);
-    if (mannequinImg) {
-        if (mannequinImg.complete) {
-            syncHotspotPositions();
-        } else {
-            mannequinImg.addEventListener('load', syncHotspotPositions);
-        }
-    }
-
     spots.forEach(spot => {
         const x = spot.getAttribute('data-x');
         const y = spot.getAttribute('data-y');
@@ -1775,9 +1708,7 @@
 
         spot.addEventListener('mouseenter', () => {
             if (window.matchMedia('(hover: hover)').matches) {
-                const zoomX = spot.style.left || x;
-                const zoomY = spot.style.top || y;
-                applyZoom(zoomX, zoomY, name, cat);
+                applyZoom(x, y, name, cat);
             }
         });
 
@@ -1786,9 +1717,7 @@
             if (isZoomed && activeCategory === cat) {
                 window.location.href = `/category/${cat}/`;
             } else {
-                const zoomX = spot.style.left || x;
-                const zoomY = spot.style.top || y;
-                applyZoom(zoomX, zoomY, name, cat);
+                applyZoom(x, y, name, cat);
             }
         });
     });
