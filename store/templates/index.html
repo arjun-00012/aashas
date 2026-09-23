@@ -10,57 +10,73 @@
        ASHAS Classic Luxury Design System
        ========================================================= */
 
-    /* Hero Visual Showcase */
+    /* Hero Visual Showcase - Full Viewport Width & Height */
     .hero-section {
-        padding: 1.25rem 0.75rem 0.75rem;
+        padding: 0;
+        margin: 0;
         width: 100%;
-        max-width: 100%;
+        max-width: 100vw;
         position: relative;
+        overflow: hidden;
+        background: #0A0A09;
     }
 
-    /* Mannequin Interactive Container - Framed with full image like mobile screen */
+    /* Mannequin Interactive Container - Edge to Edge Full Screen */
     .mannequin-container {
         position: relative;
         width: 100%;
-        max-width: 440px;
-        max-height: 75vh;
-        aspect-ratio: 736 / 981;
-        margin: 0 auto;
-        border-radius: 16px;
+        max-width: 100%;
+        height: calc(100vh - var(--nav-height, 62px));
+        height: calc(100dvh - var(--nav-height, 62px));
+        min-height: 480px;
+        margin: 0;
+        border-radius: 0;
         overflow: hidden;
-        background: #FAF8F5;
-        border: 1px solid rgba(28, 25, 23, 0.08);
+        background: #0A0A09;
+        border: none;
         touch-action: manipulation;
-        box-shadow: 0 14px 36px -8px rgba(28, 25, 23, 0.1);
+        box-shadow: none;
     }
 
     @media (max-width: 767.98px) {
         .hero-section {
-            padding: 0.75rem 0.5rem 0.5rem;
+            padding: 0;
+            margin: 0;
         }
         .mannequin-container {
-            max-width: min(88vw, 360px);
-            max-height: 70vh;
-            border-radius: 14px;
+            width: 100%;
+            max-width: 100%;
+            height: calc(100vh - var(--nav-height, 62px));
+            height: calc(100dvh - var(--nav-height, 62px));
+            min-height: 460px;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
         }
+    }
+
+    .mannequin-picture {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
 
     .mannequin-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center center;
         display: block;
         transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
         transform-origin: 50% 50%;
         transform: scale(1);
     }
 
-
     /* Subtle editorial bottom shade overlay */
     .mannequin-shade-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(13, 13, 12, 0.5) 0%, rgba(13, 13, 12, 0.15) 30%, transparent 60%);
+        background: linear-gradient(to top, rgba(10, 10, 9, 0.72) 0%, rgba(10, 10, 9, 0.22) 28%, transparent 58%);
         pointer-events: none;
         z-index: 5;
     }
@@ -119,23 +135,27 @@
     /* Floating Item Popover Card */
     .hover-card {
         position: absolute;
-        bottom: 12px;
+        bottom: 24px;
         left: 50%;
         transform: translateX(-50%) translateY(20px);
-        background: rgba(255, 255, 255, 0.98);
+        background: rgba(255, 255, 255, 0.96);
         border: 1px solid rgba(28, 25, 23, 0.12);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        padding: 10px 16px;
-        border-radius: 12px;
+        padding: 10px 18px;
+        border-radius: 9999px;
         opacity: 0;
         pointer-events: none;
         transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        width: calc(100% - 24px);
-        max-width: 310px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: auto;
+        max-width: calc(100vw - 32px);
         text-align: center;
         z-index: 25;
-        box-shadow: 0 14px 32px rgba(28, 25, 23, 0.12);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
     }
 
     .hover-card.active {
@@ -146,18 +166,43 @@
 
     .hover-card h6 {
         color: #171614 !important;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin: 0;
+        white-space: nowrap;
     }
 
     .hover-card #cardActionBtn {
         background: #171614 !important;
         color: #FAF8F5 !important;
         border: none !important;
+        font-size: 0.78rem;
+        padding: 6px 14px;
+        white-space: nowrap;
         transition: all 0.2s ease;
     }
 
     .hover-card #cardActionBtn:hover {
         background: #2E2B26 !important;
         color: #FFFFFF !important;
+    }
+
+    @media (max-width: 575.98px) {
+        .hover-card {
+            bottom: 18px;
+            padding: 8px 14px;
+            gap: 8px;
+        }
+        .hover-card h6 {
+            font-size: 0.8rem;
+        }
+        .hover-card #cardActionBtn {
+            font-size: 0.72rem;
+            padding: 5px 10px;
+        }
     }
 
     /* =========================================================
@@ -1284,35 +1329,56 @@
     <h1 class="visually-hidden">ASHAS | Official Online Store — Contemporary Clothing &amp; Statement Accessories</h1>
 
     <div class="mannequin-container" id="mannequinContainer" role="region" aria-label="Interactive Accessories Showcase">
-        <img src="{% static 'images/men1.jpg' %}" alt="ASHAS Signature Model wearing curated statement accessories" class="mannequin-img" id="mannequinImg">
+        <picture id="mannequinPicture" class="mannequin-picture">
+            <source media="(min-width: 768px)" srcset="{% static 'images/hero_model_desktop.jpg' %}">
+            <img src="{% static 'images/hero_model_mobile.jpg' %}" alt="ASHAS Signature Model wearing curated statement accessories" class="mannequin-img" id="mannequinImg" loading="eager" fetchpriority="high">
+        </picture>
 
         <!-- Subtle editorial shade overlay -->
         <div class="mannequin-shade-overlay" aria-hidden="true"></div>
 
         <!-- Interactive Hotspots on Model (Pulsating dots with zoom & popover card) -->
-        <div class="hotspot" style="top: 43%; left: 55%;" data-cat="caps" data-name="Caps" data-x="55%" data-y="43%" title="Caps" role="button" aria-label="Caps on Model">
+        <div class="hotspot" style="top: 16%; left: 50%;" data-cat="caps" data-name="Caps"
+             data-x-desktop="50%" data-y-desktop="16%"
+             data-x-mobile="50%" data-y-mobile="21%"
+             title="Caps" role="button" aria-label="Caps on Model">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 48%; left: 54%;" data-cat="shades" data-name="Shades" data-x="54%" data-y="48%" title="Shades" role="button" aria-label="Shades on Model">
+        <div class="hotspot" style="top: 33%; left: 50%;" data-cat="shades" data-name="Shades"
+             data-x-desktop="50%" data-y-desktop="33%"
+             data-x-mobile="50%" data-y-mobile="33%"
+             title="Shades" role="button" aria-label="Shades on Model">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 61%; left: 50%;" data-cat="chains" data-name="Chains" data-x="50%" data-y="61%" title="Chains" role="button" aria-label="Chains on Model">
+        <div class="hotspot" style="top: 72%; left: 50%;" data-cat="chains" data-name="Chains"
+             data-x-desktop="50%" data-y-desktop="72%"
+             data-x-mobile="50%" data-y-mobile="56%"
+             title="Chains" role="button" aria-label="Chains on Model">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 58%; left: 24%;" data-cat="rings" data-name="Rings" data-x="24%" data-y="58%" title="Rings" role="button" aria-label="Rings on Model">
+        <div class="hotspot" style="top: 62%; left: 32%;" data-cat="rings" data-name="Rings"
+             data-x-desktop="32%" data-y-desktop="62%"
+             data-x-mobile="36%" data-y-mobile="66%"
+             title="Rings" role="button" aria-label="Rings on Model">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 33%; left: 22%;" data-cat="bracelets" data-name="Bracelets" data-x="22%" data-y="33%" title="Bracelets" role="button" aria-label="Bracelets on Model">
+        <div class="hotspot" style="top: 50%; left: 9%;" data-cat="bracelets" data-name="Bracelets"
+             data-x-desktop="9%" data-y-desktop="50%"
+             data-x-mobile="5%" data-y-mobile="57%"
+             title="Bracelets" role="button" aria-label="Bracelets on Model">
             <div class="hotspot-dot"></div>
         </div>
-        <div class="hotspot" style="top: 83%; left: 79%;" data-cat="watches" data-name="Watches" data-x="79%" data-y="83%" title="Watches" role="button" aria-label="Watches on Model">
+        <div class="hotspot" style="top: 49%; left: 91%;" data-cat="watches" data-name="Watches"
+             data-x-desktop="91%" data-y-desktop="49%"
+             data-x-mobile="94%" data-y-mobile="56%"
+             title="Watches" role="button" aria-label="Watches on Model">
             <div class="hotspot-dot"></div>
         </div>
 
         <!-- Floating Popover Card on Hover -->
         <div class="hover-card" id="hoverCard">
             <h6 class="m-0 fw-semibold text-dark" id="cardTitle">Accessory</h6>
-            <button type="button" class="btn btn-sm btn-dark mt-2 px-3 rounded-pill fw-semibold" id="cardActionBtn">
+            <button type="button" class="btn btn-sm btn-dark px-3 rounded-pill fw-semibold" id="cardActionBtn">
                 Explore Collection <i class="bi bi-arrow-right-short"></i>
             </button>
         </div>
@@ -1673,41 +1739,71 @@
     let isZoomed = false;
     let activeCategory = null;
 
+    function getActiveCoords(spot) {
+        const isDesktop = window.innerWidth >= 768;
+        const x = isDesktop ? spot.getAttribute('data-x-desktop') : spot.getAttribute('data-x-mobile');
+        const y = isDesktop ? spot.getAttribute('data-y-desktop') : spot.getAttribute('data-y-mobile');
+        return { x: x || '50%', y: y || '50%' };
+    }
+
+    function updateHotspotsPosition() {
+        spots.forEach(spot => {
+            const { x, y } = getActiveCoords(spot);
+            spot.style.left = x;
+            spot.style.top = y;
+        });
+    }
+
     function applyZoom(x, y, name, cat) {
         isZoomed = true;
         activeCategory = cat;
 
-        const scaleVal = window.innerWidth < 576 ? 1.75 : (window.innerWidth < 768 ? 2.0 : 2.3);
+        const scaleVal = window.innerWidth < 768 ? 2.0 : 2.4;
         
         mannequinImg.style.transformOrigin = `${x} ${y}`;
         mannequinImg.style.transform = `scale(${scaleVal})`;
 
-        cardTitle.innerText = name;
+        if (cardTitle) cardTitle.innerText = name;
         if (cardActionBtn) {
             cardActionBtn.innerHTML = `Explore ${name} <i class="bi bi-arrow-right-short"></i>`;
         }
-        hoverCard.classList.add('active');
+        if (hoverCard) hoverCard.classList.add('active');
     }
 
     function resetZoom() {
         if (!isZoomed) return;
         isZoomed = false;
         activeCategory = null;
+        mannequinImg.style.transformOrigin = '50% 50%';
         mannequinImg.style.transform = 'scale(1)';
-        hoverCard.classList.remove('active');
+        if (hoverCard) hoverCard.classList.remove('active');
         if (cardActionBtn) {
             cardActionBtn.innerHTML = `Explore Collection <i class="bi bi-arrow-right-short"></i>`;
         }
     }
 
+    // Initialize hotspot positions
+    updateHotspotsPosition();
+
+    // Re-adjust on viewport resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateHotspotsPosition();
+            if (isZoomed) {
+                resetZoom();
+            }
+        }, 100);
+    }, { passive: true });
+
     spots.forEach(spot => {
-        const x = spot.getAttribute('data-x');
-        const y = spot.getAttribute('data-y');
         const name = spot.getAttribute('data-name');
         const cat = spot.getAttribute('data-cat');
 
         spot.addEventListener('mouseenter', () => {
             if (window.matchMedia('(hover: hover)').matches) {
+                const { x, y } = getActiveCoords(spot);
                 applyZoom(x, y, name, cat);
             }
         });
@@ -1717,6 +1813,7 @@
             if (isZoomed && activeCategory === cat) {
                 window.location.href = `/category/${cat}/`;
             } else {
+                const { x, y } = getActiveCoords(spot);
                 applyZoom(x, y, name, cat);
             }
         });
