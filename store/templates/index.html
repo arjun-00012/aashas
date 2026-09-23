@@ -1050,22 +1050,24 @@
         border-color: rgba(255, 255, 255, 0.95);
     }
 
-    /* 3. Infinite Scrolling Marquee */
+    /* 3. Infinite Scrolling Marquee - Aesthetic Luxury Editorial */
     .infinite-marquee-section {
-        background: #FAF8F5;
-        border-top: 1px solid rgba(28, 25, 23, 0.1);
-        border-bottom: 1px solid rgba(28, 25, 23, 0.1);
+        background: #121110;
+        border-top: 1px solid rgba(226, 186, 120, 0.22);
+        border-bottom: 1px solid rgba(226, 186, 120, 0.22);
         overflow: hidden;
         white-space: nowrap;
         user-select: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 18px rgba(0, 0, 0, 0.2);
     }
 
     .infinite-marquee-track {
         display: inline-flex;
         align-items: center;
         gap: 0;
-        padding: 1.25rem 0;
-        animation: infiniteMarqueeScroll 45s linear infinite;
+        padding: 0.95rem 0;
+        animation: infiniteMarqueeScroll 52s linear infinite;
+        will-change: transform;
     }
 
     .infinite-marquee-track:hover {
@@ -1078,26 +1080,39 @@
     }
 
     .infinite-marquee-item {
-        font-family: 'Inter', sans-serif;
-        font-size: clamp(0.92rem, 1.8vw, 1.15rem);
-        font-weight: 600;
-        color: #171614;
-        letter-spacing: -0.01em;
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(0.76rem, 1.5vw, 0.88rem);
+        font-weight: 700;
+        color: #FAF8F5;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
         flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .infinite-marquee-item .marquee-icon {
+        color: #E2BA78;
+        font-size: 0.92rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 0 6px rgba(226, 186, 120, 0.4));
     }
 
     .infinite-marquee-separator {
         display: inline-flex;
         align-items: center;
-        margin: 0 1.75rem;
+        margin: 0 1.85rem;
         flex-shrink: 0;
     }
 
-    .infinite-marquee-line {
-        display: block;
-        height: 18px;
-        width: 0;
-        border-left: 1px dashed #9F9F9F;
+    .marquee-diamond {
+        color: #E2BA78;
+        font-size: 0.62rem;
+        opacity: 0.65;
+        text-shadow: 0 0 6px rgba(226, 186, 120, 0.5);
     }
 
     /* 4. Shop Favorite Collections (Asymmetric 3-Card Collage) */
@@ -1644,35 +1659,83 @@
             </div>
         </section>
 
-        <!-- 3. INFINITE SCROLLING MARQUEE TICKER (ASHAS Store Benefits) -->
-        <section class="infinite-marquee-section" aria-label="ASHAS Store Guarantees">
+        <!-- 3. INFINITE SCROLLING MARQUEE TICKER (ASHAS Store Advantages) -->
+        <section class="infinite-marquee-section" aria-label="ASHAS Store Advantages">
             <div class="infinite-marquee-track">
-                <span class="infinite-marquee-item">🚚 FREE SHIPPING ACROSS INDIA</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">📦 EFFORTLESS 2-DAY REPLACEMENTS</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">⚡️ DISPATCH WITHIN 2-3 DAYS</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">✨ 100% QUALITY CHECKED</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">💬 24*7 WHATSAPP SUPPORT</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item">🔒 SECURE PAYMENTS (UPI / CARDS)</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-truck"></i></span> EXPRESS PAN-INDIA SPEED POST DELIVERY
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-gem"></i></span> CURATED STATEMENT CRAFTSMANSHIP &bull; ANTI-TARNISH
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-patch-check-fill"></i></span> 100% INDIVIDUALLY VERIFIED QUALITY CHECK
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-lightning-charge-fill"></i></span> FAST DISPATCH WITHIN 24-48 HOURS
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-shield-lock-fill"></i></span> 256-BIT ENCRYPTED CHECKOUT (UPI, CARDS &amp; NETBANKING)
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-whatsapp"></i></span> DIRECT WHATSAPP CONCIERGE &amp; ORDER UPDATES
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-box-seam-fill"></i></span> BOUTIQUE TAMPER-PROOF TRANSIT PACKAGING
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-arrow-repeat"></i></span> DEDICATED TRANSIT DAMAGE &amp; REPLACEMENT ASSISTANCE
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item">
+                    <span class="marquee-icon"><i class="bi bi-geo-alt-fill"></i></span> FLAGSHIP STORE IN KOZHIKODE, KERALA
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
 
                 <!-- Duplicate track items for smooth infinite loop -->
-                <span class="infinite-marquee-item" aria-hidden="true">🚚 FREE SHIPPING ACROSS INDIA</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">📦 EFFORTLESS 2-DAY REPLACEMENTS</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">⚡️ DISPATCH WITHIN 2-3 DAYS</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">✨ 100% QUALITY CHECKED</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">💬 24*7 WHATSAPP SUPPORT</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
-                <span class="infinite-marquee-item" aria-hidden="true">🔒 SECURE PAYMENTS (UPI / CARDS)</span>
-                <span class="infinite-marquee-separator" aria-hidden="true"><span class="infinite-marquee-line"></span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-truck"></i></span> EXPRESS PAN-INDIA SPEED POST DELIVERY
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-gem"></i></span> CURATED STATEMENT CRAFTSMANSHIP &bull; ANTI-TARNISH
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-patch-check-fill"></i></span> 100% INDIVIDUALLY VERIFIED QUALITY CHECK
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-lightning-charge-fill"></i></span> FAST DISPATCH WITHIN 24-48 HOURS
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-shield-lock-fill"></i></span> 256-BIT ENCRYPTED CHECKOUT (UPI, CARDS &amp; NETBANKING)
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-whatsapp"></i></span> DIRECT WHATSAPP CONCIERGE &amp; ORDER UPDATES
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-box-seam-fill"></i></span> BOUTIQUE TAMPER-PROOF TRANSIT PACKAGING
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-arrow-repeat"></i></span> DEDICATED TRANSIT DAMAGE &amp; REPLACEMENT ASSISTANCE
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
+                <span class="infinite-marquee-item" aria-hidden="true">
+                    <span class="marquee-icon"><i class="bi bi-geo-alt-fill"></i></span> FLAGSHIP STORE IN KOZHIKODE, KERALA
+                </span>
+                <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
             </div>
         </section>
 
