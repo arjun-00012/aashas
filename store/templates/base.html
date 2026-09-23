@@ -122,16 +122,16 @@
 
     <style>
         :root {
-            --bg-black: #FAF8F5;
-            --bg-dark: #F4F0EB;
+            --bg-black: #FCFCFB;
+            --bg-dark: #F8F8F7;
             --bg-surface: #FFFFFF;
-            --bg-surface-hover: #F7F4EE;
+            --bg-surface-hover: #F6F6F5;
             --text-primary: #171614;
             --text-secondary: #635F59;
             --text-muted: #8C867E;
-            --border-subtle: rgba(28, 25, 23, 0.08);
-            --border-line: rgba(28, 25, 23, 0.14);
-            --border-highlight: rgba(28, 25, 23, 0.32);
+            --border-subtle: rgba(28, 25, 23, 0.07);
+            --border-line: rgba(28, 25, 23, 0.12);
+            --border-highlight: rgba(28, 25, 23, 0.3);
             --nav-height: 62px;
         }
 
@@ -161,12 +161,12 @@
             padding: 0 !important;
             scroll-behavior: smooth;
             scroll-padding-top: calc(var(--nav-height) + 16px);
-            background-color: #FAF8F5;
+            background-color: #FCFCFB;
             scrollbar-gutter: stable;
         }
 
         body {
-            background-color: #FAF8F5;
+            background-color: #FCFCFB;
             color: var(--text-primary);
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow-x: clip;
@@ -196,7 +196,7 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: visible;
-            background-color: #FAF8F5;
+            background-color: #FCFCFB;
             margin: 0 !important;
         }
 
@@ -1627,7 +1627,7 @@
             </a>
             <a href="{% url 'home' %}#section-trending" class="drawer-link drawer-link-trending" data-target-section="#section-trending">
                 <span class="d-inline-flex align-items-center">
-                    <span class="drawer-icon-wrap"><i class="bi bi-stars"></i></span>
+                    <img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop" style="width: 28px; height: 28px; border-radius: 7px; object-fit: cover; margin-right: 10px; border: 1px solid rgba(226, 186, 120, 0.45); flex-shrink: 0;">
                     New Drop
                 </span>
                 <span class="badge rounded-pill px-2 py-1" style="font-size: 0.62rem; letter-spacing: 0.08em; background: #E2BA78; color: #141312; font-weight: 700;">CURATED</span>

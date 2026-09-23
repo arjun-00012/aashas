@@ -190,7 +190,7 @@
 
     .hover-card #cardActionBtn {
         background: #171614 !important;
-        color: #FAF8F5 !important;
+        color: #FCFCFB !important;
         border: none !important;
         font-size: 0.78rem;
         padding: 6px 14px;
@@ -333,55 +333,32 @@
     }
 
     .category-item-trending .category-thumb-wrapper {
-        background: radial-gradient(circle at 35% 25%, #2C2925 0%, #151412 60%, #0A0A09 100%);
-        border: 1.5px solid rgba(226, 186, 120, 0.45);
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+        background: #151412;
+        border: 1.5px solid rgba(226, 186, 120, 0.55);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
         position: relative;
-    }
-
-    .category-item-trending .category-thumb-wrapper::after {
-        content: '';
-        position: absolute;
-        inset: -1px;
-        border-radius: inherit;
-        background: radial-gradient(circle at 50% 0%, rgba(226, 186, 120, 0.3) 0%, transparent 70%);
-        pointer-events: none;
+        padding: 0;
+        overflow: hidden;
     }
 
     .category-item-trending:hover .category-thumb-wrapper {
-        background: radial-gradient(circle at 35% 25%, #36322D 0%, #1A1916 60%, #0D0C0B 100%);
-        border-color: rgba(226, 186, 120, 0.85);
-        box-shadow: 0 12px 30px rgba(226, 186, 120, 0.25), 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        border-color: rgba(226, 186, 120, 0.95);
+        box-shadow: 0 12px 30px rgba(226, 186, 120, 0.3), 0 4px 14px rgba(0, 0, 0, 0.3);
         transform: translateY(-3px) scale(1.04);
     }
 
-    .trending-thumb-icon {
-        font-size: clamp(1.4rem, 3.8vw, 1.85rem);
-        background: linear-gradient(135deg, #FFF9ED 0%, #E2BA78 45%, #C29648 80%, #FFF4DD 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        filter: drop-shadow(0 2px 6px rgba(226, 186, 120, 0.45));
-        transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.3s ease;
-        animation: aestheticStarSparkle 3.5s ease-in-out infinite;
+    .new-drop-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: inherit;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+        display: block;
     }
 
-    @keyframes aestheticStarSparkle {
-        0%, 100% {
-            transform: scale(1) rotate(0deg);
-            filter: drop-shadow(0 2px 6px rgba(226, 186, 120, 0.45));
-        }
-        50% {
-            transform: scale(1.08) rotate(3deg);
-            filter: drop-shadow(0 4px 12px rgba(226, 186, 120, 0.75));
-        }
-    }
-
-    .category-item-trending:hover .trending-thumb-icon {
-        transform: scale(1.15) rotate(5deg);
-        filter: drop-shadow(0 4px 14px rgba(226, 186, 120, 0.85));
+    .category-item-trending:hover .new-drop-thumb-img {
+        transform: scale(1.08);
+        filter: brightness(1.06) drop-shadow(0 4px 12px rgba(226, 186, 120, 0.35));
     }
 
     .newdrop-title-badge {
@@ -391,12 +368,18 @@
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        background: radial-gradient(circle at 35% 30%, #2A2724 0%, #141312 100%);
-        color: #E2BA78;
-        font-size: 0.92rem;
-        border: 1px solid rgba(226, 186, 120, 0.45);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-        filter: drop-shadow(0 1px 4px rgba(226, 186, 120, 0.3));
+        border: 1.5px solid rgba(226, 186, 120, 0.6);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        flex-shrink: 0;
+        vertical-align: middle;
+    }
+
+    .newdrop-title-badge img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
 
     .category-thumb-img {
@@ -542,7 +525,7 @@
 
     .scroll-btn:hover {
         background: #171614 !important;
-        color: #FAF8F5 !important;
+        color: #FCFCFB !important;
         border-color: #171614 !important;
         transform: scale(1.06);
     }
@@ -605,7 +588,7 @@
         background: rgba(23, 22, 20, 0.88);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
-        color: #FAF8F5;
+        color: #FCFCFB;
         font-size: 0.62rem;
         font-weight: 600;
         letter-spacing: 0.1em;
@@ -684,7 +667,7 @@
         top: 8px;
         right: 8px;
         background: #171614;
-        color: #FAF8F5;
+        color: #FCFCFB;
         font-size: 0.58rem;
         font-weight: 700;
         letter-spacing: 0.12em;
@@ -701,25 +684,29 @@
         top: 8px;
         left: 8px;
         background: radial-gradient(circle at 30% 20%, #2A2724 0%, #141312 100%);
-        color: #FAF8F5;
+        color: #FCFCFB;
         font-size: 0.58rem;
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        padding: 4px 9px;
+        padding: 3px 8px 3px 4px;
         border-radius: 9999px;
         border: 1px solid rgba(226, 186, 120, 0.45);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         z-index: 3;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
     }
 
-    .badge-trending-classic i {
-        color: #E2BA78;
-        font-size: 0.68rem;
-        filter: drop-shadow(0 0 4px rgba(226, 186, 120, 0.45));
+    .badge-thumb-mini {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid rgba(226, 186, 120, 0.6);
+        display: inline-block;
+        flex-shrink: 0;
     }
 
     @media (max-width: 576px) {
@@ -753,7 +740,7 @@
 
     .btn-add-cart:hover, .btn-add-cart:active {
         background: #171614 !important;
-        color: #FAF8F5 !important;
+        color: #FCFCFB !important;
         border-color: #171614 !important;
         transform: translateY(-1px);
         box-shadow: 0 5px 14px rgba(23, 22, 20, 0.18) !important;
@@ -1083,7 +1070,7 @@
         font-family: 'Outfit', sans-serif;
         font-size: clamp(0.76rem, 1.5vw, 0.88rem);
         font-weight: 700;
-        color: #FAF8F5;
+        color: #FCFCFB;
         letter-spacing: 0.14em;
         text-transform: uppercase;
         flex-shrink: 0;
@@ -1480,9 +1467,7 @@
         {% if trending_products %}
         <a href="#section-trending" class="category-item-link category-item-trending" data-cat="trending" title="New Drop Collection">
             <div class="category-thumb-wrapper">
-                <div class="trending-thumb-icon">
-                    <i class="bi bi-stars"></i>
-                </div>
+                <img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop Collection" class="category-thumb-img new-drop-thumb-img" loading="lazy">
             </div>
             <span class="category-label">New Drop</span>
         </a>
@@ -1511,7 +1496,7 @@
         <div class="section-header">
             <div class="min-w-0 flex-grow-1 pe-2">
                 <div class="section-title-wrap">
-                    <span class="newdrop-title-badge"><i class="bi bi-stars"></i></span>
+                    <span class="newdrop-title-badge"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop"></span>
                     <h2 class="section-title text-truncate">NEW DROP</h2>
                     <span class="section-count">{{ trending_products.count }}</span>
                 </div>
@@ -1551,7 +1536,7 @@
                                 {% else %}
                                     <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
                                 {% endif %}
-                                <span class="badge-trending-classic"><i class="bi bi-stars"></i> NEW DROP</span>
+                                <span class="badge-trending-classic"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="" class="badge-thumb-mini"> NEW DROP</span>
                             </div>
                             <div class="product-category-sub">{{ product.category.name|upper }}</div>
                             <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
@@ -1820,11 +1805,11 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
         <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
             <div class="modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
-                <span class="badge" id="qvCategoryBadge" style="background: #FAF8F5; color: #171614; font-size: 0.65rem; letter-spacing: 0.14em; padding: 5px 12px; border-radius: 9999px; border: 1px solid rgba(28, 25, 23, 0.12);">COLLECTION</span>
+                <span class="badge" id="qvCategoryBadge" style="background: #FCFCFB; color: #171614; font-size: 0.65rem; letter-spacing: 0.14em; padding: 5px 12px; border-radius: 9999px; border: 1px solid rgba(28, 25, 23, 0.12);">COLLECTION</span>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: none; opacity: 0.7;"></button>
             </div>
             <div class="modal-body p-4 pt-2">
-                <div class="text-center mb-3 rounded-3 overflow-hidden d-flex align-items-center justify-content-center" id="qvImageWrapper" style="background: #FAF8F5; aspect-ratio: 1 / 1; max-height: 280px; margin: 0 auto; border: 1px solid rgba(28, 25, 23, 0.08);">
+                <div class="text-center mb-3 rounded-3 overflow-hidden d-flex align-items-center justify-content-center" id="qvImageWrapper" style="background: #FCFCFB; aspect-ratio: 1 / 1; max-height: 280px; margin: 0 auto; border: 1px solid rgba(28, 25, 23, 0.08);">
                     <img id="qvImage" src="" alt="" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
                 <h4 id="qvTitle" class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.02em;"></h4>
@@ -1850,7 +1835,7 @@
 </div>
 
 <!-- Back to Top Button (Stacked above right-aligned WhatsApp button) -->
-<button type="button" class="btn btn-dark rounded-circle position-fixed shadow-lg" id="backToTopBtn" aria-label="Back to top" style="bottom: 84px; right: 22px; width: 44px; height: 44px; display: none; z-index: 1039; background: rgba(23, 22, 20, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(226, 186, 120, 0.35); color: #FAF8F5; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+<button type="button" class="btn btn-dark rounded-circle position-fixed shadow-lg" id="backToTopBtn" aria-label="Back to top" style="bottom: 84px; right: 22px; width: 44px; height: 44px; display: none; z-index: 1039; background: rgba(23, 22, 20, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(226, 186, 120, 0.35); color: #FCFCFB; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
     <i class="bi bi-arrow-up"></i>
 </button>
 {% endblock %}
