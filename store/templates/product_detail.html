@@ -72,6 +72,15 @@
         }
     }
 
+    @media (max-width: 767.98px) {
+        .pdp-image-stage {
+            min-height: unset;
+            max-height: 90vw;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+        }
+    }
+
     .pdp-image-stage img {
         width: 100%;
         height: 100%;
@@ -485,6 +494,15 @@
 
     .pdp-thumbnails-strip::-webkit-scrollbar {
         display: none;
+    }
+
+    @media (max-width: 767.98px) {
+        .pdp-thumbnails-strip {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            padding: 6px 4px;
+            -webkit-overflow-scrolling: touch;
+        }
     }
 
     .pdp-thumb-card {

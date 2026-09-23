@@ -727,7 +727,7 @@
     .full-width-spotlight-stage {
         position: relative;
         width: 100%;
-        height: 500px;
+        height: clamp(360px, 60vh, 500px);
         overflow: hidden;
     }
 
@@ -854,7 +854,7 @@
     .side-by-side-panel {
         position: relative;
         display: block;
-        height: 520px;
+        height: clamp(340px, 55vh, 480px);
         overflow: hidden;
         text-decoration: none;
         color: inherit;
@@ -1070,7 +1070,7 @@
     .collage-panel {
         position: relative;
         display: block;
-        min-height: 440px;
+        min-height: clamp(300px, 50vh, 420px);
         overflow: hidden;
         text-decoration: none;
         color: inherit;
@@ -1188,7 +1188,7 @@
     .split-spotlight-grid {
         display: grid;
         grid-template-columns: 1fr;
-        min-height: 560px;
+        min-height: clamp(420px, 60vh, 560px);
     }
 
     @media (min-width: 992px) {
@@ -1200,7 +1200,7 @@
 
     .split-spotlight-media {
         position: relative;
-        min-height: 360px;
+        min-height: clamp(280px, 40vh, 360px);
         overflow: hidden;
         background: #171614;
     }
@@ -1459,10 +1459,9 @@
             </div>
             {% endfor %}
         </div>
+    </section>
 </div>
-    {% else %}
-</div>
-    {% endif %}
+{% endif %}
 
     <!-- =========================================================
          4. OLDTHEORY EDITORIAL DESIGN SYSTEM:
@@ -1852,13 +1851,14 @@
         });
     });
 
-    // Horizontal Scroll Function for Buttons
+    // Horizontal Scroll Function for Buttons (exposed globally for inline onclick)
     function scrollSection(slug, direction) {
         const track = document.getElementById(`scrollTrack-${slug}`);
         if (!track) return;
         const scrollAmount = track.offsetWidth * 0.75 * direction;
         track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
+    window.scrollSection = scrollSection;
 
     // =========================================================
     // 3. Back to Top Button
