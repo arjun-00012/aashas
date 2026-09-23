@@ -36,6 +36,19 @@
         border: none;
         touch-action: manipulation;
         box-shadow: none;
+        cursor: default;
+    }
+
+    .mannequin-container.is-zoomed {
+        cursor: zoom-out;
+    }
+
+    .mannequin-container.is-zoomed .hotspot {
+        cursor: pointer;
+    }
+
+    .mannequin-container.is-zoomed .hover-card {
+        cursor: default;
     }
 
     @media (max-width: 767.98px) {
@@ -1768,6 +1781,7 @@
             cardActionBtn.innerHTML = `Explore ${name} <i class="bi bi-arrow-right-short"></i>`;
         }
         if (hoverCard) hoverCard.classList.add('active');
+        if (container) container.classList.add('is-zoomed');
     }
 
     function resetZoom() {
@@ -1776,6 +1790,7 @@
         activeCategory = null;
         mannequinImg.style.transformOrigin = '50% 50%';
         mannequinImg.style.transform = 'scale(1)';
+        if (container) container.classList.remove('is-zoomed');
         if (hoverCard) hoverCard.classList.remove('active');
         if (cardActionBtn) {
             cardActionBtn.innerHTML = `Explore Collection <i class="bi bi-arrow-right-short"></i>`;
@@ -1797,6 +1812,13 @@
         }, 100);
     }, { passive: true });
 
+    // Reset zoom when scrolling down
+    window.addEventListener('scroll', () => {
+        if (isZoomed) {
+            resetZoom();
+        }
+    }, { passive: true });
+
     spots.forEach(spot => {
         const name = spot.getAttribute('data-name');
         const cat = spot.getAttribute('data-cat');
@@ -1811,7 +1833,7 @@
         spot.addEventListener('click', (e) => {
             e.stopPropagation();
             if (isZoomed && activeCategory === cat) {
-                window.location.href = `/category/${cat}/`;
+                resetZoom();
             } else {
                 const { x, y } = getActiveCoords(spot);
                 applyZoom(x, y, name, cat);
@@ -1827,8 +1849,23 @@
         });
     }
 
-    document.addEventListener('click', (e) => {
-        if (container && !container.contains(e.target)) {
+    // Dismiss / Undo zoom when clicking or tapping anywhere outside a hotspot or hover card
+    function handleOutsideDismiss(e) {
+        if (!isZoomed) return;
+        // Don't reset if clicking a hotspot or the hover card
+        if (e.target.closest('.hotspot') || e.target.closest('#hoverCard')) {
+            return;
+        }
+        resetZoom();
+    }
+
+    // Capture clicks and touches everywhere across the entire document/window
+    window.addEventListener('click', handleOutsideDismiss, true);
+    window.addEventListener('touchstart', handleOutsideDismiss, { passive: true, capture: true });
+
+    // ESC key resets zoom
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isZoomed) {
             resetZoom();
         }
     });
