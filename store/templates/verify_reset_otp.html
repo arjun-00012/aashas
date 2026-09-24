@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Recovery Code | ASHAS STORE{% endblock %}
+{% block meta_description %}Enter your 6-digit recovery code to securely set a new password for ASHAS Store.{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper py-5 d-flex justify-content-center align-items-center" style="min-height: 78vh; background: radial-gradient(circle at 50% 20%, rgba(244, 240, 235, 0.8), transparent 70%);">
+    <div class="auth-card p-4 p-sm-5 bg-white w-100 shadow-sm rounded-4" style="max-width: 480px; border: 1px solid rgba(23, 22, 20, 0.1);">
+        
+        <!-- Header Bar: Back & Security Badge -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+            <a href="{% url 'forgot_password' %}" class="btn-store-return" title="Change Mobile or Email">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <span class="auth-security-badge">
+                <i class="bi bi-shield-check text-success"></i> 15m Expiry
+            </span>
+        </div>
+
+        <!-- Title & Subtitle -->
+        <div class="text-center mb-3">
+            <div class="recovery-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 54px; height: 54px; background: #FAF8F5; border: 1px solid rgba(23, 22, 20, 0.12);">
+                <i class="bi bi-shield-lock-fill fs-4" style="color: #171614;"></i>
+            </div>
+            <h1 class="auth-title h4 fw-bold mb-1 text-dark">
+                VERIFY & RESET
+            </h1>
+            <p class="auth-subtitle text-secondary small mb-0">
+                Security verification for <span class="fw-semibold text-dark">{{ masked_dest }}</span>
+            </p>
+        </div>
+
+        <!-- Verification Guidance Callout -->
+        <div class="card p-3 border-0 rounded-3 mb-4" style="background: #FAF8F5; border-left: 3px solid #171614 !important;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="small fw-semibold text-dark">Your 6-Digit Security Code</div>
+                    <div class="text-muted small" style="font-size: 0.76rem;">Enter below to confirm account ownership</div>
+                </div>
+                <div class="badge bg-dark text-white px-2 py-1-5 font-monospace fs-6" style="letter-spacing: 0.15em;">
+                    {{ stored_otp }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message Banner -->
+        {% if error %}
+        <div class="auth-notice auth-notice-error mb-4" role="alert">
+            <div class="d-flex align-items-start gap-3">
+                <div class="notice-icon-box bg-danger bg-opacity-15 text-danger rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-exclamation-circle-fill fs-6"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold small text-danger text-uppercase tracking-wider">Verification Error</div>
+                    <div class="small text-secondary mt-0-5" style="font-size: 0.82rem; line-height: 1.4;">
+                        {{ error }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Reset Password Form -->
+        <form method="POST" id="verifyOtpForm">
+            {% csrf_token %}
+            
+            <!-- OTP Input Field -->
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">6-Digit Recovery Code</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-shield-check"></i>
+                    </span>
+                    <input type="text" 
+                           name="otp" 
+                           id="otpInput" 
+                           class="form-control border-start-0 text-center fw-bold fs-5 font-monospace" 
+                           placeholder="••••••" 
+                           value="{{ stored_otp }}"
+                           maxlength="6" 
+                           pattern="[0-9]{6}" 
+                           inputmode="numeric" 
+                           autocomplete="one-time-code" 
+                           required 
+                           autofocus
+                           style="letter-spacing: 0.35em;">
+                </div>
+            </div>
+
+            <!-- New Password Field -->
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">New Password</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-lock-fill"></i>
+                    </span>
+                    <input type="password" 
+                           name="new_password" 
+                           id="newPasswordInput" 
+                           class="form-control border-start-0 border-end-0 ps-0" 
+                           placeholder="Minimum 6 characters" 
+                           minlength="6" 
+                           autocomplete="new-password" 
+                           required>
+                    <button type="button" class="btn btn-light border border-start-0 text-muted px-3" id="toggleNewPwdBtn" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="toggleNewPwdIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm New Password Field -->
+            <div class="mb-4">
+                <label class="form-label small fw-semibold text-secondary mb-1">Confirm New Password</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-check2-circle"></i>
+                    </span>
+                    <input type="password" 
+                           name="confirm_password" 
+                           id="confirmPasswordInput" 
+                           class="form-control border-start-0 border-end-0 ps-0" 
+                           placeholder="Re-type your new password" 
+                           minlength="6" 
+                           autocomplete="new-password" 
+                           required>
+                    <button type="button" class="btn btn-light border border-start-0 text-muted px-3" id="toggleConfirmPwdBtn" aria-label="Toggle confirm password visibility">
+                        <i class="bi bi-eye" id="toggleConfirmPwdIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitResetBtn" class="btn btn-dark w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 mb-3" style="letter-spacing: 0.08em; background: #171614; color: #FAF8F5; transition: all 0.25s ease;">
+                <span id="btnText">Update Password & Sign In</span>
+                <i class="bi bi-arrow-right fs-6" id="btnArrow"></i>
+            </button>
+        </form>
+
+        <!-- Resend Code Action -->
+        <form method="POST" id="resendForm" class="text-center mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resend">
+            <button type="submit" class="btn btn-link text-secondary text-decoration-none small p-0" style="font-size: 0.8rem;">
+                <i class="bi bi-arrow-clockwise me-1"></i> Didn't receive or need a new code? <strong>Resend Code</strong>
+            </button>
+        </form>
+
+        <!-- WhatsApp Concierge Support -->
+        <div class="pt-3 border-top border-secondary border-opacity-10 text-center">
+            <a href="{{ wa_url }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="btn btn-sm btn-outline-success rounded-pill px-3 py-1-5 d-inline-flex align-items-center gap-2"
+               style="font-size: 0.8rem; border-color: rgba(37, 211, 102, 0.5);">
+                <i class="bi bi-whatsapp"></i> Verify via WhatsApp Concierge
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-wrapper {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+}
+
+.auth-card {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    border-color: rgba(23, 22, 20, 0.12) !important;
+}
+
+.auth-card:hover {
+    box-shadow: 0 24px 48px -12px rgba(23, 22, 20, 0.1) !important;
+}
+
+.btn-store-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #171614;
+    text-decoration: none;
+    padding: 0.3rem 0.85rem;
+    border-radius: 50rem;
+    border: 1px solid rgba(23, 22, 20, 0.18);
+    background: #FFFFFF;
+    transition: all 0.2s ease;
+}
+
+.btn-store-return:hover {
+    background: #171614;
+    color: #FAF8F5;
+    border-color: #171614;
+}
+
+.auth-security-badge {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #635F59;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.auth-title {
+    letter-spacing: 0.08em;
+    font-size: 1.25rem;
+}
+
+.auth-subtitle {
+    font-size: 0.85rem;
+}
+
+.auth-input-group .input-group-text {
+    border-color: #dee2e6;
+    background: #FAF8F5;
+}
+
+.auth-input-group .form-control {
+    border-color: #dee2e6;
+    font-size: 0.92rem;
+    padding: 0.68rem 0.85rem;
+    background: #FAF8F5;
+}
+
+.auth-input-group .form-control:focus {
+    background: #FFFFFF;
+    border-color: #171614;
+    box-shadow: none;
+}
+
+.auth-input-group .btn-light {
+    border-color: #dee2e6 !important;
+    background: #FAF8F5;
+}
+
+.auth-notice {
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+}
+
+.auth-notice-error {
+    background: #FEF2F2;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.notice-icon-box {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+#submitResetBtn:hover {
+    background: #2E2C28 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -4px rgba(23, 22, 20, 0.25);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupPasswordToggle(btnId, inputId, iconId) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (btn && input && icon) {
+            btn.addEventListener('click', function() {
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+            });
+        }
+    }
+
+    setupPasswordToggle('toggleNewPwdBtn', 'newPasswordInput', 'toggleNewPwdIcon');
+    setupPasswordToggle('toggleConfirmPwdBtn', 'confirmPasswordInput', 'toggleConfirmPwdIcon');
+
+    // Loading indicator on submit
+    const form = document.getElementById('verifyOtpForm');
+    const submitBtn = document.getElementById('submitResetBtn');
+    const btnText = document.getElementById('btnText');
+    const btnArrow = document.getElementById('btnArrow');
+    if (form && submitBtn && btnText) {
+        form.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            btnText.textContent = 'Updating Password...';
+            if (btnArrow) btnArrow.className = 'spinner-border spinner-border-sm';
+            form.submit();
+        });
+    }
+});
+</script>
+{% endblock %}

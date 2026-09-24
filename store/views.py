@@ -1,5 +1,8 @@
 import os
+import re
 import json
+import secrets
+from urllib.parse import quote as urlquote
 import razorpay
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
@@ -10,10 +13,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
 
@@ -329,11 +336,27 @@ def login_view(request):
         p = request.POST.get('password') or ''
         remember_me = request.POST.get('remember_me')
 
-        # Support sign-in with registered email address
+        # Support sign-in with registered username, email address, or mobile number
         if '@' in u:
             matching_user = User.objects.filter(email__iexact=u).first()
             if matching_user:
                 u = matching_user.username
+        else:
+            # Check if input is a 10-digit mobile number or has country code
+            digits = re.sub(r'\D', '', u)
+            if len(digits) >= 10:
+                matching_profile = Profile.objects.filter(phone_number__endswith=digits[-10:]).select_related('user').first()
+                if matching_profile:
+                    u = matching_profile.user.username
+                else:
+                    matching_user = User.objects.filter(username__endswith=digits[-10:]).first()
+                    if matching_user:
+                        u = matching_user.username
+            else:
+                # Case-insensitive username matching fallback
+                matching_user = User.objects.filter(username__iexact=u).first()
+                if matching_user:
+                    u = matching_user.username
 
         user = authenticate(request, username=u, password=p)
         if user:
@@ -364,7 +387,7 @@ def login_view(request):
             return redirect('home')
 
         return render(request, 'login.html', {
-            'error': 'Invalid username or password. Please verify your credentials and try again.',
+            'error': 'Invalid username, mobile number, or password. Please verify your credentials or use Forgot Password to reset.',
             'next_url': safe_next,
             'is_expired': is_expired,
             'is_admin_target': is_admin_target,
@@ -374,6 +397,252 @@ def login_view(request):
         'next_url': safe_next,
         'is_expired': is_expired,
         'is_admin_target': is_admin_target,
+    })
+
+
+def forgot_password_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        identifier = (request.POST.get('identifier') or '').strip()
+        if not identifier:
+            return render(request, 'forgot_password.html', {'error': 'Please enter your registered mobile number, email, or username.'})
+
+        user = None
+        phone_match = None
+        digits = re.sub(r'\D', '', identifier)
+
+        # 1. Match by Email
+        if '@' in identifier:
+            user = User.objects.filter(email__iexact=identifier).first()
+        # 2. Match by Mobile Number (10+ digits)
+        elif len(digits) >= 10:
+            profile = Profile.objects.filter(phone_number__endswith=digits[-10:]).select_related('user').first()
+            if profile:
+                user = profile.user
+                phone_match = profile.phone_number or digits[-10:]
+            else:
+                user = User.objects.filter(username__endswith=digits[-10:]).first()
+        
+        # 3. Match by Username
+        if not user:
+            user = User.objects.filter(username__iexact=identifier).first()
+
+        if not user:
+            return render(request, 'forgot_password.html', {
+                'error': f'No account found matching "{identifier}". Please verify your registered mobile number or email address, or join ASHAS as a new member.',
+                'identifier': identifier
+            })
+
+        # Generate 6-digit verification code
+        otp = f"{secrets.randbelow(900000) + 100000}"
+        request.session['reset_user_id'] = user.id
+        request.session['reset_otp'] = otp
+        request.session['reset_otp_time'] = timezone.now().timestamp()
+        request.session['reset_identifier'] = identifier
+
+        # Mask destination for privacy display
+        user_phone = phone_match or (getattr(user, 'profile', None) and user.profile.phone_number) or ''
+        masked_dest = ''
+        if user_phone:
+            p_digits = re.sub(r'\D', '', user_phone)
+            masked_dest = f"Mobile ending in ••••{p_digits[-4:]}" if len(p_digits) >= 4 else f"Mobile {user_phone}"
+        if user.email:
+            parts = user.email.split('@')
+            masked_email = f"{parts[0][:2]}••••@{parts[1]}" if len(parts) == 2 else user.email
+            masked_dest = f"{masked_dest} and Email ({masked_email})" if masked_dest else f"Email ({masked_email})"
+
+        request.session['reset_masked_dest'] = masked_dest or f"Account ({user.username})"
+
+        # If user has an email, dispatch secure reset link and code
+        if user.email:
+            try:
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
+                send_mail(
+                    subject='ASHAS STORE - Password Recovery Code',
+                    message=(
+                        f"Hello {user.username},\n\n"
+                        f"We received a password recovery request for your ASHAS Store account.\n\n"
+                        f"Your 6-digit security code is:\n{otp}\n\n"
+                        f"Alternatively, you can set a new password directly by clicking this link:\n{reset_url}\n\n"
+                        f"This code and link are valid for 15 minutes.\n\n"
+                        f"If you did not request this, please ignore this email.\n\n"
+                        f"ASHAS™ CLOTHING & ACCESSORIES\n"
+                        f"https://ashasstore.in"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
+
+        return redirect('verify_reset_otp')
+
+    return render(request, 'forgot_password.html')
+
+
+def verify_reset_otp_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    user_id = request.session.get('reset_user_id')
+    stored_otp = request.session.get('reset_otp')
+    otp_time = request.session.get('reset_otp_time', 0)
+    masked_dest = request.session.get('reset_masked_dest', 'your account')
+
+    if not user_id or not stored_otp:
+        messages.info(request, "Please enter your mobile number or email to start password recovery.")
+        return redirect('forgot_password')
+
+    user = User.objects.filter(id=user_id).first()
+    if not user:
+        return redirect('forgot_password')
+
+    phone_number = getattr(user, 'profile', None) and user.profile.phone_number or ''
+    wa_text = f"Hello ASHAS, I am resetting my password for account {user.username}. My security OTP code is: {stored_otp}"
+    wa_url = f"https://wa.me/918281451481?text={urlquote(wa_text)}"
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Resend fresh code handler
+        if action == 'resend':
+            new_otp = f"{secrets.randbelow(900000) + 100000}"
+            request.session['reset_otp'] = new_otp
+            request.session['reset_otp_time'] = timezone.now().timestamp()
+            stored_otp = new_otp
+            if user.email:
+                try:
+                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = default_token_generator.make_token(user)
+                    reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
+                    send_mail(
+                        subject='ASHAS STORE - New Password Recovery Code',
+                        message=f"Hello {user.username},\n\nYour new recovery code is: {new_otp}\n\nReset Link: {reset_url}\n\nValid for 15 minutes.\n\nASHAS Store",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=True
+                    )
+                except Exception:
+                    pass
+            messages.success(request, "A fresh 6-digit recovery code has been generated.")
+            return redirect('verify_reset_otp')
+
+        entered_otp = (request.POST.get('otp') or '').strip().replace(' ', '').replace('-', '')
+        new_password = request.POST.get('new_password') or ''
+        confirm_password = request.POST.get('confirm_password') or ''
+
+        # Check 15-minute expiry
+        if (timezone.now().timestamp() - otp_time) > 900:
+            return render(request, 'verify_reset_otp.html', {
+                'error': 'Verification code has expired. Please click "Resend Code" to generate a fresh one.',
+                'masked_dest': masked_dest,
+                'wa_url': wa_url,
+                'stored_otp': stored_otp,
+                'username': user.username,
+            })
+
+        if entered_otp != stored_otp:
+            return render(request, 'verify_reset_otp.html', {
+                'error': 'Incorrect 6-digit recovery code. Please check and try again, or use WhatsApp Concierge verification.',
+                'masked_dest': masked_dest,
+                'wa_url': wa_url,
+                'stored_otp': stored_otp,
+                'username': user.username,
+            })
+
+        if len(new_password) < 6:
+            return render(request, 'verify_reset_otp.html', {
+                'error': 'Password must be at least 6 characters long.',
+                'masked_dest': masked_dest,
+                'wa_url': wa_url,
+                'stored_otp': stored_otp,
+                'username': user.username,
+            })
+
+        if new_password != confirm_password:
+            return render(request, 'verify_reset_otp.html', {
+                'error': 'Passwords do not match. Please verify both password entries.',
+                'masked_dest': masked_dest,
+                'wa_url': wa_url,
+                'stored_otp': stored_otp,
+                'username': user.username,
+            })
+
+        # Save new password
+        user.set_password(new_password)
+        user.save()
+
+        # Clean session
+        request.session.pop('reset_user_id', None)
+        request.session.pop('reset_otp', None)
+        request.session.pop('reset_otp_time', None)
+        request.session.pop('reset_identifier', None)
+        request.session.pop('reset_masked_dest', None)
+
+        # Log in user automatically
+        login(request, user)
+        request.session['_last_activity'] = timezone.now().timestamp()
+        messages.success(request, f"Password successfully updated! Welcome back to ASHAS, {user.username}.")
+        return redirect('profile')
+
+    return render(request, 'verify_reset_otp.html', {
+        'masked_dest': masked_dest,
+        'wa_url': wa_url,
+        'stored_otp': stored_otp,
+        'username': user.username,
+    })
+
+
+def reset_password_token_view(request, uidb64, token):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.filter(pk=uid).first()
+    except Exception:
+        user = None
+
+    if not user or not default_token_generator.check_token(user, token):
+        return render(request, 'reset_password_token.html', {
+            'is_valid': False,
+            'error': 'This password reset link is invalid or has expired.'
+        })
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password') or ''
+        confirm_password = request.POST.get('confirm_password') or ''
+
+        if len(new_password) < 6:
+            return render(request, 'reset_password_token.html', {
+                'is_valid': True,
+                'error': 'Password must be at least 6 characters long.',
+                'user': user,
+            })
+
+        if new_password != confirm_password:
+            return render(request, 'reset_password_token.html', {
+                'is_valid': True,
+                'error': 'Passwords do not match.',
+                'user': user,
+            })
+
+        user.set_password(new_password)
+        user.save()
+
+        login(request, user)
+        request.session['_last_activity'] = timezone.now().timestamp()
+        messages.success(request, f"Password successfully updated! Welcome back, {user.username}.")
+        return redirect('profile')
+
+    return render(request, 'reset_password_token.html', {
+        'is_valid': True,
+        'user': user,
     })
 
 def logout_view(request):
