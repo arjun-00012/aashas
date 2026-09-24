@@ -384,12 +384,12 @@ class ShippingCalculationTests(TestCase):
         fee = calculate_shipping_fee([self.ring_product], delivery_region="kerala")
         self.assertEqual(fee, 55.0)
 
-    def test_calculate_shipping_featured_bracelet_is_one_rupee(self):
-        # Featured bracelet has special ₹1 shipping charge for testing
+    def test_calculate_shipping_featured_bracelet_standard_rate(self):
+        # Featured bracelet now uses standard shipping rates: ₹55 inside Kerala, ₹95 outside Kerala
         fee_kerala = calculate_shipping_fee([self.bracelet_product], delivery_region="kerala")
         fee_outside = calculate_shipping_fee([self.bracelet_product], delivery_region="outside_kerala")
-        self.assertEqual(fee_kerala, 1.0)
-        self.assertEqual(fee_outside, 1.0)
+        self.assertEqual(fee_kerala, 55.0)
+        self.assertEqual(fee_outside, 95.0)
 
     def test_is_kerala_pincode(self):
         # Kerala postal circle PIN codes (67xxxx, 68xxxx, 69xxxx)
@@ -419,9 +419,9 @@ class ShippingCalculationTests(TestCase):
         self.assertEqual(calculate_shipping_fee([self.ring_product], pincode="560001"), 95.0)
         self.assertEqual(calculate_shipping_fee([self.shade_product], pincode="110001"), 95.0)
 
-        # Featured bracelet always ₹1 regardless of PIN
-        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="673001"), 1.0)
-        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="560001"), 1.0)
+        # Featured bracelet uses standard shipping rates (55 Kerala, 95 Outside)
+        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="673001"), 55.0)
+        self.assertEqual(calculate_shipping_fee([self.bracelet_product], pincode="560001"), 95.0)
 
 
 class CheckoutShippingIntegrationTests(TestCase):
@@ -527,9 +527,9 @@ class CheckoutShippingIntegrationTests(TestCase):
         self.assertEqual(float(order.total_price), 395.0)
 
     @patch('store.views.get_razorpay_client')
-    def test_checkout_post_featured_bracelet_one_rupee_shipping(self, mock_get_client):
+    def test_checkout_post_featured_bracelet_standard_shipping(self, mock_get_client):
         mock_client = MagicMock()
-        mock_client.order.create.return_value = {'id': 'order_rzp_mock_1', 'amount': 70000}
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_1', 'amount': 75400}
         mock_get_client.return_value = mock_client
 
         cat_bracelets = Category.objects.create(name="Bracelets", slug="bracelets")
@@ -554,13 +554,13 @@ class CheckoutShippingIntegrationTests(TestCase):
         data = res.json()
         self.assertEqual(data['status'], 'success')
         self.assertEqual(data['subtotal'], 699.0)
-        self.assertEqual(data['shipping_fee'], 1.0)
-        self.assertEqual(data['total'], 700.0)
-        self.assertEqual(data['amount'], 70000)
+        self.assertEqual(data['shipping_fee'], 55.0)
+        self.assertEqual(data['total'], 754.0)
+        self.assertEqual(data['amount'], 75400)
 
         order = Order.objects.get(id=data['db_order_id'])
-        self.assertEqual(float(order.shipping_fee), 1.0)
-        self.assertEqual(float(order.total_price), 700.0)
+        self.assertEqual(float(order.shipping_fee), 55.0)
+        self.assertEqual(float(order.total_price), 754.0)
 
     @patch('store.views.get_razorpay_client')
     def test_checkout_post_with_kerala_pincode_auto_calculates_kerala_shipping(self, mock_get_client):

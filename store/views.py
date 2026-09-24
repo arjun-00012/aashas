@@ -888,20 +888,10 @@ def check_cart_has_shades(items):
 
 def check_cart_has_test_bracelet(items):
     """
-    Returns True if the order contains the featured bracelet (Matte Obsidian Stone Bracelet, id 11 or bracelet).
-    Used for user's temporary test payment shipping rate (₹1).
+    Deprecated: All items now follow standard shipping rates:
+    - ₹55 inside Kerala (₹65 if order contains Shades)
+    - ₹95 outside Kerala
     """
-    for item in items:
-        prod = getattr(item, 'product', item)
-        if isinstance(prod, tuple):
-            prod = prod[0]
-        if not prod:
-            continue
-        if getattr(prod, 'id', None) == 11 or 'bracelet' in (getattr(prod, 'name', '') or '').lower():
-            return True
-        cat = getattr(prod, 'category', None)
-        if cat and 'bracelet' in (getattr(cat, 'slug', '') or getattr(cat, 'name', '') or '').lower():
-            return True
     return False
 
 
@@ -961,16 +951,11 @@ def determine_delivery_region(pincode=None, delivery_region=None, address=None):
 def calculate_shipping_fee(items, delivery_region='kerala', pincode=None):
     """
     Shipping fee calculation rules:
-    - Featured Bracelet (temporary test rate): ₹1 flat
     - Outside Kerala (PIN outside 67-69 or explicitly outside): ₹95 flat
     - Inside Kerala (PIN 67xxxx, 68xxxx, 69xxxx or inside Kerala):
       - ₹65 if order contains Shades
       - ₹55 for other products
     """
-    # Special ₹1 shipping charge for the featured bracelet for testing
-    if check_cart_has_test_bracelet(items):
-        return 1.0
-
     region = determine_delivery_region(pincode=pincode, delivery_region=delivery_region)
     if region == 'outside_kerala':
         return 95.0

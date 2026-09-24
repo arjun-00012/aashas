@@ -571,9 +571,7 @@
                                         <div class="flex-grow-1 min-w-0">
                                             <span class="region-name"><i class="bi bi-geo-alt-fill text-success"></i> Inside Kerala</span>
                                             <span class="region-fee-text">
-                                                {% if has_bracelet %}
-                                                    <strong>₹1</strong> &bull; Featured bracelet test rate
-                                                {% elif has_shades %}
+                                                {% if has_shades %}
                                                     <strong>₹65</strong> &bull; Shades order rate
                                                 {% else %}
                                                     <strong>₹55</strong> &bull; Kerala Speed Post
@@ -589,11 +587,7 @@
                                         <div class="flex-grow-1 min-w-0">
                                             <span class="region-name"><i class="bi bi-truck text-dark"></i> Outside Kerala</span>
                                             <span class="region-fee-text">
-                                                {% if has_bracelet %}
-                                                    <strong>₹1</strong> &bull; Featured bracelet test rate
-                                                {% else %}
-                                                    <strong>₹95</strong> &bull; All-India Speed Post
-                                                {% endif %}
+                                                <strong>₹95</strong> &bull; All-India Speed Post
                                                 <span class="d-block text-muted" style="font-size: 0.68rem;">Rest of India PIN codes</span>
                                             </span>
                                             <div id="outsideLockBadge" class="d-none"></div>
@@ -776,9 +770,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Pricing & Shipping calculations
     const subtotal = {{ subtotal }};
     const hasShades = {% if has_shades %}true{% else %}false{% endif %};
-    const hasBracelet = {% if has_bracelet %}true{% else %}false{% endif %};
-    const keralaShippingFee = hasBracelet ? 1.0 : (hasShades ? 65.0 : 55.0);
-    const outsideShippingFee = hasBracelet ? 1.0 : 95.0;
+    const keralaShippingFee = hasShades ? 65.0 : 55.0;
+    const outsideShippingFee = 95.0;
 
     const regionCards = document.querySelectorAll('.region-option-card');
     const regionRadios = document.querySelectorAll('input[name="delivery_region"]');
