@@ -40,9 +40,9 @@
     <meta property="og:description" content="{% block og_description %}Discover trending accessories, shades, cooling glass, chains, and tribal jewelry in Kozhikode, Kerala at ASHAS Store. Fast delivery across India.{% endblock %}">
     <meta property="og:image" content="{% block og_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
     <meta property="og:image:secure_url" content="{% block og_image_secure %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
-    <meta property="og:image:width" content="512">
-    <meta property="og:image:height" content="512">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="{% block og_image_width %}512{% endblock %}">
+    <meta property="og:image:height" content="{% block og_image_height %}512{% endblock %}">
+    <meta property="og:image:type" content="{% block og_image_type %}image/png{% endblock %}">
     <meta property="og:image:alt" content="{% block og_image_alt %}ASHAS Official Store Logo{% endblock %}">
 
     <!-- Twitter / X Cards -->

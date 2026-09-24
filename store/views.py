@@ -159,7 +159,18 @@ def sitemap_xml_view(request):
     """Generate dynamic XML sitemap with Google Image Sitemaps for Google Search Console and crawlers."""
     now_str = timezone.now().strftime('%Y-%m-%d')
     urls = [
-        {'loc': 'https://ashasstore.in/', 'priority': '1.0', 'changefreq': 'daily', 'images': []},
+        {
+            'loc': 'https://ashasstore.in/',
+            'priority': '1.0',
+            'changefreq': 'daily',
+            'images': [
+                {
+                    'loc': 'https://ashasstore.in/static/images/hero_model_desktop.jpg',
+                    'title': 'ASHAS STORE | Contemporary Clothing & Curated Statement Accessories in Kozhikode',
+                    'caption': 'ASHAS Signature Model wearing curated luxury statement accessories, shades, cooling glass, chains, and rings in Kozhikode, Kerala.'
+                }
+            ]
+        },
         {'loc': 'https://ashasstore.in/rings/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
         {'loc': 'https://ashasstore.in/shades/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
         {'loc': 'https://ashasstore.in/cooling-glass/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
