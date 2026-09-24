@@ -41,6 +41,11 @@
                 <input type="text" name="username" class="form-control" placeholder="Choose username" autocomplete="username" required value="{{ form.username.value|default:'' }}">
             </div>
             <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="name@example.com" autocomplete="email" required value="{{ form.email.value|default:'' }}">
+                <div class="form-text text-muted small" style="font-size: 0.75rem;">Used for order updates and secure password recovery OTP.</div>
+            </div>
+            <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Phone Number</label>
                 <input type="tel" name="phone_number" class="form-control" placeholder="10-digit mobile number" autocomplete="tel" required value="{{ form.phone_number.value|default:'' }}">
             </div>

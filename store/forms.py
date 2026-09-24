@@ -3,13 +3,20 @@ from django.contrib.auth.models import User
 from .models import Category, Product, Profile
 
 class RegistrationForm(forms.ModelForm):
+    email = forms.EmailField(required=True, label="Email Address")
     phone_number = forms.CharField(max_length=20, required=True)
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['username', 'phone_number', 'password']
+        fields = ['username', 'email', 'phone_number', 'password']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("An account with this email address already exists. Please sign in or use forgot password.")
+        return email
 
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number', '').strip()

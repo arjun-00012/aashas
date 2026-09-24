@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Verify Recovery Code | ASHAS STORE{% endblock %}
-{% block meta_description %}Enter your 6-digit recovery code to securely set a new password for ASHAS Store.{% endblock %}
+{% block title %}Verify Email Recovery Code | ASHAS STORE{% endblock %}
+{% block meta_description %}Enter the 6-digit recovery code sent to your registered email to reset your ASHAS Store password.{% endblock %}
 
 {% block content %}
 <div class="auth-wrapper py-5 d-flex justify-content-center align-items-center" style="min-height: 78vh; background: radial-gradient(circle at 50% 20%, rgba(244, 240, 235, 0.8), transparent 70%);">
@@ -10,7 +10,7 @@
         
         <!-- Header Bar: Back & Security Badge -->
         <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
-            <a href="{% url 'forgot_password' %}" class="btn-store-return" title="Change Mobile or Email">
+            <a href="{% url 'forgot_password' %}" class="btn-store-return" title="Change Account">
                 <i class="bi bi-arrow-left"></i> Back
             </a>
             <span class="auth-security-badge">
@@ -21,28 +21,44 @@
         <!-- Title & Subtitle -->
         <div class="text-center mb-3">
             <div class="recovery-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 54px; height: 54px; background: #FAF8F5; border: 1px solid rgba(23, 22, 20, 0.12);">
-                <i class="bi bi-shield-lock-fill fs-4" style="color: #171614;"></i>
+                <i class="bi bi-envelope-lock-fill fs-4" style="color: #171614;"></i>
             </div>
             <h1 class="auth-title h4 fw-bold mb-1 text-dark">
-                VERIFY & RESET
+                VERIFY EMAIL CODE
             </h1>
             <p class="auth-subtitle text-secondary small mb-0">
-                Security verification for <span class="fw-semibold text-dark">{{ masked_dest }}</span>
+                Security verification for <span class="fw-semibold text-dark">{{ username }}</span>
             </p>
         </div>
 
-        <!-- Verification Guidance Callout -->
+        <!-- Email Sent Notice Callout -->
         <div class="card p-3 border-0 rounded-3 mb-4" style="background: #FAF8F5; border-left: 3px solid #171614 !important;">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <div class="small fw-semibold text-dark">Your 6-Digit Security Code</div>
-                    <div class="text-muted small" style="font-size: 0.76rem;">Enter below to confirm account ownership</div>
+            <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle bg-white p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;">
+                    <i class="bi bi-envelope-check-fill fs-5 text-dark"></i>
                 </div>
-                <div class="badge bg-dark text-white px-2 py-1-5 font-monospace fs-6" style="letter-spacing: 0.15em;">
-                    {{ stored_otp }}
+                <div>
+                    <div class="small fw-bold text-dark">Check Your Email Inbox</div>
+                    <div class="text-secondary small mt-0-5" style="font-size: 0.82rem; line-height: 1.45;">
+                        We sent a 6-digit recovery code to <strong class="text-dark">{{ masked_email }}</strong>. Please enter it below to set your new password.
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Success Message Banner (e.g. Code Resent) -->
+        {% if messages %}
+            {% for msg in messages %}
+                {% if 'code has been sent' in msg.message or 'generated' in msg.message %}
+                <div class="auth-notice auth-notice-success mb-3" role="alert">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-6 mt-0-5"></i>
+                        <div class="small text-success fw-medium" style="font-size: 0.82rem;">{{ msg.message }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
 
         <!-- Error Message Banner -->
         {% if error %}
@@ -67,17 +83,17 @@
             
             <!-- OTP Input Field -->
             <div class="mb-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">6-Digit Recovery Code</label>
+                <label class="form-label small fw-semibold text-secondary mb-1">Enter 6-Digit Code from Email</label>
                 <div class="input-group auth-input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted">
-                        <i class="bi bi-shield-check"></i>
+                        <i class="bi bi-key-fill"></i>
                     </span>
                     <input type="text" 
                            name="otp" 
                            id="otpInput" 
                            class="form-control border-start-0 text-center fw-bold fs-5 font-monospace" 
                            placeholder="••••••" 
-                           value="{{ stored_otp }}"
+                           value=""
                            maxlength="6" 
                            pattern="[0-9]{6}" 
                            inputmode="numeric" 
@@ -85,6 +101,9 @@
                            required 
                            autofocus
                            style="letter-spacing: 0.35em;">
+                </div>
+                <div class="form-text small text-muted mt-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-clock-history me-1"></i> Valid for 15 minutes. Check spam folder if not in inbox.
                 </div>
             </div>
 
@@ -132,7 +151,7 @@
 
             <!-- Submit Button -->
             <button type="submit" id="submitResetBtn" class="btn btn-dark w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 mb-3" style="letter-spacing: 0.08em; background: #171614; color: #FAF8F5; transition: all 0.25s ease;">
-                <span id="btnText">Update Password & Sign In</span>
+                <span id="btnText">Verify & Reset Password</span>
                 <i class="bi bi-arrow-right fs-6" id="btnArrow"></i>
             </button>
         </form>
@@ -142,18 +161,18 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="resend">
             <button type="submit" class="btn btn-link text-secondary text-decoration-none small p-0" style="font-size: 0.8rem;">
-                <i class="bi bi-arrow-clockwise me-1"></i> Didn't receive or need a new code? <strong>Resend Code</strong>
+                <i class="bi bi-arrow-clockwise me-1"></i> Didn't receive the email? <strong>Resend Code to Email</strong>
             </button>
         </form>
 
         <!-- WhatsApp Concierge Support -->
         <div class="pt-3 border-top border-secondary border-opacity-10 text-center">
-            <a href="{{ wa_url }}" 
+            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20need%20help%20accessing%20my%20password%20recovery%20email." 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="btn btn-sm btn-outline-success rounded-pill px-3 py-1-5 d-inline-flex align-items-center gap-2"
-               style="font-size: 0.8rem; border-color: rgba(37, 211, 102, 0.5);">
-                <i class="bi bi-whatsapp"></i> Verify via WhatsApp Concierge
+               class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1 hover-whatsapp">
+                <i class="bi bi-whatsapp text-success" style="font-size: 0.85rem;"></i>
+                <span style="font-size: 0.78rem;">Trouble accessing your email? Chat with WhatsApp Concierge</span>
             </a>
         </div>
     </div>
@@ -240,6 +259,11 @@
     border-radius: 0.75rem;
 }
 
+.auth-notice-success {
+    background: #F0FDF4;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
 .auth-notice-error {
     background: #FEF2F2;
     border: 1px solid rgba(239, 68, 68, 0.35);
@@ -249,6 +273,10 @@
     width: 32px;
     height: 32px;
     flex-shrink: 0;
+}
+
+.hover-whatsapp:hover {
+    color: #25D366 !important;
 }
 
 #submitResetBtn:hover {
@@ -286,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form && submitBtn && btnText) {
         form.addEventListener('submit', function() {
             submitBtn.disabled = true;
-            btnText.textContent = 'Updating Password...';
+            btnText.textContent = 'Verifying Code...';
             if (btnArrow) btnArrow.className = 'spinner-border spinner-border-sm';
             form.submit();
         });

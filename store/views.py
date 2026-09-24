@@ -287,6 +287,7 @@ def register_view(request):
         if form.is_valid():
             user = User.objects.create_user(
                 username=form.cleaned_data['username'].strip(),
+                email=form.cleaned_data['email'].strip().lower(),
                 password=form.cleaned_data['password']
             )
             profile = user.profile
@@ -410,7 +411,6 @@ def forgot_password_view(request):
             return render(request, 'forgot_password.html', {'error': 'Please enter your registered mobile number, email, or username.'})
 
         user = None
-        phone_match = None
         digits = re.sub(r'\D', '', identifier)
 
         # 1. Match by Email
@@ -421,7 +421,6 @@ def forgot_password_view(request):
             profile = Profile.objects.filter(phone_number__endswith=digits[-10:]).select_related('user').first()
             if profile:
                 user = profile.user
-                phone_match = profile.phone_number or digits[-10:]
             else:
                 user = User.objects.filter(username__endswith=digits[-10:]).first()
         
@@ -431,54 +430,67 @@ def forgot_password_view(request):
 
         if not user:
             return render(request, 'forgot_password.html', {
-                'error': f'No account found matching "{identifier}". Please verify your registered mobile number or email address, or join ASHAS as a new member.',
+                'error': f'No account found matching "{identifier}". Please verify your registered mobile number, email, or username.',
                 'identifier': identifier
             })
 
-        # Generate 6-digit verification code
+        # CRITICAL SECURITY CHECK: Account must have a registered email to receive OTP
+        user_email = (user.email or '').strip()
+        if not user_email:
+            wa_text = f"Hello ASHAS Concierge, I need assistance recovering my account ({user.username}). My account does not have an email address linked."
+            return render(request, 'forgot_password.html', {
+                'error': f'The account "{identifier}" does not have a registered email address on file for security verification. To protect against unauthorized account takeover, password resets require email OTP verification. Please contact our WhatsApp Concierge for identity verification.',
+                'identifier': identifier,
+                'no_email_account': True,
+                'wa_help_url': f"https://wa.me/918281451481?text={urlquote(wa_text)}",
+            })
+
+        # Generate cryptographically secure 6-digit OTP
         otp = f"{secrets.randbelow(900000) + 100000}"
         request.session['reset_user_id'] = user.id
         request.session['reset_otp'] = otp
         request.session['reset_otp_time'] = timezone.now().timestamp()
         request.session['reset_identifier'] = identifier
 
-        # Mask destination for privacy display
-        user_phone = phone_match or (getattr(user, 'profile', None) and user.profile.phone_number) or ''
-        masked_dest = ''
-        if user_phone:
-            p_digits = re.sub(r'\D', '', user_phone)
-            masked_dest = f"Mobile ending in ••••{p_digits[-4:]}" if len(p_digits) >= 4 else f"Mobile {user_phone}"
-        if user.email:
-            parts = user.email.split('@')
-            masked_email = f"{parts[0][:2]}••••@{parts[1]}" if len(parts) == 2 else user.email
-            masked_dest = f"{masked_dest} and Email ({masked_email})" if masked_dest else f"Email ({masked_email})"
+        # Mask email for privacy display (e.g. ar*****@gmail.com)
+        parts = user_email.split('@')
+        if len(parts) == 2:
+            uname, domain = parts
+            if len(uname) > 2:
+                masked_email = f"{uname[:2]}{'*' * (len(uname) - 2)}@{domain}"
+            else:
+                masked_email = f"{uname}*@{domain}"
+        else:
+            masked_email = user_email
 
-        request.session['reset_masked_dest'] = masked_dest or f"Account ({user.username})"
+        request.session['reset_masked_email'] = masked_email
 
-        # If user has an email, dispatch secure reset link and code
-        if user.email:
-            try:
-                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                token = default_token_generator.make_token(user)
-                reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
-                send_mail(
-                    subject='ASHAS STORE - Password Recovery Code',
-                    message=(
-                        f"Hello {user.username},\n\n"
-                        f"We received a password recovery request for your ASHAS Store account.\n\n"
-                        f"Your 6-digit security code is:\n{otp}\n\n"
-                        f"Alternatively, you can set a new password directly by clicking this link:\n{reset_url}\n\n"
-                        f"This code and link are valid for 15 minutes.\n\n"
-                        f"If you did not request this, please ignore this email.\n\n"
-                        f"ASHAS™ CLOTHING & ACCESSORIES\n"
-                        f"https://ashasstore.in"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=True
-                )
-            except Exception:
-                pass
+        # Send OTP strictly to user's registered email
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
+        try:
+            send_mail(
+                subject='ASHAS STORE - Your Password Recovery Verification Code',
+                message=(
+                    f"Hello {user.username},\n\n"
+                    f"We received a password reset request for your ASHAS Store account.\n\n"
+                    f"Your 6-digit security verification code is:\n\n"
+                    f"    {otp}\n\n"
+                    f"Enter this code on the website to verify your identity and set a new password.\n"
+                    f"This code will expire in 15 minutes.\n\n"
+                    f"Alternatively, you can set a new password directly by clicking this secure link:\n"
+                    f"{reset_url}\n\n"
+                    f"If you did not request this, please ignore this email. Your password and account remain secure.\n\n"
+                    f"ASHAS™ CLOTHING & ACCESSORIES\n"
+                    f"https://ashasstore.in\n"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user_email],
+                fail_silently=False
+            )
+        except Exception:
+            pass
 
         return redirect('verify_reset_otp')
 
@@ -492,44 +504,46 @@ def verify_reset_otp_view(request):
     user_id = request.session.get('reset_user_id')
     stored_otp = request.session.get('reset_otp')
     otp_time = request.session.get('reset_otp_time', 0)
-    masked_dest = request.session.get('reset_masked_dest', 'your account')
+    masked_email = request.session.get('reset_masked_email', 'your registered email')
 
     if not user_id or not stored_otp:
-        messages.info(request, "Please enter your mobile number or email to start password recovery.")
+        messages.info(request, "Please enter your registered mobile number, email, or username to start password recovery.")
         return redirect('forgot_password')
 
     user = User.objects.filter(id=user_id).first()
-    if not user:
+    if not user or not user.email:
         return redirect('forgot_password')
-
-    phone_number = getattr(user, 'profile', None) and user.profile.phone_number or ''
-    wa_text = f"Hello ASHAS, I am resetting my password for account {user.username}. My security OTP code is: {stored_otp}"
-    wa_url = f"https://wa.me/918281451481?text={urlquote(wa_text)}"
 
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        # Resend fresh code handler
+        # Resend fresh code handler: strictly send to user's registered email
         if action == 'resend':
             new_otp = f"{secrets.randbelow(900000) + 100000}"
             request.session['reset_otp'] = new_otp
             request.session['reset_otp_time'] = timezone.now().timestamp()
             stored_otp = new_otp
-            if user.email:
-                try:
-                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                    token = default_token_generator.make_token(user)
-                    reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
-                    send_mail(
-                        subject='ASHAS STORE - New Password Recovery Code',
-                        message=f"Hello {user.username},\n\nYour new recovery code is: {new_otp}\n\nReset Link: {reset_url}\n\nValid for 15 minutes.\n\nASHAS Store",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=True
-                    )
-                except Exception:
-                    pass
-            messages.success(request, "A fresh 6-digit recovery code has been generated.")
+            try:
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                reset_url = request.build_absolute_uri(reverse('reset_password_token', kwargs={'uidb64': uidb64, 'token': token}))
+                send_mail(
+                    subject='ASHAS STORE - New Password Recovery Verification Code',
+                    message=(
+                        f"Hello {user.username},\n\n"
+                        f"Your new 6-digit verification code is:\n\n"
+                        f"    {new_otp}\n\n"
+                        f"Direct Link: {reset_url}\n\n"
+                        f"Valid for 15 minutes.\n\n"
+                        f"ASHAS Store"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False
+                )
+            except Exception:
+                pass
+            messages.success(request, f"A fresh 6-digit recovery code has been sent to your email ({masked_email}).")
             return redirect('verify_reset_otp')
 
         entered_otp = (request.POST.get('otp') or '').strip().replace(' ', '').replace('-', '')
@@ -539,41 +553,34 @@ def verify_reset_otp_view(request):
         # Check 15-minute expiry
         if (timezone.now().timestamp() - otp_time) > 900:
             return render(request, 'verify_reset_otp.html', {
-                'error': 'Verification code has expired. Please click "Resend Code" to generate a fresh one.',
-                'masked_dest': masked_dest,
-                'wa_url': wa_url,
-                'stored_otp': stored_otp,
+                'error': 'Verification code has expired. Please click "Resend Code" to receive a fresh code in your email.',
+                'masked_email': masked_email,
                 'username': user.username,
             })
 
+        # CRITICAL SECURITY: Compare entered OTP from email with stored OTP
         if entered_otp != stored_otp:
             return render(request, 'verify_reset_otp.html', {
-                'error': 'Incorrect 6-digit recovery code. Please check and try again, or use WhatsApp Concierge verification.',
-                'masked_dest': masked_dest,
-                'wa_url': wa_url,
-                'stored_otp': stored_otp,
+                'error': 'Incorrect 6-digit verification code. Please check your email inbox and spam folder, enter the code from your email, and try again.',
+                'masked_email': masked_email,
                 'username': user.username,
             })
 
         if len(new_password) < 6:
             return render(request, 'verify_reset_otp.html', {
                 'error': 'Password must be at least 6 characters long.',
-                'masked_dest': masked_dest,
-                'wa_url': wa_url,
-                'stored_otp': stored_otp,
+                'masked_email': masked_email,
                 'username': user.username,
             })
 
         if new_password != confirm_password:
             return render(request, 'verify_reset_otp.html', {
                 'error': 'Passwords do not match. Please verify both password entries.',
-                'masked_dest': masked_dest,
-                'wa_url': wa_url,
-                'stored_otp': stored_otp,
+                'masked_email': masked_email,
                 'username': user.username,
             })
 
-        # Save new password
+        # Save new password securely
         user.set_password(new_password)
         user.save()
 
@@ -582,7 +589,25 @@ def verify_reset_otp_view(request):
         request.session.pop('reset_otp', None)
         request.session.pop('reset_otp_time', None)
         request.session.pop('reset_identifier', None)
-        request.session.pop('reset_masked_dest', None)
+        request.session.pop('reset_masked_email', None)
+
+        # Send confirmation email
+        try:
+            send_mail(
+                subject='ASHAS STORE - Password Successfully Updated',
+                message=(
+                    f"Hello {user.username},\n\n"
+                    f"Your password for your ASHAS Store account has been successfully changed.\n\n"
+                    f"If you did not make this change, please contact us immediately on WhatsApp (+91 8281451481).\n\n"
+                    f"ASHAS™ CLOTHING & ACCESSORIES\n"
+                    f"https://ashasstore.in"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=True
+            )
+        except Exception:
+            pass
 
         # Log in user automatically
         login(request, user)
@@ -590,10 +615,9 @@ def verify_reset_otp_view(request):
         messages.success(request, f"Password successfully updated! Welcome back to ASHAS, {user.username}.")
         return redirect('profile')
 
+    # GET request: stored_otp is NEVER passed to template
     return render(request, 'verify_reset_otp.html', {
-        'masked_dest': masked_dest,
-        'wa_url': wa_url,
-        'stored_otp': stored_otp,
+        'masked_email': masked_email,
         'username': user.username,
     })
 
