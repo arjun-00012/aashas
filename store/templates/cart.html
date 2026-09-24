@@ -61,7 +61,6 @@
 
 {% block content %}
 <div class="container py-4 py-md-5" style="max-width: 960px;">
-    <!-- Bag Header -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
         <div>
             <h1 class="h4 fw-bold tracking-wider m-0 text-uppercase text-dark" style="letter-spacing: 0.1em;">YOUR SHOPPING BAG</h1>
@@ -73,7 +72,6 @@
     </div>
 
     {% if cart_items %}
-    <!-- Desktop & Tablet View (Table >= 768px) -->
     <div class="d-none d-md-block table-responsive bg-white border border-secondary border-opacity-25 rounded-3 p-3 mb-4 shadow-sm">
         <table class="table align-middle mb-0" style="--bs-table-bg: transparent;">
             <thead>
@@ -127,7 +125,6 @@
         </table>
     </div>
 
-    <!-- Mobile View (Clean Item Cards < 768px, Large Names Fully Responsive) -->
     <div class="d-md-none d-flex flex-column gap-3 mb-4">
         {% for item in cart_items %}
         <div class="p-3 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
@@ -173,7 +170,6 @@
         {% endfor %}
     </div>
 
-    <!-- Total Checkout Bar -->
     <div class="p-3 p-md-4 bg-white border border-secondary border-opacity-25 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 shadow-sm">
         <div>
             <span class="text-secondary small text-uppercase fw-semibold" style="letter-spacing: 0.08em;">Bag Subtotal</span>
@@ -200,7 +196,6 @@
     </div>
 
     {% else %}
-    <!-- Empty Bag State -->
     <div class="text-center py-5 my-4 p-4 bg-white border border-secondary border-opacity-25 rounded-3 shadow-sm">
         <i class="bi bi-bag-x text-secondary" style="font-size: 3.5rem;"></i>
         <h5 class="fw-bold mt-3 mb-1 text-dark">Your shopping bag is empty</h5>

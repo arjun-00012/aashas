@@ -14,7 +14,6 @@
 {% block twitter_image %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
 
 {% block structured_data %}
-<!-- Google Schema.org Product Rich Snippet -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org/",
@@ -821,7 +820,6 @@
 <div class="pdp-wrapper">
     <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1360px;">
         
-        <!-- Minimal Breadcrumbs -->
         <nav aria-label="breadcrumb" class="pdp-breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{% url 'home' %}">HOME</a></li>
@@ -832,19 +830,14 @@
 
         <div class="row g-4 g-lg-5 align-items-start">
             
-            <!-- =========================================================
-                 LEFT COLUMN: BIG PRODUCT IMAGE WITH INSIDE BOTTOM CAROUSEL
-                 ========================================================= -->
             <div class="col-12 col-lg-7">
                 <div class="pdp-image-stage" id="pdpImageStage">
-                    <!-- Main Featured Image -->
                     {% if product.display_image %}
                         <img src="{{ product.display_image }}" alt="{{ product.name }}" id="pdpMainImage" loading="eager" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                     {% else %}
                         <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" id="pdpMainImage" loading="eager">
                     {% endif %}
 
-                    <!-- Floating Stage Side Chevrons (Previous / Next) -->
                     {% if product.gallery_images|length > 1 %}
                     <button type="button" class="pdp-stage-arrow pdp-stage-arrow-prev" id="pdpStageArrowPrev" aria-label="Previous photo" title="Previous photo">
                         <i class="bi bi-chevron-left"></i>
@@ -854,14 +847,12 @@
                     </button>
                     {% endif %}
 
-                    <!-- Photo Counter Indicator Badge -->
                     {% if product.gallery_images|length > 1 %}
                     <div class="pdp-photo-counter-badge" id="pdpPhotoCounter">
                         <span id="pdpCurrentPhotoNum">1</span> / <span>{{ product.gallery_images|length }}</span>
                     </div>
                     {% endif %}
 
-                    <!-- Inside Bottom Carousel Dock -->
                     {% if product.gallery_images|length > 1 %}
                     <div class="pdp-carousel-dock" id="pdpCarouselWrapper">
                         <div class="pdp-carousel-dock-inner">
@@ -892,16 +883,11 @@
                 </div>
             </div>
 
-            <!-- =========================================================
-                 RIGHT COLUMN: TITLE, PRICE, SHARE, ACTIONS & ACCORDIONS
-                 ========================================================= -->
             <div class="col-12 col-lg-5">
                 <div class="pdp-details-stage">
                     
-                    <!-- Product Title (Bold Uppercase) -->
                     <h1 class="pdp-title">{{ product.name|upper }}</h1>
 
-                    <!-- Price & Share Row (Reference Layout) -->
                     <div class="pdp-price-share-bar">
                         <div class="pdp-price-group">
                             <span class="pdp-price">RS. {{ product.current_price|floatformat:2 }}</span>
@@ -910,7 +896,6 @@
                             {% endif %}
                         </div>
 
-                        <!-- Share Button & Popover -->
                         <div class="pdp-share-wrapper position-relative">
                             <button type="button" class="pdp-share-icon-btn" id="pdpShareTrigger" aria-label="Share this accessory" title="Share this accessory">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -922,7 +907,6 @@
                                 </svg>
                             </button>
 
-                            <!-- Multi-Platform Share Dropdown -->
                             <div class="pdp-share-menu shadow-lg" id="pdpShareMenu">
                                 <div class="pdp-share-menu-header">
                                     <span>Share Accessory</span>
@@ -949,7 +933,6 @@
                         </div>
                     </div>
 
-                    <!-- Action Buttons: ADD TO CART, BUY IT NOW & WHATSAPP ENQUIRY -->
                     <div class="pdp-actions">
                         {% if product.stock > 0 %}
                             <button type="button" class="pdp-btn-add-cart w-100 mb-2 ajax-add-to-bag"
@@ -980,10 +963,8 @@
                         {% endif %}
                     </div>
 
-                    <!-- Accordions: DESCRIPTION & SHIPPING & DELIVERY -->
                     <div class="pdp-accordion-group">
                         
-                        <!-- Accordion 1: DESCRIPTION -->
                         <div class="pdp-accordion-item">
                             <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
                                 <span>DESCRIPTION</span>
@@ -1003,7 +984,6 @@
                             </div>
                         </div>
 
-                        <!-- Accordion 2: SHIPPING & DELIVERY -->
                         <div class="pdp-accordion-item">
                             <button class="pdp-accordion-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="false" aria-controls="collapseShipping">
                                 <span>SHIPPING & DELIVERY</span>
@@ -1024,7 +1004,6 @@
 
                     </div>
 
-                    <!-- Trust Strip -->
                     <div class="pdp-trust-strip">
                         <span class="pdp-trust-pill"><i class="bi bi-shield-check"></i> Authentic Quality</span>
                         <span class="pdp-trust-pill"><i class="bi bi-truck"></i> Speed Post</span>
@@ -1036,9 +1015,6 @@
 
         </div>
 
-        <!-- =========================================================
-             RELATED ACCESSORIES (5-Column Minimalist Grid)
-             ========================================================= -->
         {% if related_products %}
         <div class="mt-5 pt-5 border-top border-secondary border-opacity-10">
             <div class="d-flex justify-content-between align-items-center mb-4">

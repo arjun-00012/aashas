@@ -8,7 +8,6 @@
 <div class="auth-wrapper py-5 d-flex justify-content-center align-items-center" style="min-height: 78vh; background: radial-gradient(circle at 50% 20%, rgba(244, 240, 235, 0.8), transparent 70%);">
     <div class="auth-card p-4 p-sm-5 bg-white w-100 shadow-sm rounded-4" style="max-width: 480px; border: 1px solid rgba(23, 22, 20, 0.1);">
         
-        <!-- Header Bar: Back & Security Badge -->
         <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
             <a href="{% url 'forgot_password' %}" class="btn-store-return" title="Change Account">
                 <i class="bi bi-arrow-left"></i> Back
@@ -18,7 +17,6 @@
             </span>
         </div>
 
-        <!-- Title & Subtitle -->
         <div class="text-center mb-3">
             <div class="recovery-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 54px; height: 54px; background: #FAF8F5; border: 1px solid rgba(23, 22, 20, 0.12);">
                 <i class="bi bi-envelope-lock-fill fs-4" style="color: #171614;"></i>
@@ -31,7 +29,6 @@
             </p>
         </div>
 
-        <!-- Email Sent Notice Callout -->
         <div class="card p-3 border-0 rounded-3 mb-4" style="background: #FAF8F5; border-left: 3px solid #171614 !important;">
             <div class="d-flex align-items-start gap-3">
                 <div class="rounded-circle bg-white p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;">
@@ -46,7 +43,6 @@
             </div>
         </div>
 
-        <!-- Success Message Banner (e.g. Code Resent) -->
         {% if messages %}
             {% for msg in messages %}
                 {% if 'code has been sent' in msg.message or 'generated' in msg.message %}
@@ -60,7 +56,6 @@
             {% endfor %}
         {% endif %}
 
-        <!-- Error Message Banner -->
         {% if error %}
         <div class="auth-notice auth-notice-error mb-4" role="alert">
             <div class="d-flex align-items-start gap-3">
@@ -77,11 +72,9 @@
         </div>
         {% endif %}
 
-        <!-- Reset Password Form -->
         <form method="POST" id="verifyOtpForm">
             {% csrf_token %}
             
-            <!-- OTP Input Field -->
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">Enter 6-Digit Code from Email</label>
                 <div class="input-group auth-input-group">
@@ -107,7 +100,6 @@
                 </div>
             </div>
 
-            <!-- New Password Field -->
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary mb-1">New Password</label>
                 <div class="input-group auth-input-group">
@@ -128,7 +120,6 @@
                 </div>
             </div>
 
-            <!-- Confirm New Password Field -->
             <div class="mb-4">
                 <label class="form-label small fw-semibold text-secondary mb-1">Confirm New Password</label>
                 <div class="input-group auth-input-group">
@@ -149,14 +140,12 @@
                 </div>
             </div>
 
-            <!-- Submit Button -->
             <button type="submit" id="submitResetBtn" class="btn btn-dark w-100 py-3 fw-bold rounded-pill text-uppercase d-flex align-items-center justify-content-center gap-2 mb-3" style="letter-spacing: 0.08em; background: #171614; color: #FAF8F5; transition: all 0.25s ease;">
                 <span id="btnText">Verify & Reset Password</span>
                 <i class="bi bi-arrow-right fs-6" id="btnArrow"></i>
             </button>
         </form>
 
-        <!-- Resend Code Action -->
         <form method="POST" id="resendForm" class="text-center mb-3">
             {% csrf_token %}
             <input type="hidden" name="action" value="resend">
@@ -165,7 +154,6 @@
             </button>
         </form>
 
-        <!-- WhatsApp Concierge Support -->
         <div class="pt-3 border-top border-secondary border-opacity-10 text-center">
             <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20need%20help%20accessing%20my%20password%20recovery%20email." 
                target="_blank" 

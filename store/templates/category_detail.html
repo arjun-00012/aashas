@@ -6,7 +6,6 @@
 {% block meta_description %}{% if category.slug == 'shades' or seo_slug == 'cooling-glass' or seo_slug == 'cooling-glasses' %}Shop trending shades, cooling glasses, and Y2K sunglasses in Kozhikode (Calicut), Kerala at ASHAS Store. UV protected lenses, premium frames & fast Speed Post delivery.{% elif category.slug == 'chains' or seo_slug == 'tribal' or seo_slug == 'tribal-jewelry' or seo_slug == 'tribal-accessories' %}Buy Cuban chains, tribal necklaces, and statement accessories in Kozhikode, Kerala at ASHAS Store. Water-resistant, high shine & fast India Post delivery.{% elif category.slug == 'rings' %}Discover statement rings, tribal signets, and stainless steel rings in Kozhikode, Kerala at ASHAS Store. Premium luster & fast delivery.{% else %}Explore our signature {{ category.name }} collection at ASHAS Store Kozhikode, Kerala. Premium contemporary accessories with fast delivery across India.{% endif %}{% endblock %}
 
 {% block structured_data %}
-<!-- Google Schema.org CollectionPage & ItemList Rich Snippet -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -55,7 +54,6 @@
 <div class="category-page-wrapper py-3 py-md-4">
     <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1440px;">
         
-        <!-- Breadcrumbs Navigation -->
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb luxury-breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{% url 'home' %}">HOME</a></li>
@@ -63,7 +61,6 @@
             </ol>
         </nav>
 
-        <!-- Category Header -->
         <div class="category-header-wrap mb-4 pb-3 border-bottom">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
                 <div>
@@ -74,7 +71,6 @@
                 </div>
             </div>
 
-            <!-- Quick Collection Switcher Pills -->
             <div class="collection-pills-scroll mt-3 pt-2">
                 <div class="d-flex align-items-center gap-2 overflow-auto pb-1 collection-pills-track">
                     <a href="{% url 'home' %}" class="collection-pill">
@@ -89,7 +85,6 @@
             </div>
         </div>
 
-        <!-- Minimalist Product Grid (Exact Reference Image Design) -->
         {% if products %}
         <div class="luxury-product-grid">
             {% for product in products %}
@@ -104,7 +99,6 @@
                  data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                  data-add-url="{% url 'add_to_cart' product.id %}">
                 
-                <!-- Square 1:1 Image Frame with Neutral Stone Backing -->
                 <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
                     {% if product.display_image %}
                         <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
@@ -118,7 +112,6 @@
                         <span class="luxury-badge-newdrop"><i class="bi bi-stars"></i> NEW DROP</span>
                     {% endif %}
 
-                    <!-- Discreet Hover Action Bar -->
                     <div class="luxury-card-overlay">
                         <span class="luxury-quickview-hint">
                             <i class="bi bi-eye"></i> Quick View
@@ -136,7 +129,6 @@
                     </div>
                 </a>
 
-                <!-- Product Details Block (Reference Design: Uppercase Name + RS. Price) -->
                 <div class="luxury-product-info">
                     <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
                         <h2 class="luxury-product-title" title="{{ product.name }}">
@@ -154,7 +146,6 @@
             {% endfor %}
         </div>
         {% else %}
-        <!-- Empty State -->
         <div class="py-5 text-center my-5">
             <div class="p-5 rounded-4 mx-auto" style="max-width: 480px; background: #FCFCFB; border: 1px solid rgba(28, 25, 23, 0.08);">
                 <i class="bi bi-box-seam fs-1 text-muted d-block mb-3"></i>
@@ -169,7 +160,6 @@
     </div>
 </div>
 
-<!-- Product Quick View Modal (Bootstrap 5) -->
 <div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
         <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">

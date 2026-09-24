@@ -1567,9 +1567,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- =========================================================
-     1. HERO INTERACTIVE MODEL SHOWCASE (Hover Zoom & Hotspots)
-     ========================================================= -->
 <section class="hero-section text-center" aria-label="Interactive Model Showcase">
     <h1 class="visually-hidden">ASHAS | Official Online Store — Contemporary Clothing &amp; Statement Accessories</h1>
 
@@ -1579,10 +1576,8 @@
             <img src="{% static 'images/hero_model_mobile.jpg' %}" alt="ASHAS Signature Model wearing curated statement accessories" class="mannequin-img" id="mannequinImg" loading="eager" fetchpriority="high">
         </picture>
 
-        <!-- Subtle editorial shade overlay -->
         <div class="mannequin-shade-overlay" aria-hidden="true"></div>
 
-        <!-- Interactive Hotspots on Model (Pulsating dots with zoom & popover card) -->
         <div class="hotspot" style="top: 16%; left: 50%;" data-cat="caps" data-name="Caps"
              data-x-desktop="50%" data-y-desktop="16%"
              data-x-mobile="50%" data-y-mobile="21%"
@@ -1620,7 +1615,6 @@
             <div class="hotspot-dot"></div>
         </div>
 
-        <!-- Floating Popover Card on Hover -->
         <div class="hover-card" id="hoverCard">
             <h6 class="m-0 fw-semibold text-dark" id="cardTitle">Accessory</h6>
             <button type="button" class="btn btn-sm btn-dark px-3 rounded-pill fw-semibold" id="cardActionBtn">
@@ -1630,9 +1624,6 @@
     </div>
 </section>
 
-<!-- =========================================================
-     2. COLLECTIONS SHOWCASE (Circular Category Grid)
-     ========================================================= -->
 <section class="blactify-category-showcase" aria-label="Browse Collections">
     <div class="category-showcase-header">
         <h2 class="aesthetic-section-title">COLLECTIONS</h2>
@@ -1662,9 +1653,6 @@
     </div>
 </section>
 
-<!-- =========================================================
-     3. NEW DROP SESSION (Interactive Carousel with Classic Hover)
-     ========================================================= -->
 <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px;">
     {% if trending_products %}
     <section id="section-trending" class="category-section mb-5 pt-3" aria-label="New Drop Products">
@@ -1688,7 +1676,6 @@
             {% endif %}
         </div>
 
-        <!-- Horizontal Scroll Track for Trending Items -->
         <div class="product-scroll-track" id="scrollTrack-trending">
             {% for product in trending_products %}
             <div class="product-scroll-item">
@@ -1703,7 +1690,6 @@
                      data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
                      data-add-url="{% url 'add_to_cart' product.id %}">
                     <div>
-                        <!-- Direct Link to PDP -->
                         <a href="{% url 'product_detail' product.id %}" class="product-clickable-area text-decoration-none d-block text-dark" title="View {{ product.name }}" aria-label="View {{ product.name }}">
                             <div class="product-img-wrapper">
                                 {% if product.display_image %}
@@ -1746,17 +1732,8 @@
 </div>
 {% endif %}
 
-    <!-- =========================================================
-         4. OLDTHEORY EDITORIAL DESIGN SYSTEM:
-            - Full-Width Spotlight ("Beyond the basics.")
-            - Side-by-Side Spotlight (2-Columns: "Timeless classics" & "Latest addition")
-            - Infinite Scrolling Marquee Ticker
-            - Shop Favorite Collections (Asymmetric 3-Card Collage)
-            - Split Spotlight (50/50 "The Collectives")
-         ========================================================= -->
     <div id="section-lookbook" class="oldtheory-editorial-wrapper" aria-label="Official Editorial Collections">
 
-        <!-- 1. FULL-WIDTH SPOTLIGHT ("Beyond the basics.") -->
         <section class="full-width-spotlight-section" aria-label="Beyond the basics spotlight">
             <div class="full-width-spotlight-stage">
                 <img src="{% static 'images/lookbook/look_4.jpg' %}" alt="Beyond the basics — ASHAS Statement Accessories" class="full-width-spotlight-img" loading="lazy">
@@ -1778,10 +1755,8 @@
             </div>
         </section>
 
-        <!-- 2. SIDE-BY-SIDE SPOTLIGHT (2 Columns) -->
         <section class="side-by-side-section" aria-label="Featured Collection Spotlights">
             <div class="side-by-side-grid">
-                <!-- Column 1: Timeless classics (Rings) -->
                 <a href="{% url 'category_detail' 'rings' %}" class="side-by-side-panel" aria-label="Timeless classics — Explore Rings">
                     <img src="{% static 'images/lookbook/look_1.jpg' %}" alt="Timeless classics — Luxury Rings" class="side-by-side-img" loading="lazy">
                     <div class="side-by-side-overlay" aria-hidden="true"></div>
@@ -1799,7 +1774,6 @@
                     </div>
                 </a>
 
-                <!-- Column 2: Latest addition (Chains) -->
                 <a href="{% url 'category_detail' 'chains' %}" class="side-by-side-panel" aria-label="Latest addition — Explore Chains">
                     <img src="{% static 'images/lookbook/look_2.jpg' %}" alt="Latest addition — Heavy Cuban Chains" class="side-by-side-img" loading="lazy">
                     <div class="side-by-side-overlay" aria-hidden="true"></div>
@@ -1819,7 +1793,6 @@
             </div>
         </section>
 
-        <!-- 3. INFINITE SCROLLING MARQUEE TICKER (ASHAS Store Advantages) -->
         <section class="infinite-marquee-section" aria-label="ASHAS Store Advantages">
             <div class="infinite-marquee-track">
                 <span class="infinite-marquee-item">
@@ -1859,7 +1832,6 @@
                 </span>
                 <span class="infinite-marquee-separator" aria-hidden="true"><span class="marquee-diamond">✦</span></span>
 
-                <!-- Duplicate track items for smooth infinite loop -->
                 <span class="infinite-marquee-item" aria-hidden="true">
                     <span class="marquee-icon"><i class="bi bi-truck"></i></span> EXPRESS PAN-INDIA SPEED POST DELIVERY
                 </span>
@@ -1899,7 +1871,6 @@
             </div>
         </section>
 
-        <!-- 4. SHOP FAVORITE COLLECTIONS (Simple Grid Collage) -->
         <section class="favorite-collections-section" aria-label="Shop Favorite Collections">
             <div class="favorite-collections-header">
                 <h2 class="favorite-collections-title">Shop Favorite Collections</h2>
@@ -1907,7 +1878,6 @@
             </div>
 
             <div class="collage-grid">
-                <!-- Card 1: The New Arrivals (Shades) -->
                 <a href="{% url 'category_detail' 'shades' %}" class="collage-panel" aria-label="The New Arrivals — Explore Shades">
                     <img src="{% static 'images/lookbook/look_3.jpg' %}" alt="The New Arrivals — Cyberpunk Shades" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
@@ -1921,7 +1891,6 @@
                     </div>
                 </a>
 
-                <!-- Card 2: The Signature Line (Rings) -->
                 <a href="{% url 'category_detail' 'rings' %}" class="collage-panel" aria-label="The Signature Line — Explore Rings">
                     <img src="{% static 'images/lookbook/look_5.jpg' %}" alt="The Signature Line — Curated Rings" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
@@ -1935,7 +1904,6 @@
                     </div>
                 </a>
 
-                <!-- Card 3: The Limited Edition (Chains - Spans 2 Columns) -->
                 <a href="{% url 'category_detail' 'chains' %}" class="collage-panel collage-panel-span-2" aria-label="The Limited Edition — Explore Chains">
                     <img src="{% static 'images/lookbook/look_6.jpg' %}" alt="The Limited Edition — Industrial Curb Chains" class="collage-img" loading="lazy">
                     <div class="collage-overlay" aria-hidden="true"></div>
@@ -1951,38 +1919,30 @@
             </div>
         </section>
 
-        <!-- 5. SPLIT SPOTLIGHT (50/50 Editorial) -->
         <section class="split-spotlight-section" aria-label="The Collectives Spotlight">
             <div class="split-spotlight-grid">
                 <div class="split-spotlight-media" id="sssCarouselContainer" aria-label="The Collectives 4 Images Carousel">
-                    <!-- Carousel Slides Track -->
                     <div class="sss-carousel-track" id="sssCarouselTrack">
-                        <!-- Slide 1 -->
                         <div class="sss-carousel-slide active" data-slide="0">
                             <img src="{% static 'images/lookbook/collectives_1.jpg' %}" alt="The Collectives — Signature Cuban Chains & Rings" class="split-spotlight-img" loading="lazy">
                             <div class="sss-slide-badge">01 / 04 &bull; CHAINS &amp; RINGS</div>
                         </div>
-                        <!-- Slide 2 -->
                         <div class="sss-carousel-slide" data-slide="1">
                             <img src="{% static 'images/lookbook/collectives_2.jpg' %}" alt="The Collectives — Sculptural Signet Bands & Titanium Timepiece" class="split-spotlight-img" loading="lazy">
                             <div class="sss-slide-badge">02 / 04 &bull; RINGS &amp; WATCHES</div>
                         </div>
-                        <!-- Slide 3 -->
                         <div class="sss-carousel-slide" data-slide="2">
                             <img src="{% static 'images/lookbook/collectives_3.jpg' %}" alt="The Collectives — Rimless Cyberpunk Eyewear & Geometric Pendant" class="split-spotlight-img" loading="lazy">
                             <div class="sss-slide-badge">03 / 04 &bull; SHADES &amp; PENDANTS</div>
                         </div>
-                        <!-- Slide 4 -->
                         <div class="sss-carousel-slide" data-slide="3">
                             <img src="{% static 'images/lookbook/collectives_4.jpg' %}" alt="The Collectives — Gothic Layered Chains & Obsidian Medallion" class="split-spotlight-img" loading="lazy">
                             <div class="sss-slide-badge">04 / 04 &bull; STATEMENT PIECES</div>
                         </div>
                     </div>
 
-                    <!-- Ambient Vignette Overlay -->
                     <div class="sss-carousel-vignette" aria-hidden="true"></div>
 
-                    <!-- Navigation Arrows -->
                     <button type="button" class="sss-nav-btn sss-prev" id="sssPrevBtn" aria-label="Previous photo" title="Previous photo">
                         <i class="bi bi-chevron-left"></i>
                     </button>
@@ -1990,7 +1950,6 @@
                         <i class="bi bi-chevron-right"></i>
                     </button>
 
-                    <!-- Indicators / Dots -->
                     <div class="sss-indicators" id="sssIndicators" role="tablist" aria-label="Carousel pagination">
                         <button type="button" class="sss-dot active" data-index="0" aria-label="Slide 1" role="tab" aria-selected="true"></button>
                         <button type="button" class="sss-dot" data-index="1" aria-label="Slide 2" role="tab" aria-selected="false"></button>
@@ -2014,9 +1973,6 @@
 
     </div>
 
-<!-- =========================================================
-     4. PRODUCT QUICK VIEW MODAL
-     ========================================================= -->
 <div class="modal fade" id="productQuickViewModal" tabindex="-1" aria-labelledby="qvTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
         <div class="modal-content border" style="background: #FFFFFF; border-color: rgba(28, 25, 23, 0.12) !important; border-radius: 16px; color: #171614; box-shadow: 0 24px 60px rgba(28, 25, 23, 0.16);">
@@ -2050,7 +2006,6 @@
     </div>
 </div>
 
-<!-- Back to Top Button (Stacked above right-aligned WhatsApp button) -->
 <button type="button" class="btn btn-dark rounded-circle position-fixed shadow-lg" id="backToTopBtn" aria-label="Back to top" style="bottom: 84px; right: 22px; width: 44px; height: 44px; display: none; z-index: 1039; background: rgba(23, 22, 20, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(226, 186, 120, 0.35); color: #FCFCFB; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
     <i class="bi bi-arrow-up"></i>
 </button>

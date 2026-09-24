@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <!-- Force HTTPS & Upgrade Insecure Requests -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="csrf-token" content="{{ csrf_token }}">
 
     {% load static %}
-    <!-- Primary SEO Meta Tags for Google Search Ranking -->
     <title>{% block title %}ASHAS STORE | Accessories, Shades, Cooling Glass, Chains &amp; Tribal Jewelry in Kozhikode{% endblock %}</title>
     <meta name="title" content="ASHAS STORE | Accessories, Shades, Cooling Glass, Chains &amp; Tribal Jewelry in Kozhikode">
     <meta name="description" content="{% block meta_description %}ASHAS Store Kozhikode — Buy trending shades, cooling glasses, chains, tribal jewelry, statement rings, and luxury streetwear accessories in Kozhikode (Calicut), Kerala. Fast India Post Speed Post delivery across India.{% endblock %}">
@@ -19,20 +17,17 @@
     <meta name="google-site-verification" content="google44f351804c9055d3">
     <link rel="canonical" href="https://ashasstore.in{{ request.path }}">
 
-    <!-- Local SEO Geo Meta Tags for Kozhikode / Calicut, Kerala -->
     <meta name="geo.region" content="IN-KL">
     <meta name="geo.placename" content="Kozhikode, Calicut, Kerala, India">
     <meta name="geo.position" content="11.303312;75.7851787">
     <meta name="ICBM" content="11.303312, 75.7851787">
 
-    <!-- Google Search Favicon & Multi-Resolution App Icons -->
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon.png' %}">
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/ashas_badge.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/ashas_badge.png' %}">
 
-    <!-- Open Graph (Facebook, WhatsApp, Google Discover) -->
     <meta property="og:site_name" content="ASHAS STORE">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ashasstore.in{{ request.path }}">
@@ -45,13 +40,11 @@
     <meta property="og:image:type" content="{% block og_image_type %}image/png{% endblock %}">
     <meta property="og:image:alt" content="{% block og_image_alt %}ASHAS Official Store Logo{% endblock %}">
 
-    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}ASHAS STORE | Accessories, Shades, Cooling Glasses, Chains in Kozhikode{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}Discover trending accessories, shades, cooling glass, chains, and tribal jewelry in Kozhikode, Kerala at ASHAS Store. Fast delivery across India.{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
 
-    <!-- Schema.org JSON-LD Structured Data for Google Brand Entity & Sitelinks -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -128,11 +121,9 @@
     </script>
     {% block structured_data %}{% endblock %}
 
-    <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <!-- High-Fashion Typography -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Urbanist:ital,wght@0,300..900;1,300..900&family=IBM+Plex+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
 
@@ -1500,10 +1491,8 @@
 </head>
 <body>
 
-    <!-- Minimalist Modern Sticky Header (top: 0) -->
     <header class="top-navbar">
         <div class="nav-container">
-            <!-- Left Group: Minimal 3-bar Hamburger Menu Button + Return Home + Staff Admin Dashboard Icon -->
             <div class="nav-left-group">
                 <button class="nav-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ashasSideDrawer" aria-controls="ashasSideDrawer" aria-label="Open Navigation Menu">
                     <span class="menu-bar"></span>
@@ -1524,13 +1513,11 @@
                 {% endif %}
             </div>
 
-            <!-- Center: ASHAS Brand Logo (Clean, centered) -->
             <a href="{% url 'home' %}" class="nav-center-brand" title="ASHAS">
                 <img src="{% static 'images/ashas_official_logo.png' %}" alt="ASHAS" class="nav-brand-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
                 <span class="nav-brand-text" style="display: none;">ASHAS</span>
             </a>
 
-            <!-- Right Group: Search + Shopping Bag (Cart is the far-right anchor) -->
             <div class="nav-right-group">
                 <button class="nav-icon-action" type="button" id="searchTriggerBtn" aria-label="Search Catalog" title="Search">
                     <i class="bi bi-search"></i>
@@ -1542,7 +1529,6 @@
             </div>
         </div>
 
-        <!-- Dropdown Quick Search Bar -->
         <div class="search-slide-bar" id="searchSlideBar">
             <div class="search-input-wrap">
                 <div class="search-field-inner">
@@ -1557,13 +1543,11 @@
                     <span class="d-none d-sm-inline">Done</span>
                     <i class="bi bi-x-lg ms-sm-1"></i>
                 </button>
-                <!-- Live Search Suggestions Container -->
                 <div class="search-suggestions-box" id="searchSuggestionsBox" style="display: none;"></div>
             </div>
         </div>
     </header>
 
-    <!-- Offcanvas Left Side Drawer (Clean, Aesthetic Off-White Theme) -->
     <div class="offcanvas offcanvas-start offcanvas-ashas" tabindex="-1" id="ashasSideDrawer" aria-labelledby="ashasSideDrawerLabel">
         <div class="drawer-header">
             <div class="d-flex align-items-center gap-2">
@@ -1590,7 +1574,6 @@
             </div>
             {% endif %}
 
-            <!-- Navigation Sections -->
             <div class="drawer-section-title">NAVIGATION &amp; COLLECTIONS</div>
             <a href="{% url 'home' %}" class="drawer-link fw-semibold" data-target-section="top">
                 <span class="d-inline-flex align-items-center">
@@ -1692,7 +1675,6 @@
                 </a>
             {% endif %}
 
-            <!-- Boutique Micro-Footer in Drawer -->
             <div class="mt-4 pt-3 border-top border-dark border-opacity-10 text-center">
                 <p class="small text-muted mb-2" style="font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;">
                     ASHAS™ CLOTHING &amp; ACCESSORIES
@@ -1712,9 +1694,7 @@
         </div>
     </div>
 
-    <!-- Main Page Content Wrapper -->
     <div class="main-wrapper">
-        <!-- Alert Messages Banner -->
     {% if messages %}
     <div class="container-fluid container-xl px-2 px-sm-3 px-md-4 pt-3">
         {% for message in messages %}
@@ -1729,17 +1709,14 @@
     </div>
     {% endif %}
 
-    <!-- Dynamic Content Stage -->
     <main class="flex-grow-1 w-100" style="max-width: 100%; min-width: 0; overflow-x: hidden;">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Global Classic Luxury Footer with Map Interface & Official ASHAS Brand -->
     <footer class="ashas-footer pt-5 pb-4 px-3 px-md-4 mt-auto w-100" id="contact-section">
         <div class="container" style="max-width: 1260px;">
             <div class="row g-4 g-lg-5 justify-content-between pb-4 border-bottom border-white border-opacity-10">
                 
-                <!-- Col 1: Brand & Philosophy -->
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="mb-3">
                         <a href="{% url 'home' %}" class="d-inline-block text-decoration-none">
@@ -1752,7 +1729,6 @@
                     <p class="small mb-4" style="color: rgba(250, 248, 245, 0.65); line-height: 1.65; font-size: 0.82rem;">
                         Distinctive contemporary apparel and timeless statement accessories. Accessorize your story with craftsmanship and elegance.
                     </p>
-                    <!-- Social & Quick Action Icons -->
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <a href="https://wa.me/918281451481?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." target="_blank" rel="noopener noreferrer" class="footer-social-icon" title="WhatsApp Us" aria-label="WhatsApp">
                             <i class="bi bi-whatsapp"></i>
@@ -1769,7 +1745,6 @@
                     </div>
                 </div>
 
-                <!-- Col 2: Navigation & Collections -->
                 <div class="col-6 col-md-6 col-lg-2">
                     <h6 class="footer-heading">COLLECTIONS</h6>
                     <ul class="footer-links list-unstyled mb-0">
@@ -1787,7 +1762,6 @@
                     </ul>
                 </div>
 
-                <!-- Col 3: Flagship Boutique & Address -->
                 <div class="col-12 col-md-6 col-lg-3">
                     <h6 class="footer-heading">FLAGSHIP BOUTIQUE</h6>
                     <div class="mb-3">
@@ -1822,11 +1796,9 @@
                     </a>
                 </div>
 
-                <!-- Col 4: Map Interface & Quick Connect -->
                 <div class="col-12 col-md-6 col-lg-4">
                     <h6 class="footer-heading">STORE LOCATION</h6>
                     
-                    <!-- Interactive Map Interface Look -->
                     <div class="footer-map-card mb-3">
                         <iframe 
                             class="footer-map-frame" 
@@ -1854,7 +1826,6 @@
                         </div>
                     </div>
 
-                    <!-- Direct WhatsApp Support Button -->
                     <a href="https://wa.me/918281451481?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." 
                        target="_blank" 
                        rel="noopener noreferrer" 
@@ -1864,7 +1835,6 @@
                         <span>Chat on WhatsApp</span>
                     </a>
 
-                    <!-- Compact Fast Inquiry Form -->
                     <div id="contactFeedback"></div>
                     <form id="contactForm" method="POST" action="{% url 'contact_submit' %}" class="mt-2">
                         {% csrf_token %}
@@ -1880,7 +1850,6 @@
 
             </div>
 
-            <!-- Footer Bottom Strip -->
             <div class="pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="font-size: 0.75rem; color: rgba(250, 248, 245, 0.55);">
                 <div>
                     © {% now "Y" %} <strong>ASHAS™</strong> CLOTHING. All rights reserved. Accessorize Your Story.
@@ -1899,19 +1868,15 @@
     </footer>
 </div>
 
-<!-- Floating WhatsApp Quick Enquiry Button (Pure Icon Only) -->
 <a href="https://wa.me/918281451481?text=Hello%20ASHAS%20Clothing%2C%20I%20have%20an%20enquiry." target="_blank" rel="noopener noreferrer" class="floating-whatsapp-btn" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
     <i class="bi bi-whatsapp"></i>
 </a>
 
 
-<!-- Toast Notification Container -->
 <div id="ashasToastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2100; pointer-events: none;"></div>
 
-<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Global ASHAS Interactivity & Navigation -->
 <script>
 // Global Toast Helper
 window.showAshasToast = function(title, message, iconHtml = '<i class="bi bi-check-circle-fill text-success"></i>', actionUrl = null, actionText = null) {
@@ -2503,7 +2468,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-<!-- Privacy & Return Policy Modal -->
 <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4" style="background: #FAF8F5; color: #171614;">

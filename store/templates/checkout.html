@@ -4,7 +4,6 @@
 {% block title %}Checkout | ASHAS STORE{% endblock %}
 
 {% block extra_css %}
-<!-- Razorpay Checkout Script -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <style>
@@ -437,7 +436,6 @@
 <div class="checkout-wrap">
     <div class="container px-3 px-sm-4" style="max-width: 960px;">
         
-        <!-- Minimal Classic Header -->
         <div class="checkout-header d-flex align-items-center justify-content-between gap-2">
             <div>
                 <h1 class="checkout-title">Checkout</h1>
@@ -455,7 +453,6 @@
             </div>
         </div>
 
-        <!-- Mobile Collapsible Order Summary (< 992px) -->
         <div class="d-lg-none mb-3">
             <button type="button" class="mobile-summary-toggle" id="mobileSummaryToggle" aria-expanded="false" aria-controls="mobileSummaryDrawer">
                 <span class="d-flex align-items-center gap-2">
@@ -513,10 +510,8 @@
             {% csrf_token %}
             <div class="row g-3 g-lg-4 align-items-start">
                 
-                <!-- Left: Shipping & Payment -->
                 <div class="col-12 col-lg-7">
                     
-                    <!-- 1. Shipping Details -->
                     <div class="chk-card mb-3">
                         <div class="chk-card-title">
                             <span>1. Delivery Details</span>
@@ -533,7 +528,6 @@
                                 <input type="tel" id="phone_number" class="chk-input" value="{{ default_phone }}" placeholder="10-digit mobile number" autocomplete="tel" required>
                             </div>
 
-                            <!-- Dedicated Postal PIN Code & City Section -->
                             <div class="col-12 col-sm-6 mb-2">
                                 <label class="chk-label" for="pincode">
                                     Postal PIN Code <span class="text-danger">*</span>
@@ -559,13 +553,11 @@
                                 </div>
                             </div>
 
-                            <!-- Street Address -->
                             <div class="col-12 mb-2">
                                 <label class="chk-label" for="shipping_address">Delivery Address (House/Building, Street, Landmark) <span class="text-danger">*</span></label>
                                 <textarea id="shipping_address" rows="2" class="chk-textarea" placeholder="House/Flat No, Apartment/Building, Street, Landmark" autocomplete="street-address" required>{{ default_address }}</textarea>
                             </div>
 
-                            <!-- Destination & Shipping Rate (Auto-Calculated by PIN) -->
                             <div class="col-12 mb-1">
                                 <div class="d-flex align-items-center justify-content-between mb-1.5">
                                     <label class="chk-label m-0">Shipping Rate</label>
@@ -612,7 +604,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Payment Method Selector -->
                     <div class="chk-card">
                         <div class="chk-card-title">
                             <span>2. Payment Method</span>
@@ -620,7 +611,6 @@
                         </div>
 
                         <div class="payment-methods-stack">
-                            <!-- UPI -->
                             <label class="payment-option selected" id="card_upi" for="method_upi">
                                 <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_upi" value="upi" checked>
@@ -634,7 +624,6 @@
                                 <i class="bi bi-qr-code text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
-                            <!-- Cards -->
                             <label class="payment-option" id="card_card" for="method_card">
                                 <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_card" value="card">
@@ -646,7 +635,6 @@
                                 <i class="bi bi-credit-card text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
-                            <!-- Net Banking -->
                             <label class="payment-option" id="card_netbanking" for="method_netbanking">
                                 <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_netbanking" value="netbanking">
@@ -658,7 +646,6 @@
                                 <i class="bi bi-bank text-dark flex-shrink-0 ms-2 fs-6"></i>
                             </label>
 
-                            <!-- Wallets -->
                             <label class="payment-option" id="card_wallet" for="method_wallet">
                                 <div class="d-flex align-items-center gap-2.5 min-w-0">
                                     <input type="radio" name="payment_method" id="method_wallet" value="wallet">
@@ -671,7 +658,6 @@
                             </label>
                         </div>
 
-                        <!-- Pay Button -->
                         <button type="submit" id="payButton" class="btn-pay-now">
                             <i class="bi bi-lock-fill"></i>
                             <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI</span>
@@ -685,7 +671,6 @@
                             </small>
                         </div>
 
-                        <!-- Policy Notice Fine Print -->
                         <div class="checkout-policy-fineprint">
                             * Privacy &amp; Purchase Policy: All orders are final once placed. Strictly no refund, replacement, or cashback after payment completion. By proceeding with the payment, you agree to these store policies.
                         </div>
@@ -693,7 +678,6 @@
 
                 </div>
 
-                <!-- Right: Desktop Compact Order Summary (Hidden on < 992px, shown on desktop) -->
                 <div class="col-12 col-lg-5 d-none d-lg-block">
                     <div class="chk-card sticky-lg-top" style="top: 80px; z-index: 10;">
                         <div class="chk-card-title">

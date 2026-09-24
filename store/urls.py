@@ -52,7 +52,6 @@ urlpatterns = [
     path('api/razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
     path('contact-submit/', views.contact_submit, name='contact_submit'),
 
-    # Admin portal endpoints
     path('adminpp/', views.adminpp_dashboard, name='adminpp_dashboard'),
     path('adminpp/orders/', views.adminpp_orders, name='adminpp_orders'),
     path('adminpp/order/delete/<int:order_id>/', views.adminpp_order_delete, name='adminpp_order_delete'),
@@ -67,6 +66,5 @@ urlpatterns = [
     path('adminpp/product/toggle-trending/<int:pk>/', views.product_toggle_trending, name='product_toggle_trending'),
     path('adminpp/inquiry/delete/<int:pk>/', views.inquiry_delete, name='inquiry_delete'),
     
-    # Catch-all direct category shortcut (e.g. /wallets/, /pendants/, /rings/)
     path('<slug:slug>/', views.category_detail, name='category_direct'),
 ]
