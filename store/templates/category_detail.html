@@ -1,8 +1,55 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ category.name|upper }} | ASHAS Official Store{% endblock %}
-{% block meta_description %}Explore our signature {{ category.name }} collection. Premium contemporary statement accessories with fast delivery across India.{% endblock %}
+{% block title %}{% if category.slug == 'shades' or seo_slug == 'cooling-glass' or seo_slug == 'cooling-glasses' %}Shades &amp; Cooling Glasses in Kozhikode | Buy Online | ASHAS STORE{% elif category.slug == 'chains' or seo_slug == 'tribal' or seo_slug == 'tribal-jewelry' or seo_slug == 'tribal-accessories' %}Chains &amp; Tribal Accessories in Kozhikode | Buy Online | ASHAS STORE{% elif category.slug == 'rings' or seo_slug == 'accessories' %}Rings &amp; Tribal Accessories in Kozhikode | Buy Online | ASHAS STORE{% else %}{{ category.name }} in Kozhikode | Buy Online | ASHAS STORE{% endif %}{% endblock %}
+
+{% block meta_description %}{% if category.slug == 'shades' or seo_slug == 'cooling-glass' or seo_slug == 'cooling-glasses' %}Shop trending shades, cooling glasses, and Y2K sunglasses in Kozhikode (Calicut), Kerala at ASHAS Store. UV protected lenses, premium frames & fast Speed Post delivery.{% elif category.slug == 'chains' or seo_slug == 'tribal' or seo_slug == 'tribal-jewelry' or seo_slug == 'tribal-accessories' %}Buy Cuban chains, tribal necklaces, and statement accessories in Kozhikode, Kerala at ASHAS Store. Water-resistant, high shine & fast India Post delivery.{% elif category.slug == 'rings' %}Discover statement rings, tribal signets, and stainless steel rings in Kozhikode, Kerala at ASHAS Store. Premium luster & fast delivery.{% else %}Explore our signature {{ category.name }} collection at ASHAS Store Kozhikode, Kerala. Premium contemporary accessories with fast delivery across India.{% endif %}{% endblock %}
+
+{% block structured_data %}
+<!-- Google Schema.org CollectionPage & ItemList Rich Snippet -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ category.name }} in Kozhikode | ASHAS STORE",
+  "url": "https://ashasstore.in/category/{{ category.slug }}/",
+  "description": "Discover curated {{ category.name|lower }}, shades, cooling glasses, chains, and tribal accessories at ASHAS Store Kozhikode, Kerala.",
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "{{ category.name }} Collection",
+    "numberOfItems": {{ products.count }},
+    "itemListElement": [
+      {% for product in products|slice:":20" %}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.counter }},
+        "name": "{{ product.name|escapejs }}",
+        "url": "https://ashasstore.in/product/{{ product.id }}/",
+        "image": "{{ product.display_image }}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://ashasstore.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ category.name|escapejs }}",
+        "item": "https://ashasstore.in/category/{{ category.slug }}/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="category-page-wrapper py-3 py-md-4">

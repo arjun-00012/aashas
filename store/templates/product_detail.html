@@ -1,17 +1,112 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ product.name|upper }} | ASHAS Official Store{% endblock %}
-{% block meta_description %}{{ product.description|default:'Discover the signature'|truncatewords:20 }} {{ product.name }}. Premium statement jewelry by ASHAS. Fast delivery across India.{% endblock %}
+{% block title %}{{ product.name }} | Buy Online at ASHAS STORE Kozhikode, Kerala{% endblock %}
+{% block meta_description %}Buy {{ product.name }} online from ASHAS Store Kozhikode. Premium {{ product.category.name|lower }}, cooling glasses, shades, chains & tribal accessories in Kerala. Price: Rs. {{ product.current_price|floatformat:0 }}. Fast Speed Post delivery across India.{% endblock %}
 
-{% block og_title %}{{ product.name|upper }} | RS. {{ product.current_price|floatformat:2 }} | ASHAS Official Store{% endblock %}
-{% block og_description %}{{ product.description|default:'Premium statement jewelry and contemporary accessories by ASHAS. Designed for lasting luster and everyday luxury. Fast delivery across India.' }}{% endblock %}
+{% block og_title %}{{ product.name }} | RS. {{ product.current_price|floatformat:0 }} | ASHAS STORE Kozhikode{% endblock %}
+{% block og_description %}Buy {{ product.name }} online at ASHAS Store Kozhikode. Premium statement jewelry, shades, cooling glass, and tribal accessories. Fast Speed Post delivery across India.{% endblock %}
 {% block og_image %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
 {% block og_image_secure %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
-{% block og_image_alt %}{{ product.name }}{% endblock %}
-{% block twitter_title %}{{ product.name|upper }} | ASHAS{% endblock %}
-{% block twitter_description %}{{ product.description|default:'Contemporary statement accessory by ASHAS.' }}{% endblock %}
+{% block og_image_alt %}{{ product.name }} - ASHAS Store Kozhikode{% endblock %}
+{% block twitter_title %}{{ product.name }} | RS. {{ product.current_price|floatformat:0 }} | ASHAS STORE{% endblock %}
+{% block twitter_description %}{{ product.description|default:'Contemporary statement accessory by ASHAS Store Kozhikode.'|truncatewords:25 }}{% endblock %}
 {% block twitter_image %}{% if product.display_image %}{{ product.display_image }}{% else %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endif %}{% endblock %}
+
+{% block structured_data %}
+<!-- Google Schema.org Product Rich Snippet -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": [
+    {% for img in product.gallery_images %}
+      "{{ img }}"{% if not forloop.last %},{% endif %}
+    {% empty %}
+      "https://ashasstore.in{% static 'images/ashas_badge.png' %}"
+    {% endfor %}
+  ],
+  "description": "{{ product.description|default:'Contemporary statement accessory by ASHAS STORE Kozhikode. Premium build, lasting shine, fast Speed Post delivery across India.'|escapejs }}",
+  "sku": "ASHAS-{{ product.id }}",
+  "mpn": "ASHAS-PROD-{{ product.id }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "ASHAS"
+  },
+  "category": "{{ product.category.name|escapejs }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "https://ashasstore.in/product/{{ product.id }}/",
+    "priceCurrency": "INR",
+    "price": "{{ product.current_price|floatformat:2 }}",
+    "priceValidUntil": "2027-12-31",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "seller": {
+      "@type": "Organization",
+      "name": "ASHAS STORE",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kozhikode",
+        "addressRegion": "Kerala",
+        "addressCountry": "IN"
+      }
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "50.00",
+        "currency": "INR"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "IN"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 0,
+          "maxValue": 1,
+          "unitCode": "d"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 2,
+          "maxValue": 5,
+          "unitCode": "d"
+        }
+      }
+    }
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://ashasstore.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ product.category.name|escapejs }}",
+        "item": "https://ashasstore.in/category/{{ product.category.slug }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ product.name|escapejs }}",
+        "item": "https://ashasstore.in/product/{{ product.id }}/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <style>

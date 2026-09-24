@@ -9,15 +9,21 @@
 
     {% load static %}
     <!-- Primary SEO Meta Tags for Google Search Ranking -->
-    <title>{% block title %}ASHAS | Official Online Store | Clothing &amp; Statement Accessories{% endblock %}</title>
-    <meta name="title" content="ASHAS | Official Online Store | Clothing &amp; Statement Accessories">
-    <meta name="description" content="{% block meta_description %}Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories — rings, futuristic shades, cuban chains, and premium streetwear. Fast India Post Speed Post delivery across India.{% endblock %}">
-    <meta name="keywords" content="ASHAS, ASHAS STORE, ASHAS clothing, ashasstore, ashasstore.in, ashas clothing kozhikode, ashas accessories, luxury accessories india, statement rings, neck chains, streetwear kerala, ashas store online">
-    <meta name="author" content="ASHAS">
+    <title>{% block title %}ASHAS STORE | Accessories, Shades, Cooling Glass, Chains &amp; Tribal Jewelry in Kozhikode{% endblock %}</title>
+    <meta name="title" content="ASHAS STORE | Accessories, Shades, Cooling Glass, Chains &amp; Tribal Jewelry in Kozhikode">
+    <meta name="description" content="{% block meta_description %}ASHAS Store Kozhikode — Buy trending shades, cooling glasses, chains, tribal jewelry, statement rings, and luxury streetwear accessories in Kozhikode (Calicut), Kerala. Fast India Post Speed Post delivery across India.{% endblock %}">
+    <meta name="keywords" content="ASHAS, ASHAS STORE, ashas, ashas store, accessories, shades, cooling glass, cooling glasses, chain, chains, tribal, tribal jewelry, tribal accessories, tribal chain, rings, sunglasses, ashas clothing, kozhikode, calicut, kerala, ashasstore, ashasstore.in">
+    <meta name="author" content="ASHAS STORE">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="google-site-verification" content="google44f351804c9055d3">
     <link rel="canonical" href="https://ashasstore.in{{ request.path }}">
+
+    <!-- Local SEO Geo Meta Tags for Kozhikode / Calicut, Kerala -->
+    <meta name="geo.region" content="IN-KL">
+    <meta name="geo.placename" content="Kozhikode, Calicut, Kerala, India">
+    <meta name="geo.position" content="11.303312;75.7851787">
+    <meta name="ICBM" content="11.303312, 75.7851787">
 
     <!-- Google Search Favicon & Multi-Resolution App Icons -->
     <link rel="shortcut icon" href="/favicon.ico">
@@ -27,11 +33,11 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/ashas_badge.png' %}">
 
     <!-- Open Graph (Facebook, WhatsApp, Google Discover) -->
-    <meta property="og:site_name" content="ASHAS">
+    <meta property="og:site_name" content="ASHAS STORE">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ashasstore.in{{ request.path }}">
-    <meta property="og:title" content="{% block og_title %}ASHAS | Official Online Store | Clothing &amp; Statement Accessories{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Official ASHAS online store. Discover signature contemporary clothing and curated luxury statement accessories. Fast delivery across India.{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}ASHAS STORE | Accessories, Shades, Cooling Glasses, Chains in Kozhikode{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Discover trending accessories, shades, cooling glass, chains, and tribal jewelry in Kozhikode, Kerala at ASHAS Store. Fast delivery across India.{% endblock %}">
     <meta property="og:image" content="{% block og_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
     <meta property="og:image:secure_url" content="{% block og_image_secure %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
     <meta property="og:image:width" content="512">
@@ -41,8 +47,8 @@
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}ASHAS | Official Online Store{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}Discover official ASHAS clothing and luxury statement accessories. Fast delivery across India.{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}ASHAS STORE | Accessories, Shades, Cooling Glasses, Chains in Kozhikode{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Discover trending accessories, shades, cooling glass, chains, and tribal jewelry in Kozhikode, Kerala at ASHAS Store. Fast delivery across India.{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}https://ashasstore.in{% static 'images/ashas_badge.png' %}{% endblock %}">
 
     <!-- Schema.org JSON-LD Structured Data for Google Brand Entity & Sitelinks -->
@@ -54,9 +60,9 @@
           "@type": "WebSite",
           "@id": "https://ashasstore.in/#website",
           "url": "https://ashasstore.in/",
-          "name": "ASHAS",
-          "alternateName": ["ASHAS STORE", "ASHAS CLOTHING", "Ashas", "AshasStore", "ashasstore.in"],
-          "description": "Official online store for ASHAS clothing and statement accessories.",
+          "name": "ASHAS STORE",
+          "alternateName": ["ASHAS", "ASHAS CLOTHING", "Ashas", "AshasStore", "ashasstore.in", "ASHAS Kozhikode"],
+          "description": "Official online store for ASHAS accessories, shades, cooling glasses, chains, tribal jewelry, and contemporary fashion in Kozhikode, Kerala.",
           "potentialAction": {
             "@type": "SearchAction",
             "target": "https://ashasstore.in/?q={search_term_string}",
@@ -66,7 +72,7 @@
         {
           "@type": "Organization",
           "@id": "https://ashasstore.in/#organization",
-          "name": "ASHAS",
+          "name": "ASHAS STORE",
           "url": "https://ashasstore.in/",
           "logo": {
             "@type": "ImageObject",
@@ -82,35 +88,45 @@
             "@type": "ContactPoint",
             "telephone": "+91-82814-51481",
             "contactType": "Customer Support",
-            "areaServed": "IN",
+            "areaServed": ["IN", "IN-KL"],
             "availableLanguage": ["English", "Malayalam", "Hindi"]
           }
         },
         {
           "@type": "ClothingStore",
           "@id": "https://ashasstore.in/#store",
-          "name": "ASHAS.CLOTHING",
+          "name": "ASHAS STORE",
           "image": "https://ashasstore.in{% static 'images/ashas_badge.png' %}",
           "url": "https://ashasstore.in/",
           "telephone": "+918281451481",
           "priceRange": "₹₹",
+          "description": "ASHAS Store is the premier destination for accessories, shades, cooling glass, chains, tribal jewelry, rings, and streetwear in Kozhikode (Calicut), Kerala with fast Speed Post delivery across India.",
           "address": {
             "@type": "PostalAddress",
-            "streetAddress": "ASHAS.CLOTHING",
+            "streetAddress": "ASHAS STORE, Karuvissery",
             "addressLocality": "Kozhikode",
             "addressRegion": "Kerala",
-            "postalCode": "673001",
+            "postalCode": "673010",
             "addressCountry": "IN"
           },
           "geo": {
             "@type": "GeoCoordinates",
             "latitude": 11.303312,
             "longitude": 75.7851787
-          }
+          },
+          "areaServed": [
+            {"@type": "City", "name": "Kozhikode"},
+            {"@type": "City", "name": "Calicut"},
+            {"@type": "AdministrativeArea", "name": "Kerala"},
+            {"@type": "Country", "name": "India"}
+          ],
+          "paymentAccepted": "UPI, Google Pay, PhonePe, Paytm, Credit Card, Debit Card, NetBanking",
+          "currenciesAccepted": "INR"
         }
       ]
     }
     </script>
+    {% block structured_data %}{% endblock %}
 
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

@@ -3,6 +3,7 @@ import re
 import json
 import secrets
 from urllib.parse import quote as urlquote
+from xml.sax.saxutils import escape as xml_escape
 import razorpay
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
@@ -155,33 +156,64 @@ def robots_txt_view(request):
     return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
 
 def sitemap_xml_view(request):
-    """Generate dynamic XML sitemap for Google Search Console and crawlers."""
+    """Generate dynamic XML sitemap with Google Image Sitemaps for Google Search Console and crawlers."""
     now_str = timezone.now().strftime('%Y-%m-%d')
     urls = [
-        {'loc': 'https://ashasstore.in/', 'priority': '1.0', 'changefreq': 'daily'},
-        {'loc': 'https://ashasstore.in/#contact-section', 'priority': '0.7', 'changefreq': 'monthly'},
+        {'loc': 'https://ashasstore.in/', 'priority': '1.0', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/rings/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/shades/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/cooling-glass/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/cooling-glasses/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/chains/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/tribal/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/tribal-jewelry/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/tribal-accessories/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/accessories/', 'priority': '0.95', 'changefreq': 'daily', 'images': []},
+        {'loc': 'https://ashasstore.in/watches/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
+        {'loc': 'https://ashasstore.in/bracelets/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
+        {'loc': 'https://ashasstore.in/caps/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
+        {'loc': 'https://ashasstore.in/belts/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
     ]
     for cat in Category.objects.all():
-        urls.append({
-            'loc': f'https://ashasstore.in/category/{cat.slug}/',
-            'priority': '0.8',
-            'changefreq': 'weekly'
-        })
-    for prod in Product.objects.all():
+        cat_url = f'https://ashasstore.in/category/{cat.slug}/'
+        if not any(u['loc'] == cat_url for u in urls):
+            urls.append({
+                'loc': cat_url,
+                'priority': '0.85',
+                'changefreq': 'daily',
+                'images': []
+            })
+    for prod in Product.objects.select_related('category').all():
+        prod_images = []
+        for img_url in prod.gallery_images:
+            if img_url:
+                full_img_url = img_url if img_url.startswith('http') else f'https://ashasstore.in{img_url}'
+                prod_images.append({
+                    'loc': full_img_url,
+                    'title': f'{prod.name} | ASHAS Store Kozhikode',
+                    'caption': f'Buy {prod.name} online at ASHAS Store in Kozhikode, Kerala. Premium accessories, shades, cooling glass, chains, and tribal jewelry.'
+                })
         urls.append({
             'loc': f'https://ashasstore.in/product/{prod.id}/',
             'priority': '0.9',
-            'changefreq': 'weekly'
+            'changefreq': 'daily',
+            'images': prod_images
         })
 
     xml = ['<?xml version="1.0" encoding="UTF-8"?>']
-    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">')
     for u in urls:
         xml.append('  <url>')
-        xml.append(f'    <loc>{u["loc"]}</loc>')
+        xml.append(f'    <loc>{xml_escape(u["loc"])}</loc>')
         xml.append(f'    <lastmod>{now_str}</lastmod>')
         xml.append(f'    <changefreq>{u["changefreq"]}</changefreq>')
         xml.append(f'    <priority>{u["priority"]}</priority>')
+        for img in u.get('images', []):
+            xml.append('    <image:image>')
+            xml.append(f'      <image:loc>{xml_escape(img["loc"])}</image:loc>')
+            xml.append(f'      <image:title>{xml_escape(img["title"])}</image:title>')
+            xml.append(f'      <image:caption>{xml_escape(img["caption"])}</image:caption>')
+            xml.append('    </image:image>')
         xml.append('  </url>')
     xml.append('</urlset>')
 
@@ -219,12 +251,22 @@ def home(request):
 
 def category_detail(request, slug):
     clean_slug = slug.replace('.html', '').strip().lower()
-    cat = Category.objects.filter(slug__iexact=clean_slug).first()
+    slug_synonyms = {
+        'cooling-glass': 'shades',
+        'cooling-glasses': 'shades',
+        'sunglasses': 'shades',
+        'tribal': 'chains',
+        'tribal-jewelry': 'chains',
+        'tribal-accessories': 'chains',
+        'accessories': 'rings',
+    }
+    target_slug = slug_synonyms.get(clean_slug, clean_slug)
+    cat = Category.objects.filter(slug__iexact=target_slug).first()
     if not cat:
-        alt_slug = clean_slug.rstrip('s') if clean_slug.endswith('s') else f"{clean_slug}s"
+        alt_slug = target_slug.rstrip('s') if target_slug.endswith('s') else f"{target_slug}s"
         cat = Category.objects.filter(slug__iexact=alt_slug).first()
     if not cat:
-        cat = Category.objects.filter(name__iexact=clean_slug).first()
+        cat = Category.objects.filter(name__iexact=target_slug).first()
     if not cat:
         raise Http404(f"Category '{slug}' not found.")
 
@@ -232,6 +274,7 @@ def category_detail(request, slug):
     categories = Category.objects.all()
     return render(request, 'category_detail.html', {
         'category': cat,
+        'seo_slug': clean_slug,
         'products': products,
         'categories': categories,
         'all_categories': categories,
