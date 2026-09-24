@@ -21,8 +21,8 @@
     .pdp-wrapper {
         background-color: #FCFCFB;
         min-height: calc(100vh - var(--nav-height, 62px));
-        padding-top: 1.5rem;
-        padding-bottom: 4rem;
+        padding-top: 0.85rem;
+        padding-bottom: 3.5rem;
     }
 
     .pdp-breadcrumb {
@@ -30,7 +30,7 @@
         font-size: 0.72rem;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .pdp-breadcrumb a {
@@ -48,48 +48,63 @@
         font-weight: 700;
     }
 
-    /* Left Column: Big Product Image Stage */
+    /* Left Column: Big Product Image Stage (Screen-Fit Desktop View with Inside Carousel Dock) */
     .pdp-image-stage {
         position: relative;
         width: 100%;
-        aspect-ratio: 1 / 1;
-        min-height: 440px;
-        max-height: 720px;
-        border-radius: 4px;
+        border-radius: 12px;
         overflow: hidden;
         background: #EAE7E1;
-        background-image: radial-gradient(circle at 50% 50%, #F5F3EF 0%, #E6E2DC 100%);
+        background-image: radial-gradient(circle at 50% 50%, #FAF8F5 0%, #EAE7E1 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid rgba(28, 25, 23, 0.06);
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        box-shadow: 0 4px 20px rgba(28, 25, 23, 0.04);
+        user-select: none;
     }
 
     @media (min-width: 992px) {
         .pdp-image-stage {
-            min-height: 580px;
-            aspect-ratio: 1 / 1;
+            height: calc(100vh - var(--nav-height, 62px) - 75px);
+            max-height: 660px;
+            min-height: 480px;
         }
     }
 
-    @media (max-width: 767.98px) {
+    @media (max-width: 991.98px) {
         .pdp-image-stage {
-            min-height: unset;
-            max-height: 90vw;
-            aspect-ratio: 1 / 1;
             width: 100%;
+            aspect-ratio: 1 / 1;
+            max-height: 85vw;
+            min-height: 290px;
+            border-radius: 10px;
         }
+    }
+
+    /* Subtle bottom vignette scrim for contrast with the carousel dock */
+    .pdp-image-stage::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 110px;
+        background: linear-gradient(to top, rgba(23, 22, 20, 0.32) 0%, rgba(23, 22, 20, 0.08) 55%, transparent 100%);
+        pointer-events: none;
+        z-index: 2;
     }
 
     .pdp-image-stage img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        object-position: center;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
     }
 
     .pdp-image-stage:hover img {
-        transform: scale(1.04);
+        transform: scale(1.03);
     }
 
     /* Right Column: Product Details & Actions */
@@ -101,7 +116,20 @@
         .pdp-details-stage {
             padding-left: 2rem;
             position: sticky;
-            top: calc(var(--nav-height, 62px) + 24px);
+            top: calc(var(--nav-height, 62px) + 16px);
+            max-height: calc(100vh - var(--nav-height, 62px) - 30px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(28, 25, 23, 0.15) transparent;
+            padding-right: 4px;
+        }
+
+        .pdp-details-stage::-webkit-scrollbar {
+            width: 4px;
+        }
+        .pdp-details-stage::-webkit-scrollbar-thumb {
+            background: rgba(28, 25, 23, 0.12);
+            border-radius: 4px;
         }
     }
 
@@ -433,27 +461,128 @@
     }
 
     /* =========================================================
-       4-Photo Interactive Thumbnail Carousel Strip
+       Photo Carousel & Navigation System (Inside Image Stage)
        ========================================================= */
-    .pdp-carousel-wrapper {
-        width: 100%;
-        margin-top: 14px;
-        position: relative;
+    /* Floating Prev/Next Stage Chevrons */
+    .pdp-stage-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        color: #171614;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 6;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
     }
 
-    .pdp-carousel-controls {
+    .pdp-stage-arrow:hover {
+        background: #171614;
+        color: #FFFFFF;
+        border-color: #171614;
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .pdp-stage-arrow-prev {
+        left: 14px;
+    }
+
+    .pdp-stage-arrow-next {
+        right: 14px;
+    }
+
+    @media (max-width: 575.98px) {
+        .pdp-stage-arrow {
+            width: 34px;
+            height: 34px;
+            font-size: 0.85rem;
+        }
+        .pdp-stage-arrow-prev { left: 8px; }
+        .pdp-stage-arrow-next { right: 8px; }
+    }
+
+    /* Discreet Photo Counter Badge (Top-Right of Image Stage) */
+    .pdp-photo-counter-badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        z-index: 6;
+        background: rgba(23, 22, 20, 0.68);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #FAF8F5;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Bottom Carousel Dock inside Product Image */
+    .pdp-carousel-dock {
+        position: absolute;
+        bottom: 12px;
+        left: 0;
+        right: 0;
         display: flex;
-        align-items: center;
-        gap: 10px;
         justify-content: center;
-        width: 100%;
+        align-items: center;
+        z-index: 10;
+        padding: 0 10px;
+        pointer-events: none;
+    }
+
+    .pdp-carousel-dock-inner {
+        pointer-events: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+        max-width: 96%;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .pdp-carousel-dock-inner:hover {
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    @media (max-width: 575.98px) {
+        .pdp-carousel-dock {
+            bottom: 8px;
+            padding: 0 6px;
+        }
+        .pdp-carousel-dock-inner {
+            padding: 4px 6px;
+            gap: 6px;
+        }
     }
 
     .pdp-carousel-btn {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        border: 1px solid rgba(28, 25, 23, 0.16);
+        border: 1px solid rgba(28, 25, 23, 0.12);
         background: #FFFFFF;
         color: #171614;
         display: inline-flex;
@@ -462,8 +591,9 @@
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         flex-shrink: 0;
-        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.05);
-        font-size: 0.85rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        font-size: 0.8rem;
+        padding: 0;
     }
 
     .pdp-carousel-btn:hover {
@@ -479,61 +609,58 @@
         transform: none;
     }
 
+    @media (max-width: 575.98px) {
+        .pdp-carousel-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 0.72rem;
+        }
+    }
+
     .pdp-thumbnails-strip {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         overflow-x: auto;
-        padding: 4px 2px;
+        padding: 2px 0;
         scrollbar-width: none;
         -ms-overflow-style: none;
         scroll-behavior: smooth;
         justify-content: center;
-        flex-wrap: wrap;
     }
 
     .pdp-thumbnails-strip::-webkit-scrollbar {
         display: none;
     }
 
-    @media (max-width: 767.98px) {
+    @media (max-width: 575.98px) {
         .pdp-thumbnails-strip {
-            flex-wrap: nowrap;
-            justify-content: flex-start;
-            padding: 6px 4px;
-            -webkit-overflow-scrolling: touch;
+            gap: 5px;
         }
     }
 
     .pdp-thumb-card {
-        width: 72px;
-        height: 72px;
+        width: 52px;
+        height: 52px;
         border-radius: 8px;
-        border: 2px solid rgba(28, 25, 23, 0.12);
+        border: 2px solid rgba(28, 25, 23, 0.15);
         background: #FFFFFF;
         padding: 2px;
         cursor: pointer;
         overflow: hidden;
         flex-shrink: 0;
         position: relative;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.04);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         outline: none;
     }
 
-    @media (min-width: 576px) {
+    @media (max-width: 575.98px) {
         .pdp-thumb-card {
-            width: 82px;
-            height: 82px;
-            border-radius: 10px;
-        }
-    }
-
-    @media (min-width: 992px) {
-        .pdp-thumb-card {
-            width: 88px;
-            height: 88px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border-width: 1.5px;
         }
     }
 
@@ -541,12 +668,12 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 6px;
-        transition: transform 0.25s ease;
+        border-radius: 5px;
+        transition: transform 0.2s ease;
     }
 
     .pdp-thumb-card:hover {
-        border-color: rgba(28, 25, 23, 0.45);
+        border-color: #171614;
         transform: translateY(-2px);
     }
 
@@ -556,26 +683,27 @@
 
     .pdp-thumb-card.active {
         border-color: #171614;
-        box-shadow: 0 4px 16px rgba(23, 22, 20, 0.25);
-        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(23, 22, 20, 0.3);
+        transform: translateY(-2px) scale(1.05);
     }
 
     .pdp-thumb-number {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        background: rgba(23, 22, 20, 0.75);
+        top: 2px;
+        right: 2px;
+        background: rgba(23, 22, 20, 0.85);
         color: #FFFFFF;
         font-family: 'Outfit', sans-serif;
-        font-size: 0.58rem;
+        font-size: 0.52rem;
         font-weight: 700;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         backdrop-filter: blur(4px);
+        line-height: 1;
     }
 
     .pdp-thumb-card.active .pdp-thumb-number {
@@ -588,7 +716,7 @@
     }
 
     .pdp-image-stage img.fade-transition {
-        opacity: 0.2;
+        opacity: 0.25;
         transform: scale(0.97);
     }
 </style>
@@ -610,45 +738,63 @@
         <div class="row g-4 g-lg-5 align-items-start">
             
             <!-- =========================================================
-                 LEFT COLUMN: BIG PRODUCT IMAGE WITH CURRENCY BADGE
+                 LEFT COLUMN: BIG PRODUCT IMAGE WITH INSIDE BOTTOM CAROUSEL
                  ========================================================= -->
             <div class="col-12 col-lg-7">
-                <div class="pdp-image-stage">
+                <div class="pdp-image-stage" id="pdpImageStage">
+                    <!-- Main Featured Image -->
                     {% if product.display_image %}
                         <img src="{{ product.display_image }}" alt="{{ product.name }}" id="pdpMainImage" loading="eager" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                     {% else %}
                         <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" id="pdpMainImage" loading="eager">
                     {% endif %}
-                </div>
 
-                <!-- 4-Photo Interactive Thumbnail Carousel Strip (Below First Image) -->
-                {% if product.gallery_images|length > 1 %}
-                <div class="pdp-carousel-wrapper" id="pdpCarouselWrapper">
-                    <div class="pdp-carousel-controls">
-                        <button type="button" class="pdp-carousel-btn prev-btn" id="pdpCarouselPrev" aria-label="Previous photo" title="Previous photo">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        
-                        <div class="pdp-thumbnails-strip" id="pdpThumbnailsStrip">
-                            {% for img_url in product.gallery_images %}
-                            <button type="button" 
-                                    class="pdp-thumb-card {% if forloop.first %}active{% endif %}" 
-                                    data-src="{{ img_url }}" 
-                                    data-index="{{ forloop.counter0 }}" 
-                                    aria-label="View photo {{ forloop.counter }} of {{ product.name }}"
-                                    title="Photo {{ forloop.counter }}">
-                                <img src="{{ img_url }}" alt="{{ product.name }} view {{ forloop.counter }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                                <span class="pdp-thumb-number">{{ forloop.counter }}</span>
-                            </button>
-                            {% endfor %}
-                        </div>
+                    <!-- Floating Stage Side Chevrons (Previous / Next) -->
+                    {% if product.gallery_images|length > 1 %}
+                    <button type="button" class="pdp-stage-arrow pdp-stage-arrow-prev" id="pdpStageArrowPrev" aria-label="Previous photo" title="Previous photo">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="pdp-stage-arrow pdp-stage-arrow-next" id="pdpStageArrowNext" aria-label="Next photo" title="Next photo">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    {% endif %}
 
-                        <button type="button" class="pdp-carousel-btn next-btn" id="pdpCarouselNext" aria-label="Next photo" title="Next photo">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
+                    <!-- Photo Counter Indicator Badge -->
+                    {% if product.gallery_images|length > 1 %}
+                    <div class="pdp-photo-counter-badge" id="pdpPhotoCounter">
+                        <span id="pdpCurrentPhotoNum">1</span> / <span>{{ product.gallery_images|length }}</span>
                     </div>
+                    {% endif %}
+
+                    <!-- Inside Bottom Carousel Dock -->
+                    {% if product.gallery_images|length > 1 %}
+                    <div class="pdp-carousel-dock" id="pdpCarouselWrapper">
+                        <div class="pdp-carousel-dock-inner">
+                            <button type="button" class="pdp-carousel-btn prev-btn" id="pdpCarouselPrev" aria-label="Previous photo" title="Previous photo">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            
+                            <div class="pdp-thumbnails-strip" id="pdpThumbnailsStrip">
+                                {% for img_url in product.gallery_images %}
+                                <button type="button" 
+                                        class="pdp-thumb-card {% if forloop.first %}active{% endif %}" 
+                                        data-src="{{ img_url }}" 
+                                        data-index="{{ forloop.counter0 }}" 
+                                        aria-label="View photo {{ forloop.counter }} of {{ product.name }}"
+                                        title="Photo {{ forloop.counter }}">
+                                    <img src="{{ img_url }}" alt="{{ product.name }} view {{ forloop.counter }}" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                                    <span class="pdp-thumb-number">{{ forloop.counter }}</span>
+                                </button>
+                                {% endfor %}
+                            </div>
+
+                            <button type="button" class="pdp-carousel-btn next-btn" id="pdpCarouselNext" aria-label="Next photo" title="Next photo">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
 
             <!-- =========================================================
@@ -921,12 +1067,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =========================================================
-    // 4-Photo Interactive Thumbnail Carousel Controller
+    // Photo Carousel & Navigation Controller (Inside Stage)
     // =========================================================
     const pdpMainImage = document.getElementById('pdpMainImage');
     const thumbCards = document.querySelectorAll('.pdp-thumb-card');
     const prevBtn = document.getElementById('pdpCarouselPrev');
     const nextBtn = document.getElementById('pdpCarouselNext');
+    const stagePrevBtn = document.getElementById('pdpStageArrowPrev');
+    const stageNextBtn = document.getElementById('pdpStageArrowNext');
+    const currentPhotoNum = document.getElementById('pdpCurrentPhotoNum');
+    const imageStage = document.getElementById('pdpImageStage');
     let currentPhotoIndex = 0;
 
     function switchPhoto(index) {
@@ -941,6 +1091,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const newSrc = targetThumb.getAttribute('data-src');
 
         if (!newSrc) return;
+
+        // Update photo counter indicator
+        if (currentPhotoNum) {
+            currentPhotoNum.textContent = index + 1;
+        }
 
         // Update active class on thumbnails
         thumbCards.forEach((tc, idx) => {
@@ -959,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pdpMainImage.src = newSrc;
             setTimeout(() => {
                 pdpMainImage.classList.remove('fade-transition');
-            }, 50);
+            }, 30);
         };
         imgPreloader.onerror = function() {
             pdpMainImage.src = newSrc;
@@ -969,10 +1124,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     thumbCards.forEach((tc, idx) => {
-        tc.addEventListener('click', function() {
+        tc.addEventListener('click', function(e) {
+            e.stopPropagation();
             switchPhoto(idx);
         });
-        // Optional hover switch on desktop for instantaneous fluidity
+        // Instant desktop hover switch for effortless previewing
         tc.addEventListener('mouseenter', function() {
             if (window.innerWidth >= 992) {
                 switchPhoto(idx);
@@ -981,15 +1137,59 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
+        prevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
             switchPhoto(currentPhotoIndex - 1);
         });
     }
 
     if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
+        nextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
             switchPhoto(currentPhotoIndex + 1);
         });
+    }
+
+    if (stagePrevBtn) {
+        stagePrevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            switchPhoto(currentPhotoIndex - 1);
+        });
+    }
+
+    if (stageNextBtn) {
+        stageNextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            switchPhoto(currentPhotoIndex + 1);
+        });
+    }
+
+    // Touch Swipe Navigation on Mobile
+    if (imageStage && thumbCards.length > 1) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        imageStage.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        imageStage.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            // Only trigger if horizontal swipe is prominent
+            if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) {
+                    switchPhoto(currentPhotoIndex + 1);
+                } else {
+                    switchPhoto(currentPhotoIndex - 1);
+                }
+            }
+        }, { passive: true });
     }
 
     // Keyboard navigation (left/right arrow keys) when browsing photos
