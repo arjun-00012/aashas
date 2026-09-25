@@ -254,9 +254,9 @@
        ========================================================= */
     .blactify-category-showcase {
         width: 100%;
-        max-width: 1100px;
-        margin: 1.25rem auto 2.25rem;
-        padding: 0 1rem;
+        max-width: 1440px;
+        margin: 2.25rem auto 2.25rem;
+        padding: 0 clamp(1rem, 3vw, 2.5rem);
     }
 
     .category-showcase-header {
@@ -286,8 +286,8 @@
 
     @media (max-width: 575.98px) {
         .blactify-category-showcase {
-            margin: 0.75rem auto 1.5rem;
-            padding: 0 0.5rem;
+            margin: 1.25rem auto 1.75rem;
+            padding: 0 0.75rem;
         }
         .category-grid {
             grid-template-columns: repeat(4, 1fr);
@@ -808,7 +808,7 @@
 
     .oldtheory-editorial-wrapper {
         width: 100%;
-        margin-top: 2rem;
+        margin-top: 0;
     }
 
     /* 1. Full-Width Spotlight */
@@ -1125,14 +1125,14 @@
 
     /* 4. Shop Favorite Collections (Asymmetric 3-Card Collage) */
     .favorite-collections-section {
-        padding: 4rem 1rem 4.5rem;
+        padding: 4rem clamp(1rem, 3vw, 2.5rem) 2.5rem;
         max-width: 1440px;
         margin: 0 auto;
     }
 
     @media (min-width: 768px) {
         .favorite-collections-section {
-            padding: 5rem 2rem 5.5rem;
+            padding: 5rem clamp(1rem, 3vw, 2.5rem) 3rem;
         }
     }
 
@@ -1186,6 +1186,7 @@
         color: inherit;
         background: #EAE5DE;
         cursor: pointer;
+        border-radius: 12px;
     }
 
     @media (min-width: 768px) {
@@ -1289,28 +1290,41 @@
         transform: translateX(4px);
     }
 
-    /* 5. Split Spotlight */
+    /* 5. Split Spotlight - Contained Luxury Editorial Feature */
     .split-spotlight-section {
         width: 100%;
-        background: #FFFFFF;
+        max-width: 1440px;
+        margin: 1.5rem auto 5.5rem auto;
+        padding: 0 clamp(1rem, 3vw, 2.5rem);
+    }
+
+    @media (max-width: 767.98px) {
+        .split-spotlight-section {
+            margin: 0.75rem auto 3.5rem auto;
+            padding: 0 1rem;
+        }
     }
 
     .split-spotlight-grid {
         display: grid;
         grid-template-columns: 1fr;
-        min-height: clamp(420px, 60vh, 560px);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #FAF8F5;
+        border: 1px solid rgba(23, 22, 20, 0.08);
+        box-shadow: 0 14px 36px rgba(23, 22, 20, 0.04);
     }
 
     @media (min-width: 992px) {
         .split-spotlight-grid {
             grid-template-columns: 1fr 1fr;
-            min-height: 640px;
+            min-height: 560px;
         }
     }
 
     .split-spotlight-media {
         position: relative;
-        min-height: clamp(280px, 40vh, 360px);
+        min-height: clamp(280px, 45vh, 420px);
         overflow: hidden;
         background: #171614;
     }
@@ -1339,74 +1353,66 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: #F8F8F8;
-        padding: 3rem 1.75rem;
-    }
-
-    @media (min-width: 768px) {
-        .split-spotlight-text-panel {
-            padding: 4rem 3.5rem;
-        }
-    }
-
-    @media (min-width: 1200px) {
-        .split-spotlight-text-panel {
-            padding: 5rem 5rem;
-        }
+        background: #FAF8F5;
+        padding: clamp(2.5rem, 5vw, 4.5rem);
     }
 
     .split-spotlight-tag {
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 0.78rem;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.22em;
-        color: #4B5563;
+        color: #8C867E;
         margin: 0 0 0.75rem 0;
     }
 
     .split-spotlight-headline {
-        font-family: 'Urbanist', sans-serif;
-        font-size: clamp(2rem, 4.2vw, 3.25rem);
-        font-weight: 600;
-        line-height: 1.12;
+        font-family: 'Urbanist', 'Outfit', sans-serif;
+        font-size: clamp(2rem, 3.8vw, 3rem);
+        font-weight: 700;
+        line-height: 1.15;
         color: #171614;
         margin: 0 0 1rem 0;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
     }
 
     .split-spotlight-desc {
         font-family: 'IBM Plex Sans', sans-serif;
-        font-size: clamp(0.92rem, 1.8vw, 1.08rem);
+        font-size: clamp(0.92rem, 1.6vw, 1.04rem);
         font-weight: 400;
         line-height: 1.65;
-        color: #635F59;
+        color: #5A5650;
         margin: 0 0 2rem 0;
-        max-width: 520px;
+        max-width: 480px;
     }
 
     .split-spotlight-btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: transparent;
-        border: 1.5px solid #171717;
-        color: #171717 !important;
+        background: #171614;
+        border: 1.5px solid #171614;
+        color: #FAF8F5 !important;
         font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.92rem;
-        font-weight: 500;
-        padding: 13px 32px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 12px 30px;
         border-radius: 9999px;
         text-decoration: none;
         transition: all 0.25s ease;
         width: max-content;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
     }
 
     .split-spotlight-btn:hover {
-        background: #171717;
+        background: #000000;
+        border-color: #000000;
         color: #FFFFFF !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     }
 
 </style>
@@ -1499,9 +1505,9 @@
     </div>
 </section>
 
-<div class="container-fluid container-xl px-3 px-sm-4 px-md-5 py-3 w-100" style="max-width: 1440px;">
+<div class="container-fluid container-xl px-3 px-sm-4 px-md-5 w-100" style="max-width: 1440px; margin-bottom: 3.5rem;">
     {% if trending_products %}
-    <section id="section-trending" class="category-section mb-5 pt-2" aria-label="New Drop Products">
+    <section id="section-trending" class="category-section mb-0 pt-0" aria-label="New Drop Products">
         <div class="section-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
             <div class="section-title-wrap d-flex align-items-center gap-2">
                 <span class="newdrop-title-badge"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop"></span>
