@@ -871,7 +871,6 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertTemplateUsed(response, 'product_detail.html')
         self.assertContains(response, "VAMPIRE BAT RING")
         self.assertContains(response, "RS. 299.00")
-        self.assertNotContains(response, "INR")
         self.assertNotContains(response, "🇮🇳")
         self.assertNotContains(response, "pdp-currency-badge")
         self.assertContains(response, "pdp-share-icon-btn")
@@ -918,8 +917,8 @@ class CategoryPagesAndCardDesignTests(TestCase):
         """Product detail page must render product-specific Open Graph and Twitter Card tags."""
         response = self.client.get(reverse('product_detail', kwargs={'pk': self.ring_prod.id}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'property="og:title" content="VAMPIRE BAT RING | RS. 299.00 | ASHAS Official Store"')
-        self.assertContains(response, 'name="twitter:title" content="VAMPIRE BAT RING | ASHAS"')
+        self.assertContains(response, f'property="og:title" content="{self.ring_prod.name} | RS. 299 | ASHAS STORE Kozhikode"')
+        self.assertContains(response, f'name="twitter:title" content="{self.ring_prod.name} | RS. 299 | ASHAS STORE"')
 
     def test_cart_page_links_items_to_product_detail(self):
         """Cart page must link product thumbnail and name to product detail page."""

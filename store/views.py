@@ -1432,7 +1432,7 @@ def adminpp_orders(request):
     end_date = request.GET.get('end_date', '')
     export_excel = request.GET.get('export', '')
 
-    orders = Order.objects.filter(payment_status='Completed').prefetch_related('items__product__category').order_by('-created_at')
+    orders = Order.objects.exclude(payment_status='Failed').prefetch_related('items__product__category').order_by('-created_at')
 
     if category_filter:
         orders = orders.filter(items__product__category__name__iexact=category_filter).distinct()
@@ -1555,6 +1555,33 @@ def adminpp_update_tracking(request, order_id):
         return redirect(safe_referer(request, 'adminpp_orders'))
 
     return redirect('adminpp_orders')
+ 
+@staff_required
+def adminpp_quick_dispatch(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    new_status = (request.POST.get('shipping_status') or request.GET.get('shipping_status') or 'Dispatched').strip() or 'Dispatched'
+    order.shipping_status = new_status
+    if not order.carrier:
+        order.carrier = 'India Post'
+    if not order.tracking_notes:
+        order.tracking_notes = 'Dispatched from Kozhikode Boutique via India Post'
+    order.tracking_updated_at = timezone.now()
+    order.save(update_fields=['shipping_status', 'carrier', 'tracking_notes', 'tracking_updated_at'])
+    msg = f"Order #{order.id} marked as {order.get_shipping_status_display()}."
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json' or request.GET.get('format') == 'json':
+        return JsonResponse({
+            'status': 'success',
+            'order_id': order.id,
+            'shipping_status': order.shipping_status,
+            'shipping_status_display': order.get_shipping_status_display(),
+            'carrier': order.carrier,
+            'tracking_id': order.tracking_id or '',
+            'tracking_notes': order.tracking_notes or '',
+            'whatsapp_url': order.whatsapp_notification_url,
+            'message': msg
+        })
+    messages.success(request, msg)
+    return redirect(safe_referer(request, 'adminpp_orders'))
 
 @staff_required
 def adminpp_order_delete(request, order_id):

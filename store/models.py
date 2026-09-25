@@ -159,6 +159,14 @@ class Category(models.Model):
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
+    admin_code = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        db_index=True,
+        help_text="Unique admin/shipping code visible only to admin (e.g. 100, 101)"
+    )
     image = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 1 - Main Cover Image")
     image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to Photo 1 (optional)")
     image_2 = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Photo 2 (optional)")
@@ -188,6 +196,25 @@ class Product(models.Model):
                         img_field.file.seek(0)
                 except Exception:
                     pass
+
+        # Auto-assign sequential unique admin_code (e.g. 100, 101, 102...) if not provided
+        if not self.admin_code:
+            existing_codes = Product.objects.exclude(admin_code__isnull=True).exclude(admin_code='')
+            if self.pk:
+                existing_codes = existing_codes.exclude(pk=self.pk)
+            codes_list = existing_codes.values_list('admin_code', flat=True)
+            numeric_vals = []
+            for c in codes_list:
+                try:
+                    numeric_vals.append(int(c))
+                except (ValueError, TypeError):
+                    pass
+            next_code = max(numeric_vals) + 1 if numeric_vals else 100
+            if next_code < 100:
+                next_code = 100
+            while Product.objects.filter(admin_code=str(next_code)).exclude(pk=self.pk).exists():
+                next_code += 1
+            self.admin_code = str(next_code)
 
         super().save(*args, **kwargs)
 
@@ -276,6 +303,11 @@ class Product(models.Model):
     def display_image(self):
         # Prioritize direct cloud link if available
         return self._resolve_image_url(self.image, self.image_url)
+
+    @property
+    def display_image_2(self):
+        # Returns second photo if available (for hover flip)
+        return self._resolve_image_url(self.image_2, self.image_2_url)
 
     @property
     def gallery_images(self):

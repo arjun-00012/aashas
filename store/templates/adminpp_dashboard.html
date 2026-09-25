@@ -623,7 +623,7 @@
                         </thead>
                         <tbody id="productTableBody">
                             {% for p in products %}
-                            <tr class="product-row" data-category="{{ p.category.name }}" data-trending="{% if p.is_trending %}true{% else %}false{% endif %}" data-name="{{ p.name }}">
+                            <tr class="product-row" data-category="{{ p.category.name }}" data-trending="{% if p.is_trending %}true{% else %}false{% endif %}" data-name="{{ p.name }}" data-admin-code="{{ p.admin_code|default:'' }}">
                                 <td>
                                     <div class="d-flex align-items-center gap-2" style="min-width: 140px;">
                                         {% if p.display_image %}
@@ -634,7 +634,10 @@
                                             </div>
                                         {% endif %}
                                         <div class="min-w-0">
-                                            <div class="fw-semibold text-dark text-truncate" style="max-width: 170px;" title="{{ p.name }}">{{ p.name }}</div>
+                                            <div class="fw-semibold text-dark text-truncate d-flex align-items-center gap-1.5" style="max-width: 220px;" title="{{ p.name }}">
+                                                <span class="badge bg-dark rounded-pill px-2 py-0.5 fw-bold text-white flex-shrink-0" style="font-size: 0.68rem; letter-spacing: 0.04em;" title="Internal Shipping Code: {{ p.admin_code }}">#{{ p.admin_code|default:p.id }}</span>
+                                                <span class="text-truncate">{{ p.name }}</span>
+                                            </div>
                                             <div class="d-flex align-items-center gap-1 mt-1">
                                                 {% if p.discount_price %}
                                                     <small class="badge bg-danger" style="font-size: 0.6rem;">SALE</small>
@@ -892,6 +895,7 @@
             rows.forEach(row => {
                 const rowCat = (row.getAttribute('data-category') || '').toLowerCase().trim();
                 const rowName = (row.getAttribute('data-name') || '').toLowerCase().trim();
+                const rowCode = (row.getAttribute('data-admin-code') || '').toLowerCase().trim();
                 const isTrending = row.getAttribute('data-trending') === 'true';
 
                 let matchesCat = false;
@@ -905,7 +909,7 @@
 
                 let matchesSearch = true;
                 if (searchVal) {
-                    matchesSearch = rowName.includes(searchVal) || rowCat.includes(searchVal);
+                    matchesSearch = rowName.includes(searchVal) || rowCat.includes(searchVal) || rowCode.includes(searchVal);
                 }
 
                 if (matchesCat && matchesSearch) {

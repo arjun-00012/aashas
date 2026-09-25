@@ -156,39 +156,87 @@
                     </div>
 
                     <div class="p-3 rounded-3 bg-white border border-secondary border-opacity-25 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-2 border-bottom border-secondary border-opacity-15">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-15">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge bg-dark rounded-pill px-2.5 py-1 small" style="background: #171614 !important;">
                                     <i class="bi bi-box-seam me-1 text-warning"></i> {{ order.carrier|default:'India Post' }}
                                 </span>
                                 {% if order.shipping_status == 'Delivered' %}
-                                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small">
+                                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small fw-bold">
                                         <i class="bi bi-check2-all me-1"></i> Delivered
                                     </span>
                                 {% elif order.shipping_status == 'Out for Delivery' %}
-                                    <span class="badge bg-info text-dark rounded-pill px-2.5 py-1 small">
+                                    <span class="badge bg-info text-dark rounded-pill px-2.5 py-1 small fw-bold">
                                         <i class="bi bi-bicycle me-1"></i> Out for Delivery
                                     </span>
                                 {% elif order.shipping_status == 'In Transit' %}
-                                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 small">
+                                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 small fw-bold">
                                         <i class="bi bi-send-fill me-1"></i> In Transit
                                     </span>
                                 {% elif order.shipping_status == 'Dispatched' %}
-                                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small">
+                                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small fw-bold">
                                         <i class="bi bi-truck me-1"></i> Dispatched via Post Office
                                     </span>
                                 {% else %}
                                     <span class="badge bg-secondary text-white rounded-pill px-2.5 py-1 small">
-                                        <i class="bi bi-clock-history me-1"></i> {{ order.get_shipping_status_display }}
+                                        <i class="bi bi-clock-history me-1"></i> Processing / Packing
                                     </span>
                                 {% endif %}
                             </div>
                             {% if order.tracking_updated_at %}
                             <small class="text-muted" style="font-size: 0.72rem;">
-                                Updated {{ order.tracking_updated_at|date:"d M, H:i" }}
+                                Updated {{ order.tracking_updated_at|date:"d M Y, h:i A" }}
                             </small>
                             {% endif %}
                         </div>
+
+                        <!-- Live Order Status Step Tracker -->
+                        <div class="order-progress-track mb-3 p-2.5 rounded-3 bg-light border border-secondary border-opacity-10">
+                            <div class="d-flex justify-content-between text-center position-relative" style="font-size: 0.72rem;">
+                                <div class="flex-fill">
+                                    <div class="step-dot active mb-1 mx-auto rounded-circle d-flex align-items-center justify-content-center bg-success text-white" style="width: 26px; height: 26px; font-size: 0.7rem;"><i class="bi bi-check-lg"></i></div>
+                                    <span class="fw-semibold text-dark d-block">Paid</span>
+                                </div>
+                                <div class="flex-fill">
+                                    <div class="step-dot mb-1 mx-auto rounded-circle d-flex align-items-center justify-content-center {% if order.shipping_status == 'Processing' or order.shipping_status == 'Dispatched' or order.shipping_status == 'In Transit' or order.shipping_status == 'Out for Delivery' or order.shipping_status == 'Delivered' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}" style="width: 26px; height: 26px; font-size: 0.7rem;"><i class="bi bi-box-seam"></i></div>
+                                    <span class="fw-semibold text-dark d-block">Packed</span>
+                                </div>
+                                <div class="flex-fill">
+                                    <div class="step-dot mb-1 mx-auto rounded-circle d-flex align-items-center justify-content-center {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'In Transit' or order.shipping_status == 'Out for Delivery' or order.shipping_status == 'Delivered' %}bg-warning text-dark fw-bold{% else %}bg-secondary bg-opacity-25 text-muted{% endif %}" style="width: 26px; height: 26px; font-size: 0.7rem;"><i class="bi bi-truck"></i></div>
+                                    <span class="{% if order.shipping_status == 'Dispatched' or order.shipping_status == 'In Transit' or order.shipping_status == 'Out for Delivery' or order.shipping_status == 'Delivered' %}fw-bold text-dark{% else %}text-muted{% endif %} d-block">Dispatched</span>
+                                </div>
+                                <div class="flex-fill">
+                                    <div class="step-dot mb-1 mx-auto rounded-circle d-flex align-items-center justify-content-center {% if order.shipping_status == 'Delivered' %}bg-success text-white{% else %}bg-secondary bg-opacity-25 text-muted{% endif %}" style="width: 26px; height: 26px; font-size: 0.7rem;"><i class="bi bi-check2-all"></i></div>
+                                    <span class="{% if order.shipping_status == 'Delivered' %}fw-bold text-success{% else %}text-muted{% endif %} d-block">Delivered</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'In Transit' or order.shipping_status == 'Out for Delivery' or order.shipping_status == 'Delivered' %}
+                            <div class="alert alert-warning border border-warning border-opacity-50 rounded-3 p-3 mb-3 d-flex align-items-start gap-2.5">
+                                <i class="bi bi-truck fs-4 text-warning flex-shrink-0 mt-0.5"></i>
+                                <div>
+                                    <strong class="d-block text-dark text-uppercase small" style="letter-spacing: 0.04em;">
+                                        {% if order.shipping_status == 'Delivered' %}
+                                            Your Order Has Been Delivered!
+                                        {% elif order.shipping_status == 'Out for Delivery' %}
+                                            Out for Delivery — Arriving Today!
+                                        {% elif order.shipping_status == 'In Transit' %}
+                                            Parcel In Transit via Speed Post
+                                        {% else %}
+                                            Order Dispatched from Kozhikode Boutique!
+                                        {% endif %}
+                                    </strong>
+                                    <p class="text-secondary small mb-0 mt-1" style="font-size: 0.78rem;">
+                                        {% if order.shipping_status == 'Delivered' %}
+                                            Delivered to your address. Thank you for shopping with ASHAS!
+                                        {% else %}
+                                            Your package has been securely sealed and handed over to India Post (Speed Post) for prompt delivery.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
 
                         {% if order.tracking_id %}
                         <div class="mb-2">
@@ -222,6 +270,21 @@
                         <small class="text-muted d-block mt-2" style="font-size: 0.72rem;">
                             <i class="bi bi-info-circle me-1"></i> Copy your consignment number above and paste it on the India Post tracking page for live postal transit checkpoints.
                         </small>
+
+                        {% elif order.shipping_status == 'Dispatched' %}
+                        <div class="text-secondary small py-1">
+                            {% if order.tracking_notes %}
+                            <div class="small text-secondary mb-2 bg-light p-2 rounded-2 border border-secondary border-opacity-10" style="word-break: break-word;">
+                                <i class="bi bi-pin-map-fill text-danger me-1"></i> {{ order.tracking_notes }}
+                            </div>
+                            {% endif %}
+                            <p class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                Your speed post consignment number is being registered at the post office and will appear here shortly.
+                            </p>
+                            <a href="https://wa.me/918281451481?text=Hello%20ASHAS%2C%20I%20see%20my%20Order%20%23{{ order.id }}%20is%20dispatched.%20Could%20you%20please%20share%20the%20tracking%20consignment%20number%3F" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1.5 small d-inline-flex align-items-center gap-1.5">
+                                <i class="bi bi-whatsapp"></i> Get Tracking on WhatsApp
+                            </a>
+                        </div>
 
                         {% else %}
                         <div class="text-secondary small py-2">

@@ -541,12 +541,29 @@
                 {% endif %}
 
                 <div class="mb-2">
-                    <span class="text-muted d-block small mb-1" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Items</span>
-                    <div class="d-flex flex-column gap-1">
+                    <span class="text-muted d-block small mb-1" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Purchased Items & Shipping Codes</span>
+                    <div class="d-flex flex-column gap-1.5">
                         {% for item in order.items.all %}
-                        <div class="d-flex justify-content-between align-items-center bg-light px-2 py-1 rounded border" style="border-color: var(--border-subtle) !important; font-size: 0.8rem;">
-                            <span class="text-dark text-truncate me-2">{{ item.product.name|default:"Archived Item" }}</span>
-                            <span class="badge bg-secondary rounded-pill">x{{ item.quantity }}</span>
+                        <div class="d-flex align-items-center gap-2 p-1.5 bg-light rounded border" style="border-color: var(--border-subtle) !important;">
+                            {% if item.product and item.product.display_image %}
+                                <a href="{% url 'product_detail' item.product.id %}" target="_blank" title="View {{ item.product.name }}">
+                                    <img src="{{ item.product.display_image }}" class="rounded flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);" alt="{{ item.product.name }}">
+                                </a>
+                            {% else %}
+                                <div class="rounded flex-shrink-0 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-secondary" style="width: 44px; height: 44px;">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            {% endif %}
+                            <div class="min-w-0 flex-grow-1">
+                                <div class="d-flex align-items-center gap-1 mb-0.5">
+                                    <span class="badge bg-dark rounded-pill px-2 py-0.5 fw-bold text-white flex-shrink-0" style="font-size: 0.68rem;" title="Shipping Code">#{{ item.product.admin_code|default:item.product.id }}</span>
+                                    <span class="text-dark fw-semibold text-truncate small">{{ item.product.name|default:"Archived Item" }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between text-secondary" style="font-size: 0.74rem;">
+                                    <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong></span>
+                                    <span class="fw-semibold text-dark">₹{{ item.price }}</span>
+                                </div>
+                            </div>
                         </div>
                         {% empty %}
                         <span class="text-muted small">No items recorded</span>
@@ -607,6 +624,13 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 pt-1">
+                        <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 py-1 fw-bold text-dark quick-dispatch-btn flex-grow-1 shadow-sm d-inline-flex align-items-center justify-content-center gap-1"
+                            data-order-id="{{ order.id }}"
+                            data-url="{% url 'adminpp_quick_dispatch' order.id %}"
+                            title="1-Click Mark Dispatched"
+                            {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'Delivered' %}style="display:none;"{% endif %}>
+                            <i class="bi bi-truck"></i> <span>Mark Dispatched</span>
+                        </button>
                         <button type="button" class="btn btn-obsidian btn-sm rounded-pill px-3 py-1 flex-grow-1 open-tracking-modal-btn"
                             data-order-id="{{ order.id }}"
                             data-full-name="{{ order.full_name }}"
@@ -687,12 +711,34 @@
                             {% endif %}
                         </td>
 
-                        <td style="min-width: 150px;">
-                            {% for item in order.items.all %}
-                                <span class="badge bg-light text-dark border mb-1 fw-normal text-wrap text-start" style="border-color: var(--border-subtle) !important;">{{ item.product.name|default:"Archived Item" }} (x{{ item.quantity }})</span><br>
-                            {% empty %}
-                                <span class="text-secondary small">-</span>
-                            {% endfor %}
+                        <td style="min-width: 220px;">
+                            <div class="d-flex flex-column gap-1.5">
+                                {% for item in order.items.all %}
+                                <div class="d-flex align-items-center gap-2 p-1.5 rounded border bg-light" style="border-color: var(--border-subtle) !important;">
+                                    {% if item.product and item.product.display_image %}
+                                        <a href="{% url 'product_detail' item.product.id %}" target="_blank" title="View {{ item.product.name }}">
+                                            <img src="{{ item.product.display_image }}" class="rounded flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);" alt="{{ item.product.name }}">
+                                        </a>
+                                    {% else %}
+                                        <div class="rounded flex-shrink-0 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-secondary" style="width: 44px; height: 44px;">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="min-w-0 flex-grow-1" style="line-height: 1.25;">
+                                        <div class="d-flex align-items-center gap-1 mb-0.5">
+                                            <span class="badge bg-dark rounded-pill px-2 py-0.5 fw-bold text-white flex-shrink-0" style="font-size: 0.68rem;" title="Shipping Code">#{{ item.product.admin_code|default:item.product.id }}</span>
+                                            <span class="text-dark fw-semibold small text-truncate d-inline-block" style="max-width: 150px;" title="{{ item.product.name }}">{{ item.product.name|default:"Archived Item" }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between text-secondary" style="font-size: 0.72rem;">
+                                            <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong></span>
+                                            <span class="text-dark fw-medium">₹{{ item.price }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                    <span class="text-secondary small">-</span>
+                                {% endfor %}
+                            </div>
                         </td>
 
                         <td class="text-nowrap">
@@ -741,6 +787,13 @@
 
                         <td class="text-nowrap text-end">
                             <div class="d-flex align-items-center justify-content-end gap-1.5">
+                                <button type="button" class="btn btn-warning btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 quick-dispatch-btn shadow-sm fw-bold text-dark"
+                                    data-order-id="{{ order.id }}"
+                                    data-url="{% url 'adminpp_quick_dispatch' order.id %}"
+                                    title="1-Click Mark Dispatched"
+                                    {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'Delivered' %}style="display:none;"{% endif %}>
+                                    <i class="bi bi-truck"></i> <span>Mark Dispatched</span>
+                                </button>
                                 <button type="button" class="btn btn-obsidian btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 open-tracking-modal-btn"
                                     data-order-id="{{ order.id }}"
                                     data-full-name="{{ order.full_name }}"
@@ -1080,6 +1133,106 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSaveBtn.disabled = false;
             modalSaveBtn.innerHTML = submitOrigText;
         }
+    });
+
+    // Handle 1-Click Quick Dispatch
+    document.querySelectorAll('.quick-dispatch-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const url = this.getAttribute('data-url') || `/adminpp/order/quick-dispatch/${orderId}/`;
+            
+            const origHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Dispatching...';
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                              document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+
+            try {
+                const formData = new FormData();
+                formData.append('format', 'json');
+                formData.append('shipping_status', 'Dispatched');
+                if (csrfToken) formData.append('csrfmiddlewaretoken', csrfToken);
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken || ''
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Update desktop row
+                    const row = document.getElementById(`order-row-${orderId}`);
+                    if (row) {
+                        const rowStatus = row.querySelector('.row-status-badge');
+                        if (rowStatus) {
+                            rowStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill tracking-badge"><i class="bi bi-box-seam me-1"></i>${data.shipping_status_display}</span>`;
+                        }
+                        const rowCarrier = row.querySelector('.row-carrier');
+                        if (rowCarrier && data.carrier) rowCarrier.textContent = `(${data.carrier})`;
+
+                        const rowWhatsapp = row.querySelector('.row-whatsapp-link');
+                        if (rowWhatsapp && data.whatsapp_url) rowWhatsapp.href = data.whatsapp_url;
+
+                        const openBtn = row.querySelector('.open-tracking-modal-btn');
+                        if (openBtn) {
+                            openBtn.setAttribute('data-status', data.shipping_status);
+                            if (data.carrier) openBtn.setAttribute('data-carrier', data.carrier);
+                            if (data.whatsapp_url) openBtn.setAttribute('data-whatsapp', data.whatsapp_url);
+                        }
+                        const rowDispatchBtn = row.querySelector('.quick-dispatch-btn');
+                        if (rowDispatchBtn) rowDispatchBtn.style.display = 'none';
+                    }
+
+                    // Update mobile card
+                    const card = document.getElementById(`order-card-${orderId}`);
+                    if (card) {
+                        const cardStatus = card.querySelector('.card-status-badge');
+                        if (cardStatus) {
+                            cardStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill small">${data.shipping_status_display}</span>`;
+                        }
+                        const cardCarrier = card.querySelector('.card-carrier');
+                        if (cardCarrier && data.carrier) cardCarrier.textContent = `(${data.carrier})`;
+
+                        const cardWhatsapp = card.querySelector('.card-whatsapp-link');
+                        if (cardWhatsapp && data.whatsapp_url) cardWhatsapp.href = data.whatsapp_url;
+
+                        const openBtnCard = card.querySelector('.open-tracking-modal-btn');
+                        if (openBtnCard) {
+                            openBtnCard.setAttribute('data-status', data.shipping_status);
+                            if (data.carrier) openBtnCard.setAttribute('data-carrier', data.carrier);
+                            if (data.whatsapp_url) openBtnCard.setAttribute('data-whatsapp', data.whatsapp_url);
+                        }
+                        const cardDispatchBtn = card.querySelector('.quick-dispatch-btn');
+                        if (cardDispatchBtn) cardDispatchBtn.style.display = 'none';
+                    }
+
+                    // Toast notification
+                    const toastEl = document.getElementById('adminToast');
+                    const toastMessage = document.getElementById('toastMessage');
+                    if (toastEl && toastMessage) {
+                        toastMessage.innerHTML = `<i class="bi bi-truck text-warning fs-5"></i> <span>Order #${orderId} marked as <strong>Dispatched</strong>! User profile is updated.</span>`;
+                        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                        toast.show();
+                    }
+                } else {
+                    alert('Error updating order status. Please try again.');
+                    this.disabled = false;
+                    this.innerHTML = origHtml;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while marking dispatched.');
+                this.disabled = false;
+                this.innerHTML = origHtml;
+            }
+        });
     });
 
     // Handle Individual Order Deletion

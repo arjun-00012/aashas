@@ -1653,75 +1653,76 @@
     </div>
 </section>
 
-<div class="container-fluid container-xl px-2 px-sm-3 px-md-4 py-2 w-100" style="max-width: 1320px;">
+<div class="container-fluid container-xl px-3 px-sm-4 px-md-5 py-3 w-100" style="max-width: 1440px;">
     {% if trending_products %}
-    <section id="section-trending" class="category-section mb-5 pt-3" aria-label="New Drop Products">
-        <div class="section-header">
-            <div class="min-w-0 flex-grow-1 pe-2">
-                <div class="section-title-wrap">
-                    <span class="newdrop-title-badge"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop"></span>
-                    <h2 class="section-title text-truncate">NEW DROP</h2>
-                    <span class="section-count">{{ trending_products.count }}</span>
-                </div>
+    <section id="section-trending" class="category-section mb-5 pt-2" aria-label="New Drop Products">
+        <div class="section-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="section-title-wrap d-flex align-items-center gap-2">
+                <span class="newdrop-title-badge"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop"></span>
+                <h2 class="section-title m-0 text-uppercase" style="letter-spacing: 0.08em; font-weight: 800;">NEW DROP</h2>
+                <span class="badge luxury-count-badge">{{ trending_products.count }} ITEM{{ trending_products.count|pluralize|upper }}</span>
             </div>
-            {% if trending_products.count > 1 %}
-            <div class="scroll-nav-btns d-flex gap-1 ms-1">
-                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', -1)" aria-label="Scroll left" title="Scroll left">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button type="button" class="btn btn-sm scroll-btn rounded-circle" onclick="scrollSection('trending', 1)" aria-label="Scroll right" title="Scroll right">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-            {% endif %}
+            <a href="{% url 'home' %}" class="small fw-bold text-dark text-decoration-none text-uppercase d-inline-flex align-items-center gap-1" style="letter-spacing: 0.08em; font-size: 0.74rem;">
+                Explore All <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
 
-        <div class="product-scroll-track" id="scrollTrack-trending">
+        <div class="luxury-product-grid">
             {% for product in trending_products %}
-            <div class="product-scroll-item">
-                <div class="product-card h-100 d-flex flex-column justify-content-between"
-                     data-id="{{ product.id }}"
-                     data-name="{{ product.name }}"
-                     data-price="RS. {{ product.current_price|floatformat:2 }}"
-                     data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
-                     data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
-                     data-cat="{{ product.category.name }}"
-                     data-stock="{{ product.stock }}"
-                     data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
-                     data-add-url="{% url 'add_to_cart' product.id %}">
-                    <div>
-                        <a href="{% url 'product_detail' product.id %}" class="product-clickable-area text-decoration-none d-block text-dark" title="View {{ product.name }}" aria-label="View {{ product.name }}">
-                            <div class="product-img-wrapper">
-                                {% if product.display_image %}
-                                    <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                                {% else %}
-                                    <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
-                                {% endif %}
-                                <span class="badge-trending-classic">NEW DROP</span>
-                            </div>
-                            <div class="product-category-sub">{{ product.category.name|upper }}</div>
-                            <h3 class="product-name" title="{{ product.name }}">{{ product.name|upper }}</h3>
-                        </a>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-baseline gap-2 mb-2">
-                            <span class="product-price">RS. {{ product.current_price|floatformat:2 }}</span>
-                            {% if product.discount_price %}
-                                <span class="product-price-orig">RS. {{ product.price|floatformat:2 }}</span>
-                            {% endif %}
-                        </div>
+            <div class="luxury-product-card"
+                 data-id="{{ product.id }}"
+                 data-name="{{ product.name }}"
+                 data-price="RS. {{ product.current_price|floatformat:2 }}"
+                 data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
+                 data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
+                 data-cat="{{ product.category.name }}"
+                 data-stock="{{ product.stock }}"
+                 data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                 data-add-url="{% url 'add_to_cart' product.id %}">
+                
+                <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
+                    {% if product.display_image %}
+                        <img src="{{ product.display_image }}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                    {% else %}
+                        <img src="{% static 'images/ashas_badge.png' %}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy">
+                    {% endif %}
+                    {% if product.display_image_2 %}
+                        <img src="{{ product.display_image_2 }}" class="luxury-img-secondary" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none';">
+                    {% endif %}
+
+                    {% if product.stock <= 0 %}
+                        <span class="luxury-badge-soldout">SOLD OUT</span>
+                    {% elif product.is_trending %}
+                        <span class="luxury-badge-newdrop"><i class="bi bi-stars"></i> NEW DROP</span>
+                    {% endif %}
+
+                    <div class="luxury-card-overlay">
+                        <span class="luxury-quickview-hint">
+                            <i class="bi bi-eye"></i> Quick View
+                        </span>
                         {% if product.stock > 0 %}
-                            <button type="button" class="btn btn-add-cart w-100 ajax-add-to-bag d-inline-flex align-items-center justify-content-center gap-1"
-                                    data-product-id="{{ product.id }}"
-                                    data-product-name="{{ product.name }}"
-                                    data-add-url="{% url 'add_to_cart' product.id %}"
-                                    aria-label="Add {{ product.name }} to bag">
-                                <i class="bi bi-bag-plus"></i> <span>ADD TO BAG</span>
-                            </button>
-                        {% else %}
-                            <button type="button" class="btn btn-add-cart btn-sold-out w-100 d-inline-flex align-items-center justify-content-center gap-1" disabled aria-label="{{ product.name }} is sold out">
-                                <i class="bi bi-dash-circle"></i> <span>OUT OF STOCK</span>
-                            </button>
+                        <button type="button" class="luxury-add-btn ajax-add-to-bag"
+                                data-product-id="{{ product.id }}"
+                                data-product-name="{{ product.name }}"
+                                data-add-url="{% url 'add_to_cart' product.id %}"
+                                aria-label="Add {{ product.name }} to bag"
+                                onclick="event.preventDefault(); event.stopPropagation();">
+                            <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </a>
+
+                <div class="luxury-product-info">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                        <h2 class="luxury-product-title" title="{{ product.name }}">
+                            {{ product.name|upper }}
+                        </h2>
+                    </a>
+                    <div class="luxury-product-price-row">
+                        <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
+                        {% if product.discount_price %}
+                            <span class="luxury-price-orig">RS. {{ product.price|floatformat:2 }}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -1729,8 +1730,8 @@
             {% endfor %}
         </div>
     </section>
+    {% endif %}
 </div>
-{% endif %}
 
     <div id="section-lookbook" class="oldtheory-editorial-wrapper" aria-label="Official Editorial Collections">
 
@@ -2337,6 +2338,85 @@
 
         startAutoPlay();
     })();
+
+    // =========================================================
+    // 5. Product Quick View Modal
+    // =========================================================
+    const qvModalEl = document.getElementById('productQuickViewModal');
+    const bsQvModal = qvModalEl && window.bootstrap ? bootstrap.Modal.getOrCreateInstance(qvModalEl) : null;
+    const qvBadge = document.getElementById('qvCategoryBadge');
+    const qvImage = document.getElementById('qvImage');
+    const qvTitle = document.getElementById('qvTitle');
+    const qvPrice = document.getElementById('qvPrice');
+    const qvOrigPrice = document.getElementById('qvOrigPrice');
+    const qvDesc = document.getElementById('qvDesc');
+    const qvAddBagBtn = document.getElementById('qvAddBagBtn');
+    let currentQvProduct = null;
+
+    document.querySelectorAll('.luxury-quickview-hint').forEach(trigger => {
+        const card = trigger.closest('.luxury-product-card');
+        if (!card) return;
+
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = card.getAttribute('data-price');
+            const origPrice = card.getAttribute('data-orig-price') || '';
+            const desc = card.getAttribute('data-desc') || '';
+            const cat = card.getAttribute('data-cat') || 'COLLECTION';
+            const img = card.getAttribute('data-image') || '';
+            const addUrl = card.getAttribute('data-add-url');
+            const stock = parseInt(card.getAttribute('data-stock') || '1', 10);
+
+            currentQvProduct = { id, name, addUrl, stock };
+
+            if (qvBadge) qvBadge.innerText = cat.toUpperCase();
+            if (qvImage) {
+                qvImage.src = img;
+                qvImage.alt = name;
+            }
+            if (qvTitle) qvTitle.innerText = name;
+            if (qvPrice) qvPrice.innerText = price;
+            if (qvOrigPrice) {
+                qvOrigPrice.innerText = origPrice;
+                qvOrigPrice.style.display = origPrice ? 'inline' : 'none';
+            }
+            if (qvDesc) qvDesc.innerText = desc;
+
+            if (qvAddBagBtn) {
+                if (stock <= 0) {
+                    qvAddBagBtn.disabled = true;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                } else {
+                    qvAddBagBtn.disabled = false;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                }
+            }
+
+            const qvWhatsappBtn = document.getElementById('qvWhatsappBtn');
+            if (qvWhatsappBtn) {
+                const text = encodeURIComponent(`Hello ASHAS Store, I would like to enquire about "${name}" (${price}). Is it available?`);
+                qvWhatsappBtn.href = `https://wa.me/918281451481?text=${text}`;
+            }
+
+            const qvFullPageBtn = document.getElementById('qvFullPageBtn');
+            if (qvFullPageBtn) {
+                qvFullPageBtn.href = `/product/${id}/`;
+            }
+
+            if (bsQvModal) bsQvModal.show();
+        });
+    });
+
+    if (qvAddBagBtn) {
+        qvAddBagBtn.addEventListener('click', function() {
+            if (!currentQvProduct || currentQvProduct.stock <= 0) return;
+            window.handleAjaxAddToCart(qvAddBagBtn, currentQvProduct.addUrl, currentQvProduct.name);
+        });
+    }
 
 </script>
 {% endblock %}

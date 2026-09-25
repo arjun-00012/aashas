@@ -22,14 +22,14 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'image_preview', 'photo_count_display', 'price', 'discount_price', 'stock', 'is_trending', 'created_at')
+    list_display = ('admin_code', 'name', 'category', 'image_preview', 'photo_count_display', 'price', 'discount_price', 'stock', 'is_trending', 'created_at')
     list_filter = ('category', 'is_trending', 'created_at')
-    search_fields = ('name', 'description')
+    search_fields = ('admin_code', 'name', 'description')
     list_editable = ('price', 'discount_price', 'stock')
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('category', 'name', 'description', 'is_trending')
+            'fields': ('admin_code', 'category', 'name', 'description', 'is_trending')
         }),
         ('Photo 1 (Primary / Cover Photo)', {
             'fields': ('image', 'image_url'),

@@ -290,9 +290,17 @@
                     <label class="form-label-custom">Stock Quantity *</label>
                     {{ form.stock }}
                 </div>
-                <div class="col-12">
+                <div class="col-12 col-md-8">
                     <label class="form-label-custom">Product Name *</label>
                     {{ form.name }}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label-custom d-flex align-items-center justify-content-between">
+                        <span>Admin / Shipping Code</span>
+                        <span class="badge bg-dark rounded-pill" style="font-size: 0.6rem; letter-spacing: 0.05em;">Admin Only</span>
+                    </label>
+                    {{ form.admin_code }}
+                    <small class="text-secondary" style="font-size: 0.72rem;">e.g. 100, 101. Auto-set if blank.</small>
                 </div>
                 <div class="col-12 col-md-6">
                     <label class="form-label-custom">Regular Price (INR) *</label>

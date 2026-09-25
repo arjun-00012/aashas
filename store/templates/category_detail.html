@@ -101,9 +101,12 @@
                 
                 <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
                     {% if product.display_image %}
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                        <img src="{{ product.display_image }}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                     {% else %}
-                        <img src="{% static 'images/ashas_badge.png' %}" alt="{{ product.name }}" loading="lazy">
+                        <img src="{% static 'images/ashas_badge.png' %}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy">
+                    {% endif %}
+                    {% if product.display_image_2 %}
+                        <img src="{{ product.display_image_2 }}" class="luxury-img-secondary" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none';">
                     {% endif %}
 
                     {% if product.stock <= 0 %}
@@ -293,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const qvAddBagBtn = document.getElementById('qvAddBagBtn');
     let currentQvProduct = null;
 
-    document.querySelectorAll('.product-clickable-area').forEach(trigger => {
+    document.querySelectorAll('.luxury-quickview-hint').forEach(trigger => {
         const card = trigger.closest('.luxury-product-card');
         if (!card) return;
 

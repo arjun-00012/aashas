@@ -107,7 +107,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'category', 'name', 
+            'category', 'name', 'admin_code',
             'image', 'image_url', 
             'image_2', 'image_2_url', 
             'image_3', 'image_3_url', 
@@ -117,6 +117,7 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Wolf Ring, Noir Sunglasses'}),
+            'admin_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 100, 101 (Leave blank to auto-generate)'}),
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-1.webp (Optional direct URL)'}),
             'image_2': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
@@ -132,6 +133,7 @@ class ProductForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Product details, sizing, material...'}),
         }
         help_texts = {
+            'admin_code': 'Internal shipping code visible ONLY to admin. Auto-assigned sequentially (100, 101, etc.) if left blank.',
             'image': 'Photo 1 (Cover / Main Photo) - Recommended: 1000 × 1000 px (1:1 Square). Max 5 MB.',
             'image_url': 'Direct high-res link to Photo 1 (e.g. Cloudinary, CDN, Imgur).',
             'image_2': 'Photo 2 (Side / Angle View) - Recommended: 1:1 Square. Max 5 MB.',
@@ -142,6 +144,16 @@ class ProductForm(forms.ModelForm):
             'image_4_url': 'Direct link to Photo 4 (optional).',
             'is_trending': 'Feature this item prominently in the homepage Trending Now section.',
         }
+
+    def clean_admin_code(self):
+        code = (self.cleaned_data.get('admin_code') or '').strip()
+        if code:
+            qs = Product.objects.filter(admin_code=code)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError(f"Admin shipping code '{code}' is already assigned to another product.")
+        return code or None
 
     def _validate_image_field(self, field_name):
         img = self.cleaned_data.get(field_name)
