@@ -489,7 +489,7 @@
         white-space: nowrap;
     }
 
-    /* Horizontal Product Carousel Track */
+    /* Horizontal Product Carousel Track - Minimalist Luxury */
     .product-scroll-track {
         display: flex;
         flex-wrap: nowrap;
@@ -499,43 +499,63 @@
         min-width: 0;
         gap: 14px;
         scroll-snap-type: x mandatory;
-        scroll-padding: 0 12px;
+        scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        padding: 6px 2px 16px 2px;
+        padding: 4px 2px 14px 2px;
     }
 
     .product-scroll-track::-webkit-scrollbar {
         display: none;
     }
 
+    .product-scroll-track.is-dragging {
+        scroll-snap-type: none;
+        scroll-behavior: auto;
+        cursor: grabbing;
+        user-select: none;
+    }
+
     .product-scroll-item {
-        flex: 0 0 clamp(165px, 44vw, 220px);
-        max-width: 220px;
-        min-width: 155px;
+        flex: 0 0 calc((100% - (4 * 14px)) / 5);
+        min-width: calc((100% - (4 * 14px)) / 5);
+        max-width: calc((100% - (4 * 14px)) / 5);
         scroll-snap-align: start;
         display: flex;
         flex-direction: column;
     }
 
-    @media (min-width: 576px) {
-        .product-scroll-item {
-            flex: 0 0 clamp(200px, 30vw, 240px);
-            max-width: 240px;
-        }
+    @media (max-width: 1100px) {
         .product-scroll-track {
-            gap: 18px;
+            gap: 12px;
+        }
+        .product-scroll-item {
+            flex: 0 0 calc((100% - (3 * 12px)) / 4);
+            min-width: calc((100% - (3 * 12px)) / 4);
+            max-width: calc((100% - (3 * 12px)) / 4);
         }
     }
 
-    @media (min-width: 992px) {
-        .product-scroll-item {
-            flex: 0 0 clamp(220px, 22vw, 260px);
-            max-width: 260px;
-        }
+    @media (max-width: 820px) {
         .product-scroll-track {
-            gap: 22px;
+            gap: 10px;
+        }
+        .product-scroll-item {
+            flex: 0 0 calc((100% - (2 * 10px)) / 3);
+            min-width: calc((100% - (2 * 10px)) / 3);
+            max-width: calc((100% - (2 * 10px)) / 3);
+        }
+    }
+
+    @media (max-width: 520px) {
+        .product-scroll-track {
+            gap: 8px;
+        }
+        .product-scroll-item {
+            flex: 0 0 calc((100% - 8px) / 2);
+            min-width: calc((100% - 8px) / 2);
+            max-width: calc((100% - 8px) / 2);
         }
     }
 
@@ -546,19 +566,27 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-color: rgba(28, 25, 23, 0.16) !important;
+        border: 1px solid rgba(23, 22, 20, 0.16) !important;
         color: #171614 !important;
         background: #FFFFFF;
+        border-radius: 50%;
         transition: all 0.2s ease;
-        font-size: 0.8rem;
-        box-shadow: 0 2px 6px rgba(28, 25, 23, 0.05);
+        font-size: 0.76rem;
+        box-shadow: 0 2px 6px rgba(23, 22, 20, 0.05);
+        cursor: pointer;
     }
 
     .scroll-btn:hover {
         background: #171614 !important;
-        color: #FCFCFB !important;
+        color: #FAF8F5 !important;
         border-color: #171614 !important;
-        transform: scale(1.06);
+        transform: scale(1.05);
+    }
+
+    .scroll-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
     }
 
     /* Product Card Specifications - Classic Luxury Aesthetic */
@@ -1508,74 +1536,88 @@
 <div class="container-fluid container-xl px-3 px-sm-4 px-md-5 w-100" style="max-width: 1440px; margin-bottom: 3.5rem;">
     {% if trending_products %}
     <section id="section-trending" class="category-section mb-0 pt-0" aria-label="New Drop Products">
-        <div class="section-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
             <div class="section-title-wrap d-flex align-items-center gap-2">
                 <span class="newdrop-title-badge"><img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop"></span>
                 <h2 class="section-title m-0 text-uppercase" style="letter-spacing: 0.08em; font-weight: 800;">NEW DROP</h2>
                 <span class="badge luxury-count-badge">{{ trending_products.count }} ITEM{{ trending_products.count|pluralize|upper }}</span>
             </div>
-            <a href="{% url 'home' %}" class="small fw-bold text-dark text-decoration-none text-uppercase d-inline-flex align-items-center gap-1" style="letter-spacing: 0.08em; font-size: 0.74rem;">
-                Explore All <i class="bi bi-arrow-right"></i>
-            </a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'category_detail' 'all' %}" class="small fw-bold text-dark text-decoration-none text-uppercase d-inline-flex align-items-center gap-1" style="letter-spacing: 0.08em; font-size: 0.74rem;">
+                    Explore All <i class="bi bi-arrow-right"></i>
+                </a>
+                {% if trending_products.count > 1 %}
+                <div class="scroll-nav-btns d-flex align-items-center gap-1">
+                    <button type="button" class="btn scroll-btn rounded-circle" id="scrollBtnLeft-trending" onclick="scrollSection('trending', -1)" aria-label="Scroll left" title="Scroll left">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn scroll-btn rounded-circle" id="scrollBtnRight-trending" onclick="scrollSection('trending', 1)" aria-label="Scroll right" title="Scroll right">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="luxury-product-grid">
+        <div class="product-scroll-track" id="scrollTrack-trending">
             {% for product in trending_products %}
-            <div class="luxury-product-card"
-                 data-id="{{ product.id }}"
-                 data-name="{{ product.name }}"
-                 data-price="RS. {{ product.current_price|floatformat:2 }}"
-                 data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
-                 data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
-                 data-cat="{{ product.category.name }}"
-                 data-stock="{{ product.stock }}"
-                 data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
-                 data-add-url="{% url 'add_to_cart' product.id %}">
-                
-                <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
-                    {% if product.display_image %}
-                        <img src="{{ product.display_image }}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
-                    {% else %}
-                        <img src="{% static 'images/ashas_badge.png' %}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy">
-                    {% endif %}
-                    {% if product.display_image_2 %}
-                        <img src="{{ product.display_image_2 }}" class="luxury-img-secondary" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none';">
-                    {% endif %}
-
-                    {% if product.stock <= 0 %}
-                        <span class="luxury-badge-soldout">SOLD OUT</span>
-                    {% elif product.is_trending %}
-                        <span class="luxury-badge-newdrop"><i class="bi bi-stars"></i> NEW DROP</span>
-                    {% endif %}
-
-                    <div class="luxury-card-overlay">
-                        <span class="luxury-quickview-hint">
-                            <i class="bi bi-eye"></i> Quick View
-                        </span>
-                        {% if product.stock > 0 %}
-                        <button type="button" class="luxury-add-btn ajax-add-to-bag"
-                                data-product-id="{{ product.id }}"
-                                data-product-name="{{ product.name }}"
-                                data-add-url="{% url 'add_to_cart' product.id %}"
-                                aria-label="Add {{ product.name }} to bag"
-                                onclick="event.preventDefault(); event.stopPropagation();">
-                            <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
-                        </button>
+            <div class="product-scroll-item">
+                <div class="luxury-product-card"
+                     data-id="{{ product.id }}"
+                     data-name="{{ product.name }}"
+                     data-price="RS. {{ product.current_price|floatformat:2 }}"
+                     data-orig-price="{% if product.discount_price %}RS. {{ product.price|floatformat:2 }}{% endif %}"
+                     data-desc="{{ product.description|default:'Contemporary apparel and statement accessory crafted with precision and premium durability.' }}"
+                     data-cat="{{ product.category.name }}"
+                     data-stock="{{ product.stock }}"
+                     data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                     data-add-url="{% url 'add_to_cart' product.id %}">
+                    
+                    <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
+                        {% if product.display_image %}
+                            <img src="{{ product.display_image }}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                        {% else %}
+                            <img src="{% static 'images/ashas_badge.png' %}" class="luxury-img-primary" alt="{{ product.name }}" loading="lazy">
                         {% endif %}
-                    </div>
-                </a>
+                        {% if product.display_image_2 %}
+                            <img src="{{ product.display_image_2 }}" class="luxury-img-secondary" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none';">
+                        {% endif %}
 
-                <div class="luxury-product-info">
-                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
-                        <h2 class="luxury-product-title" title="{{ product.name }}">
-                            {{ product.name|upper }}
-                        </h2>
+                        {% if product.stock <= 0 %}
+                            <span class="luxury-badge-soldout">SOLD OUT</span>
+                        {% elif product.is_trending %}
+                            <span class="luxury-badge-newdrop"><i class="bi bi-stars"></i> NEW DROP</span>
+                        {% endif %}
+
+                        <div class="luxury-card-overlay">
+                            <span class="luxury-quickview-hint">
+                                <i class="bi bi-eye"></i> Quick View
+                            </span>
+                            {% if product.stock > 0 %}
+                            <button type="button" class="luxury-add-btn ajax-add-to-bag"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-add-url="{% url 'add_to_cart' product.id %}"
+                                    aria-label="Add {{ product.name }} to bag"
+                                    onclick="event.preventDefault(); event.stopPropagation();">
+                                <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
+                            </button>
+                            {% endif %}
+                        </div>
                     </a>
-                    <div class="luxury-product-price-row">
-                        <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
-                        {% if product.discount_price %}
-                            <span class="luxury-price-orig">RS. {{ product.price|floatformat:2 }}</span>
-                        {% endif %}
+
+                    <div class="luxury-product-info">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                            <h2 class="luxury-product-title" title="{{ product.name }}">
+                                {{ product.name|upper }}
+                            </h2>
+                        </a>
+                        <div class="luxury-product-price-row">
+                            <span class="luxury-price">RS. {{ product.current_price|floatformat:2 }}</span>
+                            {% if product.discount_price %}
+                                <span class="luxury-price-orig">RS. {{ product.price|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1980,42 +2022,94 @@
         let isDown = false;
         let startX;
         let scrollLeft;
+        let hasMoved = false;
 
         track.addEventListener('mousedown', (e) => {
-            if (e.target.closest('button') || e.target.closest('a')) return;
+            if (e.target.closest('button') || e.target.closest('.ajax-add-to-bag')) return;
             isDown = true;
+            hasMoved = false;
             track.classList.add('is-dragging');
             startX = e.pageX - track.offsetLeft;
             scrollLeft = track.scrollLeft;
         });
 
         track.addEventListener('mouseleave', () => {
-            isDown = false;
-            track.classList.remove('is-dragging');
+            if (isDown) {
+                isDown = false;
+                track.classList.remove('is-dragging');
+            }
         });
 
         track.addEventListener('mouseup', () => {
-            isDown = false;
-            track.classList.remove('is-dragging');
+            if (isDown) {
+                isDown = false;
+                track.classList.remove('is-dragging');
+            }
         });
 
         track.addEventListener('mousemove', (e) => {
             if (!isDown) return;
-            e.preventDefault();
             const x = e.pageX - track.offsetLeft;
             const walk = (x - startX) * 1.5;
+            if (Math.abs(walk) > 6) {
+                hasMoved = true;
+            }
+            e.preventDefault();
             track.scrollLeft = scrollLeft - walk;
         });
+
+        track.addEventListener('click', (e) => {
+            if (hasMoved) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
     });
+
+    // Dynamic Scroll Button State updater
+    function updateScrollButtons(slug) {
+        const track = document.getElementById(`scrollTrack-${slug}`);
+        const btnLeft = document.getElementById(`scrollBtnLeft-${slug}`);
+        const btnRight = document.getElementById(`scrollBtnRight-${slug}`);
+        if (!track) return;
+        
+        const tolerance = 6;
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        
+        if (btnLeft) {
+            btnLeft.disabled = track.scrollLeft <= tolerance;
+        }
+        if (btnRight) {
+            btnRight.disabled = track.scrollLeft >= maxScroll - tolerance;
+        }
+    }
 
     // Horizontal Scroll Function for Buttons (exposed globally for inline onclick)
     function scrollSection(slug, direction) {
         const track = document.getElementById(`scrollTrack-${slug}`);
         if (!track) return;
-        const scrollAmount = track.offsetWidth * 0.75 * direction;
+        const firstItem = track.querySelector('.product-scroll-item');
+        const itemWidth = firstItem ? firstItem.getBoundingClientRect().width : 220;
+        const scrollAmount = Math.max(itemWidth + 14, track.clientWidth * 0.75) * direction;
         track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        setTimeout(() => updateScrollButtons(slug), 350);
     }
     window.scrollSection = scrollSection;
+
+    // Attach scroll tracking to tracks with nav buttons
+    document.querySelectorAll('.product-scroll-track').forEach(track => {
+        const id = track.id;
+        if (id && id.startsWith('scrollTrack-')) {
+            const slug = id.replace('scrollTrack-', '');
+            track.addEventListener('scroll', () => {
+                updateScrollButtons(slug);
+            }, { passive: true });
+            window.addEventListener('resize', () => {
+                updateScrollButtons(slug);
+            }, { passive: true });
+            setTimeout(() => updateScrollButtons(slug), 100);
+        }
+    });
 
     // =========================================================
     // 3. Back to Top Button
