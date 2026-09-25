@@ -262,6 +262,20 @@ def home(request):
 
 def category_detail(request, slug):
     clean_slug = slug.replace('.html', '').strip().lower()
+    categories = Category.objects.all()
+
+    if clean_slug in ('all', 'all-products', 'all-collections', 'collections'):
+        cat = Category(name='All Products', slug='all')
+        products = Product.objects.all().order_by('-created_at')
+        return render(request, 'category_detail.html', {
+            'category': cat,
+            'seo_slug': 'all',
+            'products': products,
+            'categories': categories,
+            'all_categories': categories,
+            'is_all_view': True,
+        })
+
     slug_synonyms = {
         'cooling-glass': 'shades',
         'cooling-glasses': 'shades',

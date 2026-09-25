@@ -73,11 +73,11 @@
 
             <div class="collection-pills-scroll mt-3 pt-2">
                 <div class="d-flex align-items-center gap-2 overflow-auto pb-1 collection-pills-track">
-                    <a href="{% url 'home' %}" class="collection-pill">
-                        ALL COLLECTIONS
+                    <a href="{% url 'category_detail' 'all' %}" class="collection-pill {% if category.slug == 'all' or is_all_view %}active{% endif %}">
+                        ALL PRODUCTS
                     </a>
                     {% for cat in all_categories %}
-                    <a href="{% url 'category_detail' cat.slug %}" class="collection-pill {% if cat.slug == category.slug %}active{% endif %}">
+                    <a href="{% url 'category_detail' cat.slug %}" class="collection-pill {% if cat.slug == category.slug and not is_all_view %}active{% endif %}">
                         {{ cat.name|upper }}
                     </a>
                     {% endfor %}
