@@ -373,7 +373,7 @@
     </form>
 
     <div class="card-admin p-3 p-md-4 mb-4" style="background: linear-gradient(135deg, #FAF8F5 0%, #FFFFFF 100%); border-left: 4px solid #10b981;">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2{% if rzp_live_payments %} mb-3{% endif %}">
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-success rounded-pill px-2.5 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
                     <i class="bi bi-patch-check-fill me-1"></i> Live Gateway Active
@@ -384,30 +384,6 @@
                 <a href="https://dashboard.razorpay.com/app/settlements" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
                     <i class="bi bi-bank"></i> View Bank Settlements <i class="bi bi-box-arrow-up-right small"></i>
                 </a>
-            </div>
-        </div>
-
-        <div class="row g-3 small">
-            <div class="col-12 col-md-4">
-                <div class="p-2.5 rounded-3 bg-white border h-100" style="border-color: var(--border-subtle) !important;">
-                    <div class="text-secondary fw-semibold mb-1"><i class="bi bi-key-fill text-warning me-1"></i> Live Account ID</div>
-                    <code class="text-dark fw-bold">{{ rzp_key_id }}</code>
-                    <div class="text-muted mt-1" style="font-size: 0.74rem;">Direct settlement connected to your merchant bank account.</div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="p-2.5 rounded-3 bg-white border h-100" style="border-color: var(--border-subtle) !important;">
-                    <div class="text-secondary fw-semibold mb-1"><i class="bi bi-clock-history text-primary me-1"></i> Settlement Cycle</div>
-                    <div class="fw-bold text-dark">T+2 Business Days (Batch Payout)</div>
-                    <div class="text-muted mt-1" style="font-size: 0.74rem;">RBI regulations: Razorpay aggregates captured payments and transfers one consolidated payout to your bank.</div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="p-2.5 rounded-3 bg-white border h-100" style="border-color: var(--border-subtle) !important;">
-                    <div class="text-secondary fw-semibold mb-1"><i class="bi bi-shield-check text-success me-1"></i> Capture Verification</div>
-                    <div class="fw-bold text-success">100% Auto-Captured</div>
-                    <div class="text-muted mt-1" style="font-size: 0.74rem;">All verified orders are immediately captured so funds never expire or cancel.</div>
-                </div>
             </div>
         </div>
 
