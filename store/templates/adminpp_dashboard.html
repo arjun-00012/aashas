@@ -242,6 +242,149 @@
             }
         }
 
+        /* Category Carousel System - 100% Width with Controlled Height */
+        .admin-cat-carousel-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .admin-cat-carousel-track {
+            display: flex;
+            align-items: stretch;
+            gap: 14px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 2px 14px 2px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(28, 25, 23, 0.18) transparent;
+        }
+
+        .admin-cat-carousel-track::-webkit-scrollbar {
+            height: 6px;
+        }
+        .admin-cat-carousel-track::-webkit-scrollbar-track {
+            background: rgba(28, 25, 23, 0.04);
+            border-radius: 4px;
+        }
+        .admin-cat-carousel-track::-webkit-scrollbar-thumb {
+            background: rgba(28, 25, 23, 0.18);
+            border-radius: 4px;
+        }
+        .admin-cat-carousel-track::-webkit-scrollbar-thumb:hover {
+            background: rgba(28, 25, 23, 0.35);
+        }
+
+        .admin-cat-card {
+            flex: 0 0 195px;
+            width: 195px;
+            background: #FAF8F5;
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .admin-cat-card:hover {
+            background: #FFFFFF;
+            border-color: rgba(28, 25, 23, 0.22);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px -4px rgba(28, 25, 23, 0.08);
+        }
+
+        .admin-cat-img-box {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #FFFFFF;
+            border: 1px solid rgba(28, 25, 23, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(28, 25, 23, 0.04);
+        }
+
+        .admin-cat-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .admin-cat-card-add {
+            flex: 0 0 160px;
+            width: 160px;
+            min-height: 175px;
+            border: 2px dashed rgba(28, 25, 23, 0.16);
+            border-radius: 14px;
+            background: rgba(28, 25, 23, 0.02);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .admin-cat-card-add:hover {
+            border-color: #171614;
+            background: #FFFFFF;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(28, 25, 23, 0.06);
+        }
+
+        .add-cat-icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #171614;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-cat-card-add:hover .add-cat-icon-circle {
+            transform: scale(1.1);
+        }
+
+        /* Sold Out Table Row Highlight */
+        .table-sold-out-row {
+            border-left: 4px solid #DC2626 !important;
+            background: rgba(220, 38, 38, 0.02) !important;
+        }
+        .table-sold-out-row:hover {
+            background: rgba(220, 38, 38, 0.05) !important;
+        }
+
+        .quick-filter-btn {
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .quick-filter-btn.active {
+            background-color: #171614 !important;
+            color: #FFFFFF !important;
+            border-color: #171614 !important;
+        }
+        .quick-filter-btn[data-filter="sold_out"].active {
+            background-color: #DC2626 !important;
+            color: #FFFFFF !important;
+            border-color: #DC2626 !important;
+        }
+
+        /* Pulse animation for sold out badge */
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.03); }
+        }
+        .animate-pulse {
+            animation: subtlePulse 2s infinite ease-in-out;
+        }
+
         /* Floating Toast / Notification Popup */
         .admin-toast-container {
             position: fixed;
@@ -485,20 +628,27 @@
         </div>
     {% endif %}
 
-    <div class="row g-3 g-md-4">
-        <div class="col-12 col-lg-5">
-            <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h2 class="h5 m-0 fw-bold text-dark">Categories</h2>
-                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0 d-none d-sm-inline-flex align-items-center" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>800×800</span>
-                        </div>
-                        <small class="text-secondary">{{ categories|length }} Total</small>
+    <!-- Block 1: Categories Section (100% Width Carousel) -->
+    <div class="row g-3 g-md-4 mb-2">
+        <div class="col-12">
+            <div class="card-admin p-3 p-md-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="h5 m-0 fw-bold text-dark">Categories</h2>
+                        <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1">{{ categories|length }} Collections</span>
+                        <span class="badge bg-light text-secondary border rounded-pill px-2 py-0 d-none d-sm-inline-flex align-items-center" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>800×800</span>
                     </div>
-                    <a href="{% url 'category_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-2 fw-semibold text-nowrap shadow-sm d-inline-flex align-items-center">
-                        <i class="bi bi-plus-lg me-1"></i> Add Category
-                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center p-0" id="catCarouselPrevBtn" style="width: 34px; height: 34px;" title="Scroll Left" aria-label="Previous Categories">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center p-0" id="catCarouselNextBtn" style="width: 34px; height: 34px;" title="Scroll Right" aria-label="Next Categories">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                        <a href="{% url 'category_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-2 fw-semibold text-nowrap shadow-sm d-inline-flex align-items-center ms-1">
+                            <i class="bi bi-plus-lg me-1"></i> Add Category
+                        </a>
+                    </div>
                 </div>
 
                 {% for message in messages %}
@@ -512,88 +662,113 @@
                     </div>
                     {% endif %}
                 {% endfor %}
-                
-                <div class="table-responsive flex-grow-1">
-                    <table class="table table-custom align-middle">
-                        <thead>
-                            <tr>
-                                <th class="text-nowrap" style="width: 56px;">Photo</th>
-                                <th>Name</th>
-                                <th class="text-end text-nowrap" style="width: 90px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cat in categories %}
-                            <tr>
-                                <td class="text-nowrap">
-                                    {% if cat.display_image %}
-                                        <img src="{{ cat.display_image }}" class="img-thumb" alt="{{ cat.name }}">
-                                    {% else %}
-                                        <div class="img-thumb d-inline-flex align-items-center justify-content-center text-secondary">
-                                            <i class="bi bi-image"></i>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                                <td class="fw-semibold text-dark">{{ cat.name }}</td>
-                                <td class="text-end text-nowrap">
-                                    <a href="{% url 'category_detail' cat.slug %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm btn-action me-1" title="View Live Page (/category/{{ cat.slug }}/)">
-                                        <i class="bi bi-box-arrow-up-right"></i>
-                                    </a>
-                                    <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-dark btn-sm btn-action me-1" title="Edit Category">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'category_delete' cat.pk %}" onclick="return confirm('Delete category: {{ cat.name }}?')" class="btn btn-outline-danger btn-sm btn-action" title="Delete Category">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center text-secondary py-4 small">
-                                    <i class="bi bi-folder-x fs-3 d-block mb-1 text-muted"></i>
-                                    No categories created yet.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+                <div class="admin-cat-carousel-wrapper">
+                    <div class="admin-cat-carousel-track" id="adminCatCarouselTrack">
+                        {% for cat in categories %}
+                        <div class="admin-cat-card" id="catCard-{{ cat.pk }}" data-cat-id="{{ cat.pk }}">
+                            <div class="admin-cat-img-box mb-2">
+                                {% if cat.display_image %}
+                                    <img src="{{ cat.display_image }}" class="admin-cat-img" alt="{{ cat.name }}">
+                                {% else %}
+                                    <div class="admin-cat-img d-flex align-items-center justify-content-center bg-light text-secondary">
+                                        <i class="bi bi-folder-fill fs-4"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="admin-cat-name fw-bold text-dark text-truncate w-100" title="{{ cat.name }}">{{ cat.name }}</div>
+                            <small class="text-secondary mb-2" style="font-size: 0.72rem;">{{ cat.products.count }} Item{{ cat.products.count|pluralize }}</small>
+                            <div class="admin-cat-actions d-flex align-items-center gap-1 mt-auto">
+                                <a href="{% url 'category_detail' cat.slug %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm btn-action" title="View Live Page (/category/{{ cat.slug }}/)">
+                                    <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+                                </a>
+                                <a href="{% url 'category_edit' cat.pk %}" class="btn btn-outline-dark btn-sm btn-action" title="Edit Category">
+                                    <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-action btn-delete-category" data-url="{% url 'category_delete' cat.pk %}" data-name="{{ cat.name }}" data-pk="{{ cat.pk }}" title="Delete Category">
+                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center text-secondary w-100">
+                            <i class="bi bi-folder-x fs-2 text-muted d-block mb-1"></i>
+                            No categories created yet. Click "Add Category" to create your first collection.
+                        </div>
+                        {% endfor %}
+
+                        <a href="{% url 'category_add' %}" class="admin-cat-card-add d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                            <div class="add-cat-icon-circle mb-2">
+                                <i class="bi bi-plus-lg fs-5"></i>
+                            </div>
+                            <span class="fw-bold text-dark small">New Category</span>
+                            <span class="text-secondary" style="font-size: 0.68rem;">Create Collection</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-12 col-lg-7">
-            <div class="card-admin p-3 p-md-4 h-100 d-flex flex-column">
-                <div class="d-flex align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+    <!-- Block 2: Products Section (100% Full Table Width on a New Line) -->
+    <div class="row g-3 g-md-4">
+        <div class="col-12">
+            <div class="card-admin p-3 p-md-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                     <div>
                         <div class="d-flex align-items-center gap-2">
-                            <h2 class="h5 m-0 fw-bold text-dark">Products</h2>
+                            <h2 class="h5 m-0 fw-bold text-dark">Products &amp; Live Inventory</h2>
                             <span class="badge bg-light text-secondary border rounded-pill px-2 py-0 d-none d-sm-inline-flex align-items-center" style="font-size: 0.65rem;" title="Recommended upload size"><i class="bi bi-aspect-ratio me-1"></i>1000×1000</span>
                         </div>
-                        <small class="text-secondary">{{ products|length }} Listed</small>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                            <small class="text-secondary fw-semibold" id="adminTotalProductText">{{ products|length }} Total Listed</small>
+                            <span class="text-muted">•</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5" id="adminInStockBadge" style="font-size: 0.72rem;">
+                                <i class="bi bi-check2-circle me-1"></i><span id="adminInStockCount">{{ in_stock_count }}</span> In Stock
+                            </span>
+                            <span class="badge bg-danger text-white rounded-pill px-2.5 py-0.5 shadow-sm fw-bold {% if sold_out_count > 0 %}animate-pulse{% endif %}" id="adminSoldOutBadge" style="font-size: 0.72rem; letter-spacing: 0.04em; {% if sold_out_count == 0 %}display: none;{% endif %}">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i><span id="adminSoldOutCount">{{ sold_out_count }}</span> SOLD OUT
+                            </span>
+                            <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-2.5 py-0.5" id="adminTrendingBadge" style="font-size: 0.72rem;">
+                                <i class="bi bi-star-fill text-warning me-1"></i><span id="adminTrendingCount">{{ trending_count }}</span> Trending
+                            </span>
+                        </div>
                     </div>
                     <a href="{% url 'product_add' %}" class="btn btn-sm btn-obsidian rounded-pill px-3 py-2 fw-semibold text-nowrap shadow-sm d-inline-flex align-items-center">
                         <i class="bi bi-plus-lg me-1"></i> Add Product
                     </a>
                 </div>
 
-                <div class="row g-2 mb-3">
-                    <div class="col-12 col-sm-6">
+                <div class="row g-2 mb-3 align-items-center">
+                    <div class="col-12 col-md-5">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-secondary border-end-0"><i class="bi bi-search"></i></span>
-                            <input type="text" id="adminProductSearchInput" class="form-control form-control-sm border-start-0 ps-0" placeholder="Search product name...">
+                            <input type="text" id="adminProductSearchInput" class="form-control form-control-sm border-start-0 ps-0" placeholder="Search by name, internal shipping code (#101), category...">
                         </div>
                     </div>
-                    <div class="col-12 col-sm-6">
+                    <div class="col-12 col-md-4">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-secondary border-end-0"><i class="bi bi-funnel"></i></span>
                             <select id="productCategoryFilter" class="form-select form-select-sm border-start-0 ps-0">
-                                <option value="all">All Categories</option>
+                                <option value="all">All Categories ({{ products|length }})</option>
+                                <option value="sold_out" {% if sold_out_count > 0 %}style="color: #dc2626; font-weight: 700;"{% endif %}>⚠️ SOLD OUT Products ({{ sold_out_count }})</option>
+                                <option value="in_stock">✓ In Stock Products ({{ in_stock_count }})</option>
                                 <option value="trending">★ Trending Only ({{ trending_count }})</option>
+                                <optgroup label="Filter by Collection">
                                 {% for cat in categories %}
                                     <option value="{{ cat.name }}">{{ cat.name }}</option>
                                 {% endfor %}
+                                </optgroup>
                             </select>
                         </div>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex align-items-center justify-content-md-end gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 quick-filter-btn" data-filter="sold_out" title="Show only Sold Out items">
+                            <i class="bi bi-exclamation-octagon me-1"></i>Sold Out (<span id="quickSoldOutCount">{{ sold_out_count }}</span>)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-2.5 py-1 quick-filter-btn active" data-filter="all" title="Show all products">
+                            All
+                        </button>
                     </div>
                 </div>
 
@@ -616,16 +791,23 @@
                                 <th>Product</th>
                                 <th class="text-nowrap">Category</th>
                                 <th class="text-nowrap">Price</th>
-                                <th class="text-nowrap">Stock</th>
-                                <th class="text-center text-nowrap" style="width: 105px;">Trending</th>
-                                <th class="text-end text-nowrap" style="width: 90px;">Actions</th>
+                                <th class="text-nowrap">Stock &amp; Availability</th>
+                                <th class="text-center text-nowrap" style="width: 110px;">Trending</th>
+                                <th class="text-end text-nowrap" style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody">
                             {% for p in products %}
-                            <tr class="product-row" data-category="{{ p.category.name }}" data-trending="{% if p.is_trending %}true{% else %}false{% endif %}" data-name="{{ p.name }}" data-admin-code="{{ p.admin_code|default:'' }}">
+                            <tr class="product-row {% if p.stock <= 0 %}table-sold-out-row{% endif %}" 
+                                id="productRow-{{ p.pk }}"
+                                data-category="{{ p.category.name }}" 
+                                data-trending="{% if p.is_trending %}true{% else %}false{% endif %}" 
+                                data-stock="{{ p.stock }}"
+                                data-sold-out="{% if p.stock <= 0 %}true{% else %}false{% endif %}"
+                                data-name="{{ p.name }}" 
+                                data-admin-code="{{ p.admin_code|default:'' }}">
                                 <td>
-                                    <div class="d-flex align-items-center gap-2" style="min-width: 140px;">
+                                    <div class="d-flex align-items-center gap-2.5" style="min-width: 180px;">
                                         {% if p.display_image %}
                                             <img src="{{ p.display_image }}" class="img-thumb flex-shrink-0" alt="{{ p.name }}">
                                         {% else %}
@@ -633,12 +815,17 @@
                                                 <i class="bi bi-image"></i>
                                             </div>
                                         {% endif %}
-                                        <div class="min-w-0">
-                                            <div class="fw-semibold text-dark text-truncate d-flex align-items-center gap-1.5" style="max-width: 220px;" title="{{ p.name }}">
+                                        <div class="min-w-0 flex-grow-1">
+                                            <div class="fw-semibold text-dark text-truncate d-flex align-items-center gap-1.5 product-title-wrap" style="max-width: 320px;" title="{{ p.name }}">
+                                                {% if p.stock <= 0 %}
+                                                    <span class="sold-out-pill badge bg-danger text-white fw-bold me-1 flex-shrink-0" style="font-size: 0.65rem; letter-spacing: 0.04em;">
+                                                        <i class="bi bi-x-octagon-fill me-0.5"></i>SOLD OUT
+                                                    </span>
+                                                {% endif %}
                                                 <span class="badge bg-dark rounded-pill px-2 py-0.5 fw-bold text-white flex-shrink-0" style="font-size: 0.68rem; letter-spacing: 0.04em;" title="Internal Shipping Code: {{ p.admin_code }}">#{{ p.admin_code|default:p.id }}</span>
                                                 <span class="text-truncate">{{ p.name }}</span>
                                             </div>
-                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                            <div class="d-flex align-items-center gap-1.5 mt-1">
                                                 {% if p.discount_price %}
                                                     <small class="badge bg-danger" style="font-size: 0.6rem;">SALE</small>
                                                 {% endif %}
@@ -650,15 +837,21 @@
                                     </div>
                                 </td>
                                 <td class="text-nowrap">
-                                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small" style="border-color: var(--border-subtle) !important;">
+                                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 small" style="border-color: var(--border-subtle) !important;">
                                         {{ p.category.name }}
                                     </span>
                                 </td>
                                 <td class="text-nowrap fw-bold text-dark">₹{{ p.current_price }}</td>
-                                <td class="text-nowrap">
-                                    <span class="badge {% if p.stock > 0 %}bg-success text-white{% else %}bg-danger text-white{% endif %} rounded-pill px-2 py-1">
-                                        {{ p.stock }}
-                                    </span>
+                                <td class="text-nowrap stock-badge-container">
+                                    {% if p.stock > 0 %}
+                                        <span class="badge bg-success text-white rounded-pill px-2.5 py-1 fw-semibold">
+                                            <i class="bi bi-check-circle me-1"></i>{{ p.stock }} in stock
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger text-white rounded-pill px-2.5 py-1 fw-bold shadow-sm">
+                                            <i class="bi bi-x-circle me-1"></i>0 (SOLD OUT)
+                                        </span>
+                                    {% endif %}
                                 </td>
                                 <td class="text-center text-nowrap">
                                     <button type="button" 
@@ -674,12 +867,20 @@
                                     </button>
                                 </td>
                                 <td class="text-end text-nowrap">
+                                    <a href="{% url 'product_detail' p.pk %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm btn-action me-1" title="View Live Product Page">
+                                        <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+                                    </a>
                                     <a href="{% url 'product_edit' p.pk %}" class="btn btn-outline-dark btn-sm btn-action me-1" title="Edit Product">
-                                        <i class="bi bi-pencil"></i>
+                                        <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
                                     </a>
-                                    <a href="{% url 'product_delete' p.pk %}" onclick="return confirm('Delete product: {{ p.name }}?')" class="btn btn-outline-danger btn-sm btn-action" title="Delete Product">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-outline-danger btn-sm btn-action btn-delete-product" 
+                                            data-url="{% url 'product_delete' p.pk %}" 
+                                            data-pk="{{ p.pk }}" 
+                                            data-name="{{ p.name }}" 
+                                            title="Delete Product">
+                                        <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% empty %}
@@ -884,7 +1085,178 @@
             });
         });
 
-        // Combined Category + Search Filter
+        // Category Carousel Scroll Navigation
+        const catTrack = document.getElementById('adminCatCarouselTrack');
+        const catPrevBtn = document.getElementById('catCarouselPrevBtn');
+        const catNextBtn = document.getElementById('catCarouselNextBtn');
+
+        if (catPrevBtn && catTrack) {
+            catPrevBtn.addEventListener('click', () => {
+                catTrack.scrollBy({ left: -320, behavior: 'smooth' });
+            });
+        }
+        if (catNextBtn && catTrack) {
+            catNextBtn.addEventListener('click', () => {
+                catTrack.scrollBy({ left: 320, behavior: 'smooth' });
+            });
+        }
+
+        // Live Count Dynamic Updater
+        function updateLiveCounts() {
+            const totalText = document.getElementById('adminTotalProductText');
+            const inStockCount = document.getElementById('adminInStockCount');
+            const soldOutCount = document.getElementById('adminSoldOutCount');
+            const quickSoldOut = document.getElementById('quickSoldOutCount');
+            const soldOutBadge = document.getElementById('adminSoldOutBadge');
+
+            const rows = document.querySelectorAll('.product-row');
+            let soldOut = 0;
+            let inStock = 0;
+            rows.forEach(r => {
+                if (r.getAttribute('data-sold-out') === 'true') soldOut++;
+                else inStock++;
+            });
+
+            if (totalText) totalText.innerText = `${rows.length} Total Listed`;
+            if (inStockCount) inStockCount.innerText = inStock;
+            if (soldOutCount) soldOutCount.innerText = soldOut;
+            if (quickSoldOut) quickSoldOut.innerText = soldOut;
+            if (soldOutBadge) {
+                soldOutBadge.style.display = soldOut > 0 ? '' : 'none';
+                if (soldOut > 0) soldOutBadge.classList.add('animate-pulse');
+                else soldOutBadge.classList.remove('animate-pulse');
+            }
+        }
+
+        // Zero-Refresh AJAX Product Deletion
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-delete-product');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const pName = btn.getAttribute('data-name') || 'Product';
+            const deleteUrl = btn.getAttribute('data-url');
+            const pId = btn.getAttribute('data-pk');
+
+            if (!confirm(`Are you sure you want to delete "${pName}"?`)) {
+                return;
+            }
+
+            const row = document.getElementById(`productRow-${pId}`) || btn.closest('.product-row');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" style="width: 11px; height: 11px;"></span>';
+
+            try {
+                const res = await fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.status === 'deleted') {
+                    if (row) {
+                        row.style.transition = 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(24px)';
+                        row.style.backgroundColor = '#FEE2E2';
+                        setTimeout(() => {
+                            row.remove();
+                            updateLiveCounts();
+                            applyProductFilters();
+                        }, 320);
+                    }
+                    showFloatingAdminToast('Product Deleted', data.message || `Product "${pName}" deleted successfully.`, false);
+                } else if (res.ok && data.status === 'soft_deleted') {
+                    // Past orders safeguard: update in place to SOLD OUT without refreshing
+                    if (row) {
+                        row.classList.add('table-sold-out-row');
+                        row.setAttribute('data-stock', '0');
+                        row.setAttribute('data-sold-out', 'true');
+                        const stockCell = row.querySelector('.stock-badge-container');
+                        if (stockCell) {
+                            stockCell.innerHTML = '<span class="badge bg-danger text-white rounded-pill px-2.5 py-1 fw-bold shadow-sm"><i class="bi bi-x-circle me-1"></i>0 (SOLD OUT)</span>';
+                        }
+                        const titleWrap = row.querySelector('.product-title-wrap');
+                        if (titleWrap && !titleWrap.querySelector('.sold-out-pill')) {
+                            titleWrap.insertAdjacentHTML('afterbegin', '<span class="sold-out-pill badge bg-danger text-white fw-bold me-1 flex-shrink-0" style="font-size: 0.65rem; letter-spacing: 0.04em;"><i class="bi bi-x-octagon-fill me-0.5"></i>SOLD OUT</span>');
+                        }
+                    }
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                    updateLiveCounts();
+                    showFloatingAdminToast('Marked as Sold Out', data.message, false, false);
+                } else {
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                    showFloatingAdminToast('Delete Failed', data.message || 'Could not delete product.', false, true);
+                }
+            } catch (err) {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+                showFloatingAdminToast('Network Error', 'Please check your connection.', false, true);
+            }
+        });
+
+        // Zero-Refresh AJAX Category Deletion
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-delete-category');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const catName = btn.getAttribute('data-name') || 'Category';
+            const deleteUrl = btn.getAttribute('data-url');
+            const catId = btn.getAttribute('data-pk');
+
+            if (!confirm(`Are you sure you want to delete category "${catName}"?`)) {
+                return;
+            }
+
+            const card = document.getElementById(`catCard-${catId}`) || btn.closest('.admin-cat-card');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" style="width: 11px; height: 11px;"></span>';
+
+            try {
+                const res = await fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.status === 'deleted') {
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.85)';
+                        setTimeout(() => card.remove(), 300);
+                    }
+                    showFloatingAdminToast('Category Deleted', data.message || `Category "${catName}" deleted successfully.`, false);
+                } else {
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                    showFloatingAdminToast('Cannot Delete', data.message || 'Category cannot be deleted.', false, true);
+                }
+            } catch (err) {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+                showFloatingAdminToast('Network Error', 'Please check your connection.', false, true);
+            }
+        });
+
+        // Combined Category, Sold-Out, and Search Filter
         function applyProductFilters() {
             const catFilter = (document.getElementById('productCategoryFilter')?.value || 'all').toLowerCase().trim();
             const searchVal = (document.getElementById('adminProductSearchInput')?.value || '').toLowerCase().trim();
@@ -897,10 +1269,15 @@
                 const rowName = (row.getAttribute('data-name') || '').toLowerCase().trim();
                 const rowCode = (row.getAttribute('data-admin-code') || '').toLowerCase().trim();
                 const isTrending = row.getAttribute('data-trending') === 'true';
+                const isSoldOut = row.getAttribute('data-sold-out') === 'true';
 
                 let matchesCat = false;
                 if (catFilter === 'all') {
                     matchesCat = true;
+                } else if (catFilter === 'sold_out') {
+                    matchesCat = isSoldOut;
+                } else if (catFilter === 'in_stock') {
+                    matchesCat = !isSoldOut;
                 } else if (catFilter === 'trending') {
                     matchesCat = isTrending;
                 } else if (rowCat === catFilter) {
@@ -926,10 +1303,28 @@
         }
 
         const catSelect = document.getElementById('productCategoryFilter');
-        if (catSelect) catSelect.addEventListener('change', applyProductFilters);
+        if (catSelect) catSelect.addEventListener('change', function() {
+            document.querySelectorAll('.quick-filter-btn').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-filter') === this.value);
+            });
+            applyProductFilters();
+        });
 
         const searchBox = document.getElementById('adminProductSearchInput');
         if (searchBox) searchBox.addEventListener('input', applyProductFilters);
+
+        // Quick Filter Buttons sync with dropdown
+        document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filterVal = this.getAttribute('data-filter');
+                if (catSelect) {
+                    catSelect.value = filterVal;
+                    applyProductFilters();
+                }
+            });
+        });
     });
 </script>
 </body>

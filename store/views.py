@@ -1408,6 +1408,8 @@ def staff_required(view_func):
 def adminpp_dashboard(request):
     products = Product.objects.select_related('category').all().order_by('-created_at')
     trending_count = products.filter(is_trending=True).count()
+    sold_out_count = products.filter(stock__lte=0).count()
+    in_stock_count = products.filter(stock__gt=0).count()
     from django.conf import settings
     db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
     is_postgres = 'postgres' in db_engine or bool(os.environ.get('DATABASE_URL'))
@@ -1415,6 +1417,8 @@ def adminpp_dashboard(request):
         'categories': Category.objects.all(),
         'products': products,
         'trending_count': trending_count,
+        'sold_out_count': sold_out_count,
+        'in_stock_count': in_stock_count,
         'inquiries': ContactMessage.objects.all().order_by('-created_at'),
         'db_engine': db_engine,
         'is_postgres': is_postgres,
@@ -1642,12 +1646,24 @@ def category_create_or_edit(request, pk=None):
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     cat_name = category.name
+    is_ajax = (
+        request.headers.get('x-requested-with') == 'XMLHttpRequest' or
+        request.GET.get('format') == 'json' or
+        request.POST.get('format') == 'json' or
+        'application/json' in request.headers.get('accept', '')
+    )
     # Guard against cascading order item destruction
     if OrderItem.objects.filter(product__category=category).exists():
-        messages.warning(request, f'Category "{cat_name}" contains products with past customer orders and cannot be deleted to preserve order history.')
+        msg = f'Category "{cat_name}" contains products with past customer orders and cannot be deleted to preserve order history.'
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': msg}, status=400)
+        messages.warning(request, msg)
         return redirect('adminpp_dashboard')
     category.delete()
-    messages.success(request, f'Category "{cat_name}" deleted successfully.')
+    msg = f'Category "{cat_name}" deleted successfully.'
+    if is_ajax:
+        return JsonResponse({'status': 'deleted', 'message': msg, 'category_id': pk})
+    messages.success(request, msg)
     return redirect('adminpp_dashboard')
 
 @staff_required
@@ -1673,15 +1689,37 @@ def product_create_or_edit(request, pk=None):
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     p_name = product.name
+    is_ajax = (
+        request.headers.get('x-requested-with') == 'XMLHttpRequest' or
+        request.GET.get('format') == 'json' or
+        request.POST.get('format') == 'json' or
+        'application/json' in request.headers.get('accept', '')
+    )
     # Guard against cascading order item destruction
     if OrderItem.objects.filter(product=product).exists():
         product.stock = 0
         product.is_trending = False
         product.save(update_fields=['stock', 'is_trending'])
-        messages.warning(request, f'Product "{p_name}" has existing order records and cannot be permanently deleted to protect customer receipts. It has been marked as out-of-stock and unlisted.')
+        msg = f'Product "{p_name}" has past customer orders and cannot be permanently deleted. It has been marked as Sold Out and unlisted.'
+        if is_ajax:
+            return JsonResponse({
+                'status': 'soft_deleted',
+                'message': msg,
+                'product_id': pk,
+                'stock': 0,
+                'is_sold_out': True
+            })
+        messages.warning(request, msg)
         return redirect('adminpp_dashboard')
     product.delete()
-    messages.success(request, f'Product "{p_name}" deleted successfully.')
+    msg = f'Product "{p_name}" deleted successfully.'
+    if is_ajax:
+        return JsonResponse({
+            'status': 'deleted',
+            'message': msg,
+            'product_id': pk
+        })
+    messages.success(request, msg)
     return redirect('adminpp_dashboard')
 
 @staff_required

@@ -877,8 +877,8 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertContains(response, "ADD TO CART")
         self.assertContains(response, "BUY IT NOW")
         self.assertContains(response, "ENQUIRE ON WHATSAPP")
-        self.assertContains(response, "DESCRIPTION")
-        self.assertContains(response, "SHIPPING & DELIVERY")
+        self.assertNotContains(response, "collapseDescription")
+        self.assertContains(response, "SHIPPING &amp; DELIVERY")
 
     def test_product_detail_slug_routing(self):
         """Product page is accessible via slug or numeric id slug."""

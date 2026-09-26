@@ -889,19 +889,25 @@
         }
 
         .drawer-brand-monogram {
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            background: #171614;
-            color: #FAF8F5;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #FFFFFF;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(28, 25, 23, 0.12);
+            box-shadow: 0 2px 6px rgba(28, 25, 23, 0.08);
+            border: 1px solid rgba(28, 25, 23, 0.1);
             flex-shrink: 0;
+            padding: 2px;
+        }
+
+        .drawer-brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
         }
 
         .drawer-brand-title {
@@ -917,10 +923,10 @@
 
         .drawer-brand-sub {
             font-size: 0.68rem;
-            color: #8C867E;
+            color: #716C64;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 700;
             margin-top: 4px;
             display: inline-flex;
             align-items: center;
@@ -966,10 +972,10 @@
 
         .drawer-section-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 0.68rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 800;
             letter-spacing: 0.22em;
-            color: #8C867E;
+            color: #716C64;
             text-transform: uppercase;
             margin-bottom: 0.75rem;
             margin-top: 1.25rem;
@@ -993,15 +999,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 9px 12px;
-            color: #2C2A26;
+            padding: 10px 12px;
+            color: #171614;
             text-decoration: none;
-            font-size: 0.86rem;
-            font-weight: 500;
+            font-size: 0.88rem;
+            font-weight: 700;
             letter-spacing: 0.03em;
             border-radius: 9px;
             background: #FFFFFF;
-            border: 1px solid rgba(28, 25, 23, 0.06);
+            border: 1px solid rgba(28, 25, 23, 0.08);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             margin-bottom: 4px;
         }
@@ -1284,10 +1290,24 @@
             }
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 576px) {
             .luxury-product-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 14px 8px;
+                gap: 12px 6px;
+            }
+            .luxury-img-frame {
+                aspect-ratio: 1 / 1.15;
+                min-height: 200px;
+            }
+            .luxury-img-frame img {
+                object-fit: cover;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .luxury-img-frame {
+                min-height: 180px;
+                aspect-ratio: 1 / 1.14;
             }
         }
 
@@ -1587,11 +1607,13 @@
     <div class="offcanvas offcanvas-start offcanvas-ashas" tabindex="-1" id="ashasSideDrawer" aria-labelledby="ashasSideDrawerLabel">
         <div class="drawer-header">
             <div class="d-flex align-items-center gap-2">
-                <div class="drawer-brand-monogram">A</div>
+                <div class="drawer-brand-monogram">
+                    <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" class="drawer-brand-icon-img" onerror="this.onerror=null; this.src='{% static 'images/ashas_official_logo.png' %}';">
+                </div>
                 <div class="d-flex flex-column">
                     <span class="drawer-brand-title" id="ashasSideDrawerLabel">ASHAS</span>
                     <span class="drawer-brand-sub">
-                        <i class="bi bi-geo-alt-fill text-muted" style="font-size: 0.65rem;"></i> Kozhikode &bull; India
+                        <i class="bi bi-geo-alt-fill text-muted" style="font-size: 0.65rem;"></i> Kozhikode &bull; Kerala
                     </span>
                 </div>
             </div>
@@ -1620,10 +1642,10 @@
             </a>
             <a href="{% url 'home' %}#section-trending" class="drawer-link drawer-link-trending" data-target-section="#section-trending">
                 <span class="d-inline-flex align-items-center">
-                    <img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Drop" style="width: 28px; height: 28px; border-radius: 7px; object-fit: cover; margin-right: 10px; border: 1px solid rgba(28, 25, 23, 0.12); flex-shrink: 0;">
-                    New Drop
+                    <img src="{% static 'images/new_drop_icon.jpg' %}" alt="New Arrivals" style="width: 28px; height: 28px; border-radius: 7px; object-fit: cover; margin-right: 10px; border: 1px solid rgba(28, 25, 23, 0.12); flex-shrink: 0;">
+                    New Arrivals
                 </span>
-                <span class="badge bg-dark text-white rounded-pill px-2 py-1" style="font-size: 0.62rem; letter-spacing: 0.08em; background-color: #171614 !important;">CURATED</span>
+                <i class="bi bi-chevron-right small text-muted"></i>
             </a>
             {% for cat in all_categories %}
             <a href="{% url 'category_detail' cat.slug %}" class="drawer-link drawer-category-link" data-cat="{{ cat.slug }}">
@@ -1649,9 +1671,7 @@
                     </span>
                     <span class="text-truncate">{{ cat.name }}</span>
                 </span>
-                <span class="drawer-count-pill">
-                    {{ cat.products.count }}
-                </span>
+                <i class="bi bi-chevron-right small text-muted"></i>
             </a>
             {% endfor %}
 
@@ -1666,7 +1686,7 @@
             <a href="{% url 'home' %}#contact-section" class="drawer-link" data-target-section="#contact-section">
                 <span class="d-inline-flex align-items-center">
                     <span class="drawer-icon-wrap"><i class="bi bi-geo-alt"></i></span>
-                    Boutique &amp; Custom Orders
+                    ASHAS IRL
                 </span>
                 <i class="bi bi-chevron-right small text-muted"></i>
             </a>
@@ -1703,9 +1723,9 @@
                     <i class="bi bi-chevron-right small text-muted"></i>
                 </a>
                 <a href="{% url 'register' %}" class="drawer-link" style="background: rgba(23, 22, 20, 0.04); border-color: rgba(23, 22, 20, 0.12);">
-                    <span class="d-inline-flex align-items-center" style="color: #171614; font-weight: 600;">
+                    <span class="d-inline-flex align-items-center" style="color: #171614; font-weight: 700;">
                         <span class="drawer-icon-wrap" style="color: #171614; background: rgba(23, 22, 20, 0.08); border-color: rgba(23, 22, 20, 0.15);"><i class="bi bi-person-plus"></i></span>
-                        Join ASHAS Member
+                        Join the ASHAS Club
                     </span>
                     <i class="bi bi-chevron-right small text-muted"></i>
                 </a>

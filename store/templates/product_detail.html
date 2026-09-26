@@ -169,10 +169,20 @@
     @media (max-width: 991.98px) {
         .pdp-image-stage {
             width: 100%;
-            aspect-ratio: 1 / 1;
-            max-height: 85vw;
-            min-height: 290px;
-            border-radius: 10px;
+            aspect-ratio: 1 / 1.05;
+            max-height: 96vw;
+            min-height: 340px;
+            border-radius: 12px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .pdp-image-stage {
+            width: 100%;
+            aspect-ratio: 1 / 1.08;
+            max-height: 100vw;
+            min-height: 360px;
+            border-radius: 12px;
         }
     }
 
@@ -818,7 +828,7 @@
 
 {% block content %}
 <div class="pdp-wrapper">
-    <div class="container-fluid container-xl px-3 px-sm-4 px-md-5" style="max-width: 1360px;">
+    <div class="container-fluid container-xl px-2 px-sm-3 px-md-5" style="max-width: 1360px;">
         
         <nav aria-label="breadcrumb" class="pdp-breadcrumb">
             <ol class="breadcrumb mb-0">
@@ -966,30 +976,11 @@
                     <div class="pdp-accordion-group">
                         
                         <div class="pdp-accordion-item">
-                            <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
-                                <span>DESCRIPTION</span>
+                            <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="true" aria-controls="collapseShipping">
+                                <span>SHIPPING &amp; DELIVERY</span>
                                 <i class="bi bi-chevron-up pdp-chevron"></i>
                             </button>
-                            <div id="collapseDescription" class="collapse show">
-                                <div class="pdp-accordion-body">
-                                    {% if product.description %}
-                                        <p class="pdp-desc-quote mb-2">"{{ product.description }}"</p>
-                                    {% else %}
-                                        <p class="pdp-desc-quote mb-2">"STAINLESS STEEL"</p>
-                                    {% endif %}
-                                    <p class="small text-secondary mb-0">
-                                        Engineered with precision for lasting luster. Water-resistant, anti-tarnish, and skin-friendly for daily contemporary statement wear.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="pdp-accordion-item">
-                            <button class="pdp-accordion-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="false" aria-controls="collapseShipping">
-                                <span>SHIPPING & DELIVERY</span>
-                                <i class="bi bi-chevron-up pdp-chevron"></i>
-                            </button>
-                            <div id="collapseShipping" class="collapse">
+                            <div id="collapseShipping" class="collapse show">
                                 <div class="pdp-accordion-body">
                                     <ul class="pdp-shipping-list small text-secondary">
                                         <li><i class="bi bi-check2-circle text-dark"></i> <strong>Express Speed Post:</strong> Dispatched from Kozhikode, Kerala via India Post Speed Post with live tracking (Shipping calculated at checkout: Kerala ₹55/₹65, Outside Kerala ₹95).</li>
