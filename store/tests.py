@@ -329,6 +329,108 @@ class RazorpayWebhookTests(TestCase):
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock, 8)  # 10 - 2
 
+    @patch('store.views.get_razorpay_client')
+    def test_webhook_payment_authorized_auto_captures_and_completes_order(self, mock_client_getter):
+        mock_client = MagicMock()
+        mock_client.payment.capture.return_value = {'id': 'pay_auth_123', 'status': 'captured'}
+        mock_client_getter.return_value = mock_client
+
+        payload = {
+            "event": "payment.authorized",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_auth_123",
+                        "order_id": "order_webhook_test_123",
+                        "status": "authorized",
+                        "amount": 100000
+                    }
+                }
+            }
+        }
+        res = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        mock_client.payment.capture.assert_called_once_with('pay_auth_123', 100000)
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_status, 'Completed')
+        self.assertEqual(self.order.razorpay_payment_id, 'pay_auth_123')
+
+    @patch('store.views.get_razorpay_client')
+    def test_webhook_payment_authorized_auto_refunds_if_capture_fails(self, mock_client_getter):
+        mock_client = MagicMock()
+        mock_client.payment.capture.side_effect = Exception("Payment capture declined by bank")
+        mock_client.payment.refund.return_value = {'id': 'rfnd_auto_999', 'amount': 100000}
+        mock_client_getter.return_value = mock_client
+
+        payload = {
+            "event": "payment.authorized",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_auth_fail_123",
+                        "order_id": "order_webhook_test_123",
+                        "status": "authorized",
+                        "amount": 100000
+                    }
+                }
+            }
+        }
+        res = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        mock_client.payment.capture.assert_called_once_with('pay_auth_fail_123', 100000)
+        mock_client.payment.refund.assert_called_once()
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_status, 'Refunded')
+        self.assertEqual(self.order.razorpay_refund_id, 'rfnd_auto_999')
+        self.assertEqual(float(self.order.refund_amount), 1000.0)
+
+    def test_webhook_refund_processed_marks_order_refunded_and_restocks(self):
+        # Set order as completed first with reduced stock
+        self.order.payment_status = 'Completed'
+        self.order.razorpay_payment_id = 'pay_to_refund_123'
+        self.order.save()
+        self.product.stock = 8
+        self.product.save()
+
+        payload = {
+            "event": "refund.processed",
+            "payload": {
+                "refund": {
+                    "entity": {
+                        "id": "rfnd_full_123",
+                        "payment_id": "pay_to_refund_123",
+                        "amount": 100000,
+                        "status": "processed"
+                    }
+                }
+            }
+        }
+        res = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_status, 'Refunded')
+        self.assertEqual(self.order.razorpay_refund_id, 'rfnd_full_123')
+        self.assertEqual(float(self.order.refund_amount), 1000.0)
+
+        # Inventory restored (8 + 2 = 10)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
+
     def test_webhook_get_method_rejected(self):
         res = self.client.get(reverse('razorpay_webhook'))
         self.assertEqual(res.status_code, 405)
@@ -1435,6 +1537,77 @@ class AdminOrdersPaymentFilterAndFailureTests(TestCase):
         self.pending_order.refresh_from_db()
         self.assertEqual(self.pending_order.payment_status, 'Completed')
         self.assertEqual(self.pending_order.razorpay_payment_id, 'pay_single_reconcile_456')
+
+    @patch('store.views.get_razorpay_client')
+    def test_adminpp_refund_order_view(self, mock_client_getter):
+        """Staff can 1-click refund a paid order via Razorpay API, which restores inventory."""
+        mock_client = MagicMock()
+        mock_client.payment.refund.return_value = {
+            'id': 'rfnd_manual_admin_789',
+            'amount': 85000,
+            'status': 'processed'
+        }
+        mock_client_getter.return_value = mock_client
+
+        # Start with completed order and deducted stock
+        self.pending_order.payment_status = 'Completed'
+        self.pending_order.razorpay_payment_id = 'pay_to_refund_admin'
+        self.pending_order.save()
+        self.product.stock = 8
+        self.product.save()
+
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(
+            reverse('adminpp_refund_order', args=[self.pending_order.id]),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        mock_client.payment.refund.assert_called_once()
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Refunded')
+        self.assertEqual(self.pending_order.razorpay_refund_id, 'rfnd_manual_admin_789')
+        self.assertEqual(float(self.pending_order.refund_amount), 850.0)
+
+        # Inventory restored (8 + 1 = 9)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 9)
+
+    @patch('store.views.get_razorpay_client')
+    def test_adminpp_reconcile_order_auto_refunds_if_authorized_capture_fails(self, mock_client_getter):
+        """If order is authorized in Razorpay but capture fails, reconciler auto-refunds customer."""
+        mock_client = MagicMock()
+        mock_client.order.payments.return_value = {
+            'items': [
+                {
+                    'id': 'pay_auth_reconcile_fail',
+                    'amount': 85000,
+                    'status': 'authorized'
+                }
+            ]
+        }
+        mock_client.payment.capture.side_effect = Exception("Gateway capture failure")
+        mock_client.payment.refund.return_value = {
+            'id': 'rfnd_reconcile_fail_111',
+            'amount': 85000
+        }
+        mock_client_getter.return_value = mock_client
+
+        self.pending_order.razorpay_order_id = 'order_rzp_reconcile_fail'
+        self.pending_order.save()
+
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(
+            reverse('adminpp_reconcile_order', args=[self.pending_order.id]),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'refunded')
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Refunded')
+        self.assertEqual(self.pending_order.razorpay_refund_id, 'rfnd_reconcile_fail_111')
 
 
 

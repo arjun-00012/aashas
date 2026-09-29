@@ -343,6 +343,7 @@ class Order(models.Model):
         ('Pending', 'Pending'),
         ('Completed', 'Completed'),
         ('Failed', 'Failed'),
+        ('Refunded', 'Refunded'),
     )
     SHIPPING_STATUS_CHOICES = (
         ('Processing', 'Processing / Packed'),
@@ -367,6 +368,9 @@ class Order(models.Model):
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    razorpay_refund_id = models.CharField(max_length=100, blank=True, null=True, help_text="Razorpay Refund ID if refunded")
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Refunded amount in INR")
+    refund_notes = models.TextField(blank=True, null=True, help_text="Refund details or reason")
 
     # Tracking Details (Updated manually by Admin)
     tracking_id = models.CharField(max_length=100, blank=True, null=True, help_text="India Post / Speed Post consignment tracking number")

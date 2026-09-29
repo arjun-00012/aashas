@@ -131,6 +131,10 @@
                                 <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 small fw-semibold">
                                     <i class="bi bi-check2-circle me-1"></i>Paid
                                 </span>
+                            {% elif order.payment_status == 'Refunded' %}
+                                <span class="badge rounded-pill px-2.5 py-1 small fw-semibold border" style="color: #7c3aed; background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.3) !important;">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Refunded
+                                </span>
                             {% else %}
                                 <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 rounded-pill px-2.5 py-1 small">
                                     {{ order.payment_status }}

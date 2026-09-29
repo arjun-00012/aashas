@@ -2,6 +2,7 @@ import os
 import re
 import json
 import secrets
+from decimal import Decimal
 from urllib.parse import quote as urlquote
 from xml.sax.saxutils import escape as xml_escape
 import razorpay
@@ -1274,39 +1275,95 @@ def payment_verify(request):
         try:
             data = json.loads(request.body)
             order_id = data.get('db_order_id')
+            rzp_order_id = data.get('razorpay_order_id')
+            rzp_pay_id = data.get('razorpay_payment_id')
+            rzp_sig = data.get('razorpay_signature')
+
             params = {
-                'razorpay_order_id': data.get('razorpay_order_id'),
-                'razorpay_payment_id': data.get('razorpay_payment_id'),
-                'razorpay_signature': data.get('razorpay_signature')
+                'razorpay_order_id': rzp_order_id,
+                'razorpay_payment_id': rzp_pay_id,
+                'razorpay_signature': rzp_sig
             }
-            if not str(data.get('razorpay_order_id', '')).startswith('demo_'):
-                client = get_razorpay_client()
-                client.utility.verify_payment_signature(params)
-                # Auto-capture fallback: guarantee payment is captured for bank settlement
-                try:
-                    rzp_pay_id = data.get('razorpay_payment_id')
-                    if rzp_pay_id:
-                        pay_info = client.payment.fetch(rzp_pay_id)
-                        if pay_info.get('status') == 'authorized':
-                            client.payment.capture(rzp_pay_id, pay_info.get('amount'))
-                except Exception as cap_err:
-                    import logging
-                    logging.getLogger(__name__).warning(f"Razorpay capture fallback notice: {cap_err}")
+
             order = None
             if order_id:
                 try:
                     order = Order.objects.filter(id=int(order_id)).first()
                 except (ValueError, TypeError):
                     order = None
-            if not order and data.get('razorpay_order_id'):
-                order = Order.objects.filter(razorpay_order_id=data.get('razorpay_order_id')).first()
+            if not order and rzp_order_id:
+                order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
 
             if not order:
+                # If payment was made but order doesn't exist, auto-refund so customer is never billed
+                if rzp_pay_id and not str(rzp_order_id or '').startswith('demo_'):
+                    try:
+                        client = get_razorpay_client()
+                        pay_info = client.payment.fetch(rzp_pay_id)
+                        if pay_info.get('status') in ('authorized', 'captured'):
+                            client.payment.refund(rzp_pay_id, {'notes': {'reason': 'Auto-refund: Order record not found'}})
+                    except Exception:
+                        pass
                 return JsonResponse({'status': 'failed', 'message': 'Order record not found.'}, status=404)
 
             # Security check: if user is authenticated, ensure order belongs to them
             if request.user.is_authenticated and order.user and order.user != request.user:
                 return JsonResponse({'status': 'failed', 'message': 'Unauthorized order access.'}, status=403)
+
+            # Signature verification and capture check
+            if not str(rzp_order_id or '').startswith('demo_'):
+                client = get_razorpay_client()
+                try:
+                    client.utility.verify_payment_signature(params)
+                except Exception as sig_err:
+                    # Signature verification failed! Check if payment occurred in Razorpay and auto-refund
+                    try:
+                        if rzp_pay_id:
+                            pay_info = client.payment.fetch(rzp_pay_id)
+                            if pay_info.get('status') in ('authorized', 'captured'):
+                                refund_res = client.payment.refund(rzp_pay_id, {
+                                    'notes': {'reason': f"Auto-refund: Signature mismatch ({str(sig_err)[:80]})"}
+                                })
+                                order.payment_status = 'Refunded'
+                                order.razorpay_payment_id = rzp_pay_id
+                                order.razorpay_refund_id = refund_res.get('id')
+                                order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                                order.refund_notes = f"Auto-refunded: Signature verification mismatch ({sig_err})"
+                                order.save(update_fields=['payment_status', 'razorpay_payment_id', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                                return JsonResponse({
+                                    'status': 'failed',
+                                    'message': 'Payment signature verification mismatch. Your payment has been automatically refunded to your original payment method.'
+                                }, status=400)
+                    except Exception as ref_err:
+                        import logging
+                        logging.getLogger(__name__).error(f"Auto-refund on signature error failed: {ref_err}")
+                    return JsonResponse({'status': 'failed', 'message': f'Signature verification failed: {sig_err}'}, status=400)
+
+                # Ensure payment is captured. If authorized, capture it. If capture fails, refund immediately!
+                try:
+                    if rzp_pay_id:
+                        pay_info = client.payment.fetch(rzp_pay_id)
+                        if pay_info.get('status') == 'authorized':
+                            client.payment.capture(rzp_pay_id, pay_info.get('amount'))
+                except Exception as cap_err:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Razorpay capture fallback failed: {cap_err}. Initiating auto-refund...")
+                    try:
+                        refund_res = client.payment.refund(rzp_pay_id, {
+                            'notes': {'reason': f"Auto-refund: Capture failed ({str(cap_err)[:100]})"}
+                        })
+                        order.payment_status = 'Refunded'
+                        order.razorpay_payment_id = rzp_pay_id
+                        order.razorpay_refund_id = refund_res.get('id')
+                        order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                        order.refund_notes = f"Auto-refunded: Gateway failed to capture payment ({cap_err})"
+                        order.save(update_fields=['payment_status', 'razorpay_payment_id', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                        return JsonResponse({
+                            'status': 'failed',
+                            'message': 'Payment could not be captured by Razorpay. The amount has been automatically refunded back to your account.'
+                        }, status=400)
+                    except Exception as ref_err:
+                        logging.getLogger(__name__).error(f"Auto-refund failed: {ref_err}")
 
             # Idempotency guard: prevent duplicate inventory deduction if already verified
             if order.payment_status == 'Completed':
@@ -1317,8 +1374,10 @@ def payment_verify(request):
                 })
 
             order.payment_status = 'Completed'
-            order.razorpay_payment_id = data.get('razorpay_payment_id') or f"pay_{order.id}"
-            order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+            order.razorpay_payment_id = rzp_pay_id or f"pay_{order.id}"
+            if not order.shipping_status:
+                order.shipping_status = 'Processing'
+            order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
             # Decrement product inventory safely
             for item in order.items.all():
@@ -1346,7 +1405,9 @@ def payment_verify(request):
 def razorpay_webhook(request):
     """
     Razorpay Webhook listener for asynchronous payment capture/order events.
-    Automatically marks orders as Completed if user closes browser before payment_verify executes.
+    - When payment is captured in Razorpay: confirms order as Completed, places order, deducts stock.
+    - When payment is authorized and Razorpay cannot capture it: automatically refunds that amount to user.
+    - When refund is processed in Razorpay: marks order as Refunded and restores inventory.
     """
     if request.method == 'POST':
         try:
@@ -1365,50 +1426,108 @@ def razorpay_webhook(request):
             data = json.loads(webhook_body)
             event = data.get('event')
 
-            # Auto-capture if payment was authorized so it never expires without settlement
+            # Extract payment / order payload entities
+            payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
+            order_entity = data.get('payload', {}).get('order', {}).get('entity', {})
+            refund_entity = data.get('payload', {}).get('refund', {}).get('entity', {})
+
+            rzp_order_id = payment_entity.get('order_id') or order_entity.get('id')
+            rzp_pay_id = payment_entity.get('id') or refund_entity.get('payment_id')
+            pay_amt = payment_entity.get('amount')
+            notes = payment_entity.get('notes') or order_entity.get('notes') or refund_entity.get('notes') or {}
+            db_order_id = notes.get('order_id')
+
+            # Locate Order
+            order = None
+            if rzp_order_id:
+                order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
+            if not order and db_order_id:
+                try:
+                    order = Order.objects.filter(id=int(db_order_id)).first()
+                except (ValueError, TypeError):
+                    pass
+            if not order and rzp_pay_id:
+                order = Order.objects.filter(razorpay_payment_id=rzp_pay_id).first()
+
+            # 1. PAYMENT AUTHORIZED (Payment occurred in bank, held by Razorpay in authorized status)
+            # Attempt to capture. If Razorpay cannot capture it, REFUND amount to the user!
+            captured_successfully = False
             if event == 'payment.authorized':
-                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
-                rzp_pay_id = payment_entity.get('id')
-                pay_amt = payment_entity.get('amount')
                 if rzp_pay_id and pay_amt:
                     try:
                         client.payment.capture(rzp_pay_id, pay_amt)
+                        captured_successfully = True
                     except Exception as cap_err:
                         import logging
-                        logging.getLogger(__name__).warning(f"Razorpay webhook auto-capture notice: {cap_err}")
+                        logging.getLogger(__name__).warning(f"Razorpay webhook auto-capture failed: {cap_err}. Initiating automatic refund...")
+                        captured_successfully = False
+                        # Per user requirement: refund amount to user when payment occurred and razorpay didn't capture it
+                        try:
+                            refund_res = client.payment.refund(rzp_pay_id, {
+                                'notes': {
+                                    'reason': f"Auto-refund: Gateway capture failed ({str(cap_err)[:100]})",
+                                    'order_id': str(order.id) if order else ''
+                                }
+                            })
+                            if order:
+                                order.payment_status = 'Refunded'
+                                order.razorpay_refund_id = refund_res.get('id')
+                                order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                                order.refund_notes = f"Auto-refunded: Gateway failed to capture authorized payment ({str(cap_err)[:150]})"
+                                order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                        except Exception as ref_err:
+                            logging.getLogger(__name__).error(f"Failed to auto-refund uncaptured payment {rzp_pay_id}: {ref_err}")
 
-            if event in ('order.paid', 'payment.captured', 'payment.authorized'):
-                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
-                rzp_order_id = payment_entity.get('order_id')
-                rzp_pay_id = payment_entity.get('id')
+            # 2. PAYMENT CAPTURED / ORDER PAID (or authorized & captured successfully)
+            # Confirm order as successful (Completed) and place/fulfill it
+            if (event in ('payment.captured', 'order.paid')) or (event == 'payment.authorized' and captured_successfully):
+                if order and order.payment_status != 'Completed':
+                    order.payment_status = 'Completed'
+                    if rzp_pay_id:
+                        order.razorpay_payment_id = rzp_pay_id
+                    if not order.shipping_status:
+                        order.shipping_status = 'Processing'
+                    order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
-                if rzp_order_id:
-                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
-                    if order and order.payment_status != 'Completed':
-                        order.payment_status = 'Completed'
-                        if rzp_pay_id:
-                            order.razorpay_payment_id = rzp_pay_id
-                        order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+                    # Decrement product inventory safely
+                    for item in order.items.all():
+                        if item.product:
+                            item.product.stock = max(0, item.product.stock - item.quantity)
+                            item.product.save(update_fields=['stock'])
 
-                        for item in order.items.all():
-                            if item.product:
-                                item.product.stock = max(0, item.product.stock - item.quantity)
-                                item.product.save(update_fields=['stock'])
-
-            if event == 'payment.failed':
-                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
-                rzp_order_id = payment_entity.get('order_id')
+            # 3. PAYMENT FAILED
+            elif event == 'payment.failed':
                 err_desc = payment_entity.get('error_description', '')
                 err_reason = payment_entity.get('error_reason', '')
-                if rzp_order_id:
-                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
-                    if order and order.payment_status != 'Completed':
-                        order.payment_status = 'Failed'
-                        if err_desc or err_reason:
-                            note = f"Razorpay Webhook: {err_reason} - {err_desc}"[:250]
-                            if not order.tracking_notes:
-                                order.tracking_notes = note
-                        order.save(update_fields=['payment_status', 'tracking_notes'])
+                if order and order.payment_status != 'Completed':
+                    order.payment_status = 'Failed'
+                    if err_desc or err_reason:
+                        note = f"Razorpay Webhook: {err_reason} - {err_desc}"[:250]
+                        if not order.tracking_notes:
+                            order.tracking_notes = note
+                    order.save(update_fields=['payment_status', 'tracking_notes'])
+
+            # 4. REFUND PROCESSED / REFUND CREATED
+            elif event in ('refund.processed', 'refund.created', 'refund.speed_changed'):
+                ref_id = refund_entity.get('id')
+                ref_amt = refund_entity.get('amount')
+                if order:
+                    was_completed = (order.payment_status == 'Completed')
+                    order.payment_status = 'Refunded'
+                    if ref_id:
+                        order.razorpay_refund_id = ref_id
+                    if ref_amt:
+                        order.refund_amount = Decimal(str(ref_amt)) / Decimal('100')
+                    if not order.refund_notes:
+                        order.refund_notes = f"Refund processed via Razorpay Webhook ({ref_id})"
+                    order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+
+                    # Restock inventory if previously marked completed
+                    if was_completed:
+                        for item in order.items.all():
+                            if item.product:
+                                item.product.stock += item.quantity
+                                item.product.save(update_fields=['stock'])
 
             return HttpResponse(status=200)
         except Exception as e:
@@ -1540,6 +1659,7 @@ def reconcile_razorpay_orders(limit=50):
     Syncs with Razorpay API to reconcile any orders where payment was captured
     in Razorpay, but client callback was interrupted (e.g. mobile browser closed
     after completing UPI payment in GPay/PhonePe).
+    Also auto-captures authorized payments, and auto-refunds payments that cannot be captured.
     """
     try:
         client = get_razorpay_client()
@@ -1548,31 +1668,66 @@ def reconcile_razorpay_orders(limit=50):
         synced_orders = []
 
         for pay in items:
-            if pay.get('status') == 'captured':
-                rzp_pay_id = pay.get('id')
-                rzp_order_id = pay.get('order_id')
-                notes = pay.get('notes') or {}
-                db_order_id = notes.get('order_id')
+            rzp_pay_id = pay.get('id')
+            rzp_order_id = pay.get('order_id')
+            status = pay.get('status')
+            notes = pay.get('notes') or {}
+            db_order_id = notes.get('order_id')
 
-                order = None
-                if rzp_order_id:
-                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
-                if not order and db_order_id:
+            order = None
+            if rzp_order_id:
+                order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
+            if not order and db_order_id:
+                try:
+                    order = Order.objects.filter(id=int(db_order_id)).first()
+                except (ValueError, TypeError):
+                    pass
+            if not order and rzp_pay_id:
+                order = Order.objects.filter(razorpay_payment_id=rzp_pay_id).first()
+
+            # If payment occurred in authorized state, capture it. If capture fails, refund!
+            if status == 'authorized':
+                try:
+                    client.payment.capture(rzp_pay_id, pay.get('amount'))
+                    status = 'captured'
+                except Exception as cap_err:
                     try:
-                        order = Order.objects.filter(id=int(db_order_id)).first()
-                    except (ValueError, TypeError):
+                        refund_res = client.payment.refund(rzp_pay_id, {
+                            'notes': {'reason': f"Auto-refund: Reconciler capture failed ({cap_err})"}
+                        })
+                        if order and order.payment_status != 'Refunded':
+                            order.payment_status = 'Refunded'
+                            order.razorpay_refund_id = refund_res.get('id')
+                            order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                            order.refund_notes = f"Auto-refunded during sync: Gateway failed to capture ({cap_err})"
+                            order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                    except Exception:
                         pass
 
+            if status == 'captured':
                 if order and order.payment_status != 'Completed':
                     order.payment_status = 'Completed'
                     order.razorpay_payment_id = rzp_pay_id
-                    order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+                    if not order.shipping_status:
+                        order.shipping_status = 'Processing'
+                    order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
                     for item in order.items.all():
                         if item.product:
                             item.product.stock = max(0, item.product.stock - item.quantity)
                             item.product.save(update_fields=['stock'])
                     synced_orders.append(order)
+
+            elif status == 'refunded':
+                if order and order.payment_status != 'Refunded':
+                    was_completed = (order.payment_status == 'Completed')
+                    order.payment_status = 'Refunded'
+                    order.save(update_fields=['payment_status'])
+                    if was_completed:
+                        for item in order.items.all():
+                            if item.product:
+                                item.product.stock += item.quantity
+                                item.product.save(update_fields=['stock'])
 
         return synced_orders
     except Exception as e:
@@ -1610,10 +1765,13 @@ def adminpp_orders(request):
 
     paid_count = base_orders.filter(payment_status='Completed').count()
     incomplete_count = base_orders.filter(payment_status__in=['Pending', 'Failed']).count()
+    refunded_count = base_orders.filter(payment_status='Refunded').count()
     all_count = base_orders.count()
 
     if payment_filter == 'incomplete':
         orders = base_orders.filter(payment_status__in=['Pending', 'Failed']).order_by('-created_at')
+    elif payment_filter == 'refunded':
+        orders = base_orders.filter(payment_status='Refunded').order_by('-created_at')
     elif payment_filter == 'all':
         orders = base_orders.order_by('-created_at')
     else:
@@ -1695,6 +1853,7 @@ def adminpp_orders(request):
         'payment_filter': payment_filter,
         'paid_count': paid_count,
         'incomplete_count': incomplete_count,
+        'refunded_count': refunded_count,
         'all_count': all_count,
         'categories': Category.objects.all(),
         'selected_category': category_filter,
@@ -1784,32 +1943,59 @@ def adminpp_reconcile_order(request, order_id):
         if order.razorpay_order_id:
             res = client.order.payments(order.razorpay_order_id)
             for p in res.get('items', []):
-                if p.get('status') == 'captured':
+                if p.get('status') in ('captured', 'authorized'):
                     found_payment = p
                     break
         if not found_payment:
             all_pays = client.payment.all({'count': 50}).get('items', [])
             for p in all_pays:
-                if p.get('status') == 'captured':
+                if p.get('status') in ('captured', 'authorized'):
                     notes = p.get('notes') or {}
                     if str(notes.get('order_id')) == str(order.id) or p.get('order_id') == order.razorpay_order_id:
                         found_payment = p
                         break
 
         if found_payment:
-            order.payment_status = 'Completed'
-            order.razorpay_payment_id = found_payment.get('id')
-            order.save(update_fields=['payment_status', 'razorpay_payment_id'])
-            for item in order.items.all():
-                if item.product:
-                    item.product.stock = max(0, item.product.stock - item.quantity)
-                    item.product.save(update_fields=['stock'])
-            msg = f"✓ Verified! Payment {found_payment.get('id')} of ₹{found_payment.get('amount')/100} was captured in Razorpay. Order #{order.id} ({order.full_name}) is now confirmed as PAID."
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
-                return JsonResponse({'status': 'success', 'order_id': order.id, 'payment_id': order.razorpay_payment_id, 'message': msg})
-            messages.success(request, msg)
+            # If authorized, attempt immediate capture. If capture fails, refund amount to user!
+            if found_payment.get('status') == 'authorized':
+                try:
+                    client.payment.capture(found_payment['id'], found_payment['amount'])
+                    found_payment['status'] = 'captured'
+                except Exception as cap_err:
+                    try:
+                        refund_res = client.payment.refund(found_payment['id'], {
+                            'notes': {'reason': f"Auto-refund: Admin check capture failed ({cap_err})"}
+                        })
+                        order.payment_status = 'Refunded'
+                        order.razorpay_refund_id = refund_res.get('id')
+                        order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                        order.refund_notes = f"Auto-refunded: Gateway could not capture payment ({cap_err})"
+                        order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                        msg = f"⚠️ Payment {found_payment.get('id')} could not be captured by Razorpay and was automatically refunded to the customer (Refund ID: {refund_res.get('id')})."
+                        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                            return JsonResponse({'status': 'refunded', 'order_id': order.id, 'message': msg})
+                        messages.warning(request, msg)
+                        return redirect(safe_referer(request, 'adminpp_orders'))
+                    except Exception as ref_err:
+                        import logging
+                        logging.getLogger(__name__).error(f"Auto-refund error in reconcile view: {ref_err}")
+
+            if found_payment.get('status') == 'captured':
+                order.payment_status = 'Completed'
+                order.razorpay_payment_id = found_payment.get('id')
+                if not order.shipping_status:
+                    order.shipping_status = 'Processing'
+                order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
+                for item in order.items.all():
+                    if item.product:
+                        item.product.stock = max(0, item.product.stock - item.quantity)
+                        item.product.save(update_fields=['stock'])
+                msg = f"✓ Verified! Payment {found_payment.get('id')} of ₹{found_payment.get('amount')/100} was captured in Razorpay. Order #{order.id} ({order.full_name}) is now confirmed as PAID."
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                    return JsonResponse({'status': 'success', 'order_id': order.id, 'payment_id': order.razorpay_payment_id, 'message': msg})
+                messages.success(request, msg)
         else:
-            msg = f"Razorpay Check: No captured payment found for Order #{order.id}. Payment was not completed in the gateway."
+            msg = f"Razorpay Check: No captured or authorized payment found for Order #{order.id}. Payment was not completed in the gateway."
             if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
                 return JsonResponse({'status': 'not_found', 'order_id': order.id, 'message': msg}, status=404)
             messages.warning(request, msg)
@@ -1820,6 +2006,72 @@ def adminpp_reconcile_order(request, order_id):
         messages.error(request, msg)
 
     return redirect(safe_referer(request, 'adminpp_orders'))
+
+@staff_required
+def adminpp_refund_order(request, order_id):
+    """
+    Staff endpoint to issue a full 1-click refund directly via Razorpay API.
+    Restores inventory and marks order as Refunded.
+    """
+    order = get_object_or_404(Order, id=order_id)
+    if not order.razorpay_payment_id:
+        msg = f"Cannot refund Order #{order.id}: No Razorpay Payment ID found."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': msg}, status=400)
+        messages.error(request, msg)
+        return redirect(safe_referer(request, 'adminpp_orders'))
+
+    if order.payment_status == 'Refunded':
+        msg = f"Order #{order.id} is already marked as Refunded (Refund ID: {order.razorpay_refund_id or 'N/A'})."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
+            return JsonResponse({'status': 'info', 'message': msg})
+        messages.info(request, msg)
+        return redirect(safe_referer(request, 'adminpp_orders'))
+
+    try:
+        client = get_razorpay_client()
+        reason = request.POST.get('reason') or request.GET.get('reason') or f"Staff refund for Order #{order.id}"
+        refund_res = client.payment.refund(order.razorpay_payment_id, {
+            'notes': {
+                'order_id': str(order.id),
+                'reason': reason[:120]
+            }
+        })
+
+        ref_id = refund_res.get('id')
+        ref_amt = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+        was_completed = (order.payment_status == 'Completed')
+
+        order.payment_status = 'Refunded'
+        order.razorpay_refund_id = ref_id
+        order.refund_amount = ref_amt
+        order.refund_notes = f"Refunded ₹{ref_amt} via Razorpay ({ref_id}). Reason: {reason}"
+        order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+
+        # Restock inventory
+        if was_completed:
+            for item in order.items.all():
+                if item.product:
+                    item.product.stock += item.quantity
+                    item.product.save(update_fields=['stock'])
+
+        msg = f"✓ Refund Successful! ₹{ref_amt} has been refunded to the customer's account (Razorpay Refund ID: {ref_id}). Product stock has been restored."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
+            return JsonResponse({
+                'status': 'success',
+                'order_id': order.id,
+                'refund_id': ref_id,
+                'refund_amount': float(ref_amt),
+                'message': msg
+            })
+        messages.success(request, msg)
+        return redirect(safe_referer(request, 'adminpp_orders'))
+    except Exception as e:
+        msg = f"Razorpay Refund Failed for Order #{order.id}: {e}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': msg}, status=400)
+        messages.error(request, msg)
+        return redirect(safe_referer(request, 'adminpp_orders'))
 
 @staff_required
 def adminpp_order_delete(request, order_id):
