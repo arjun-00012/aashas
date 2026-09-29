@@ -59,6 +59,7 @@ urlpatterns = [
     path('adminpp/orders/clear-all/', views.adminpp_clear_all_orders, name='adminpp_clear_all_orders'),
     path('adminpp/order/update-tracking/<int:order_id>/', views.adminpp_update_tracking, name='adminpp_update_tracking'),
     path('adminpp/order/quick-dispatch/<int:order_id>/', views.adminpp_quick_dispatch, name='adminpp_quick_dispatch'),
+    path('adminpp/order/reconcile/<int:order_id>/', views.adminpp_reconcile_order, name='adminpp_reconcile_order'),
     path('adminpp/category/add/', views.category_create_or_edit, name='category_add'),
     path('adminpp/category/edit/<int:pk>/', views.category_create_or_edit, name='category_edit'),
     path('adminpp/category/delete/<int:pk>/', views.category_delete, name='category_delete'),

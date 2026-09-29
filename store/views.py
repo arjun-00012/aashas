@@ -1535,6 +1535,51 @@ def product_toggle_trending(request, pk):
     messages.success(request, msg)
     return redirect(safe_referer(request, 'adminpp_dashboard'))
 
+def reconcile_razorpay_orders(limit=50):
+    """
+    Syncs with Razorpay API to reconcile any orders where payment was captured
+    in Razorpay, but client callback was interrupted (e.g. mobile browser closed
+    after completing UPI payment in GPay/PhonePe).
+    """
+    try:
+        client = get_razorpay_client()
+        payments_data = client.payment.all({'count': limit})
+        items = payments_data.get('items', [])
+        synced_orders = []
+
+        for pay in items:
+            if pay.get('status') == 'captured':
+                rzp_pay_id = pay.get('id')
+                rzp_order_id = pay.get('order_id')
+                notes = pay.get('notes') or {}
+                db_order_id = notes.get('order_id')
+
+                order = None
+                if rzp_order_id:
+                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
+                if not order and db_order_id:
+                    try:
+                        order = Order.objects.filter(id=int(db_order_id)).first()
+                    except (ValueError, TypeError):
+                        pass
+
+                if order and order.payment_status != 'Completed':
+                    order.payment_status = 'Completed'
+                    order.razorpay_payment_id = rzp_pay_id
+                    order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+
+                    for item in order.items.all():
+                        if item.product:
+                            item.product.stock = max(0, item.product.stock - item.quantity)
+                            item.product.save(update_fields=['stock'])
+                    synced_orders.append(order)
+
+        return synced_orders
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Razorpay reconciliation error: {e}")
+        return []
+
 @staff_required
 def adminpp_orders(request):
     payment_filter = request.GET.get('payment', 'paid').strip().lower()
@@ -1542,6 +1587,17 @@ def adminpp_orders(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
     export_excel = request.GET.get('export', '')
+    do_sync = request.GET.get('sync', '').lower() == 'true'
+
+    # Auto-reconcile on demand or if there are pending orders
+    if do_sync or Order.objects.filter(payment_status='Pending').exists():
+        synced = reconcile_razorpay_orders()
+        if do_sync:
+            if synced:
+                names = ", ".join([f"#{o.id} ({o.full_name})" for o in synced])
+                messages.success(request, f"✓ Successfully reconciled {len(synced)} order(s) from Razorpay: {names}! Status updated to PAID.")
+            else:
+                messages.info(request, "Razorpay Sync: All captured payments are already reconciled.")
 
     base_orders = Order.objects.prefetch_related('items__product__category')
 
@@ -1717,6 +1773,52 @@ def adminpp_quick_dispatch(request, order_id):
             'message': msg
         })
     messages.success(request, msg)
+    return redirect(safe_referer(request, 'adminpp_orders'))
+
+@staff_required
+def adminpp_reconcile_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    client = get_razorpay_client()
+    found_payment = None
+    try:
+        if order.razorpay_order_id:
+            res = client.order.payments(order.razorpay_order_id)
+            for p in res.get('items', []):
+                if p.get('status') == 'captured':
+                    found_payment = p
+                    break
+        if not found_payment:
+            all_pays = client.payment.all({'count': 50}).get('items', [])
+            for p in all_pays:
+                if p.get('status') == 'captured':
+                    notes = p.get('notes') or {}
+                    if str(notes.get('order_id')) == str(order.id) or p.get('order_id') == order.razorpay_order_id:
+                        found_payment = p
+                        break
+
+        if found_payment:
+            order.payment_status = 'Completed'
+            order.razorpay_payment_id = found_payment.get('id')
+            order.save(update_fields=['payment_status', 'razorpay_payment_id'])
+            for item in order.items.all():
+                if item.product:
+                    item.product.stock = max(0, item.product.stock - item.quantity)
+                    item.product.save(update_fields=['stock'])
+            msg = f"✓ Verified! Payment {found_payment.get('id')} of ₹{found_payment.get('amount')/100} was captured in Razorpay. Order #{order.id} ({order.full_name}) is now confirmed as PAID."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'status': 'success', 'order_id': order.id, 'payment_id': order.razorpay_payment_id, 'message': msg})
+            messages.success(request, msg)
+        else:
+            msg = f"Razorpay Check: No captured payment found for Order #{order.id}. Payment was not completed in the gateway."
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'status': 'not_found', 'order_id': order.id, 'message': msg}, status=404)
+            messages.warning(request, msg)
+    except Exception as e:
+        msg = f"Razorpay check error: {e}"
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': msg}, status=400)
+        messages.error(request, msg)
+
     return redirect(safe_referer(request, 'adminpp_orders'))
 
 @staff_required

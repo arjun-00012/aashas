@@ -395,6 +395,9 @@
             <a href="https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center fw-semibold text-nowrap">
                 <i class="bi bi-geo-alt me-1 text-danger"></i> India Post Portal <i class="bi bi-box-arrow-up-right small ms-1"></i>
             </a>
+            <a href="?payment={{ payment_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}&sync=true" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center fw-semibold text-nowrap" title="Sync and reconcile captured payments directly from Razorpay API">
+                <i class="bi bi-arrow-repeat me-1 text-primary"></i> Sync Razorpay Payments
+            </a>
             <a href="?payment={{ payment_filter }}&category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap w-100 w-sm-auto" style="background-color: #15803d; border-color: #15803d;">
                 <i class="bi bi-file-earmark-excel me-2"></i> Export Excel (.xlsx)
             </a>
@@ -787,6 +790,9 @@
                         {% endif %}
                     </p>
                     <div class="d-flex flex-wrap gap-2 pt-1">
+                        <a href="{% url 'adminpp_reconcile_order' order.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 flex-grow-1 text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-semibold" title="Check Razorpay if customer already paid">
+                            <i class="bi bi-arrow-repeat"></i> Check Razorpay
+                        </a>
                         <a href="{{ order.whatsapp_recovery_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-3 py-1.5 flex-grow-1 card-whatsapp-link text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-bold">
                             <i class="bi bi-whatsapp"></i> WhatsApp Follow Up
                         </a>
@@ -1026,6 +1032,11 @@
                                     <button type="button" class="btn btn-secondary btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 opacity-50" disabled title="Cannot dispatch an unpaid order. Payment must be captured in Razorpay first.">
                                         <i class="bi bi-slash-circle"></i> <span>Dispatch Locked</span>
                                     </button>
+
+                                    <!-- Check Razorpay Gateway -->
+                                    <a href="{% url 'adminpp_reconcile_order' order.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold" title="Check Razorpay API to see if payment was captured">
+                                        <i class="bi bi-arrow-repeat"></i> <span>Check Razorpay</span>
+                                    </a>
 
                                     <!-- WhatsApp Recovery Follow Up -->
                                     <a href="{{ order.whatsapp_recovery_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold" title="Send WhatsApp recovery message to help buyer complete order">

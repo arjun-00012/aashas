@@ -1384,6 +1384,58 @@ class AdminOrdersPaymentFilterAndFailureTests(TestCase):
         self.assertIn('Sneha%20Patil', url)
         self.assertIn('Helpline', url)
 
+    @patch('store.views.get_razorpay_client')
+    def test_reconcile_razorpay_orders_auto_confirms_paid_order(self, mock_client_getter):
+        """reconcile_razorpay_orders matches captured payments from Razorpay API and marks order Completed."""
+        mock_client = MagicMock()
+        mock_client.payment.all.return_value = {
+            'items': [
+                {
+                    'id': 'pay_reconcile_test_123',
+                    'amount': 85000,
+                    'status': 'captured',
+                    'order_id': 'order_rzp_mock_pending',
+                    'notes': {'order_id': str(self.pending_order.id)}
+                }
+            ]
+        }
+        mock_client_getter.return_value = mock_client
+
+        from store.views import reconcile_razorpay_orders
+        synced = reconcile_razorpay_orders()
+        self.assertEqual(len(synced), 1)
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Completed')
+        self.assertEqual(self.pending_order.razorpay_payment_id, 'pay_reconcile_test_123')
+
+    @patch('store.views.get_razorpay_client')
+    def test_adminpp_reconcile_order_view(self, mock_client_getter):
+        """adminpp_reconcile_order endpoint queries Razorpay and reconciles a specific order."""
+        mock_client = MagicMock()
+        mock_client.order.payments.return_value = {
+            'items': [
+                {
+                    'id': 'pay_single_reconcile_456',
+                    'amount': 85000,
+                    'status': 'captured'
+                }
+            ]
+        }
+        mock_client_getter.return_value = mock_client
+
+        self.pending_order.razorpay_order_id = 'order_rzp_single_test'
+        self.pending_order.save()
+
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(reverse('adminpp_reconcile_order', args=[self.pending_order.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Completed')
+        self.assertEqual(self.pending_order.razorpay_payment_id, 'pay_single_reconcile_456')
+
 
 
 
