@@ -490,11 +490,18 @@
 
                 <div class="mb-2">
                     <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ order.full_name }}</div>
-                    {% if order.phone_number %}
-                    <div class="d-flex align-items-center gap-2 mt-1">
-                        <a href="tel:{{ order.phone_number }}" class="text-decoration-none small text-secondary d-inline-flex align-items-center gap-1">
+                    {% if order.phone_number or order.phone_number_2 %}
+                    <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
+                        {% if order.phone_number %}
+                        <a href="tel:{{ order.phone_number }}" class="text-decoration-none small text-secondary d-inline-flex align-items-center gap-1" title="Primary Phone 1">
                             <i class="bi bi-telephone text-success"></i> {{ order.phone_number }}
                         </a>
+                        {% endif %}
+                        {% if order.phone_number_2 %}
+                        <a href="tel:{{ order.phone_number_2 }}" class="text-decoration-none small text-secondary d-inline-flex align-items-center gap-1" title="Alternate Phone 2">
+                            <i class="bi bi-telephone-plus text-primary"></i> {{ order.phone_number_2 }} <span class="badge bg-secondary bg-opacity-10 text-secondary p-0.5" style="font-size: 0.6rem;">Alt</span>
+                        </a>
+                        {% endif %}
                         <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1 text-decoration-none small d-inline-flex align-items-center gap-1">
                             <i class="bi bi-whatsapp"></i> Chat
                         </a>
@@ -506,13 +513,26 @@
                 <div class="mb-2 p-2 rounded-2" style="background: var(--bg-surface-elevated); font-size: 0.8rem;">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="text-muted small" style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Shipping Address</span>
-                        {% if order.pincode %}
-                        <span class="badge {% if order.delivery_region == 'outside_kerala' %}bg-dark text-white{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} rounded-pill" style="font-size: 0.68rem;">
-                            <i class="bi bi-geo-alt-fill me-1"></i>PIN: {{ order.pincode }}
-                        </span>
-                        {% endif %}
+                        <div class="d-flex align-items-center gap-1">
+                            {% if order.pincode %}
+                            <span class="badge {% if order.delivery_region == 'outside_kerala' %}bg-dark text-white{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} rounded-pill" style="font-size: 0.68rem;">
+                                <i class="bi bi-geo-alt-fill me-1"></i>PIN: {{ order.pincode }}
+                            </span>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill py-0 px-2 copy-label-btn" style="font-size: 0.65rem;" data-label="{{ order.formatted_shipping_label|escape }}" title="Copy Complete India Post Label">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                    <span class="text-dark">{{ order.shipping_address }}</span>
+                    <div class="text-dark fw-medium">{{ order.shipping_address }}</div>
+                    {% if order.landmark %}
+                    <div class="small text-secondary mt-1">
+                        <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold me-1" style="font-size: 0.65rem;"><i class="bi bi-geo-fill"></i> Landmark</span>{{ order.landmark }}
+                    </div>
+                    {% endif %}
+                    <div class="small text-muted mt-1">
+                        <span>{{ order.display_district }}{% if order.state %}, {{ order.state }}{% endif %}</span>
+                    </div>
                 </div>
                 {% endif %}
 
@@ -666,25 +686,43 @@
                         <td class="fw-semibold text-dark text-nowrap">{{ order.full_name }}</td>
 
                         <td class="text-secondary text-nowrap">
-                            {% if order.phone_number %}
-                            <a href="tel:{{ order.phone_number }}" class="text-secondary text-decoration-none d-block">
-                                <i class="bi bi-telephone small me-1 text-success"></i>{{ order.phone_number }}
-                            </a>
-                            <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="text-success text-decoration-none small d-inline-flex align-items-center gap-1 mt-1">
-                                <i class="bi bi-whatsapp"></i> Chat
-                            </a>
+                            {% if order.phone_number or order.phone_number_2 %}
+                                {% if order.phone_number %}
+                                <a href="tel:{{ order.phone_number }}" class="text-secondary text-decoration-none d-block">
+                                    <i class="bi bi-telephone small me-1 text-success"></i>{{ order.phone_number }}
+                                </a>
+                                {% endif %}
+                                {% if order.phone_number_2 %}
+                                <a href="tel:{{ order.phone_number_2 }}" class="text-secondary text-decoration-none d-block mt-0.5" title="Alternate Phone 2">
+                                    <i class="bi bi-telephone-plus small me-1 text-primary"></i>{{ order.phone_number_2 }} <span class="badge bg-secondary bg-opacity-10 text-secondary p-0.5" style="font-size: 0.58rem;">Alt</span>
+                                </a>
+                                {% endif %}
+                                <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="text-success text-decoration-none small d-inline-flex align-items-center gap-1 mt-1">
+                                    <i class="bi bi-whatsapp"></i> Chat
+                                </a>
                             {% else %}-{% endif %}
                         </td>
 
                         <td>
-                            <small class="text-secondary" style="min-width: 140px; max-width: 220px; display: inline-block; word-break: break-word;">{{ order.shipping_address }}</small>
-                            {% if order.pincode %}
-                            <div class="mt-1">
+                            <div class="text-dark small fw-medium" style="min-width: 140px; max-width: 240px; display: inline-block; word-break: break-word;">{{ order.shipping_address }}</div>
+                            {% if order.landmark %}
+                            <div class="small text-secondary mt-0.5" style="max-width: 240px;">
+                                <span class="badge bg-warning bg-opacity-25 text-dark" style="font-size: 0.65rem;"><i class="bi bi-geo-fill"></i> Landmark</span> {{ order.landmark }}
+                            </div>
+                            {% endif %}
+                            <div class="small text-muted mt-0.5">
+                                {{ order.display_district }}{% if order.state %}, {{ order.state }}{% endif %}
+                            </div>
+                            <div class="d-flex align-items-center gap-1 mt-1">
+                                {% if order.pincode %}
                                 <span class="badge {% if order.delivery_region == 'outside_kerala' %}bg-dark text-white{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} rounded-pill" style="font-size: 0.65rem;">
                                     PIN: {{ order.pincode }}
                                 </span>
+                                {% endif %}
+                                <button type="button" class="btn btn-outline-dark btn-sm rounded-pill py-0 px-2 copy-label-btn" style="font-size: 0.62rem;" data-label="{{ order.formatted_shipping_label|escape }}" title="Copy Complete India Post Label">
+                                    <i class="bi bi-clipboard"></i> Copy Label
+                                </button>
                             </div>
-                            {% endif %}
                         </td>
 
                         <td style="min-width: 220px;">
@@ -1281,6 +1319,50 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Copy India Post shipping label with clipboard feedback
+    document.querySelectorAll('.copy-label-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const textToCopy = this.getAttribute('data-label');
+            if (!textToCopy) return;
+
+            const originalHtml = this.innerHTML;
+            const handleSuccess = () => {
+                this.innerHTML = '<i class="bi bi-check2 text-success"></i> Copied!';
+                this.classList.add('border-success');
+                setTimeout(() => {
+                    this.innerHTML = originalHtml;
+                    this.classList.remove('border-success');
+                }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(handleSuccess).catch(() => {
+                    fallbackCopyText(textToCopy, handleSuccess);
+                });
+            } else {
+                fallbackCopyText(textToCopy, handleSuccess);
+            }
+        });
+    });
+
+    function fallbackCopyText(text, callback) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+            document.execCommand('copy');
+            if (callback) callback();
+        } catch (e) {
+            console.error('Copy failed', e);
+        }
+        document.body.removeChild(temp);
+    }
 });
 </script>
 </body>

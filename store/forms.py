@@ -37,7 +37,7 @@ class RegistrationForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['phone_number', 'address', 'pincode', 'city', 'state']
+        fields = ['phone_number', 'phone_number_2', 'address', 'landmark', 'pincode', 'district', 'city', 'state']
 
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number', '').strip()
@@ -46,6 +46,15 @@ class ProfileUpdateForm(forms.ModelForm):
             digits = re.sub(r'\D', '', phone)
             if len(digits) < 10 or len(digits) > 13:
                 raise forms.ValidationError("Please enter a valid 10-digit mobile number.")
+        return phone
+
+    def clean_phone_number_2(self):
+        phone = (self.cleaned_data.get('phone_number_2') or '').strip()
+        if phone:
+            import re
+            digits = re.sub(r'\D', '', phone)
+            if len(digits) < 10 or len(digits) > 13:
+                raise forms.ValidationError("Please enter a valid 10-digit mobile number for alternate phone.")
         return phone
 
     def clean_pincode(self):
@@ -130,7 +139,7 @@ class ProductForm(forms.ModelForm):
             'discount_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '799 (Leave empty if not on sale)'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '10'}),
             'is_trending': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Product details, sizing, material...'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Enter comprehensive product description, materials used, dimensions, care instructions, and styling notes...'}),
         }
         help_texts = {
             'admin_code': 'Internal shipping code visible ONLY to admin. Auto-assigned sequentially (100, 101, etc.) if left blank.',

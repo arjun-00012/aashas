@@ -976,11 +976,27 @@
                     <div class="pdp-accordion-group">
                         
                         <div class="pdp-accordion-item">
-                            <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="true" aria-controls="collapseShipping">
+                            <button class="pdp-accordion-header" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                                <span>DESCRIPTION</span>
+                                <i class="bi bi-chevron-up pdp-chevron"></i>
+                            </button>
+                            <div id="collapseDescription" class="collapse show">
+                                <div class="pdp-accordion-body">
+                                    {% if product.description %}
+                                        <div class="pdp-description-text" style="color: #2C2A26; line-height: 1.7; white-space: pre-line;">{{ product.description }}</div>
+                                    {% else %}
+                                        <p class="text-secondary mb-0">Crafted with high-grade materials and enduring finish. An essential contemporary statement accessory from the ASHAS boutique collection.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pdp-accordion-item">
+                            <button class="pdp-accordion-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="false" aria-controls="collapseShipping">
                                 <span>SHIPPING &amp; DELIVERY</span>
                                 <i class="bi bi-chevron-up pdp-chevron"></i>
                             </button>
-                            <div id="collapseShipping" class="collapse show">
+                            <div id="collapseShipping" class="collapse">
                                 <div class="pdp-accordion-body">
                                     <ul class="pdp-shipping-list small text-secondary">
                                         <li><i class="bi bi-check2-circle text-dark"></i> <strong>Express Speed Post:</strong> Dispatched from Kozhikode, Kerala via India Post Speed Post with live tracking (Shipping calculated at checkout: Kerala ₹55/₹65, Outside Kerala ₹95).</li>

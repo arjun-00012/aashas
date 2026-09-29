@@ -91,12 +91,15 @@ class Command(BaseCommand):
                 }
             )
 
-            # Seed Products
+            # Seed Products with full 4-photo galleries for carousel display
             Product.objects.get_or_create(
                 name="Wolf Ring",
                 defaults={
                     "category": cat_ring,
                     "image": "products/21-1-men-s-wolf-head-ring-vintage-animal-rings-for-men-ring-the-original-imahf_jCodmlE.webp",
+                    "image_2": "products/ring_signet_macro.jpg",
+                    "image_3_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014516/ashas/products/product_9.webp",
+                    "image_4": "products/look_3.jpg",
                     "price": 1000.00,
                     "discount_price": 899.00,
                     "description": "Wolf rings are bold, symbolic accessories that traditionally represent strength, loyalty, and freedom.",
@@ -109,6 +112,9 @@ class Command(BaseCommand):
                 defaults={
                     "category": cat_shades,
                     "image": "products/shopping_1.webp",
+                    "image_2": "products/shades_angle_shot.jpg",
+                    "image_3": "products/shades_on_model.jpg",
+                    "image_4": "products/look_1.jpg",
                     "price": 400.00,
                     "discount_price": 250.00,
                     "description": "Iconic rimless streetwear sunglasses designed for bold everyday looks.",
@@ -121,10 +127,28 @@ class Command(BaseCommand):
                 defaults={
                     "category": cat_shades,
                     "image": "products/shopping_2.webp",
+                    "image_2": "products/shades_angle_shot.jpg",
+                    "image_3": "products/shades_on_model.jpg",
+                    "image_4": "products/look_7.jpg",
                     "price": 250.00,
                     "discount_price": 199.00,
                     "description": "Futuristic Series Wraparound Y2K Sunglasses For Men & Women | UV Protected | Full Rim Trending & Stylish Shades | Free Size (Silver-Black)",
                     "stock": 3
+                }
+            )
+
+            Product.objects.get_or_create(
+                name="ASHAS Obsidian Heavy Cuban Chain",
+                defaults={
+                    "category": cat_chains,
+                    "image": "products/ashas_obsidian_cuban_chain.jpg",
+                    "image_2": "products/chain_neck_model.jpg",
+                    "image_3": "products/look_6.jpg",
+                    "image_4": "products/look_2.jpg",
+                    "price": 1499.00,
+                    "discount_price": 1199.00,
+                    "description": "Heavy Cuban link chain and brutalist curb necklace engineered with rust-proof durability and polished finish.",
+                    "stock": 5
                 }
             )
 

@@ -877,7 +877,8 @@ class CategoryPagesAndCardDesignTests(TestCase):
         self.assertContains(response, "ADD TO CART")
         self.assertContains(response, "BUY IT NOW")
         self.assertContains(response, "ENQUIRE ON WHATSAPP")
-        self.assertNotContains(response, "collapseDescription")
+        self.assertContains(response, "collapseDescription")
+        self.assertContains(response, "DESCRIPTION")
         self.assertContains(response, "SHIPPING &amp; DELIVERY")
 
     def test_product_detail_slug_routing(self):
@@ -1025,6 +1026,91 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertNotContains(resp, 'pdp-currency-badge')
         self.assertNotContains(resp, '>INR<')
 
+    def test_chain_and_shade_products_render_carousel_design(self):
+        """Chain and Shade products with 4 photos must render the full carousel dock and navigation."""
+        cat_chains = Category.objects.create(name="Chains Test", slug="chains-test")
+        chain_product = Product.objects.create(
+            category=cat_chains,
+            name="Cuban Chain Test",
+            price=1299.00,
+            image_url="https://example.com/chain1.webp",
+            image_2_url="https://example.com/chain2.webp",
+            image_3_url="https://example.com/chain3.webp",
+            image_4_url="https://example.com/chain4.webp",
+            stock=5
+        )
+        cat_shades = Category.objects.create(name="Shades Test", slug="shades-test")
+        shade_product = Product.objects.create(
+            category=cat_shades,
+            name="Y2K Shades Test",
+            price=799.00,
+            image_url="https://example.com/shade1.webp",
+            image_2_url="https://example.com/shade2.webp",
+            image_3_url="https://example.com/shade3.webp",
+            image_4_url="https://example.com/shade4.webp",
+            stock=4
+        )
+        # Verify chain product PDP renders carousel
+        chain_resp = self.client.get(reverse('product_detail', kwargs={'pk': chain_product.id}))
+        self.assertEqual(chain_resp.status_code, 200)
+        self.assertContains(chain_resp, 'id="pdpCarouselWrapper"')
+        self.assertContains(chain_resp, 'class="pdp-thumbnails-strip"')
+        self.assertContains(chain_resp, 'https://example.com/chain1.webp')
+        self.assertContains(chain_resp, 'https://example.com/chain2.webp')
+        self.assertContains(chain_resp, 'https://example.com/chain3.webp')
+        self.assertContains(chain_resp, 'https://example.com/chain4.webp')
+
+        # Verify shade product PDP renders carousel
+        shade_resp = self.client.get(reverse('product_detail', kwargs={'pk': shade_product.id}))
+        self.assertEqual(shade_resp.status_code, 200)
+        self.assertContains(shade_resp, 'id="pdpCarouselWrapper"')
+        self.assertContains(shade_resp, 'class="pdp-thumbnails-strip"')
+        self.assertContains(shade_resp, 'https://example.com/shade1.webp')
+        self.assertContains(shade_resp, 'https://example.com/shade2.webp')
+        self.assertContains(shade_resp, 'https://example.com/shade3.webp')
+        self.assertContains(shade_resp, 'https://example.com/shade4.webp')
+
+    def test_product_form_renders_batch_multi_upload_option_and_all_four_slots(self):
+        """Staff product form must render the batch upload option and all 4 photo slot inputs."""
+        staff_user = User.objects.create_user(username="staffadmin_photos", password="password123", is_staff=True)
+        self.client.login(username="staffadmin_photos", password="password123")
+        resp = self.client.get(reverse('product_add'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="batch_images_input"')
+        self.assertContains(resp, 'id="batchDropZone"')
+        self.assertContains(resp, 'id="previewSlot1"')
+        self.assertContains(resp, 'id="previewSlot2"')
+        self.assertContains(resp, 'id="previewSlot3"')
+        self.assertContains(resp, 'id="previewSlot4"')
+        self.assertContains(resp, 'id="galleryLiveStrip"')
+
+    @patch('cloudinary.uploader.upload')
+    def test_product_create_handles_batch_images_upload(self, mock_upload):
+        """Staff product add view must map uploaded batch_images to product image slots."""
+        mock_upload.return_value = {
+            'public_id': 'ashas/products/test_upload',
+            'secure_url': 'https://res.cloudinary.com/dummy/uploaded.png'
+        }
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        staff_user = User.objects.create_user(username="staffadmin_batch", password="password123", is_staff=True)
+        self.client.login(username="staffadmin_batch", password="password123")
+        png_data = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+        f1 = SimpleUploadedFile("b1.png", png_data, content_type="image/png")
+        f2 = SimpleUploadedFile("b2.png", png_data, content_type="image/png")
+        
+        post_data = {
+            'category': self.category.id,
+            'name': 'Batch Uploaded Product',
+            'price': 899,
+            'stock': 10,
+            'batch_images': [f1, f2],
+        }
+        resp = self.client.post(reverse('product_add'), post_data)
+        self.assertEqual(resp.status_code, 302)
+        created_p = Product.objects.get(name='Batch Uploaded Product')
+        self.assertTrue(bool(created_p.image))
+        self.assertTrue(bool(created_p.image_2))
+
     def test_index_page_renders_oldtheory_style_spotlights_and_collections(self):
         """Index page must render Old Theory editorial sections below trending section with 7 unique photos."""
         resp = self.client.get(reverse('home'))
@@ -1052,6 +1138,113 @@ class ProductFourPhotoAndLookbookTests(TestCase):
         self.assertContains(resp, 'data-cat="rings"')
         self.assertContains(resp, 'data-cat="chains"')
         self.assertContains(resp, 'data-cat="shades"')
+
+
+class ProductDescriptionAndCheckoutAddressTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Chains", slug="chains")
+        self.product = Product.objects.create(
+            category=self.category,
+            name="Cuban Link Chain",
+            price=1299.00,
+            discount_price=999.00,
+            stock=10,
+            description="Premium solid stainless steel Cuban link chain with high-polish mirror finish."
+        )
+        self.staff_user = User.objects.create_user(
+            username='admin_test',
+            email='admin@ashasstore.in',
+            password='Password123!',
+            is_staff=True
+        )
+        self.customer = User.objects.create_user(
+            username='customer_test',
+            email='cust@ashasstore.in',
+            password='Password123!'
+        )
+
+    def test_pdp_displays_product_description(self):
+        """Product Detail Page renders description in the dedicated description accordion."""
+        response = self.client.get(reverse('product_detail', kwargs={'pk': self.product.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "DESCRIPTION")
+        self.assertContains(response, "collapseDescription")
+        self.assertContains(response, "Premium solid stainless steel Cuban link chain")
+
+    def test_admin_can_edit_product_description(self):
+        """Admin can manually add or update product description via product_edit."""
+        self.client.login(username='admin_test', password='Password123!')
+        new_desc = "Updated description with material specs: 316L Surgical Grade Steel."
+        response = self.client.post(reverse('product_edit', kwargs={'pk': self.product.id}), {
+            'category': self.category.id,
+            'name': self.product.name,
+            'admin_code': '201',
+            'price': '1299.00',
+            'discount_price': '999.00',
+            'stock': 10,
+            'description': new_desc,
+        })
+        self.assertRedirects(response, reverse('adminpp_dashboard'))
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.description, new_desc)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_stores_all_eight_address_fields(self, mock_get_client):
+        """Checkout POST creates Order with all 8 fields: name, address, landmark, pincode, district, state, phone 1, phone 2."""
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'rzp_order_mock_test', 'amount': 105400}
+        mock_get_client.return_value = mock_client
+
+        self.client.login(username='customer_test', password='Password123!')
+        CartItem.objects.create(user=self.customer, product=self.product, quantity=1)
+
+        payload = {
+            'full_name': 'Rahul Sharma',
+            'shipping_address': 'Flat 302, Palm Residency, 4th Cross Road',
+            'landmark': 'Near Karuvissery Post Office',
+            'pincode': '673010',
+            'district': 'Kozhikode',
+            'state': 'Kerala',
+            'phone_number': '9876543210',
+            'phone_number_2': '9123456789',
+            'delivery_region': 'kerala',
+            'payment_method': 'upi'
+        }
+
+        response = self.client.post(reverse('checkout'), payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(order.full_name, 'Rahul Sharma')
+        self.assertEqual(order.shipping_address, 'Flat 302, Palm Residency, 4th Cross Road')
+        self.assertEqual(order.landmark, 'Near Karuvissery Post Office')
+        self.assertEqual(order.pincode, '673010')
+        self.assertEqual(order.district, 'Kozhikode')
+        self.assertEqual(order.state, 'Kerala')
+        self.assertEqual(order.phone_number, '9876543210')
+        self.assertEqual(order.phone_number_2, '9123456789')
+
+        # Check formatted label includes all address parts
+        label = order.formatted_shipping_label
+        self.assertIn('Rahul Sharma', label)
+        self.assertIn('Flat 302, Palm Residency', label)
+        self.assertIn('Near Karuvissery Post Office', label)
+        self.assertIn('Kozhikode, Kerala - 673010', label)
+        self.assertIn('Mob: 9876543210 / 9123456789', label)
+
+        # Check admin orders page renders all details
+        self.client.login(username='admin_test', password='Password123!')
+        admin_resp = self.client.get(reverse('adminpp_orders'))
+        self.assertEqual(admin_resp.status_code, 200)
+        self.assertContains(admin_resp, 'Rahul Sharma')
+        self.assertContains(admin_resp, '9876543210')
+        self.assertContains(admin_resp, '9123456789')
+        self.assertContains(admin_resp, 'Near Karuvissery Post Office')
+        self.assertContains(admin_resp, 'Kozhikode')
+        self.assertContains(admin_resp, 'PIN: 673010')
+
 
 
 

@@ -37,15 +37,15 @@ class ProductAdmin(admin.ModelAdmin):
         }),
         ('Photo 2 (Side / Angle View)', {
             'fields': ('image_2', 'image_2_url'),
-            'classes': ('collapse',)
+            'description': 'Photo 2 for interactive product carousel and card hover view.'
         }),
         ('Photo 3 (On-Model / Wearing View)', {
             'fields': ('image_3', 'image_3_url'),
-            'classes': ('collapse',)
+            'description': 'Photo 3 for interactive product carousel.'
         }),
         ('Photo 4 (Detail / Packaging View)', {
             'fields': ('image_4', 'image_4_url'),
-            'classes': ('collapse',)
+            'description': 'Photo 4 for interactive product carousel.'
         }),
         ('Pricing & Inventory', {
             'fields': ('price', 'discount_price', 'stock')
@@ -79,16 +79,16 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'phone_number', 'total_price', 'payment_status', 'shipping_status', 'tracking_id', 'created_at')
-    list_filter = ('payment_status', 'shipping_status', 'carrier', 'created_at')
-    search_fields = ('id', 'full_name', 'phone_number', 'tracking_id', 'razorpay_order_id', 'razorpay_payment_id')
+    list_display = ('id', 'full_name', 'phone_number', 'phone_number_2', 'display_district', 'pincode', 'total_price', 'payment_status', 'shipping_status', 'tracking_id', 'created_at')
+    list_filter = ('payment_status', 'shipping_status', 'carrier', 'delivery_region', 'created_at')
+    search_fields = ('id', 'full_name', 'phone_number', 'phone_number_2', 'shipping_address', 'landmark', 'district', 'pincode', 'tracking_id', 'razorpay_order_id', 'razorpay_payment_id')
     readonly_fields = ('created_at', 'razorpay_order_id', 'razorpay_payment_id')
     fieldsets = (
         ('Customer & Delivery Information', {
-            'fields': ('user', 'full_name', 'phone_number', 'shipping_address')
+            'fields': ('user', 'full_name', 'phone_number', 'phone_number_2', 'shipping_address', 'landmark', 'district', 'city', 'state', 'pincode', 'delivery_region')
         }),
         ('Payment Details', {
-            'fields': ('total_price', 'payment_status', 'razorpay_order_id', 'razorpay_payment_id')
+            'fields': ('total_price', 'shipping_fee', 'payment_status', 'razorpay_order_id', 'razorpay_payment_id')
         }),
         ('Fulfillment & Consignment Tracking', {
             'fields': ('shipping_status', 'carrier', 'tracking_id', 'tracking_notes', 'tracking_updated_at')
@@ -110,5 +110,5 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone_number')
-    search_fields = ('user__username', 'phone_number')
+    list_display = ('user', 'phone_number', 'phone_number_2', 'district', 'state', 'pincode')
+    search_fields = ('user__username', 'phone_number', 'phone_number_2', 'district', 'pincode')

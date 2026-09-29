@@ -338,6 +338,36 @@
                         <span class="badge bg-dark rounded-pill px-2 py-1" style="font-size: 0.68rem;">4 Photo Slots</span>
                     </div>
 
+                    <div class="multi-upload-box mb-3 p-3 rounded-3" id="batchDropZone" style="background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EA 100%); border: 1.5px dashed rgba(23, 22, 20, 0.25); transition: border-color 0.2s, background-color 0.2s;">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 44px; height: 44px; border-radius: 10px; background: #171614; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="bi bi-images fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-dark text-uppercase" style="font-size: 0.82rem; letter-spacing: 0.05em;">
+                                            Batch Upload Multiple Images (Up to 4 Photos)
+                                        </span>
+                                        <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size: 0.62rem;">Fast 4-Photo Upload</span>
+                                    </div>
+                                    <small class="text-secondary d-block" style="font-size: 0.74rem;">
+                                        Select or drag-and-drop 2, 3, or 4 images at once. They will automatically populate Photo 1, Photo 2, Photo 3, and Photo 4 below!
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="batch_images_input" class="btn btn-obsidian btn-sm rounded-pill px-3 py-2 text-nowrap d-inline-flex align-items-center gap-2 shadow-sm" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer;">
+                                    <i class="bi bi-cloud-arrow-up-fill"></i> CHOOSE MULTIPLE PHOTOS
+                                </label>
+                                <input type="file" id="batch_images_input" name="batch_images" multiple accept="image/*" class="d-none">
+                            </div>
+                        </div>
+                        <div id="batchUploadNotice" class="mt-2 p-2 rounded-2 small d-none" style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46;">
+                            <i class="bi bi-check-circle-fill me-1"></i> <span id="batchUploadNoticeText"></span>
+                        </div>
+                    </div>
+
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <div class="photo-card-slot h-100">
@@ -457,7 +487,13 @@
                 </div>
 
                 <div class="col-12 mt-3">
-                    <label class="form-label-custom">Description (Optional)</label>
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <label class="form-label-custom m-0">Product Description</label>
+                        <span class="badge bg-secondary bg-opacity-10 text-dark" style="font-size: 0.65rem;">Displays on Product Detail Page</span>
+                    </div>
+                    <small class="text-secondary d-block mb-2" style="font-size: 0.74rem;">
+                        Add detailed product specifications, materials (e.g. titanium steel, polarized UV400 lenses), dimensions, and care instructions. Newlines and paragraphs are preserved on the store page.
+                    </small>
                     {{ form.description }}
                 </div>
             </div>
@@ -483,22 +519,44 @@
             { fileId: 'id_image_4', urlId: 'id_image_4_url', previewId: 'previewSlot4', thumbId: 'stripThumb4', badgeId: 'badgeSlot4', isPrimary: false },
         ];
 
-        function setupSlot(slot, index) {
-            const fileEl = document.getElementById(slot.fileId);
-            const urlEl = document.getElementById(slot.urlId);
+        function updateSlotImage(index, src, isSelected) {
+            if (!src) return;
+            const slot = slots[index];
             const previewEl = document.getElementById(slot.previewId);
             const thumbEl = document.getElementById(slot.thumbId);
             const badgeEl = document.getElementById(slot.badgeId);
 
-            function updateSlotImage(src, isSelected) {
-                if (!src) return;
-                if (previewEl) previewEl.src = src;
-                if (thumbEl) thumbEl.src = src;
-                if (badgeEl && isSelected) {
-                    badgeEl.className = 'badge bg-success text-white';
-                    badgeEl.innerText = 'Ready';
-                }
+            if (previewEl) previewEl.src = src;
+            if (thumbEl) thumbEl.src = src;
+            if (badgeEl && isSelected) {
+                badgeEl.className = 'badge bg-success text-white';
+                badgeEl.innerText = 'Ready';
             }
+            updateActivePhotosCounter();
+        }
+
+        function updateActivePhotosCounter() {
+            let activeCount = 0;
+            slots.forEach(slot => {
+                const fileEl = document.getElementById(slot.fileId);
+                const urlEl = document.getElementById(slot.urlId);
+                const previewEl = document.getElementById(slot.previewId);
+                const hasFile = fileEl && fileEl.files && fileEl.files.length > 0;
+                const hasUrl = urlEl && urlEl.value.trim().length > 0;
+                const hasCustomImg = previewEl && previewEl.src && !previewEl.src.includes('ashas_badge.png');
+                if (hasFile || hasUrl || hasCustomImg) {
+                    activeCount++;
+                }
+            });
+            const counterText = document.getElementById('activePhotoCountText');
+            if (counterText) {
+                counterText.textContent = `${activeCount} / 4 photos configured`;
+            }
+        }
+
+        function setupSlot(slot, index) {
+            const fileEl = document.getElementById(slot.fileId);
+            const urlEl = document.getElementById(slot.urlId);
 
             if (fileEl) {
                 fileEl.addEventListener('change', function(e) {
@@ -509,7 +567,7 @@
                         }
                         const reader = new FileReader();
                         reader.onload = function(evt) {
-                            updateSlotImage(evt.target.result, true);
+                            updateSlotImage(index, evt.target.result, true);
                         };
                         reader.readAsDataURL(file);
                     }
@@ -520,13 +578,90 @@
                 urlEl.addEventListener('input', function() {
                     const val = urlEl.value.trim();
                     if (val.startsWith('http://') || val.startsWith('https://')) {
-                        updateSlotImage(val, true);
+                        updateSlotImage(index, val, true);
                     }
                 });
             }
         }
 
         slots.forEach((s, i) => setupSlot(s, i));
+
+        // =========================================================
+        // Batch Multi-Image Uploader (Distributes into Slots 1 - 4)
+        // =========================================================
+        const batchInput = document.getElementById('batch_images_input');
+        const batchDropZone = document.getElementById('batchDropZone');
+        const batchNotice = document.getElementById('batchUploadNotice');
+        const batchNoticeText = document.getElementById('batchUploadNoticeText');
+
+        function handleBatchFiles(fileList) {
+            if (!fileList || fileList.length === 0) return;
+            const files = Array.from(fileList).slice(0, 4);
+
+            files.forEach((file, idx) => {
+                if (idx < slots.length) {
+                    const slot = slots[idx];
+                    const targetInput = document.getElementById(slot.fileId);
+
+                    // Sync file to individual file input using DataTransfer API
+                    try {
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        if (targetInput) {
+                            targetInput.files = dt.files;
+                        }
+                    } catch (e) {
+                        // DataTransfer not supported; backend handles batch_images fallback
+                    }
+
+                    // Render preview immediately
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        updateSlotImage(idx, evt.target.result, true);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            if (batchNotice && batchNoticeText) {
+                batchNotice.classList.remove('d-none');
+                const slotNames = ['Photo 1 (Cover)', 'Photo 2 (Angle)', 'Photo 3 (Wearing)', 'Photo 4 (Detail)'];
+                const filledNames = slotNames.slice(0, files.length).join(', ');
+                batchNoticeText.textContent = `✓ ${files.length} photos selected and automatically mapped to: ${filledNames}. Live PDP preview updated!`;
+            }
+        }
+
+        if (batchInput) {
+            batchInput.addEventListener('change', function(e) {
+                handleBatchFiles(e.target.files);
+            });
+        }
+
+        if (batchDropZone) {
+            batchDropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                batchDropZone.style.borderColor = '#171614';
+                batchDropZone.style.backgroundColor = '#ECE8E1';
+            });
+            batchDropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                batchDropZone.style.borderColor = 'rgba(23, 22, 20, 0.25)';
+                batchDropZone.style.backgroundColor = '#FAF8F5';
+            });
+            batchDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                batchDropZone.style.borderColor = 'rgba(23, 22, 20, 0.25)';
+                batchDropZone.style.backgroundColor = '#FAF8F5';
+                if (e.dataTransfer && e.dataTransfer.files) {
+                    handleBatchFiles(e.dataTransfer.files);
+                }
+            });
+        }
+
+        updateActivePhotosCounter();
     })();
 </script>
 </body>

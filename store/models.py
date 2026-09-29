@@ -7,9 +7,12 @@ from django.utils.text import slugify
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
+    phone_number_2 = models.CharField(max_length=20, blank=True, null=True, help_text="Alternate Phone Number 2 (Optional)")
     address = models.TextField(blank=True, null=True)
+    landmark = models.CharField(max_length=255, blank=True, null=True, help_text="Nearby Landmark (Optional)")
     pincode = models.CharField(max_length=10, blank=True, null=True, help_text="Postal PIN Code")
     city = models.CharField(max_length=100, blank=True, null=True, help_text="City / District")
+    district = models.CharField(max_length=100, blank=True, null=True, help_text="District")
     state = models.CharField(max_length=100, blank=True, null=True, help_text="State")
 
     def __str__(self):
@@ -351,9 +354,12 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     full_name = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=20)
+    phone_number_2 = models.CharField(max_length=20, blank=True, null=True, help_text="Alternate Phone Number 2 (Optional)")
     shipping_address = models.TextField()
+    landmark = models.CharField(max_length=255, blank=True, null=True, help_text="Nearby Landmark (Optional)")
     pincode = models.CharField(max_length=10, blank=True, null=True, help_text="Postal PIN Code")
     city = models.CharField(max_length=100, blank=True, null=True, help_text="City / District")
+    district = models.CharField(max_length=100, blank=True, null=True, help_text="District")
     state = models.CharField(max_length=100, blank=True, null=True, help_text="State")
     delivery_region = models.CharField(max_length=50, blank=True, null=True, default='kerala', help_text="Inside Kerala vs Outside Kerala")
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -407,6 +413,32 @@ class Order(models.Model):
             f"Boutique Helpline: +91 82814 51481"
         )
         return f"https://wa.me/{digits}?text={urllib.parse.quote(msg)}"
+
+    @property
+    def display_district(self):
+        return self.district or self.city or ''
+
+    @property
+    def formatted_shipping_label(self):
+        """Standard formatted postal address for India Post Speed Post parcel label"""
+        parts = [self.full_name, self.shipping_address]
+        if self.landmark:
+            parts.append(f"Near {self.landmark}")
+        loc_parts = []
+        if self.display_district:
+            loc_parts.append(self.display_district)
+        if self.state:
+            loc_parts.append(self.state)
+        loc_str = ", ".join(loc_parts)
+        if self.pincode:
+            loc_str = f"{loc_str} - {self.pincode}" if loc_str else f"PIN: {self.pincode}"
+        if loc_str:
+            parts.append(loc_str)
+        contact_str = f"Mob: {self.phone_number}"
+        if self.phone_number_2:
+            contact_str += f" / {self.phone_number_2}"
+        parts.append(contact_str)
+        return "\n".join(parts)
 
     def __str__(self):
         return f"Order #{self.id} - {self.full_name} ({self.payment_status})"

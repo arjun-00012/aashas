@@ -1041,19 +1041,25 @@ def checkout_view(request):
     has_bracelet = check_cart_has_test_bracelet(products_list)
 
     default_address = ''
+    default_landmark = ''
     default_phone = ''
+    default_phone_2 = ''
     default_name = ''
     default_pincode = ''
+    default_district = ''
     default_city = ''
     default_state = ''
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(user=request.user)
         default_address = profile.address or ''
+        default_landmark = profile.landmark or ''
         default_phone = profile.phone_number or ''
+        default_phone_2 = profile.phone_number_2 or ''
         default_pincode = profile.pincode or ''
-        default_city = profile.city or ''
+        default_district = profile.district or profile.city or ''
+        default_city = profile.city or profile.district or ''
         default_state = profile.state or ''
-        default_name = request.user.username
+        default_name = request.user.get_full_name() or request.user.username
 
         # If pincode not yet stored separately, try extracting 6 digits from address text
         if not default_pincode and default_address:
@@ -1070,19 +1076,38 @@ def checkout_view(request):
     if request.method == 'POST':
         full_name = (request.POST.get('full_name') or '').strip()
         phone = (request.POST.get('phone_number') or '').strip()
+        phone_2 = (request.POST.get('phone_number_2') or '').strip()
         address = (request.POST.get('shipping_address') or '').strip()
+        landmark = (request.POST.get('landmark') or '').strip()
         pincode = (request.POST.get('pincode') or '').strip()
-        city = (request.POST.get('city') or '').strip()
+        district = (request.POST.get('district') or request.POST.get('city') or '').strip()
+        city = district
         state = (request.POST.get('state') or '').strip()
         requested_region = (request.POST.get('delivery_region') or initial_region).strip().lower()
 
-        if not full_name or not phone or not address:
-            return JsonResponse({'status': 'error', 'message': 'Please complete all required shipping details.'}, status=400)
+        # Strict Validation of Required Fields
+        if not full_name:
+            return JsonResponse({'status': 'error', 'message': 'Please enter recipient name.'}, status=400)
+        if not address:
+            return JsonResponse({'status': 'error', 'message': 'Delivery Address is mandatory. Please enter house/flat/building and street address.'}, status=400)
+        if not phone:
+            return JsonResponse({'status': 'error', 'message': 'Phone number 1 is mandatory.'}, status=400)
+
+        import re
+        phone_digits = re.sub(r'\D', '', phone)
+        if len(phone_digits) < 10 or len(phone_digits) > 13:
+            return JsonResponse({'status': 'error', 'message': 'Please enter a valid 10-digit mobile number for Phone 1.'}, status=400)
+        phone = phone_digits[-10:] if len(phone_digits) >= 10 else phone_digits
+
+        phone_2_clean = None
+        if phone_2:
+            phone_2_digits = re.sub(r'\D', '', phone_2)
+            if len(phone_2_digits) < 10 or len(phone_2_digits) > 13:
+                return JsonResponse({'status': 'error', 'message': 'Please enter a valid 10-digit mobile number for Phone 2 (or leave it blank).'}, status=400)
+            phone_2_clean = phone_2_digits[-10:] if len(phone_2_digits) >= 10 else phone_2_digits
 
         # Validate PIN code
-        import re
         pincode_digits = re.sub(r'\D', '', pincode)
-        # If pincode was not sent in dedicated field, try extracting 6 digits from address
         if not pincode_digits and address:
             m = re.search(r'\b([1-9]\d{5})\b', address)
             if m:
@@ -1094,15 +1119,18 @@ def checkout_view(request):
             pincode = pincode_digits
             # MANDATORY ENFORCEMENT:
             # If the PIN code is outside Kerala, the ₹95 shipping charge is strictly mandatory.
-            # Outside-Kerala customers have NO option to select or receive the Inside Kerala rate.
             if not is_kerala_pincode(pincode):
                 delivery_region = 'outside_kerala'
             else:
                 delivery_region = 'kerala'
         else:
-            # Fallback when only delivery_region/address is passed
             delivery_region = determine_delivery_region(pincode=None, delivery_region=requested_region, address=address)
             pincode = '673001' if delivery_region == 'kerala' else '560001'
+
+        if not district:
+            district = city or ('Kozhikode' if delivery_region == 'kerala' else 'Bengaluru')
+        if not state:
+            state = 'Kerala' if delivery_region == 'kerala' else 'Other'
 
         if subtotal <= 0:
             return JsonResponse({'status': 'error', 'message': 'Invalid cart total.'}, status=400)
@@ -1113,25 +1141,29 @@ def checkout_view(request):
 
         # Build clean full address representation for shipping labels & admin
         full_shipping_address = address
+        if landmark and f"near {landmark.lower()}" not in full_shipping_address.lower():
+            full_shipping_address = f"{full_shipping_address}, Near {landmark}"
+        if district and district.lower() not in full_shipping_address.lower():
+            full_shipping_address = f"{full_shipping_address}, {district}"
+        if state and state.lower() not in full_shipping_address.lower():
+            full_shipping_address = f"{full_shipping_address}, {state}"
         if pincode not in full_shipping_address:
-            if city and city.lower() not in full_shipping_address.lower():
-                full_shipping_address = f"{address}, {city} - {pincode}"
-            else:
-                full_shipping_address = f"{address} - {pincode}"
+            full_shipping_address = f"{full_shipping_address} - {pincode}"
 
         # Automatically update user profile for subsequent visits
         if request.user.is_authenticated:
             try:
                 prof, _ = Profile.objects.get_or_create(user=request.user)
-                if phone:
-                    prof.phone_number = phone
-                if address:
-                    prof.address = address
+                prof.phone_number = phone
+                if phone_2_clean:
+                    prof.phone_number_2 = phone_2_clean
+                prof.address = address
+                if landmark:
+                    prof.landmark = landmark
                 prof.pincode = pincode
-                if city:
-                    prof.city = city
-                if state:
-                    prof.state = state
+                prof.district = district
+                prof.city = district
+                prof.state = state
                 prof.save()
             except Exception:
                 pass
@@ -1171,9 +1203,12 @@ def checkout_view(request):
             user=request.user if request.user.is_authenticated else None,
             full_name=full_name,
             phone_number=phone,
-            shipping_address=full_shipping_address,
+            phone_number_2=phone_2_clean,
+            shipping_address=address,
+            landmark=landmark or None,
             pincode=pincode,
-            city=city,
+            city=district,
+            district=district,
             state=state or ('Kerala' if delivery_region == 'kerala' else ''),
             delivery_region=delivery_region,
             shipping_fee=shipping_fee,
@@ -1221,11 +1256,14 @@ def checkout_view(request):
         'checkout_items': checkout_items,
         'item_count': item_count,
         'default_address': default_address,
+        'default_landmark': default_landmark,
         'default_phone': default_phone,
+        'default_phone_2': default_phone_2,
         'default_name': default_name,
         'default_pincode': default_pincode,
+        'default_district': default_district,
         'default_city': default_city,
-        'default_state': default_state,
+        'default_state': default_state or ('Kerala' if initial_region == 'kerala' else ''),
         'user_email': request.user.email if request.user.is_authenticated else '',
         'razorpay_key': settings.RAZORPAY_KEY_ID,
     })
@@ -1673,7 +1711,18 @@ def product_create_or_edit(request, pk=None):
     if request.method == 'POST':
         if form.is_valid():
             try:
-                p = form.save()
+                p = form.save(commit=False)
+                # Multi-image batch upload handler: assign up to 4 images to available slots
+                batch_files = request.FILES.getlist('batch_images')
+                if batch_files:
+                    slot_attrs = ['image', 'image_2', 'image_3', 'image_4']
+                    b_idx = 0
+                    for slot in slot_attrs:
+                        if not request.FILES.get(slot) and b_idx < len(batch_files):
+                            setattr(p, slot, batch_files[b_idx])
+                            b_idx += 1
+                p.save()
+                form.save_m2m()
                 action_text = "updated" if pk else "created"
                 messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
                 return redirect('adminpp_dashboard')
