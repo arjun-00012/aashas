@@ -1764,14 +1764,11 @@ def adminpp_orders(request):
         base_orders = base_orders.filter(created_at__date__lte=end_date)
 
     paid_count = base_orders.filter(payment_status='Completed').count()
-    incomplete_count = base_orders.filter(payment_status__in=['Pending', 'Failed']).count()
-    refunded_count = base_orders.filter(payment_status='Refunded').count()
+    incomplete_count = base_orders.exclude(payment_status='Completed').count()
     all_count = base_orders.count()
 
     if payment_filter == 'incomplete':
-        orders = base_orders.filter(payment_status__in=['Pending', 'Failed']).order_by('-created_at')
-    elif payment_filter == 'refunded':
-        orders = base_orders.filter(payment_status='Refunded').order_by('-created_at')
+        orders = base_orders.exclude(payment_status='Completed').order_by('-created_at')
     elif payment_filter == 'all':
         orders = base_orders.order_by('-created_at')
     else:
@@ -1853,7 +1850,6 @@ def adminpp_orders(request):
         'payment_filter': payment_filter,
         'paid_count': paid_count,
         'incomplete_count': incomplete_count,
-        'refunded_count': refunded_count,
         'all_count': all_count,
         'categories': Category.objects.all(),
         'selected_category': category_filter,
@@ -2007,71 +2003,6 @@ def adminpp_reconcile_order(request, order_id):
 
     return redirect(safe_referer(request, 'adminpp_orders'))
 
-@staff_required
-def adminpp_refund_order(request, order_id):
-    """
-    Staff endpoint to issue a full 1-click refund directly via Razorpay API.
-    Restores inventory and marks order as Refunded.
-    """
-    order = get_object_or_404(Order, id=order_id)
-    if not order.razorpay_payment_id:
-        msg = f"Cannot refund Order #{order.id}: No Razorpay Payment ID found."
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
-            return JsonResponse({'status': 'error', 'message': msg}, status=400)
-        messages.error(request, msg)
-        return redirect(safe_referer(request, 'adminpp_orders'))
-
-    if order.payment_status == 'Refunded':
-        msg = f"Order #{order.id} is already marked as Refunded (Refund ID: {order.razorpay_refund_id or 'N/A'})."
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
-            return JsonResponse({'status': 'info', 'message': msg})
-        messages.info(request, msg)
-        return redirect(safe_referer(request, 'adminpp_orders'))
-
-    try:
-        client = get_razorpay_client()
-        reason = request.POST.get('reason') or request.GET.get('reason') or f"Staff refund for Order #{order.id}"
-        refund_res = client.payment.refund(order.razorpay_payment_id, {
-            'notes': {
-                'order_id': str(order.id),
-                'reason': reason[:120]
-            }
-        })
-
-        ref_id = refund_res.get('id')
-        ref_amt = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
-        was_completed = (order.payment_status == 'Completed')
-
-        order.payment_status = 'Refunded'
-        order.razorpay_refund_id = ref_id
-        order.refund_amount = ref_amt
-        order.refund_notes = f"Refunded ₹{ref_amt} via Razorpay ({ref_id}). Reason: {reason}"
-        order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
-
-        # Restock inventory
-        if was_completed:
-            for item in order.items.all():
-                if item.product:
-                    item.product.stock += item.quantity
-                    item.product.save(update_fields=['stock'])
-
-        msg = f"✓ Refund Successful! ₹{ref_amt} has been refunded to the customer's account (Razorpay Refund ID: {ref_id}). Product stock has been restored."
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
-            return JsonResponse({
-                'status': 'success',
-                'order_id': order.id,
-                'refund_id': ref_id,
-                'refund_amount': float(ref_amt),
-                'message': msg
-            })
-        messages.success(request, msg)
-        return redirect(safe_referer(request, 'adminpp_orders'))
-    except Exception as e:
-        msg = f"Razorpay Refund Failed for Order #{order.id}: {e}"
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json' or request.POST.get('format') == 'json':
-            return JsonResponse({'status': 'error', 'message': msg}, status=400)
-        messages.error(request, msg)
-        return redirect(safe_referer(request, 'adminpp_orders'))
 
 @staff_required
 def adminpp_order_delete(request, order_id):

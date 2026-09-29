@@ -1539,40 +1539,84 @@ class AdminOrdersPaymentFilterAndFailureTests(TestCase):
         self.assertEqual(self.pending_order.razorpay_payment_id, 'pay_single_reconcile_456')
 
     @patch('store.views.get_razorpay_client')
-    def test_adminpp_refund_order_view(self, mock_client_getter):
-        """Staff can 1-click refund a paid order via Razorpay API, which restores inventory."""
+    def test_webhook_payment_authorized_auto_refunds_if_capture_fails(self, mock_client_getter):
+        """Webhook auto-refunds customer immediately if payment is authorized but capture fails."""
         mock_client = MagicMock()
+        mock_client.payment.capture.side_effect = Exception("Razorpay capture declined: timeout")
         mock_client.payment.refund.return_value = {
-            'id': 'rfnd_manual_admin_789',
+            'id': 'rfnd_auto_fail_789',
             'amount': 85000,
             'status': 'processed'
         }
         mock_client_getter.return_value = mock_client
 
-        # Start with completed order and deducted stock
-        self.pending_order.payment_status = 'Completed'
-        self.pending_order.razorpay_payment_id = 'pay_to_refund_admin'
-        self.pending_order.save()
-        self.product.stock = 8
-        self.product.save()
-
-        self.client.login(username='admin_user', password='Password123!')
-        response = self.client.get(
-            reverse('adminpp_refund_order', args=[self.pending_order.id]),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        initial_stock = self.product.stock
+        payload = {
+            'event': 'payment.authorized',
+            'payload': {
+                'payment': {
+                    'entity': {
+                        'id': 'pay_auth_fail_123',
+                        'amount': 85000,
+                        'status': 'authorized',
+                        'notes': {'order_id': str(self.pending_order.id)}
+                    }
+                }
+            }
+        }
+        response = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['status'], 'success')
+        mock_client.payment.capture.assert_called_once()
         mock_client.payment.refund.assert_called_once()
 
         self.pending_order.refresh_from_db()
+        # Order is NOT completed because payment failed to capture
         self.assertEqual(self.pending_order.payment_status, 'Refunded')
-        self.assertEqual(self.pending_order.razorpay_refund_id, 'rfnd_manual_admin_789')
-        self.assertEqual(float(self.pending_order.refund_amount), 850.0)
+        self.assertEqual(self.pending_order.razorpay_refund_id, 'rfnd_auto_fail_789')
+        self.assertIn("Auto-refunded: Gateway failed to capture", self.pending_order.refund_notes)
 
-        # Inventory restored (8 + 1 = 9)
+        # Inventory is NOT deducted
         self.product.refresh_from_db()
-        self.assertEqual(self.product.stock, 9)
+        self.assertEqual(self.product.stock, initial_stock)
+
+    @patch('store.views.get_razorpay_client')
+    def test_webhook_payment_captured_places_order_and_deducts_stock(self, mock_client_getter):
+        """Only when payment is captured does order get marked Completed and stock deducted."""
+        mock_client = MagicMock()
+        mock_client_getter.return_value = mock_client
+
+        initial_stock = self.product.stock
+        payload = {
+            'event': 'payment.captured',
+            'payload': {
+                'payment': {
+                    'entity': {
+                        'id': 'pay_captured_live_999',
+                        'amount': 85000,
+                        'status': 'captured',
+                        'notes': {'order_id': str(self.pending_order.id)}
+                    }
+                }
+            }
+        }
+        response = self.client.post(
+            reverse('razorpay_webhook'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Completed')
+        self.assertEqual(self.pending_order.razorpay_payment_id, 'pay_captured_live_999')
+
+        # Stock deducted on capture
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, initial_stock - 1)
 
     @patch('store.views.get_razorpay_client')
     def test_adminpp_reconcile_order_auto_refunds_if_authorized_capture_fails(self, mock_client_getter):

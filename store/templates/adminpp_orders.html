@@ -306,12 +306,6 @@
             color: #FFFFFF !important;
             box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
         }
-        .order-filter-pill.active-refunded {
-            background: #7c3aed !important;
-            border-color: #7c3aed !important;
-            color: #FFFFFF !important;
-            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
-        }
         .order-filter-pill.active-all {
             background: #171614 !important;
             border-color: #171614 !important;
@@ -330,7 +324,6 @@
         }
         .order-filter-pill.active-paid .pill-count,
         .order-filter-pill.active-incomplete .pill-count,
-        .order-filter-pill.active-refunded .pill-count,
         .order-filter-pill.active-all .pill-count {
             background: rgba(255, 255, 255, 0.28);
             color: #FFFFFF;
@@ -553,14 +546,6 @@
                 <span class="pill-count">{{ incomplete_count }}</span>
             </a>
 
-            <a href="?payment=refunded{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
-               class="order-filter-pill {% if payment_filter == 'refunded' %}active-refunded{% endif %}"
-               title="Show orders refunded back to customer via Razorpay">
-                <i class="bi bi-arrow-counterclockwise"></i>
-                <span>↩️ Refunded</span>
-                <span class="pill-count">{{ refunded_count }}</span>
-            </a>
-
             <a href="?payment=all{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
                class="order-filter-pill {% if payment_filter == 'all' %}active-all{% endif %}"
                title="View all order records">
@@ -587,13 +572,6 @@
                 </div>
             </div>
         </div>
-        {% elif payment_filter == 'refunded' %}
-        <div class="alert alert-info border border-info border-opacity-50 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-start gap-2.5 small bg-info bg-opacity-10 text-dark">
-            <i class="bi bi-arrow-counterclockwise text-primary fs-5 flex-shrink-0 mt-0.5"></i>
-            <div>
-                <strong>Refunded Orders ({{ orders|length }}):</strong> These payments were refunded back to the customer's account (via auto-refund or staff 1-click refund). Product stock was automatically restored.
-            </div>
-        </div>
         {% endif %}
 
         {% if not is_postgres %}
@@ -617,8 +595,8 @@
                                 <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
                             </span>
                         {% elif order.payment_status == 'Refunded' %}
-                            <span class="badge text-white rounded-pill px-2.5 py-1 fw-bold shadow-sm d-inline-flex align-items-center gap-1" style="font-size: 0.72rem; background-color: #7c3aed !important;">
-                                <i class="bi bi-arrow-counterclockwise"></i> ↩️ REFUNDED
+                            <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-50 rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-arrow-counterclockwise"></i> ↩️ AUTO-REFUNDED
                             </span>
                         {% elif order.payment_status == 'Failed' %}
                             <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
@@ -725,7 +703,7 @@
                         {% if order.payment_status == 'Completed' %}
                             <code class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small fw-bold border border-success border-opacity-25" style="font-size: 0.72rem;">{{ order.razorpay_payment_id|default:"Captured" }}</code>
                         {% elif order.payment_status == 'Refunded' %}
-                            <code class="text-white px-2 py-1 rounded small fw-bold border" style="font-size: 0.68rem; background-color: #7c3aed;">REFUND: {{ order.razorpay_refund_id|default:"Processed" }}</code>
+                            <code class="text-secondary bg-light px-2 py-1 rounded small border" style="font-size: 0.68rem;">Auto-Refunded</code>
                         {% else %}
                             <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 small" style="font-size: 0.68rem;">{{ order.payment_status|upper }}</span>
                         {% endif %}
@@ -798,31 +776,6 @@
                             <i class="bi bi-box-arrow-up-right"></i>
                         </a>
                         {% endif %}
-                        {% if order.razorpay_payment_id %}
-                        <a href="{% url 'adminpp_refund_order' order.id %}" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm refund-order-btn" onclick="return confirm('⚠️ Are you sure you want to refund ₹{{ order.total_price }} for Order #{{ order.id }} ({{ order.full_name|escapejs }}) via Razorpay?\n\nThis will trigger an immediate refund back to the customer\'s source bank account/UPI and restore product inventory.');" title="Issue full refund via Razorpay">
-                            <i class="bi bi-arrow-counterclockwise"></i> <span>Refund</span>
-                        </a>
-                        {% endif %}
-                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Order #{{ order.id }}">
-                            <i class="bi bi-trash3"></i> Delete
-                        </button>
-                    </div>
-                </div>
-                {% elif order.payment_status == 'Refunded' %}
-                <div class="p-2.5 rounded-3 mb-2 border" style="background: #FBF8FF; border-color: rgba(124, 58, 237, 0.25) !important;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="small fw-bold text-dark text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em; color: #7c3aed !important;">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i> Order Refunded
-                        </span>
-                        <span class="badge text-white small" style="background-color: #7c3aed;">Refund Complete</span>
-                    </div>
-                    <p class="text-secondary small mb-2" style="font-size: 0.75rem; line-height: 1.35;">
-                        Amount was refunded to customer via Razorpay.
-                        {% if order.razorpay_refund_id %}<br><strong>Refund ID:</strong> <code>{{ order.razorpay_refund_id }}</code>{% endif %}
-                        {% if order.refund_amount %}<br><strong>Refunded:</strong> ₹{{ order.refund_amount }}{% endif %}
-                        {% if order.refund_notes %}<br><span class="text-dark"><i class="bi bi-info-circle me-1"></i>{{ order.refund_notes }}</span>{% endif %}
-                    </p>
-                    <div class="d-flex flex-wrap gap-2 pt-1">
                         <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Order #{{ order.id }}">
                             <i class="bi bi-trash3"></i> Delete
                         </button>
@@ -900,16 +853,11 @@
                                     <code class="text-success bg-success bg-opacity-10 px-1 py-0.5 rounded border border-success border-opacity-25 d-inline-block" style="font-size: 0.65rem;">{{ order.razorpay_payment_id|default:"Captured" }}</code>
                                 </div>
                             {% elif order.payment_status == 'Refunded' %}
-                                <span class="badge text-white rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.68rem; background-color: #7c3aed !important;">
-                                    <i class="bi bi-arrow-counterclockwise"></i> ↩️ REFUNDED
+                                <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-50 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Auto-Refunded
                                 </span>
-                                {% if order.razorpay_refund_id %}
-                                <div class="mt-0.5">
-                                    <code class="bg-light px-1 py-0.5 rounded border d-inline-block" style="font-size: 0.62rem; color: #7c3aed;">{{ order.razorpay_refund_id }}</code>
-                                </div>
-                                {% endif %}
-                                {% if order.refund_amount %}
-                                <small class="text-muted d-block" style="font-size: 0.65rem;">(₹{{ order.refund_amount }})</small>
+                                {% if order.tracking_notes %}
+                                <small class="text-muted d-block mt-0.5" style="font-size: 0.65rem; max-width: 140px; word-break: break-word;">{{ order.tracking_notes }}</small>
                                 {% endif %}
                             {% elif order.payment_status == 'Failed' %}
                                 <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
@@ -1093,15 +1041,7 @@
                                     </a>
                                     {% endif %}
 
-                                    {% if order.razorpay_payment_id %}
-                                    <a href="{% url 'adminpp_refund_order' order.id %}" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold refund-order-btn" onclick="return confirm('⚠️ Are you sure you want to refund ₹{{ order.total_price }} for Order #{{ order.id }} ({{ order.full_name|escapejs }}) via Razorpay?\n\nThis will trigger an immediate refund back to the customer\'s source bank account/UPI and restore product inventory.');" title="Issue full refund via Razorpay">
-                                        <i class="bi bi-arrow-counterclockwise"></i> <span>Refund</span>
-                                    </a>
-                                    {% endif %}
-                                {% elif order.payment_status == 'Refunded' %}
-                                    <span class="badge rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1 small text-white" style="background-color: #7c3aed;">
-                                        <i class="bi bi-arrow-counterclockwise"></i> <span>Refunded</span>
-                                    </span>
+
                                 {% else %}
                                     <!-- Payment Not Completed: Mark Dispatched is Disabled -->
                                     <button type="button" class="btn btn-secondary btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 opacity-50" disabled title="Cannot dispatch an unpaid order. Payment must be captured in Razorpay first.">
