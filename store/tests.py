@@ -1234,7 +1234,12 @@ class ProductDescriptionAndCheckoutAddressTests(TestCase):
         self.assertIn('Kozhikode, Kerala - 673010', label)
         self.assertIn('Mob: 9876543210 / 9123456789', label)
 
-        # Check admin orders page renders all details
+        # Mark order completed (simulating successful payment)
+        order.payment_status = 'Completed'
+        order.razorpay_payment_id = 'pay_test_rahul123'
+        order.save()
+
+        # Check admin orders page renders all details in default paid dispatch list
         self.client.login(username='admin_test', password='Password123!')
         admin_resp = self.client.get(reverse('adminpp_orders'))
         self.assertEqual(admin_resp.status_code, 200)
@@ -1244,6 +1249,141 @@ class ProductDescriptionAndCheckoutAddressTests(TestCase):
         self.assertContains(admin_resp, 'Near Karuvissery Post Office')
         self.assertContains(admin_resp, 'Kozhikode')
         self.assertContains(admin_resp, 'PIN: 673010')
+
+
+class AdminOrdersPaymentFilterAndFailureTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_superuser('admin_user', 'admin@ashas.in', 'Password123!')
+        self.category = Category.objects.create(name="Chains")
+        self.product = Product.objects.create(category=self.category, name="Silver Figaro Chain", price=850.00, stock=5)
+
+        self.paid_order = Order.objects.create(
+            full_name="Akshay Kumar",
+            phone_number="9876543211",
+            shipping_address="Calicut, Kerala",
+            total_price=850.00,
+            payment_status='Completed',
+            razorpay_payment_id='pay_captured_999'
+        )
+        OrderItem.objects.create(order=self.paid_order, product=self.product, price=850.00, quantity=1)
+
+        self.pending_order = Order.objects.create(
+            full_name="Sneha Patil",
+            phone_number="9876543212",
+            shipping_address="Kochi, Kerala",
+            total_price=850.00,
+            payment_status='Pending'
+        )
+        OrderItem.objects.create(order=self.pending_order, product=self.product, price=850.00, quantity=1)
+
+        self.failed_order = Order.objects.create(
+            full_name="Deepak Verma",
+            phone_number="9876543213",
+            shipping_address="Bangalore, Karnataka",
+            total_price=945.00,
+            payment_status='Failed',
+            tracking_notes="Gateway Notice: UPI bank decline"
+        )
+        OrderItem.objects.create(order=self.failed_order, product=self.product, price=850.00, quantity=1)
+
+    def test_default_adminpp_orders_only_shows_paid_orders(self):
+        """Default orders page MUST only display Completed (paid) orders."""
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(reverse('adminpp_orders'))
+        self.assertEqual(response.status_code, 200)
+
+        # Check context
+        self.assertEqual(response.context['payment_filter'], 'paid')
+        self.assertEqual(response.context['paid_count'], 1)
+        self.assertEqual(response.context['incomplete_count'], 2)
+        self.assertEqual(response.context['all_count'], 3)
+
+        # Order table items
+        orders_in_view = list(response.context['orders'])
+        self.assertIn(self.paid_order, orders_in_view)
+        self.assertNotIn(self.pending_order, orders_in_view)
+        self.assertNotIn(self.failed_order, orders_in_view)
+
+        # HTML content
+        self.assertContains(response, 'Akshay Kumar')
+        self.assertContains(response, 'PAID (Captured)')
+        self.assertNotContains(response, 'Sneha Patil')
+        self.assertNotContains(response, 'Deepak Verma')
+
+    def test_incomplete_checkouts_tab(self):
+        """Incomplete tab displays pending and failed checkouts with WhatsApp follow up."""
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(reverse('adminpp_orders') + '?payment=incomplete')
+        self.assertEqual(response.status_code, 200)
+
+        orders_in_view = list(response.context['orders'])
+        self.assertNotIn(self.paid_order, orders_in_view)
+        self.assertIn(self.pending_order, orders_in_view)
+        self.assertIn(self.failed_order, orders_in_view)
+
+        self.assertContains(response, 'Sneha Patil')
+        self.assertContains(response, 'Deepak Verma')
+        self.assertContains(response, 'WhatsApp Follow Up')
+        self.assertContains(response, 'Dispatch Locked')
+
+    def test_all_orders_tab(self):
+        """All tab displays all orders regardless of payment status."""
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.get(reverse('adminpp_orders') + '?payment=all')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['orders']), 3)
+
+    def test_quick_dispatch_blocked_for_unpaid_order(self):
+        """Unpaid orders cannot be marked as dispatched."""
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.post(reverse('adminpp_quick_dispatch', args=[self.pending_order.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('Payment has not been captured', data['message'])
+
+        self.pending_order.refresh_from_db()
+        self.assertNotEqual(self.pending_order.shipping_status, 'Dispatched')
+
+    def test_quick_dispatch_allowed_for_paid_order(self):
+        """Paid orders can be marked dispatched."""
+        self.client.login(username='admin_user', password='Password123!')
+        response = self.client.post(reverse('adminpp_quick_dispatch', args=[self.paid_order.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+
+        self.paid_order.refresh_from_db()
+        self.assertEqual(self.paid_order.shipping_status, 'Dispatched')
+
+    def test_checkout_payment_failed_endpoint(self):
+        """checkout_payment_failed endpoint marks order as Failed with notes."""
+        payload = {
+            'db_order_id': self.pending_order.id,
+            'error_code': 'BAD_REQUEST_ERROR',
+            'error_description': 'Customer bank declined UPI debit',
+            'reason': 'Bank Technical Error'
+        }
+        response = self.client.post(
+            reverse('checkout_payment_failed'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+
+        self.pending_order.refresh_from_db()
+        self.assertEqual(self.pending_order.payment_status, 'Failed')
+        self.assertIn('Customer bank declined UPI debit', self.pending_order.tracking_notes)
+
+    def test_whatsapp_recovery_url(self):
+        """WhatsApp recovery URL generates a personalized recovery message."""
+        url = self.pending_order.whatsapp_recovery_url
+        self.assertIn('wa.me/919876543212', url)
+        self.assertIn('Sneha%20Patil', url)
+        self.assertIn('Helpline', url)
+
 
 
 

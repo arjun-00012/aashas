@@ -1258,6 +1258,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 modal: {
                     ondismiss: function() {
+                        try {
+                            fetch("{% url 'checkout_payment_failed' %}", {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    db_order_id: data.db_order_id,
+                                    razorpay_order_id: data.razorpay_order_id,
+                                    reason: 'Razorpay popup closed without payment'
+                                })
+                            }).catch(() => {});
+                        } catch (e) {}
                         showError("Payment was cancelled or closed before completion.");
                         resetButton();
                     }
@@ -1272,6 +1283,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (resp) {
+                try {
+                    fetch("{% url 'checkout_payment_failed' %}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            db_order_id: data.db_order_id,
+                            razorpay_order_id: data.razorpay_order_id,
+                            error_code: resp?.error?.code || '',
+                            error_description: resp?.error?.description || '',
+                            reason: resp?.error?.reason || 'Payment failed at bank / UPI gateway'
+                        })
+                    }).catch(() => {});
+                } catch (e) {}
                 showError("Payment Failed: " + (resp.error.description || "Transaction could not be completed."));
                 resetButton();
             });

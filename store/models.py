@@ -415,6 +415,33 @@ class Order(models.Model):
         return f"https://wa.me/{digits}?text={urllib.parse.quote(msg)}"
 
     @property
+    def whatsapp_recovery_url(self):
+        """Generates pre-formatted WhatsApp message link for admin to help recover an incomplete or failed checkout"""
+        if not self.phone_number:
+            return ""
+        import urllib.parse
+        import re
+        digits = re.sub(r'\D', '', str(self.phone_number))
+        if len(digits) == 11 and digits.startswith('0'):
+            digits = '91' + digits[1:]
+        elif len(digits) == 10:
+            digits = '91' + digits
+
+        items_names = [f"{item.product.name} (x{item.quantity})" for item in self.items.all() if item.product]
+        items_summary = ", ".join(items_names[:2]) if items_names else 'your selected items'
+        if len(items_names) > 2:
+            items_summary += f" +{len(items_names)-2} more"
+
+        msg = (
+            f"Hello {self.full_name},\n\n"
+            f"We noticed you were trying to place an order on ASHAS for {items_summary}, "
+            f"but your payment was not completed due to a UPI network or bank issue.\n\n"
+            f"Would you like us to share a direct UPI QR code or payment link to help you complete your order?\n\n"
+            f"ASHAS Boutique Helpline: +91 82814 51481"
+        )
+        return f"https://wa.me/{digits}?text={urllib.parse.quote(msg)}"
+
+    @property
     def display_district(self):
         return self.district or self.city or ''
 

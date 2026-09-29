@@ -268,6 +268,67 @@
             letter-spacing: 0.03em;
         }
 
+        .orders-filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.85rem;
+        }
+        .order-filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid var(--border-subtle);
+            background: #FFFFFF;
+            color: #4A4640;
+        }
+        .order-filter-pill:hover {
+            background: #F4F0EB;
+            color: #171614;
+        }
+        .order-filter-pill.active-paid {
+            background: #15803d !important;
+            border-color: #15803d !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);
+        }
+        .order-filter-pill.active-incomplete {
+            background: #d97706 !important;
+            border-color: #d97706 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+        }
+        .order-filter-pill.active-all {
+            background: #171614 !important;
+            border-color: #171614 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.25);
+        }
+        .order-filter-pill .pill-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.15rem 0.55rem;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.08);
+        }
+        .order-filter-pill.active-paid .pill-count,
+        .order-filter-pill.active-incomplete .pill-count,
+        .order-filter-pill.active-all .pill-count {
+            background: rgba(255, 255, 255, 0.28);
+            color: #FFFFFF;
+        }
+
         @media (max-width: 767.98px) {
             .page-padding {
                 padding: 1rem 0.75rem !important;
@@ -334,13 +395,14 @@
             <a href="https://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center fw-semibold text-nowrap">
                 <i class="bi bi-geo-alt me-1 text-danger"></i> India Post Portal <i class="bi bi-box-arrow-up-right small ms-1"></i>
             </a>
-            <a href="?category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap w-100 w-sm-auto" style="background-color: #15803d; border-color: #15803d;">
+            <a href="?payment={{ payment_filter }}&category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&export=true" class="btn btn-success btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center shadow-sm fw-semibold text-nowrap w-100 w-sm-auto" style="background-color: #15803d; border-color: #15803d;">
                 <i class="bi bi-file-earmark-excel me-2"></i> Export Excel (.xlsx)
             </a>
         </div>
     </div>
 
     <form method="GET" class="card-admin p-3 p-md-4 mb-4">
+        <input type="hidden" name="payment" value="{{ payment_filter }}">
         <div class="row g-2 g-md-3 align-items-end">
             <div class="col-12 col-sm-6 col-md-4">
                 <label class="form-label small fw-bold text-secondary mb-1">CATEGORY</label>
@@ -364,7 +426,7 @@
                     <i class="bi bi-funnel me-1"></i> Filter
                 </button>
                 {% if selected_category or start_date or end_date %}
-                <a href="{% url 'adminpp_orders' %}" class="btn btn-outline-secondary btn-sm py-2 px-3 rounded-pill" title="Clear filters">
+                <a href="{% url 'adminpp_orders' %}?payment={{ payment_filter }}" class="btn btn-outline-secondary btn-sm py-2 px-3 rounded-pill" title="Clear filters">
                     <i class="bi bi-x-lg"></i>
                 </a>
                 {% endif %}
@@ -463,6 +525,52 @@
             </div>
         </div>
 
+        <!-- Order Classification Filter Tabs -->
+        <div class="orders-filter-tabs">
+            <a href="?payment=paid{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="order-filter-pill {% if payment_filter == 'paid' %}active-paid{% endif %}"
+               title="Show only confirmed orders where payment was captured in Razorpay">
+                <i class="bi bi-patch-check-fill"></i>
+                <span>✓ Paid &amp; Ready to Dispatch</span>
+                <span class="pill-count">{{ paid_count }}</span>
+            </a>
+
+            <a href="?payment=incomplete{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="order-filter-pill {% if payment_filter == 'incomplete' %}active-incomplete{% endif %}"
+               title="Show abandoned checkouts & failed payments to follow up on WhatsApp">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>⚠️ Incomplete / Unpaid Checkouts</span>
+                <span class="pill-count">{{ incomplete_count }}</span>
+            </a>
+
+            <a href="?payment=all{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="order-filter-pill {% if payment_filter == 'all' %}active-all{% endif %}"
+               title="View all order records">
+                <i class="bi bi-collection"></i>
+                <span>All Orders</span>
+                <span class="pill-count">{{ all_count }}</span>
+            </a>
+        </div>
+
+        {% if payment_filter == 'paid' %}
+        <div class="alert alert-success border border-success border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center gap-2.5 small bg-success bg-opacity-10 text-dark">
+            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+            <div>
+                <strong>Safe Dispatch List:</strong> Showing <strong>{{ orders|length }}</strong> paid orders where payment was captured in Razorpay. Every order here is safe to pack and dispatch.
+            </div>
+        </div>
+        {% elif payment_filter == 'incomplete' %}
+        <div class="alert alert-warning border border-warning border-opacity-50 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-start gap-2.5 small bg-warning bg-opacity-10 text-dark">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0 mt-0.5"></i>
+            <div>
+                <strong>Incomplete / Unpaid Checkouts ({{ orders|length }}):</strong> These buyers entered their delivery address and contact information, but the payment was not captured (UPI bank decline, network timeout, or popup dismissed).
+                <div class="mt-1 fw-medium text-secondary">
+                    💡 <strong>Action Tip:</strong> Click <strong>WhatsApp Follow Up</strong> on any buyer below to send a friendly message offering direct UPI payment assistance and recover the sale!
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% if not is_postgres %}
         <div class="alert alert-warning border border-warning rounded-3 p-3 mb-3 d-flex align-items-start gap-2.5 shadow-sm small">
             <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0 mt-0.5"></i>
@@ -480,9 +588,17 @@
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-dark rounded-pill px-2 py-1 fw-bold">#{{ order.id }}</span>
                         {% if order.payment_status == 'Completed' %}
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1">Paid</span>
+                            <span class="badge bg-success text-white rounded-pill px-2.5 py-1 fw-bold shadow-sm d-inline-flex align-items-center gap-1" style="font-size: 0.72rem; background-color: #15803d !important;">
+                                <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
+                            </span>
+                        {% elif order.payment_status == 'Failed' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-x-circle-fill"></i> ❌ FAILED
+                            </span>
                         {% else %}
-                            <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-1">{{ order.payment_status }}</span>
+                            <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-1 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-exclamation-triangle-fill text-warning"></i> ⚠️ UNPAID / PENDING
+                            </span>
                         {% endif %}
                     </div>
                     <small class="text-secondary" style="font-size: 0.76rem;">{{ order.created_at|date:"d M Y, H:i" }}</small>
@@ -569,7 +685,7 @@
 
                 <div class="d-flex justify-content-between align-items-center py-2 border-top border-bottom mb-2" style="border-color: var(--border-subtle) !important;">
                     <div>
-                        <span class="text-muted small d-block" style="font-size: 0.7rem;">TOTAL PAID</span>
+                        <span class="text-muted small d-block" style="font-size: 0.7rem;">ORDER AMOUNT</span>
                         <strong class="fs-6 text-dark">₹{{ order.total_price }}</strong>
                         {% if order.shipping_fee and order.shipping_fee > 0 %}
                         <span class="d-block text-muted" style="font-size: 0.68rem;">(incl. ₹{{ order.shipping_fee }} ship)</span>
@@ -577,10 +693,15 @@
                     </div>
                     <div class="text-end">
                         <span class="text-muted small d-block" style="font-size: 0.7rem;">PAYMENT ID</span>
-                        <code class="text-dark bg-light px-2 py-1 rounded small" style="border: 1px solid var(--border-subtle); font-size: 0.72rem;">{{ order.razorpay_payment_id|default:"-" }}</code>
+                        {% if order.payment_status == 'Completed' %}
+                            <code class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small fw-bold border border-success border-opacity-25" style="font-size: 0.72rem;">{{ order.razorpay_payment_id|default:"Captured" }}</code>
+                        {% else %}
+                            <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-50 small" style="font-size: 0.68rem;">{{ order.payment_status|upper }}</span>
+                        {% endif %}
                     </div>
                 </div>
 
+                {% if order.payment_status == 'Completed' %}
                 <div class="p-2.5 rounded-3 mb-2 border" style="background: #FAF8F5; border-color: rgba(28, 25, 23, 0.1) !important;">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="small fw-bold text-dark text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
@@ -651,11 +772,43 @@
                         </button>
                     </div>
                 </div>
+                {% else %}
+                <div class="p-2.5 rounded-3 mb-2 border" style="background: #FFFDF9; border-color: rgba(217, 119, 6, 0.25) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-bold text-dark text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-shield-lock text-warning me-1"></i> Dispatch Locked (Unpaid)
+                        </span>
+                        <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 small">Do Not Ship</span>
+                    </div>
+                    <p class="text-secondary small mb-2" style="font-size: 0.75rem; line-height: 1.35;">
+                        Payment was not captured in Razorpay. Dispatch is locked to protect you against shipping unpaid parcels.
+                        {% if order.tracking_notes %}
+                        <br><span class="text-dark fw-medium"><i class="bi bi-info-circle me-1"></i>{{ order.tracking_notes }}</span>
+                        {% endif %}
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 pt-1">
+                        <a href="{{ order.whatsapp_recovery_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-3 py-1.5 flex-grow-1 card-whatsapp-link text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-bold">
+                            <i class="bi bi-whatsapp"></i> WhatsApp Follow Up
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Incomplete Checkout #{{ order.id }}">
+                            <i class="bi bi-trash3"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             {% empty %}
             <div class="text-center py-5 text-secondary small">
                 <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
-                No completed transactions found matching the specified parameters.
+                {% if payment_filter == 'paid' %}
+                    No paid orders found matching the specified parameters.<br>
+                    <span class="text-muted">When customers complete checkout and payment is captured in Razorpay, their orders will appear here ready to dispatch.</span>
+                {% elif payment_filter == 'incomplete' %}
+                    No incomplete or unpaid checkouts found!<br>
+                    <span class="text-muted">All customer checkout attempts were completed successfully.</span>
+                {% else %}
+                    No order records found matching the specified parameters.
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -680,7 +833,28 @@
                         <td class="text-nowrap">
                             <span class="badge bg-light text-dark border rounded-pill px-2 py-1 fw-bold mb-1 d-block" style="border-color: var(--border-subtle) !important;">#{{ order.id }}</span>
                             <small class="text-muted d-block" style="font-size: 0.72rem;">{{ order.created_at|date:"d M Y, H:i" }}</small>
-                            <code class="text-secondary bg-light px-1 rounded d-inline-block mt-1" style="font-size: 0.68rem;">{{ order.razorpay_payment_id|default:"-" }}</code>
+                            {% if order.payment_status == 'Completed' %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.68rem; background-color: #15803d !important;">
+                                    <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
+                                </span>
+                                <div class="mt-0.5">
+                                    <code class="text-success bg-success bg-opacity-10 px-1 py-0.5 rounded border border-success border-opacity-25 d-inline-block" style="font-size: 0.65rem;">{{ order.razorpay_payment_id|default:"Captured" }}</code>
+                                </div>
+                            {% elif order.payment_status == 'Failed' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                                    <i class="bi bi-x-circle-fill"></i> ❌ FAILED
+                                </span>
+                                {% if order.tracking_notes %}
+                                <small class="text-danger d-block mt-0.5" style="font-size: 0.65rem; max-width: 140px; word-break: break-word;">{{ order.tracking_notes }}</small>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i> ⚠️ UNPAID / PENDING
+                                </span>
+                                {% if order.tracking_notes %}
+                                <small class="text-muted d-block mt-0.5" style="font-size: 0.65rem; max-width: 140px; word-break: break-word;">{{ order.tracking_notes }}</small>
+                                {% endif %}
+                            {% endif %}
                         </td>
 
                         <td class="fw-semibold text-dark text-nowrap">{{ order.full_name }}</td>
@@ -763,72 +937,100 @@
                         </td>
 
                         <td style="min-width: 210px;" class="tracking-cell">
-                            <div class="mb-1">
-                                <span class="row-status-badge">
-                                    {% if order.shipping_status == 'Delivered' %}
-                                        <span class="badge bg-success rounded-pill tracking-badge"><i class="bi bi-check2-all me-1"></i>Delivered</span>
-                                    {% elif order.shipping_status == 'Out for Delivery' %}
-                                        <span class="badge bg-info text-dark rounded-pill tracking-badge"><i class="bi bi-bicycle me-1"></i>Out for Delivery</span>
-                                    {% elif order.shipping_status == 'In Transit' %}
-                                        <span class="badge bg-primary rounded-pill tracking-badge"><i class="bi bi-send me-1"></i>In Transit</span>
-                                    {% elif order.shipping_status == 'Dispatched' %}
-                                        <span class="badge bg-warning text-dark rounded-pill tracking-badge"><i class="bi bi-box-seam me-1"></i>Dispatched (Post Office)</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary rounded-pill tracking-badge">{{ order.get_shipping_status_display }}</span>
-                                    {% endif %}
-                                </span>
-                            </div>
+                            {% if order.payment_status == 'Completed' %}
+                                <div class="mb-1">
+                                    <span class="row-status-badge">
+                                        {% if order.shipping_status == 'Delivered' %}
+                                            <span class="badge bg-success rounded-pill tracking-badge"><i class="bi bi-check2-all me-1"></i>Delivered</span>
+                                        {% elif order.shipping_status == 'Out for Delivery' %}
+                                            <span class="badge bg-info text-dark rounded-pill tracking-badge"><i class="bi bi-bicycle me-1"></i>Out for Delivery</span>
+                                        {% elif order.shipping_status == 'In Transit' %}
+                                            <span class="badge bg-primary rounded-pill tracking-badge"><i class="bi bi-send me-1"></i>In Transit</span>
+                                        {% elif order.shipping_status == 'Dispatched' %}
+                                            <span class="badge bg-warning text-dark rounded-pill tracking-badge"><i class="bi bi-box-seam me-1"></i>Dispatched (Post Office)</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary rounded-pill tracking-badge">{{ order.get_shipping_status_display }}</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
 
-                            {% if order.tracking_id %}
-                            <div class="d-flex align-items-center gap-1 mb-1">
-                                <code class="text-dark bg-light px-2 py-0.5 rounded fw-bold border row-tracking-id" style="font-size: 0.8rem;">{{ order.tracking_id }}</code>
-                                <small class="text-secondary row-carrier">({{ order.carrier|default:'India Post' }})</small>
-                            </div>
-                            {% if order.tracking_notes %}
-                            <small class="text-muted d-block row-notes" style="font-size: 0.72rem;"><i class="bi bi-pin-map me-1"></i>{{ order.tracking_notes }}</small>
-                            {% endif %}
-                            {% if order.tracking_updated_at %}
-                            <small class="text-muted d-block" style="font-size: 0.68rem;"><i class="bi bi-clock me-1"></i>{{ order.tracking_updated_at|date:"d M, H:i" }}</small>
-                            {% endif %}
+                                {% if order.tracking_id %}
+                                <div class="d-flex align-items-center gap-1 mb-1">
+                                    <code class="text-dark bg-light px-2 py-0.5 rounded fw-bold border row-tracking-id" style="font-size: 0.8rem;">{{ order.tracking_id }}</code>
+                                    <small class="text-secondary row-carrier">({{ order.carrier|default:'India Post' }})</small>
+                                </div>
+                                {% if order.tracking_notes %}
+                                <small class="text-muted d-block row-notes" style="font-size: 0.72rem;"><i class="bi bi-pin-map me-1"></i>{{ order.tracking_notes }}</small>
+                                {% endif %}
+                                {% if order.tracking_updated_at %}
+                                <small class="text-muted d-block" style="font-size: 0.68rem;"><i class="bi bi-clock me-1"></i>{{ order.tracking_updated_at|date:"d M, H:i" }}</small>
+                                {% endif %}
+                                {% else %}
+                                <div class="row-tracking-id">
+                                    <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 small">
+                                        <i class="bi bi-hourglass-split me-1"></i>No Tracking ID Yet
+                                    </span>
+                                </div>
+                                {% endif %}
                             {% else %}
-                            <div class="row-tracking-id">
-                                <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 small">
-                                    <i class="bi bi-hourglass-split me-1"></i>No Tracking ID Yet
-                                </span>
-                            </div>
+                                <div class="p-2 rounded-2 border bg-light" style="border-color: var(--border-subtle) !important;">
+                                    <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill small mb-1">
+                                        <i class="bi bi-shield-lock me-1 text-warning"></i>Payment Incomplete
+                                    </span>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1.3;">
+                                        Do not ship parcel. Payment was not completed in Razorpay.
+                                    </small>
+                                    {% if order.tracking_notes %}
+                                    <small class="text-secondary d-block mt-1 fst-italic" style="font-size: 0.68rem;">
+                                        <i class="bi bi-info-circle me-1"></i>{{ order.tracking_notes }}
+                                    </small>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                         </td>
 
                         <td class="text-nowrap text-end">
-                            <div class="d-flex align-items-center justify-content-end gap-1.5">
-                                <button type="button" class="btn btn-warning btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 quick-dispatch-btn shadow-sm fw-bold text-dark"
-                                    data-order-id="{{ order.id }}"
-                                    data-url="{% url 'adminpp_quick_dispatch' order.id %}"
-                                    title="1-Click Mark Dispatched"
-                                    {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'Delivered' %}style="display:none;"{% endif %}>
-                                    <i class="bi bi-truck"></i> <span>Mark Dispatched</span>
-                                </button>
-                                <button type="button" class="btn btn-obsidian btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 open-tracking-modal-btn"
-                                    data-order-id="{{ order.id }}"
-                                    data-full-name="{{ order.full_name }}"
-                                    data-phone="{{ order.phone_number }}"
-                                    data-tracking-id="{{ order.tracking_id|default:'' }}"
-                                    data-carrier="{{ order.carrier|default:'India Post' }}"
-                                    data-status="{{ order.shipping_status|default:'Dispatched' }}"
-                                    data-notes="{{ order.tracking_notes|default:'' }}"
-                                    data-whatsapp="{{ order.whatsapp_notification_url }}"
-                                    title="Edit Consignment & Tracking">
-                                    <i class="bi bi-truck"></i> <span>Tracking</span>
-                                </button>
-                                
-                                <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm row-whatsapp-link" title="Notify Customer on WhatsApp">
-                                    <i class="bi bi-whatsapp"></i> <span>Notify</span>
-                                </a>
+                            <div class="d-flex align-items-center justify-content-end gap-1.5 flex-wrap">
+                                {% if order.payment_status == 'Completed' %}
+                                    <button type="button" class="btn btn-warning btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 quick-dispatch-btn shadow-sm fw-bold text-dark"
+                                        data-order-id="{{ order.id }}"
+                                        data-url="{% url 'adminpp_quick_dispatch' order.id %}"
+                                        title="1-Click Mark Dispatched"
+                                        {% if order.shipping_status == 'Dispatched' or order.shipping_status == 'Delivered' %}style="display:none;"{% endif %}>
+                                        <i class="bi bi-truck"></i> <span>Mark Dispatched</span>
+                                    </button>
+                                    <button type="button" class="btn btn-obsidian btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 open-tracking-modal-btn"
+                                        data-order-id="{{ order.id }}"
+                                        data-full-name="{{ order.full_name }}"
+                                        data-phone="{{ order.phone_number }}"
+                                        data-tracking-id="{{ order.tracking_id|default:'' }}"
+                                        data-carrier="{{ order.carrier|default:'India Post' }}"
+                                        data-status="{{ order.shipping_status|default:'Dispatched' }}"
+                                        data-notes="{{ order.tracking_notes|default:'' }}"
+                                        data-whatsapp="{{ order.whatsapp_notification_url }}"
+                                        title="Edit Consignment & Tracking">
+                                        <i class="bi bi-truck"></i> <span>Tracking</span>
+                                    </button>
+                                    
+                                    <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm row-whatsapp-link" title="Notify Customer on WhatsApp">
+                                        <i class="bi bi-whatsapp"></i> <span>Notify</span>
+                                    </a>
 
-                                {% if order.tracking_id %}
-                                <a href="{{ order.tracking_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1 row-tracker-link" title="Track on India Post Portal">
-                                    <i class="bi bi-box-arrow-up-right"></i>
-                                </a>
+                                    {% if order.tracking_id %}
+                                    <a href="{{ order.tracking_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1 row-tracker-link" title="Track on India Post Portal">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- Payment Not Completed: Mark Dispatched is Disabled -->
+                                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 opacity-50" disabled title="Cannot dispatch an unpaid order. Payment must be captured in Razorpay first.">
+                                        <i class="bi bi-slash-circle"></i> <span>Dispatch Locked</span>
+                                    </button>
+
+                                    <!-- WhatsApp Recovery Follow Up -->
+                                    <a href="{{ order.whatsapp_recovery_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold" title="Send WhatsApp recovery message to help buyer complete order">
+                                        <i class="bi bi-whatsapp"></i> <span>WhatsApp Follow Up</span>
+                                    </a>
                                 {% endif %}
 
                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 delete-order-btn" data-order-id="{{ order.id }}" data-order-customer="{{ order.full_name|default:'' }}" title="Delete Order #{{ order.id }}">
@@ -841,7 +1043,15 @@
                     <tr>
                         <td colspan="8" class="text-center py-5 text-secondary small">
                             <i class="bi bi-inbox fs-3 d-block mb-2 text-muted"></i>
-                            No completed transactions found matching the specified parameters.
+                            {% if payment_filter == 'paid' %}
+                                No paid orders found matching the specified parameters.<br>
+                                <span class="text-muted">When customers complete checkout and payment is captured in Razorpay, their orders will appear here ready to dispatch.</span>
+                            {% elif payment_filter == 'incomplete' %}
+                                No incomplete or unpaid checkouts found!<br>
+                                <span class="text-muted">All customer checkout attempts were completed successfully.</span>
+                            {% else %}
+                                No order records found matching the specified parameters.
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

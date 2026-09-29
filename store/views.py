@@ -1395,12 +1395,66 @@ def razorpay_webhook(request):
                                 item.product.stock = max(0, item.product.stock - item.quantity)
                                 item.product.save(update_fields=['stock'])
 
+            if event == 'payment.failed':
+                payment_entity = data.get('payload', {}).get('payment', {}).get('entity', {})
+                rzp_order_id = payment_entity.get('order_id')
+                err_desc = payment_entity.get('error_description', '')
+                err_reason = payment_entity.get('error_reason', '')
+                if rzp_order_id:
+                    order = Order.objects.filter(razorpay_order_id=rzp_order_id).first()
+                    if order and order.payment_status != 'Completed':
+                        order.payment_status = 'Failed'
+                        if err_desc or err_reason:
+                            note = f"Razorpay Webhook: {err_reason} - {err_desc}"[:250]
+                            if not order.tracking_notes:
+                                order.tracking_notes = note
+                        order.save(update_fields=['payment_status', 'tracking_notes'])
+
             return HttpResponse(status=200)
         except Exception as e:
             import logging
             logging.getLogger(__name__).error(f"Razorpay webhook error: {e}")
             return HttpResponse(status=200)
     return HttpResponse(status=405)
+
+@csrf_exempt
+def checkout_payment_failed(request):
+    """
+    Asynchronously records checkout abandonment or payment gateway failure
+    so that admin can see why an order was not completed and follow up with the buyer.
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order_id = data.get('db_order_id')
+            error_code = data.get('error_code', '')
+            error_desc = data.get('error_description', '')
+            reason = data.get('reason', 'Payment Failed')
+
+            order = None
+            if order_id:
+                try:
+                    order = Order.objects.filter(id=int(order_id)).first()
+                except (ValueError, TypeError):
+                    order = None
+            if not order and data.get('razorpay_order_id'):
+                order = Order.objects.filter(razorpay_order_id=data.get('razorpay_order_id')).first()
+
+            if order and order.payment_status != 'Completed':
+                order.payment_status = 'Failed'
+                failure_note = f"Gateway Notice: {reason}"
+                if error_code:
+                    failure_note += f" | Code: {error_code}"
+                if error_desc:
+                    failure_note += f" | {error_desc}"
+                if not order.tracking_notes:
+                    order.tracking_notes = failure_note[:250]
+                order.save(update_fields=['payment_status', 'tracking_notes'])
+                return JsonResponse({'status': 'success', 'order_id': order.id})
+            return JsonResponse({'status': 'ignored'}, status=200)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
 def contact_submit(request):
     if request.method == 'POST':
@@ -1483,26 +1537,39 @@ def product_toggle_trending(request, pk):
 
 @staff_required
 def adminpp_orders(request):
+    payment_filter = request.GET.get('payment', 'paid').strip().lower()
     category_filter = request.GET.get('category', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
     export_excel = request.GET.get('export', '')
 
-    orders = Order.objects.exclude(payment_status='Failed').prefetch_related('items__product__category').order_by('-created_at')
+    base_orders = Order.objects.prefetch_related('items__product__category')
 
     if category_filter:
-        orders = orders.filter(items__product__category__name__iexact=category_filter).distinct()
+        base_orders = base_orders.filter(items__product__category__name__iexact=category_filter).distinct()
     if start_date:
-        orders = orders.filter(created_at__date__gte=start_date)
+        base_orders = base_orders.filter(created_at__date__gte=start_date)
     if end_date:
-        orders = orders.filter(created_at__date__lte=end_date)
+        base_orders = base_orders.filter(created_at__date__lte=end_date)
+
+    paid_count = base_orders.filter(payment_status='Completed').count()
+    incomplete_count = base_orders.filter(payment_status__in=['Pending', 'Failed']).count()
+    all_count = base_orders.count()
+
+    if payment_filter == 'incomplete':
+        orders = base_orders.filter(payment_status__in=['Pending', 'Failed']).order_by('-created_at')
+    elif payment_filter == 'all':
+        orders = base_orders.order_by('-created_at')
+    else:
+        payment_filter = 'paid'
+        orders = base_orders.filter(payment_status='Completed').order_by('-created_at')
 
     if export_excel == 'true':
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Orders Data"
 
-        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'PIN Code', 'Region', 'Items Purchased', 'Categories', 'Total Price', 'Shipping Fee', 'Payment ID', 'Tracking ID', 'Carrier', 'Shipping Status', 'Date']
+        headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'PIN Code', 'Region', 'Items Purchased', 'Categories', 'Total Price', 'Shipping Fee', 'Payment Status', 'Payment ID', 'Tracking ID', 'Carrier', 'Shipping Status', 'Date']
         ws.append(headers)
 
         header_fill = PatternFill(start_color="1F2937", end_color="1F2937", fill_type="solid")
@@ -1528,6 +1595,7 @@ def adminpp_orders(request):
                 cats_str,
                 float(o.total_price),
                 float(o.shipping_fee or 0.0),
+                o.payment_status,
                 o.razorpay_payment_id or '',
                 o.tracking_id or 'Not Assigned',
                 o.carrier or 'India Post',
@@ -1536,7 +1604,8 @@ def adminpp_orders(request):
             ])
 
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename="ashas_orders_export.xlsx"'
+        filename = f"ashas_orders_{payment_filter}.xlsx"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         wb.save(response)
         return response
 
@@ -1567,6 +1636,10 @@ def adminpp_orders(request):
 
     return render(request, 'adminpp_orders.html', {
         'orders': orders,
+        'payment_filter': payment_filter,
+        'paid_count': paid_count,
+        'incomplete_count': incomplete_count,
+        'all_count': all_count,
         'categories': Category.objects.all(),
         'selected_category': category_filter,
         'start_date': start_date,
@@ -1615,6 +1688,13 @@ def adminpp_update_tracking(request, order_id):
 @staff_required
 def adminpp_quick_dispatch(request, order_id):
     order = get_object_or_404(Order, id=order_id)
+    if order.payment_status != 'Completed':
+        msg = f"Cannot dispatch Order #{order.id}: Payment has not been captured (Status: {order.payment_status}). Only paid orders can be dispatched."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json' or request.GET.get('format') == 'json':
+            return JsonResponse({'status': 'error', 'message': msg}, status=400)
+        messages.error(request, msg)
+        return redirect(safe_referer(request, 'adminpp_orders'))
+
     new_status = (request.POST.get('shipping_status') or request.GET.get('shipping_status') or 'Dispatched').strip() or 'Dispatched'
     order.shipping_status = new_status
     if not order.carrier:

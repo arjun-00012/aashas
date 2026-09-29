@@ -48,6 +48,7 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:product_id>/<str:action>/', views.update_cart, name='update_cart'),
     path('checkout/', views.checkout_view, name='checkout'),
+    path('checkout/payment-failed/', views.checkout_payment_failed, name='checkout_payment_failed'),
     path('verify-payment/', views.payment_verify, name='payment_verify'),
     path('api/razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
     path('contact-submit/', views.contact_submit, name='contact_submit'),
