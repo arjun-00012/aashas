@@ -1671,6 +1671,142 @@ class AdminOrdersPaymentFilterAndFailureTests(TestCase):
         self.assertEqual(self.pending_order.razorpay_refund_id, 'rfnd_reconcile_fail_111')
 
 
+class UpiQrAndStatusPollingTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Accessories", slug="accessories")
+        self.product = Product.objects.create(
+            category=self.category,
+            name="Silk Scrunchie",
+            price=150.00,
+            stock=10
+        )
+        self.user = User.objects.create_user(
+            username="qr_tester",
+            email="qr_tester@example.com",
+            password="Password123!"
+        )
+        self.client.login(username="qr_tester", password="Password123!")
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_post_returns_qr_code_and_payment_link(self, mock_client_getter):
+        """Checkout POST creates a payment link and returns dynamic QR URL and short link URL."""
+        mock_client = MagicMock()
+        mock_client.order.create.return_value = {'id': 'order_rzp_mock_qr_123', 'amount': 20500}
+        mock_client.payment_link.create.return_value = {
+            'id': 'plink_mock_qr_789',
+            'short_url': 'https://rzp.io/rzp/mockQrLink',
+            'status': 'created'
+        }
+        mock_client_getter.return_value = mock_client
+
+        CartItem.objects.create(user=self.user, product=self.product, quantity=1)
+
+        res = self.client.post(reverse('checkout'), {
+            'full_name': 'QR User',
+            'shipping_address': 'Calicut Beach',
+            'pincode': '673001',
+            'district': 'Kozhikode',
+            'state': 'Kerala',
+            'phone_number': '9876543210',
+            'delivery_region': 'kerala',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['payment_link_url'], 'https://rzp.io/rzp/mockQrLink')
+        self.assertIn('create-qr-code', data['qr_code_url'])
+        self.assertIn('https%3A//rzp.io/rzp/mockQrLink', data['qr_code_url'])
+
+        order = Order.objects.get(id=data['db_order_id'])
+        self.assertEqual(order.razorpay_payment_link_id, 'plink_mock_qr_789')
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_order_status_completed_on_order_capture(self, mock_client_getter):
+        """Status endpoint captures order payment, marks order Completed, and reduces stock."""
+        mock_client = MagicMock()
+        mock_client.order.payments.return_value = {
+            'items': [
+                {
+                    'id': 'pay_captured_order_111',
+                    'status': 'captured',
+                    'amount': 20500
+                }
+            ]
+        }
+        mock_client_getter.return_value = mock_client
+
+        order = Order.objects.create(
+            user=self.user,
+            full_name="QR User",
+            phone_number="9876543210",
+            shipping_address="Calicut",
+            total_price=205.00,
+            razorpay_order_id="order_rzp_mock_capture_111",
+            payment_status="Pending"
+        )
+        OrderItem.objects.create(order=order, product=self.product, price=150.00, quantity=2)
+
+        initial_stock = self.product.stock
+        res = self.client.get(reverse('checkout_order_status', args=[order.id]))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'completed')
+        self.assertIn('redirect_url', data)
+
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, 'Completed')
+        self.assertEqual(order.razorpay_payment_id, 'pay_captured_order_111')
+
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, initial_stock - 2)
+
+    @patch('store.views.get_razorpay_client')
+    def test_checkout_order_status_completed_on_payment_link_capture(self, mock_client_getter):
+        """Status endpoint verifies payment captured via on-screen QR / Payment Link."""
+        mock_client = MagicMock()
+        mock_client.order.payments.return_value = {'items': []}
+        mock_client.payment_link.fetch.return_value = {
+            'id': 'plink_mock_captured_222',
+            'status': 'paid',
+            'amount_paid': 20500,
+            'payments': [{'payment_id': 'pay_captured_qr_999', 'status': 'captured'}]
+        }
+        mock_client_getter.return_value = mock_client
+
+        order = Order.objects.create(
+            user=self.user,
+            full_name="QR User",
+            phone_number="9876543210",
+            shipping_address="Calicut",
+            total_price=205.00,
+            razorpay_order_id="order_rzp_mock_plink_222",
+            razorpay_payment_link_id="plink_mock_captured_222",
+            payment_status="Pending"
+        )
+        OrderItem.objects.create(order=order, product=self.product, price=150.00, quantity=1)
+
+        initial_stock = self.product.stock
+        res = self.client.get(reverse('checkout_order_status', args=[order.id]))
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'completed')
+
+        order.refresh_from_db()
+        self.assertEqual(order.payment_status, 'Completed')
+        self.assertEqual(order.razorpay_payment_id, 'pay_captured_qr_999')
+
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, initial_stock - 1)
+
+    def test_checkout_order_status_not_found(self):
+        """Status endpoint returns 404 for invalid order id."""
+        res = self.client.get(reverse('checkout_order_status', args=[999999]))
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()['status'], 'not_found')
+
+
+
 
 
 

@@ -1226,6 +1226,44 @@ def checkout_view(request):
                 quantity=qty
             )
 
+        # Create Live Payment Link for on-screen QR payment flow
+        payment_link_url = ''
+        payment_link_id = ''
+        try:
+            pay_link = client.payment_link.create({
+                'amount': rzp_amount,
+                'currency': 'INR',
+                'accept_partial': False,
+                'upi_link': True,
+                'description': f"Order #{order.id} Payment - ASHAS STORE",
+                'customer': {
+                    'name': full_name[:40],
+                    'contact': phone[:15],
+                    'email': (request.user.email if request.user.is_authenticated and request.user.email else '') or 'care@ashasstore.in'
+                },
+                'notify': {'sms': False, 'email': False, 'whatsapp': False},
+                'notes': {
+                    'order_id': str(order.id),
+                    'razorpay_order_id': rzp_order_id,
+                    'store': 'ASHAS STORE'
+                }
+            })
+            if isinstance(pay_link, dict):
+                raw_url = pay_link.get('short_url')
+                if isinstance(raw_url, str):
+                    payment_link_url = raw_url
+                raw_id = pay_link.get('id')
+                if isinstance(raw_id, str) and raw_id:
+                    payment_link_id = raw_id
+                    order.razorpay_payment_link_id = payment_link_id
+                    order.save(update_fields=['razorpay_payment_link_id'])
+        except Exception as link_err:
+            import logging
+            logging.getLogger(__name__).warning(f"Payment link creation for QR notice: {link_err}")
+
+        import urllib.parse
+        qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=8&data={urllib.parse.quote(payment_link_url)}" if payment_link_url else ''
+
         return JsonResponse({
             'status': 'success',
             'razorpay_key': settings.RAZORPAY_KEY_ID,
@@ -1241,7 +1279,9 @@ def checkout_view(request):
             'customer_name': full_name,
             'customer_phone': phone,
             'customer_email': request.user.email if request.user.is_authenticated and request.user.email else '',
-            'payment_method': payment_method
+            'payment_method': payment_method,
+            'payment_link_url': payment_link_url,
+            'qr_code_url': qr_code_url
         })
 
     return render(request, 'checkout.html', {
@@ -1574,6 +1614,84 @@ def checkout_payment_failed(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
+@csrf_exempt
+def checkout_order_status(request, order_id):
+    """
+    Real-time status check for on-screen UPI QR code payments.
+    When a customer scans the QR code from another phone and completes payment,
+    this endpoint detects when the payment is captured in Razorpay,
+    auto-confirms the order, decrements inventory stock, and returns redirect_url.
+    """
+    try:
+        order = Order.objects.filter(id=int(order_id)).first()
+        if not order:
+            return JsonResponse({'status': 'not_found'}, status=404)
+
+        if order.payment_status == 'Completed':
+            return JsonResponse({
+                'status': 'completed',
+                'order_id': order.id,
+                'redirect_url': f"/profile/?order_placed=true&order_id={order.id}"
+            })
+
+        if order.payment_status == 'Pending':
+            client = get_razorpay_client()
+            captured_payment_id = None
+
+            # Check 1: Payments linked to standard Razorpay Order ID
+            if order.razorpay_order_id and not str(order.razorpay_order_id).startswith('demo_'):
+                try:
+                    rzp_payments = client.order.payments(order.razorpay_order_id)
+                    for p in rzp_payments.get('items', []):
+                        if p.get('status') == 'captured':
+                            captured_payment_id = p.get('id')
+                            break
+                except Exception:
+                    pass
+
+            # Check 2: Payments made via the on-screen UPI QR / Payment Link
+            if not captured_payment_id and order.razorpay_payment_link_id:
+                try:
+                    plink = client.payment_link.fetch(order.razorpay_payment_link_id)
+                    if plink.get('status') == 'paid' or plink.get('amount_paid', 0) >= int(order.total_price * 100):
+                        payments = plink.get('payments') or []
+                        if payments and isinstance(payments, list):
+                            first_p = payments[0]
+                            if isinstance(first_p, dict):
+                                captured_payment_id = first_p.get('payment_id') or first_p.get('id')
+                            elif isinstance(first_p, str):
+                                captured_payment_id = first_p
+                        if not captured_payment_id:
+                            captured_payment_id = order.razorpay_payment_link_id
+                except Exception:
+                    pass
+
+            if captured_payment_id:
+                order.payment_status = 'Completed'
+                order.razorpay_payment_id = captured_payment_id
+                if not order.shipping_status:
+                    order.shipping_status = 'Processing'
+                order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
+
+                # Decrement stock safely
+                for item in order.items.all():
+                    if item.product:
+                        item.product.stock = max(0, item.product.stock - item.quantity)
+                        item.product.save(update_fields=['stock'])
+
+                return JsonResponse({
+                    'status': 'completed',
+                    'order_id': order.id,
+                    'redirect_url': f"/profile/?order_placed=true&order_id={order.id}"
+                })
+
+        return JsonResponse({
+            'status': order.payment_status.lower(),
+            'order_id': order.id
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 def contact_submit(request):
     if request.method == 'POST':

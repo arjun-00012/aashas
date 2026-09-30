@@ -429,6 +429,82 @@
             font-size: 0.9rem;
         }
     }
+
+    /* On-Screen UPI QR Modal Styling */
+    .upi-qr-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(23, 22, 20, 0.75);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1080;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .upi-qr-backdrop.d-none {
+        display: none !important;
+    }
+    .upi-qr-modal-content {
+        background: #FFFFFF;
+        border-radius: 18px;
+        max-width: 370px;
+        width: 100%;
+        padding: 1.25rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        animation: qrModalPop 0.25s ease-out;
+    }
+    @keyframes qrModalPop {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .btn-close-qr {
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        line-height: 1;
+        color: #8C867E;
+        cursor: pointer;
+        padding: 0 0.25rem;
+    }
+    .btn-close-qr:hover {
+        color: #171614;
+    }
+    .qr-spinner-box {
+        height: 220px;
+        background: #F8F8F7;
+        border-radius: 12px;
+        border: 1px dashed rgba(28, 25, 23, 0.15);
+    }
+    .qr-order-banner {
+        background: #F8F8F7;
+        padding: 0.45rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid rgba(28, 25, 23, 0.06);
+    }
+    .qr-status-pill {
+        transition: all 0.3s ease;
+    }
+    .qr-pulsing-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background-color: #198754;
+        animation: qrPulse 1.5s infinite;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+    @keyframes qrPulse {
+        0% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+        70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+        100% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
 </style>
 {% endblock %}
 
@@ -633,19 +709,37 @@
                         </div>
 
                         <div class="payment-methods-stack">
-                            <label class="payment-option selected" id="card_upi" for="method_upi" style="cursor: pointer;">
+                            <input type="hidden" name="payment_method" id="method_upi" value="upi">
+
+                            <!-- Option 1: Direct UPI Apps -->
+                            <label class="payment-option selected" id="card_upi" for="flow_app" style="cursor: pointer;">
                                 <div class="d-flex align-items-center gap-2.5 min-w-0">
-                                    <input type="radio" name="payment_method" id="method_upi" value="upi" checked style="accent-color: #171614;">
+                                    <input type="radio" name="upi_flow" id="flow_app" value="app" checked style="accent-color: #171614;">
                                     <div class="min-w-0">
                                         <span class="payment-option-label">
-                                            UPI &bull; Fast &amp; Secure <span class="badge-recommended">Instant</span>
+                                            Pay via UPI Apps <span class="badge-recommended">Recommended</span>
                                         </span>
-                                        <span class="payment-option-sub text-truncate">Google Pay, PhonePe, Paytm, QR &amp; Any UPI App</span>
+                                        <span class="payment-option-sub text-truncate">GPay, PhonePe, Paytm installed on this phone</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-2">
-                                    <i class="bi bi-qr-code text-dark fs-6" title="Scan QR Code"></i>
-                                    <i class="bi bi-phone text-secondary fs-6" title="Pay with any UPI App"></i>
+                                    <i class="bi bi-phone text-dark fs-5" title="Pay with UPI App on this phone"></i>
+                                </div>
+                            </label>
+
+                            <!-- Option 2: On-Screen UPI QR Code -->
+                            <label class="payment-option" id="card_upi_qr" for="flow_qr" style="cursor: pointer;">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                    <input type="radio" name="upi_flow" id="flow_qr" value="qr" style="accent-color: #171614;">
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">
+                                            Scan QR Code on Screen <span class="badge bg-secondary bg-opacity-10 text-dark border rounded-pill fw-semibold" style="font-size: 0.62rem; padding: 0.15rem 0.45rem;">Any Phone</span>
+                                        </span>
+                                        <span class="payment-option-sub text-truncate">Display UPI QR on screen to scan from another device</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-2">
+                                    <i class="bi bi-qr-code text-dark fs-5" title="Scan QR Code"></i>
                                 </div>
                             </label>
                         </div>
@@ -747,6 +841,71 @@
             </div>
         </form>
 
+    </div>
+</div>
+
+<!-- On-Screen UPI QR Code Modal (for mobile & desktop) -->
+<div id="upiQrModal" class="upi-qr-backdrop d-none" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <div class="upi-qr-modal-content text-center">
+        <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+            <div class="text-start">
+                <h5 class="font-outfit fw-bold mb-0 text-dark" id="qrModalTitle" style="font-size: 1.05rem;">
+                    <i class="bi bi-qr-code text-dark me-1"></i> Scan &amp; Pay via UPI
+                </h5>
+                <small class="text-muted" style="font-size: 0.72rem;">Scan with any phone or banking app</small>
+            </div>
+            <button type="button" class="btn-close-qr" id="closeQrModalBtn" aria-label="Close">&times;</button>
+        </div>
+
+        <!-- Order info banner -->
+        <div class="qr-order-banner d-flex align-items-center justify-content-between mb-2.5">
+            <span class="small text-muted font-outfit" id="qrOrderNumber">Order #...</span>
+            <span class="fw-bold text-dark font-outfit" id="qrOrderTotal">₹0.00</span>
+        </div>
+
+        <!-- QR Container / Image -->
+        <div class="position-relative d-flex align-items-center justify-content-center p-2 mb-2" style="background: #ffffff; border-radius: 14px; border: 1.5px solid rgba(28, 25, 23, 0.1);">
+            <div id="qrLoadingSpinner" class="qr-spinner-box w-100 d-flex flex-column align-items-center justify-content-center gap-2">
+                <div class="spinner-border text-dark" role="status" style="width: 2rem; height: 2rem;">
+                    <span class="visually-hidden">Generating QR...</span>
+                </div>
+                <span class="small text-muted" style="font-size: 0.76rem;">Generating live UPI QR code...</span>
+            </div>
+            <img id="upiQrImage" src="" alt="UPI Payment QR Code" class="img-fluid d-none" style="width: 230px; height: 230px; object-fit: contain; border-radius: 8px;">
+        </div>
+
+        <!-- Live Status Indicator -->
+        <div class="qr-status-pill py-2 px-3 mb-2.5 rounded-3 bg-light border text-center">
+            <div id="qrStatusWaiting" class="d-flex align-items-center justify-content-center gap-2">
+                <span class="qr-pulsing-dot"></span>
+                <span class="small fw-semibold text-dark" style="font-size: 0.78rem;">Waiting for payment...</span>
+            </div>
+            <div id="qrStatusSuccess" class="d-none text-success fw-bold small">
+                <i class="bi bi-check-circle-fill me-1"></i> Payment Received! Confirming order...
+            </div>
+            <div class="small text-muted mt-0.5" style="font-size: 0.68rem;">
+                Page updates automatically once money is captured.
+            </div>
+        </div>
+
+        <!-- Supported Apps mini badges -->
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-3 text-muted" style="font-size: 0.72rem;">
+            <span><i class="bi bi-check-circle text-success"></i> GPay</span>
+            <span><i class="bi bi-check-circle text-success"></i> PhonePe</span>
+            <span><i class="bi bi-check-circle text-success"></i> Paytm</span>
+            <span><i class="bi bi-check-circle text-success"></i> Cred</span>
+            <span><i class="bi bi-check-circle text-success"></i> Any Bank</span>
+        </div>
+
+        <!-- Direct Payment Link Button (for mobile users who prefer direct app link) -->
+        <div class="d-flex flex-column gap-2">
+            <a id="qrDirectPayLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill fw-semibold py-1.5 font-outfit d-none" style="font-size: 0.78rem;">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Or Open Payment Link on this Phone
+            </a>
+            <button type="button" class="btn btn-light btn-sm rounded-pill text-secondary fw-semibold py-1.5" id="cancelQrModalBtn" style="font-size: 0.76rem;">
+                Cancel / Back to Checkout
+            </button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -1032,12 +1191,86 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle Payment Method state & Dynamic Pay button
+    // UPI Flow switching (Apps vs QR)
+    const flowRadios = document.querySelectorAll('input[name="upi_flow"]');
+    const cardUpiApp = document.getElementById('card_upi') || document.getElementById('card_upi_app');
+    const cardUpiQr = document.getElementById('card_upi_qr');
+
+    function getSelectedFlow() {
+        const checked = document.querySelector('input[name="upi_flow"]:checked');
+        return checked ? checked.value : 'app';
+    }
+
     function updateSelectedCard() {
+        const flow = getSelectedFlow();
         const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
+        if (cardUpiApp) cardUpiApp.classList.toggle('selected', flow === 'app');
+        if (cardUpiQr) cardUpiQr.classList.toggle('selected', flow === 'qr');
+
         if (btnText) {
-            btnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI';
+            if (flow === 'qr') {
+                btnText.textContent = 'SHOW ON-SCREEN UPI QR (' + totalFormatted + ')';
+            } else {
+                btnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI APP';
+            }
         }
+    }
+
+    flowRadios.forEach(r => {
+        r.addEventListener('change', updateSelectedCard);
+    });
+
+    // QR Modal controls & Real-Time Status Polling
+    const upiQrModal = document.getElementById('upiQrModal');
+    const closeQrModalBtn = document.getElementById('closeQrModalBtn');
+    const cancelQrModalBtn = document.getElementById('cancelQrModalBtn');
+    let qrPollInterval = null;
+
+    function stopQrPolling() {
+        if (qrPollInterval) {
+            clearInterval(qrPollInterval);
+            qrPollInterval = null;
+        }
+    }
+
+    function closeQrModal() {
+        stopQrPolling();
+        if (upiQrModal) upiQrModal.classList.add('d-none');
+        resetButton();
+    }
+
+    if (closeQrModalBtn) closeQrModalBtn.addEventListener('click', closeQrModal);
+    if (cancelQrModalBtn) cancelQrModalBtn.addEventListener('click', closeQrModal);
+    if (upiQrModal) {
+        upiQrModal.addEventListener('click', function(e) {
+            if (e.target === upiQrModal) closeQrModal();
+        });
+    }
+
+    function startQrPolling(orderId) {
+        stopQrPolling();
+        qrPollInterval = setInterval(async function() {
+            try {
+                const res = await fetch(`/checkout/status/${orderId}/`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!res.ok) return;
+                const statusData = await res.json();
+                if (statusData.status === 'completed') {
+                    stopQrPolling();
+                    const waitingDiv = document.getElementById('qrStatusWaiting');
+                    const successDiv = document.getElementById('qrStatusSuccess');
+                    if (waitingDiv) waitingDiv.classList.add('d-none');
+                    if (successDiv) successDiv.classList.remove('d-none');
+
+                    setTimeout(function() {
+                        window.location.href = statusData.redirect_url || `/profile/?order_placed=true&order_id=${orderId}`;
+                    }, 600);
+                }
+            } catch (err) {
+                // Background network retry
+            }
+        }, 2500);
     }
 
     function getSelectedMethod() {
@@ -1086,6 +1319,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedMethod = 'upi';
         const detectedPinRegion = checkPincodeRegion(pincodeVal);
         const finalRegion = (detectedPinRegion === 'outside_kerala') ? 'outside_kerala' : (detectedPinRegion === 'kerala' ? 'kerala' : getSelectedRegion());
+        const selectedFlow = getSelectedFlow();
 
         // Client-side validation: Address and Phone 1 are mandatory
         if (!fullName) {
@@ -1134,13 +1368,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Ensure Razorpay SDK is loaded
-        if (typeof Razorpay === 'undefined') {
+        // If user chose UPI App flow, verify Razorpay SDK is loaded
+        if (selectedFlow === 'app' && typeof Razorpay === 'undefined') {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading Gateway...';
             var sdkReady = await loadRazorpaySdk();
             if (!sdkReady || typeof Razorpay === 'undefined') {
-                showError("Payment gateway took too long to load. Please check your internet connection or disable ad blockers and refresh the page.");
+                showError("Payment gateway took too long to load. Please check your internet connection or switch to 'Scan QR Code on Screen'.");
                 resetButton();
                 return;
             }
@@ -1148,7 +1382,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Loading state
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...';
+        btn.innerHTML = selectedFlow === 'qr'
+            ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Generating On-Screen UPI QR...'
+            : '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...';
 
         const formData = new FormData();
         formData.append('full_name', fullName);
@@ -1181,20 +1417,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (!data.razorpay_order_id) {
+            if (!data.razorpay_order_id && !data.qr_code_url) {
                 showError("Payment gateway initialization failed. Please contact support.");
                 resetButton();
                 return;
             }
 
-            // Open Live Razorpay Checkout Modal
-            // CRITICAL FIX: Do NOT pass `method: 'upi'` in prefill!
-            // Passing `method: 'upi'` inside prefill causes mobile browsers (Chrome, Safari, WebViews)
-            // to bypass the Razorpay modal and try to force direct Google Pay intent.
-            // When Google Pay is not installed, the intent fails, the browser reloads/refreshes the page,
-            // and the user never sees any popup ("no pop just skipping that").
-            // Without `method` in prefill, Razorpay opens its standard modal with Google Pay, PhonePe, Paytm,
-            // BHIM, any UPI app, QR code, and UPI ID — working 100% reliably for EVERY user on all devices.
+            // FLOW 1: ON-SCREEN UPI QR CODE
+            if (selectedFlow === 'qr') {
+                const qrImg = document.getElementById('upiQrImage');
+                const qrSpinner = document.getElementById('qrLoadingSpinner');
+                const orderNumEl = document.getElementById('qrOrderNumber');
+                const orderTotEl = document.getElementById('qrOrderTotal');
+                const directLink = document.getElementById('qrDirectPayLink');
+                const waitingDiv = document.getElementById('qrStatusWaiting');
+                const successDiv = document.getElementById('qrStatusSuccess');
+
+                if (orderNumEl) orderNumEl.textContent = 'Order #' + data.db_order_id;
+                if (orderTotEl) orderTotEl.textContent = '₹' + ((data.amount || getCurrentTotal() * 100) / 100).toFixed(2);
+                if (waitingDiv) waitingDiv.classList.remove('d-none');
+                if (successDiv) successDiv.classList.add('d-none');
+
+                if (directLink) {
+                    if (data.payment_link_url) {
+                        directLink.href = data.payment_link_url;
+                        directLink.classList.remove('d-none');
+                    } else {
+                        directLink.classList.add('d-none');
+                    }
+                }
+
+                if (qrImg && data.qr_code_url) {
+                    qrImg.classList.add('d-none');
+                    if (qrSpinner) qrSpinner.classList.remove('d-none');
+                    qrImg.onload = function() {
+                        if (qrSpinner) qrSpinner.classList.add('d-none');
+                        qrImg.classList.remove('d-none');
+                    };
+                    qrImg.src = data.qr_code_url;
+                }
+
+                // Show modal
+                if (upiQrModal) upiQrModal.classList.remove('d-none');
+
+                // Start real-time polling to detect payment capture
+                startQrPolling(data.db_order_id);
+                resetButton();
+                return;
+            }
+
+            // FLOW 2: STANDARD RAZORPAY CHECKOUT POPUP (APPS)
             const options = {
                 key: data.razorpay_key,
                 amount: data.amount,
@@ -1280,7 +1552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 })
                             }).catch(() => {});
                         } catch (e) {}
-                        showError("Payment was cancelled or closed before completion. You can click 'PAY VIA UPI' again to complete your order.");
+                        showError("Payment popup was closed. Don't have a UPI app on this phone? Select 'Scan QR Code on Screen' above to pay using any other phone or banking app!");
                         resetButton();
                     }
                 }
@@ -1301,7 +1573,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                     }).catch(() => {});
                 } catch (e) {}
-                showError("Payment Failed: " + (resp?.error?.description || "Transaction could not be completed. Please try again."));
+                showError("Payment Failed: " + (resp?.error?.description || "Transaction could not be completed. You can also try 'Scan QR Code on Screen'."));
                 resetButton();
             });
             rzp.open();

@@ -367,6 +367,7 @@ class Order(models.Model):
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Delivery charge based on destination and products")
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_link_id = models.CharField(max_length=100, blank=True, null=True, help_text="Razorpay Payment Link ID for QR flow")
     payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     razorpay_refund_id = models.CharField(max_length=100, blank=True, null=True, help_text="Razorpay Refund ID if refunded")
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Refunded amount in INR")
