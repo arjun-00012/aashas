@@ -1352,6 +1352,23 @@ class ProductDescriptionAndCheckoutAddressTests(TestCase):
         self.assertContains(admin_resp, 'Kozhikode')
         self.assertContains(admin_resp, 'PIN: 673010')
 
+    def test_checkout_renders_dedicated_upi_payment_method_and_no_card_wallet_options(self):
+        """Checkout GET must render dedicated UPI payment option with app trust badges and no card/wallet radio buttons."""
+        self.client.login(username='customer_test', password='Password123!')
+        CartItem.objects.create(user=self.customer, product=self.product, quantity=1)
+        resp = self.client.get(reverse('checkout'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id="card_upi"')
+        self.assertContains(resp, 'value="upi"')
+        self.assertContains(resp, 'Google Pay')
+        self.assertContains(resp, 'PhonePe')
+        self.assertContains(resp, 'Paytm')
+        self.assertContains(resp, 'QR Code')
+        # Ensure card, netbanking, and wallet selectable options are removed
+        self.assertNotContains(resp, 'id="method_card"')
+        self.assertNotContains(resp, 'id="method_netbanking"')
+        self.assertNotContains(resp, 'id="method_wallet"')
+
 
 class AdminOrdersPaymentFilterAndFailureTests(TestCase):
     def setUp(self):
