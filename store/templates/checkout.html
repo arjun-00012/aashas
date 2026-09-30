@@ -580,7 +580,7 @@
             </div>
         </div>
 
-        <form id="checkoutForm">
+        <form id="checkoutForm" onsubmit="return false;" novalidate>
             {% csrf_token %}
             <div class="row g-3 g-lg-4 align-items-start">
                 
@@ -774,7 +774,7 @@
                             </span>
                         </div>
 
-                        <button type="submit" id="payButton" class="btn-pay-now mt-3">
+                        <button type="button" id="payButton" class="btn-pay-now mt-3">
                             <i class="bi bi-lock-fill"></i>
                             <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI</span>
                         </button>
@@ -918,41 +918,62 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Form and Buttons
     const form = document.getElementById('checkoutForm');
     const btn = document.getElementById('payButton');
     const btnText = document.getElementById('payButtonText');
     const alertBox = document.getElementById('checkoutAlert');
 
-    // Mobile Summary Drawer Toggle
+    // Flow selection & option cards
+    const flowRadios = document.querySelectorAll('input[name="upi_flow"]');
+    const cardUpiApp = document.getElementById('card_upi') || document.getElementById('card_upi_app');
+    const cardUpiQr = document.getElementById('card_upi_qr');
+    const cardUpiLink = document.getElementById('card_upi_link');
+
+    // Address & Customer inputs
+    const fullNameInput = document.getElementById('full_name');
+    const addressInput = document.getElementById('shipping_address');
+    const landmarkInput = document.getElementById('landmark');
+    const pincodeInput = document.getElementById('pincode');
+    const districtInput = document.getElementById('district');
+    const stateInput = document.getElementById('state');
+    const phoneInput = document.getElementById('phone_number');
+    const phone2Input = document.getElementById('phone_number_2');
+
+    // Region & Shipping UI elements
+    const regionCards = document.querySelectorAll('.region-option-card');
+    const regionRadios = document.querySelectorAll('input[name="delivery_region"]');
+    const cardKerala = document.getElementById('card_region_kerala');
+    const cardOutside = document.getElementById('card_region_outside');
+    const keralaRadio = document.getElementById('region_kerala');
+    const outRadio = document.getElementById('region_outside');
+    const pincodeBadge = document.getElementById('pincodeBadge');
+    const pincodeHint = document.getElementById('pincodeHint');
+    const autoBadge = document.getElementById('pincodeAutoBadge');
+    const keralaLockBadge = document.getElementById('keralaLockBadge');
+    const outsideLockBadge = document.getElementById('outsideLockBadge');
+
+    // Mobile Summary Drawer
     const summaryToggle = document.getElementById('mobileSummaryToggle');
     const summaryDrawer = document.getElementById('mobileSummaryDrawer');
     const summaryLabel = document.getElementById('mobileSummaryToggleLabel');
 
-    if (summaryToggle && summaryDrawer) {
-        summaryToggle.addEventListener('click', function() {
-            const isVisible = summaryDrawer.style.display !== 'none';
-            if (isVisible) {
-                summaryDrawer.style.display = 'none';
-                summaryToggle.classList.remove('open');
-                summaryToggle.setAttribute('aria-expanded', 'false');
-                if (summaryLabel) summaryLabel.textContent = 'Show order summary';
-            } else {
-                summaryDrawer.style.display = 'block';
-                summaryToggle.classList.add('open');
-                summaryToggle.setAttribute('aria-expanded', 'true');
-                if (summaryLabel) summaryLabel.textContent = 'Hide order summary';
-            }
-        });
-    }
+    // Alternative Web Modal elements
+    const upiWebModal = document.getElementById('upiWebModal');
+    const closeWebModalBtn = document.getElementById('closeWebModalBtn');
+    const cancelWebModalBtn = document.getElementById('cancelWebModalBtn');
+    let webPollInterval = null;
 
-    // Pricing & Shipping calculations
+    // Pricing Constants
     const subtotal = {{ subtotal }};
     const hasShades = {% if has_shades %}true{% else %}false{% endif %};
     const keralaShippingFee = hasShades ? 65.0 : 55.0;
     const outsideShippingFee = 95.0;
 
-    const regionCards = document.querySelectorAll('.region-option-card');
-    const regionRadios = document.querySelectorAll('input[name="delivery_region"]');
+    function getSelectedFlow() {
+        const checked = document.querySelector('input[name="upi_flow"]:checked');
+        return checked ? checked.value : 'app';
+    }
 
     function getSelectedRegion() {
         const checked = document.querySelector('input[name="delivery_region"]:checked');
@@ -965,246 +986,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getCurrentTotal() {
         return subtotal + getCurrentShippingFee();
-    }
-
-    function updateShippingAndTotals() {
-        const region = getSelectedRegion();
-        const fee = getCurrentShippingFee();
-        const grandTotal = getCurrentTotal();
-
-        const feeFormatted = '₹' + fee.toFixed(2);
-        const totalFormatted = '₹' + grandTotal.toFixed(2);
-
-        // Update card selected state
-        regionCards.forEach(c => c.classList.remove('selected'));
-        const activeCard = document.getElementById(region === 'outside_kerala' ? 'card_region_outside' : 'card_region_kerala');
-        if (activeCard) activeCard.classList.add('selected');
-
-        // Update order summaries
-        const mobShip = document.getElementById('mobileSummaryShipping');
-        const dskShip = document.getElementById('desktopSummaryShipping');
-        if (mobShip) mobShip.textContent = feeFormatted;
-        if (dskShip) dskShip.textContent = feeFormatted;
-
-        const mobTot = document.getElementById('mobileSummaryTotal');
-        const dskTot = document.getElementById('desktopSummaryTotal');
-        const mobHdrTot = document.getElementById('mobileHeaderTotal');
-        if (mobTot) mobTot.textContent = totalFormatted;
-        if (dskTot) dskTot.textContent = totalFormatted;
-        if (mobHdrTot) mobHdrTot.textContent = totalFormatted;
-
-        // Update Pay button
-        updateSelectedCard();
-    }
-
-    regionRadios.forEach(r => {
-        r.addEventListener('change', updateShippingAndTotals);
-    });
-
-    // Real-Time PIN Code Detection & Shipping Calculation
-    const pincodeInput = document.getElementById('pincode');
-    const districtInput = document.getElementById('district');
-    const stateInput = document.getElementById('state');
-    const pincodeBadge = document.getElementById('pincodeBadge');
-    const pincodeHint = document.getElementById('pincodeHint');
-    const autoBadge = document.getElementById('pincodeAutoBadge');
-    const cardKerala = document.getElementById('card_region_kerala');
-    const cardOutside = document.getElementById('card_region_outside');
-    const keralaRadio = document.getElementById('region_kerala');
-    const outRadio = document.getElementById('region_outside');
-    const keralaLockBadge = document.getElementById('keralaLockBadge');
-    const outsideLockBadge = document.getElementById('outsideLockBadge');
-
-    function checkPincodeRegion(pin) {
-        if (!pin) return null;
-        const cleaned = pin.replace(/\D/g, '');
-        if (cleaned.length !== 6) return null;
-        // Kerala & Lakshadweep postal circle: starts with 67, 68, or 69
-        return ['67', '68', '69'].some(prefix => cleaned.startsWith(prefix)) ? 'kerala' : 'outside_kerala';
-    }
-
-    function handlePincodeInput() {
-        if (!pincodeInput) return;
-        let val = pincodeInput.value.replace(/\D/g, '').slice(0, 6);
-        pincodeInput.value = val;
-
-        if (val.length === 6) {
-            const detectedRegion = checkPincodeRegion(val);
-            if (detectedRegion === 'outside_kerala') {
-                if (stateInput && stateInput.value.trim().toLowerCase() === 'kerala') {
-                    stateInput.value = '';
-                }
-                // MANDATORY FOR OUTSIDE KERALA: Lock and disable Inside Kerala option completely
-                if (keralaRadio) {
-                    keralaRadio.disabled = true;
-                    keralaRadio.checked = false;
-                }
-                if (cardKerala) {
-                    cardKerala.classList.add('locked-disabled');
-                    cardKerala.classList.remove('selected');
-                    cardKerala.setAttribute('aria-disabled', 'true');
-                    cardKerala.setAttribute('title', 'Not available for outside Kerala PIN codes');
-                }
-                if (keralaLockBadge) {
-                    keralaLockBadge.className = 'badge bg-secondary bg-opacity-25 text-dark rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
-                    keralaLockBadge.innerHTML = '<i class="bi bi-lock-fill text-muted"></i> Locked for Outside Kerala PIN';
-                    keralaLockBadge.classList.remove('d-none');
-                }
-
-                // Force Outside Kerala active
-                if (outRadio) {
-                    outRadio.disabled = false;
-                    outRadio.checked = true;
-                }
-                if (cardOutside) {
-                    cardOutside.classList.remove('locked-disabled');
-                    cardOutside.classList.add('selected');
-                    cardOutside.removeAttribute('aria-disabled');
-                }
-                if (outsideLockBadge) {
-                    outsideLockBadge.className = 'badge bg-dark text-white rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
-                    outsideLockBadge.innerHTML = '<i class="bi bi-shield-check text-warning"></i> Mandatory Rate (₹95)';
-                    outsideLockBadge.classList.remove('d-none');
-                }
-
-                if (pincodeBadge) {
-                    pincodeBadge.innerHTML = '<i class="bi bi-shield-lock-fill text-dark fs-6" title="Mandatory Outside Kerala Rate Applied"></i>';
-                }
-                if (pincodeHint) {
-                    pincodeHint.innerHTML = '<span class="text-dark fw-bold"><i class="bi bi-shield-lock-fill text-warning me-1"></i>Outside Kerala address &bull; Mandatory Speed Post ₹' + outsideShippingFee.toFixed(0) + ' applied</span>';
-                }
-                if (autoBadge) {
-                    autoBadge.className = 'badge bg-dark text-white rounded-pill fw-normal';
-                    autoBadge.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Outside Kerala Mandatory Rate (₹95)';
-                }
-            } else {
-                if (stateInput && !stateInput.value.trim()) {
-                    stateInput.value = 'Kerala';
-                }
-                // INSIDE KERALA: Lock outside Kerala, activate Kerala rate
-                if (outRadio) {
-                    outRadio.disabled = true;
-                    outRadio.checked = false;
-                }
-                if (cardOutside) {
-                    cardOutside.classList.add('locked-disabled');
-                    cardOutside.classList.remove('selected');
-                    cardOutside.setAttribute('aria-disabled', 'true');
-                }
-                if (outsideLockBadge) {
-                    outsideLockBadge.className = 'badge bg-light text-muted border rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
-                    outsideLockBadge.innerHTML = '<i class="bi bi-slash-circle"></i> Not applicable for Kerala PIN';
-                    outsideLockBadge.classList.remove('d-none');
-                }
-
-                if (keralaRadio) {
-                    keralaRadio.disabled = false;
-                    keralaRadio.checked = true;
-                }
-                if (cardKerala) {
-                    cardKerala.classList.remove('locked-disabled');
-                    cardKerala.classList.add('selected');
-                    cardKerala.removeAttribute('aria-disabled');
-                }
-                if (keralaLockBadge) {
-                    keralaLockBadge.className = 'badge bg-success bg-opacity-15 text-success rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
-                    keralaLockBadge.innerHTML = '<i class="bi bi-check2"></i> Kerala Verified (Speed Post ₹' + keralaShippingFee.toFixed(0) + ')';
-                    keralaLockBadge.classList.remove('d-none');
-                }
-
-                if (pincodeBadge) {
-                    pincodeBadge.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-6" title="Kerala Postal Zone Verified"></i>';
-                }
-                if (pincodeHint) {
-                    pincodeHint.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Kerala PIN verified &bull; Speed Post ₹' + keralaShippingFee.toFixed(0) + '</span>';
-                }
-                if (autoBadge) {
-                    autoBadge.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal';
-                    autoBadge.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Inside Kerala Applied';
-                }
-            }
-            updateShippingAndTotals();
-        } else if (val.length > 0) {
-            // Partial PIN entered
-            if (keralaRadio) keralaRadio.disabled = false;
-            if (outRadio) outRadio.disabled = false;
-            if (cardKerala) cardKerala.classList.remove('locked-disabled');
-            if (cardOutside) cardOutside.classList.remove('locked-disabled');
-            if (keralaLockBadge) keralaLockBadge.classList.add('d-none');
-            if (outsideLockBadge) outsideLockBadge.classList.add('d-none');
-
-            if (pincodeBadge) {
-                pincodeBadge.innerHTML = '<span class="spinner-grow spinner-grow-sm text-secondary" style="width: 8px; height: 8px;"></span>';
-            }
-            if (pincodeHint) {
-                const remaining = 6 - val.length;
-                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-three-dots me-1"></i>Enter ' + remaining + ' more digit' + (remaining > 1 ? 's' : '') + ' to calculate shipping</span>';
-            }
-        } else {
-            // Empty PIN
-            if (keralaRadio) keralaRadio.disabled = false;
-            if (outRadio) outRadio.disabled = false;
-            if (cardKerala) cardKerala.classList.remove('locked-disabled');
-            if (cardOutside) cardOutside.classList.remove('locked-disabled');
-            if (keralaLockBadge) keralaLockBadge.classList.add('d-none');
-            if (outsideLockBadge) outsideLockBadge.classList.add('d-none');
-
-            if (pincodeBadge) pincodeBadge.innerHTML = '';
-            if (pincodeHint) {
-                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-geo me-1"></i>Enter 6-digit PIN to calculate shipping automatically</span>';
-            }
-        }
-    }
-
-    // Intercept click on Inside Kerala card if PIN is outside Kerala
-    if (cardKerala) {
-        cardKerala.addEventListener('click', function(e) {
-            const pinVal = pincodeInput ? pincodeInput.value.replace(/\D/g, '') : '';
-            if (pinVal.length === 6 && checkPincodeRegion(pinVal) === 'outside_kerala') {
-                e.preventDefault();
-                e.stopPropagation();
-                showError("Inside Kerala rate is strictly for Kerala PIN codes (67xxxx - 69xxxx). For outside Kerala PIN (" + pinVal + "), the ₹95 shipping charge is mandatory.");
-                if (outRadio) outRadio.checked = true;
-                updateShippingAndTotals();
-                return false;
-            }
-        });
-    }
-
-    if (pincodeInput) {
-        pincodeInput.addEventListener('input', handlePincodeInput);
-        pincodeInput.addEventListener('change', handlePincodeInput);
-        pincodeInput.addEventListener('blur', handlePincodeInput);
-        if (pincodeInput.value) {
-            handlePincodeInput();
-        }
-    }
-
-    // Auto-detect Outside Kerala on address entry
-    const addressInput = document.getElementById('shipping_address');
-    if (addressInput) {
-        addressInput.addEventListener('blur', function() {
-            const val = this.value.toLowerCase();
-            const outsideKeywords = ['tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore', 'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'];
-            if (outsideKeywords.some(kw => val.includes(kw)) && !val.includes('kerala')) {
-                const outRadio = document.getElementById('region_outside');
-                if (outRadio && !outRadio.checked) {
-                    outRadio.checked = true;
-                    updateShippingAndTotals();
-                }
-            }
-        });
-    }
-
-    // UPI Flow switching (Apps vs QR vs Web Link)
-    const flowRadios = document.querySelectorAll('input[name="upi_flow"]');
-    const cardUpiApp = document.getElementById('card_upi') || document.getElementById('card_upi_app');
-    const cardUpiQr = document.getElementById('card_upi_qr');
-    const cardUpiLink = document.getElementById('card_upi_link');
-
-    function getSelectedFlow() {
-        const checked = document.querySelector('input[name="upi_flow"]:checked');
-        return checked ? checked.value : 'app';
     }
 
     function updateSelectedCard() {
@@ -1225,15 +1006,233 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function updateShippingAndTotals() {
+        const region = getSelectedRegion();
+        const fee = getCurrentShippingFee();
+        const grandTotal = getCurrentTotal();
+
+        const feeFormatted = '₹' + fee.toFixed(2);
+        const totalFormatted = '₹' + grandTotal.toFixed(2);
+
+        regionCards.forEach(c => c.classList.remove('selected'));
+        const activeCard = document.getElementById(region === 'outside_kerala' ? 'card_region_outside' : 'card_region_kerala');
+        if (activeCard) activeCard.classList.add('selected');
+
+        const mobShip = document.getElementById('mobileSummaryShipping');
+        const dskShip = document.getElementById('desktopSummaryShipping');
+        if (mobShip) mobShip.textContent = feeFormatted;
+        if (dskShip) dskShip.textContent = feeFormatted;
+
+        const mobTot = document.getElementById('mobileSummaryTotal');
+        const dskTot = document.getElementById('desktopSummaryTotal');
+        const mobHdrTot = document.getElementById('mobileHeaderTotal');
+        if (mobTot) mobTot.textContent = totalFormatted;
+        if (dskTot) dskTot.textContent = totalFormatted;
+        if (mobHdrTot) mobHdrTot.textContent = totalFormatted;
+
+        updateSelectedCard();
+    }
+
+    function selectFlow(flowVal) {
+        const radio = document.querySelector(`input[name="upi_flow"][value="${flowVal}"]`);
+        if (radio) {
+            radio.checked = true;
+            updateSelectedCard();
+        }
+    }
+
+    if (cardUpiApp) cardUpiApp.addEventListener('click', () => selectFlow('app'));
+    if (cardUpiQr) cardUpiQr.addEventListener('click', () => selectFlow('qr'));
+    if (cardUpiLink) cardUpiLink.addEventListener('click', () => selectFlow('link'));
+
     flowRadios.forEach(r => {
         r.addEventListener('change', updateSelectedCard);
     });
 
-    // Alternative Web Modal controls & Real-Time Status Polling
-    const upiWebModal = document.getElementById('upiWebModal');
-    const closeWebModalBtn = document.getElementById('closeWebModalBtn');
-    const cancelWebModalBtn = document.getElementById('cancelWebModalBtn');
-    let webPollInterval = null;
+    regionRadios.forEach(r => {
+        r.addEventListener('change', updateShippingAndTotals);
+    });
+
+    if (summaryToggle && summaryDrawer) {
+        summaryToggle.addEventListener('click', function() {
+            const isVisible = summaryDrawer.style.display !== 'none';
+            if (isVisible) {
+                summaryDrawer.style.display = 'none';
+                summaryToggle.classList.remove('open');
+                summaryToggle.setAttribute('aria-expanded', 'false');
+                if (summaryLabel) summaryLabel.textContent = 'Show order summary';
+            } else {
+                summaryDrawer.style.display = 'block';
+                summaryToggle.classList.add('open');
+                summaryToggle.setAttribute('aria-expanded', 'true');
+                if (summaryLabel) summaryLabel.textContent = 'Hide order summary';
+            }
+        });
+    }
+
+    function checkPincodeRegion(pin) {
+        if (!pin) return null;
+        const cleaned = pin.replace(/\D/g, '');
+        if (cleaned.length !== 6) return null;
+        return ['67', '68', '69'].some(prefix => cleaned.startsWith(prefix)) ? 'kerala' : 'outside_kerala';
+    }
+
+    function handlePincodeInput() {
+        if (!pincodeInput) return;
+        let val = pincodeInput.value.replace(/\D/g, '').slice(0, 6);
+        pincodeInput.value = val;
+
+        if (val.length === 6) {
+            const detectedRegion = checkPincodeRegion(val);
+            if (detectedRegion === 'outside_kerala') {
+                if (stateInput && stateInput.value.trim().toLowerCase() === 'kerala') {
+                    stateInput.value = '';
+                }
+                if (keralaRadio) {
+                    keralaRadio.disabled = true;
+                    keralaRadio.checked = false;
+                }
+                if (cardKerala) {
+                    cardKerala.classList.add('locked-disabled');
+                    cardKerala.classList.remove('selected');
+                    cardKerala.setAttribute('aria-disabled', 'true');
+                    cardKerala.setAttribute('title', 'Not available for outside Kerala PIN codes');
+                }
+                if (keralaLockBadge) {
+                    keralaLockBadge.className = 'badge bg-secondary bg-opacity-25 text-dark rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
+                    keralaLockBadge.innerHTML = '<i class="bi bi-lock-fill text-muted"></i> Locked for Outside Kerala PIN';
+                    keralaLockBadge.classList.remove('d-none');
+                }
+                if (outRadio) {
+                    outRadio.disabled = false;
+                    outRadio.checked = true;
+                }
+                if (cardOutside) {
+                    cardOutside.classList.remove('locked-disabled');
+                    cardOutside.classList.add('selected');
+                    cardOutside.removeAttribute('aria-disabled');
+                }
+                if (outsideLockBadge) {
+                    outsideLockBadge.className = 'badge bg-dark text-white rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
+                    outsideLockBadge.innerHTML = '<i class="bi bi-shield-check text-warning"></i> Mandatory Rate (₹95)';
+                    outsideLockBadge.classList.remove('d-none');
+                }
+                if (pincodeBadge) {
+                    pincodeBadge.innerHTML = '<i class="bi bi-shield-lock-fill text-dark fs-6" title="Mandatory Outside Kerala Rate Applied"></i>';
+                }
+                if (pincodeHint) {
+                    pincodeHint.innerHTML = '<span class="text-dark fw-bold"><i class="bi bi-shield-lock-fill text-warning me-1"></i>Outside Kerala address &bull; Mandatory Speed Post ₹' + outsideShippingFee.toFixed(0) + ' applied</span>';
+                }
+                if (autoBadge) {
+                    autoBadge.className = 'badge bg-dark text-white rounded-pill fw-normal';
+                    autoBadge.innerHTML = '<i class="bi bi-lock-fill me-1"></i>Outside Kerala Mandatory Rate (₹95)';
+                }
+            } else {
+                if (stateInput && !stateInput.value.trim()) {
+                    stateInput.value = 'Kerala';
+                }
+                if (outRadio) {
+                    outRadio.disabled = true;
+                    outRadio.checked = false;
+                }
+                if (cardOutside) {
+                    cardOutside.classList.add('locked-disabled');
+                    cardOutside.classList.remove('selected');
+                    cardOutside.setAttribute('aria-disabled', 'true');
+                }
+                if (outsideLockBadge) {
+                    outsideLockBadge.className = 'badge bg-light text-muted border rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
+                    outsideLockBadge.innerHTML = '<i class="bi bi-slash-circle"></i> Not applicable for Kerala PIN';
+                    outsideLockBadge.classList.remove('d-none');
+                }
+                if (keralaRadio) {
+                    keralaRadio.disabled = false;
+                    keralaRadio.checked = true;
+                }
+                if (cardKerala) {
+                    cardKerala.classList.remove('locked-disabled');
+                    cardKerala.classList.add('selected');
+                    cardKerala.removeAttribute('aria-disabled');
+                }
+                if (keralaLockBadge) {
+                    keralaLockBadge.className = 'badge bg-success bg-opacity-15 text-success rounded-pill mt-1 small d-inline-flex align-items-center gap-1';
+                    keralaLockBadge.innerHTML = '<i class="bi bi-check2"></i> Kerala Verified (Speed Post ₹' + keralaShippingFee.toFixed(0) + ')';
+                    keralaLockBadge.classList.remove('d-none');
+                }
+                if (pincodeBadge) {
+                    pincodeBadge.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-6" title="Kerala Postal Zone Verified"></i>';
+                }
+                if (pincodeHint) {
+                    pincodeHint.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Kerala PIN verified &bull; Speed Post ₹' + keralaShippingFee.toFixed(0) + '</span>';
+                }
+                if (autoBadge) {
+                    autoBadge.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal';
+                    autoBadge.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Inside Kerala Applied';
+                }
+            }
+            updateShippingAndTotals();
+        } else if (val.length > 0) {
+            if (keralaRadio) keralaRadio.disabled = false;
+            if (outRadio) outRadio.disabled = false;
+            if (cardKerala) cardKerala.classList.remove('locked-disabled');
+            if (cardOutside) cardOutside.classList.remove('locked-disabled');
+            if (keralaLockBadge) keralaLockBadge.classList.add('d-none');
+            if (outsideLockBadge) outsideLockBadge.classList.add('d-none');
+
+            if (pincodeBadge) {
+                pincodeBadge.innerHTML = '<span class="spinner-grow spinner-grow-sm text-secondary" style="width: 8px; height: 8px;"></span>';
+            }
+            if (pincodeHint) {
+                const remaining = 6 - val.length;
+                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-three-dots me-1"></i>Enter ' + remaining + ' more digit' + (remaining > 1 ? 's' : '') + ' to calculate shipping</span>';
+            }
+        } else {
+            if (keralaRadio) keralaRadio.disabled = false;
+            if (outRadio) outRadio.disabled = false;
+            if (cardKerala) cardKerala.classList.remove('locked-disabled');
+            if (cardOutside) cardOutside.classList.remove('locked-disabled');
+            if (keralaLockBadge) keralaLockBadge.classList.add('d-none');
+            if (outsideLockBadge) outsideLockBadge.classList.add('d-none');
+
+            if (pincodeBadge) pincodeBadge.innerHTML = '';
+            if (pincodeHint) {
+                pincodeHint.innerHTML = '<span class="text-muted"><i class="bi bi-geo me-1"></i>Enter 6-digit PIN to calculate shipping automatically</span>';
+            }
+        }
+    }
+
+    if (cardKerala) {
+        cardKerala.addEventListener('click', function(e) {
+            const pinVal = pincodeInput ? pincodeInput.value.replace(/\D/g, '') : '';
+            if (pinVal.length === 6 && checkPincodeRegion(pinVal) === 'outside_kerala') {
+                e.preventDefault();
+                e.stopPropagation();
+                showError("Inside Kerala rate is strictly for Kerala PIN codes (67xxxx - 69xxxx). For outside Kerala PIN (" + pinVal + "), the ₹95 shipping charge is mandatory.");
+                if (outRadio) outRadio.checked = true;
+                updateShippingAndTotals();
+                return false;
+            }
+        });
+    }
+
+    if (pincodeInput) {
+        pincodeInput.addEventListener('input', handlePincodeInput);
+        pincodeInput.addEventListener('change', handlePincodeInput);
+        pincodeInput.addEventListener('blur', handlePincodeInput);
+    }
+
+    if (addressInput) {
+        addressInput.addEventListener('blur', function() {
+            const val = this.value.toLowerCase();
+            const outsideKeywords = ['tamil nadu', 'karnataka', 'maharashtra', 'delhi', 'bangalore', 'bengaluru', 'chennai', 'mumbai', 'hyderabad', 'andhra', 'telangana', 'pune', 'goa'];
+            if (outsideKeywords.some(kw => val.includes(kw)) && !val.includes('kerala')) {
+                if (outRadio && !outRadio.checked) {
+                    outRadio.checked = true;
+                    updateShippingAndTotals();
+                }
+            }
+        });
+    }
 
     function stopWebPolling() {
         if (webPollInterval) {
@@ -1282,22 +1281,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2500);
     }
 
-    function getSelectedMethod() {
-        return 'upi';
-    }
-
     function showError(msg) {
+        if (!alertBox) return;
         alertBox.textContent = msg;
         alertBox.classList.remove('d-none');
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function hideError() {
+        if (!alertBox) return;
         alertBox.textContent = '';
         alertBox.classList.add('d-none');
     }
 
     function resetButton() {
-        btn.disabled = false;
+        if (btn) btn.disabled = false;
         updateSelectedCard();
     }
 
@@ -1313,19 +1311,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Main Payment Submission Handler
+    async function handleCheckoutSubmit(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         hideError();
 
-        const fullName = (document.getElementById('full_name').value || '').trim();
-        const shippingAddress = (document.getElementById('shipping_address').value || '').trim();
-        const landmark = (document.getElementById('landmark').value || '').trim();
+        const fullName = (fullNameInput ? fullNameInput.value : '').trim();
+        const shippingAddress = (addressInput ? addressInput.value : '').trim();
+        const landmark = (landmarkInput ? landmarkInput.value : '').trim();
         const pincodeVal = pincodeInput ? pincodeInput.value.replace(/\D/g, '').trim() : '';
-        const districtVal = (document.getElementById('district').value || '').trim();
-        const stateVal = (document.getElementById('state').value || '').trim();
-        const phoneNumber = (document.getElementById('phone_number').value || '').trim();
-        const phoneNumber2 = (document.getElementById('phone_number_2').value || '').trim();
-        const selectedMethod = 'upi';
+        const districtVal = (districtInput ? districtInput.value : '').trim();
+        const stateVal = (stateInput ? stateInput.value : '').trim();
+        const phoneNumber = (phoneInput ? phoneInput.value : '').trim();
+        const phoneNumber2 = (phone2Input ? phone2Input.value : '').trim();
         const detectedPinRegion = checkPincodeRegion(pincodeVal);
         const finalRegion = (detectedPinRegion === 'outside_kerala') ? 'outside_kerala' : (detectedPinRegion === 'kerala' ? 'kerala' : getSelectedRegion());
         const selectedFlow = getSelectedFlow();
@@ -1333,13 +1334,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Client-side validation: Address and Phone 1 are mandatory
         if (!fullName) {
             showError("Recipient Name is mandatory. Please enter recipient's full name.");
-            document.getElementById('full_name').focus();
+            if (fullNameInput) fullNameInput.focus();
             return;
         }
 
         if (!shippingAddress) {
             showError("Delivery Address is mandatory. Please enter house/flat/building and street address.");
-            document.getElementById('shipping_address').focus();
+            if (addressInput) addressInput.focus();
             return;
         }
 
@@ -1351,20 +1352,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!districtVal) {
             showError("District is mandatory. Please enter your district.");
-            document.getElementById('district').focus();
+            if (districtInput) districtInput.focus();
             return;
         }
 
         if (!stateVal) {
             showError("State is mandatory. Please enter your state.");
-            document.getElementById('state').focus();
+            if (stateInput) stateInput.focus();
             return;
         }
 
         const phoneDigits1 = phoneNumber.replace(/\D/g, '');
         if (phoneDigits1.length < 10) {
             showError("Phone Number 1 is mandatory. Please enter a valid 10-digit mobile number.");
-            document.getElementById('phone_number').focus();
+            if (phoneInput) phoneInput.focus();
             return;
         }
 
@@ -1372,15 +1373,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const phoneDigits2 = phoneNumber2.replace(/\D/g, '');
             if (phoneDigits2.length < 10) {
                 showError("Please enter a valid 10-digit mobile number for Phone Number 2 (or leave it blank).");
-                document.getElementById('phone_number_2').focus();
+                if (phone2Input) phone2Input.focus();
                 return;
             }
         }
 
         // Verify Razorpay SDK is loaded (only required for popup flows: app & qr)
         if (selectedFlow !== 'link' && typeof Razorpay === 'undefined') {
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading Gateway...';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading Gateway...';
+            }
             var sdkReady = await loadRazorpaySdk();
             if (!sdkReady || typeof Razorpay === 'undefined') {
                 showError("Payment gateway took too long to load. You can switch to 'Razorpay Web Link & QR (Alternative)' above to continue.");
@@ -1390,12 +1393,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Loading state
-        btn.disabled = true;
-        btn.innerHTML = selectedFlow === 'qr'
-            ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Live UPI QR...'
-            : (selectedFlow === 'link'
-                ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Razorpay Web Page...'
-                : '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = selectedFlow === 'qr'
+                ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Live UPI QR...'
+                : (selectedFlow === 'link'
+                    ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Razorpay Web Page...'
+                    : '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...');
+        }
 
         const formData = new FormData();
         formData.append('full_name', fullName);
@@ -1403,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('landmark', landmark);
         formData.append('pincode', pincodeVal);
         formData.append('district', districtVal);
-        formData.append('city', districtVal); // for backward compatibility
+        formData.append('city', districtVal);
         formData.append('state', stateVal);
         formData.append('phone_number', phoneNumber);
         formData.append('phone_number_2', phoneNumber2);
@@ -1469,18 +1474,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     qrImg.src = data.qr_code_url;
                 }
 
-                // Show modal
                 if (webModal) webModal.classList.remove('d-none');
 
-                // Start real-time polling to detect payment capture
                 startWebPolling(data.db_order_id);
                 resetButton();
                 return;
             }
 
-            // Configure Razorpay Checkout display:
-            // When user chooses QR: prioritize the native Razorpay dynamic UPI QR code
-            // When user chooses Apps: prioritize UPI Apps (GPay, PhonePe, Paytm, etc.)
+            // FLOW 1 & 2: RAZORPAY CHECKOUT POPUP (APPS OR LIVE QR)
             const displayConfig = selectedFlow === 'qr' ? {
                 blocks: {
                     upi_qr: {
@@ -1546,7 +1547,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: displayConfig
                 },
                 handler: async function (response) {
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying Payment...';
+                    if (btn) {
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying Payment...';
+                    }
                     
                     try {
                         const verifyRes = await fetch("{% url 'payment_verify' %}", {
@@ -1566,8 +1569,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         const verifyData = await verifyRes.json();
 
                         if (verifyRes.ok && verifyData.status === 'success') {
-                            btn.className = 'btn btn-success py-2.5 w-100 rounded-pill fw-bold text-uppercase';
-                            btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Payment Confirmed!';
+                            if (btn) {
+                                btn.className = 'btn btn-success py-2.5 w-100 rounded-pill fw-bold text-uppercase';
+                                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Payment Confirmed!';
+                            }
                             setTimeout(() => {
                                 window.location.href = verifyData.redirect_url || "{% url 'profile' %}?order_placed=true&order_id=" + data.db_order_id;
                             }, 500);
@@ -1623,7 +1628,18 @@ document.addEventListener('DOMContentLoaded', function() {
             showError("Network connection error. Please check your internet connectivity and try again.");
             resetButton();
         }
-    });
+    }
+
+    // Attach event listeners to button and form
+    if (btn) btn.addEventListener('click', handleCheckoutSubmit);
+    if (form) form.addEventListener('submit', handleCheckoutSubmit);
+
+    // Initial setup on page load
+    updateShippingAndTotals();
+    updateSelectedCard();
+    if (pincodeInput && pincodeInput.value) {
+        handlePincodeInput();
+    }
 });
 </script>
 {% endblock %}
