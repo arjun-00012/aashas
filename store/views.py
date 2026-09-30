@@ -1230,11 +1230,14 @@ def checkout_view(request):
         payment_link_url = ''
         payment_link_id = ''
         try:
+            callback_url = request.build_absolute_uri(f"/profile/?order_placed=true&order_id={order.id}")
             pay_link = client.payment_link.create({
                 'amount': rzp_amount,
                 'currency': 'INR',
                 'accept_partial': False,
                 'upi_link': True,
+                'callback_url': callback_url,
+                'callback_method': 'get',
                 'description': f"Order #{order.id} Payment - ASHAS STORE",
                 'customer': {
                     'name': full_name[:40],

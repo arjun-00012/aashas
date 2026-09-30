@@ -430,6 +430,79 @@
         }
     }
 
+    /* Alternative Razorpay Web Modal & QR Styling */
+    .upi-qr-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(23, 22, 20, 0.75);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 1080;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .upi-qr-backdrop.d-none {
+        display: none !important;
+    }
+    .upi-qr-modal-content {
+        background: #FFFFFF;
+        border-radius: 18px;
+        max-width: 370px;
+        width: 100%;
+        padding: 1.25rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        animation: qrModalPop 0.25s ease-out;
+    }
+    @keyframes qrModalPop {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .btn-close-qr {
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        line-height: 1;
+        color: #8C867E;
+        cursor: pointer;
+        padding: 0 0.25rem;
+    }
+    .btn-close-qr:hover {
+        color: #171614;
+    }
+    .qr-spinner-box {
+        height: 220px;
+        background: #F8F8F7;
+        border-radius: 12px;
+        border: 1px dashed rgba(28, 25, 23, 0.15);
+    }
+    .qr-order-banner {
+        background: #F8F8F7;
+        padding: 0.45rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid rgba(28, 25, 23, 0.06);
+    }
+    .qr-pulsing-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background-color: #198754;
+        animation: qrPulse 1.5s infinite;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+    @keyframes qrPulse {
+        0% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+        70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+        100% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
+
 </style>
 {% endblock %}
 
@@ -660,11 +733,27 @@
                                         <span class="payment-option-label">
                                             Scan QR Code on Screen <span class="badge bg-secondary bg-opacity-10 text-dark border rounded-pill fw-semibold" style="font-size: 0.62rem; padding: 0.15rem 0.45rem;">Any Phone</span>
                                         </span>
-                                        <span class="payment-option-sub text-truncate">Display UPI QR on screen to scan from another device</span>
+                                        <span class="payment-option-sub text-truncate">Display merchant UPI QR to scan directly from GPay / PhonePe</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-2">
                                     <i class="bi bi-qr-code text-dark fs-5" title="Scan QR Code"></i>
+                                </div>
+                            </label>
+
+                            <!-- Option 3: Razorpay Web Link & QR (Alternative) -->
+                            <label class="payment-option" id="card_upi_link" for="flow_link" style="cursor: pointer;">
+                                <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                    <input type="radio" name="upi_flow" id="flow_link" value="link" style="accent-color: #171614;">
+                                    <div class="min-w-0">
+                                        <span class="payment-option-label">
+                                            Razorpay Web Link &amp; QR <span class="badge bg-light text-muted border rounded-pill fw-semibold" style="font-size: 0.62rem; padding: 0.15rem 0.45rem;">Alternative</span>
+                                        </span>
+                                        <span class="payment-option-sub text-truncate">Open hosted checkout page &bull; Web QR, Cards, Netbanking</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-2">
+                                    <i class="bi bi-box-arrow-up-right text-dark fs-5" title="Hosted Web Link"></i>
                                 </div>
                             </label>
                         </div>
@@ -766,6 +855,62 @@
             </div>
         </form>
 
+    </div>
+</div>
+
+<!-- Alternative Razorpay Web Payment / QR Modal -->
+<div id="upiWebModal" class="upi-qr-backdrop d-none" role="dialog" aria-modal="true" aria-labelledby="webModalTitle">
+    <div class="upi-qr-modal-content text-center">
+        <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+            <div class="text-start">
+                <h5 class="font-outfit fw-bold mb-0 text-dark" id="webModalTitle" style="font-size: 1.05rem;">
+                    <i class="bi bi-shield-check text-dark me-1"></i> Razorpay Web Payment
+                </h5>
+                <small class="text-muted" style="font-size: 0.72rem;">Alternative hosted checkout page</small>
+            </div>
+            <button type="button" class="btn-close-qr" id="closeWebModalBtn" aria-label="Close">&times;</button>
+        </div>
+
+        <!-- Order info banner -->
+        <div class="qr-order-banner d-flex align-items-center justify-content-between mb-2.5">
+            <span class="small text-muted font-outfit" id="webOrderNumber">Order #...</span>
+            <span class="fw-bold text-dark font-outfit" id="webOrderTotal">₹0.00</span>
+        </div>
+
+        <!-- Web QR Container / Image -->
+        <div class="position-relative d-flex align-items-center justify-content-center p-2 mb-2" style="background: #ffffff; border-radius: 14px; border: 1.5px solid rgba(28, 25, 23, 0.1);">
+            <div id="webQrLoadingSpinner" class="qr-spinner-box w-100 d-flex flex-column align-items-center justify-content-center gap-2">
+                <div class="spinner-border text-dark" role="status" style="width: 2rem; height: 2rem;">
+                    <span class="visually-hidden">Generating QR...</span>
+                </div>
+                <span class="small text-muted" style="font-size: 0.76rem;">Loading Razorpay Web QR...</span>
+            </div>
+            <img id="webQrImage" src="" alt="Razorpay Web Payment QR Code" class="img-fluid d-none" style="width: 230px; height: 230px; object-fit: contain; border-radius: 8px;">
+        </div>
+
+        <!-- Live Status Indicator -->
+        <div class="py-2 px-3 mb-2.5 rounded-3 bg-light border text-center">
+            <div id="webStatusWaiting" class="d-flex align-items-center justify-content-center gap-2">
+                <span class="qr-pulsing-dot"></span>
+                <span class="small fw-semibold text-dark" style="font-size: 0.78rem;">Waiting for payment confirmation...</span>
+            </div>
+            <div id="webStatusSuccess" class="d-none text-success fw-bold small">
+                <i class="bi bi-check-circle-fill me-1"></i> Payment Received! Confirming order...
+            </div>
+            <div class="small text-muted mt-0.5" style="font-size: 0.68rem;">
+                Page updates automatically once money is captured.
+            </div>
+        </div>
+
+        <!-- Direct Link Button -->
+        <div class="d-flex flex-column gap-2">
+            <a id="webDirectPayLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill fw-semibold py-2 font-outfit d-none" style="font-size: 0.82rem;">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Open Razorpay Payment Webpage
+            </a>
+            <button type="button" class="btn btn-light btn-sm rounded-pill text-secondary fw-semibold py-1.5" id="cancelWebModalBtn" style="font-size: 0.76rem;">
+                Cancel / Return to Checkout
+            </button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -1051,10 +1196,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // UPI Flow switching (Apps vs QR)
+    // UPI Flow switching (Apps vs QR vs Web Link)
     const flowRadios = document.querySelectorAll('input[name="upi_flow"]');
     const cardUpiApp = document.getElementById('card_upi') || document.getElementById('card_upi_app');
     const cardUpiQr = document.getElementById('card_upi_qr');
+    const cardUpiLink = document.getElementById('card_upi_link');
 
     function getSelectedFlow() {
         const checked = document.querySelector('input[name="upi_flow"]:checked');
@@ -1066,10 +1212,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
         if (cardUpiApp) cardUpiApp.classList.toggle('selected', flow === 'app');
         if (cardUpiQr) cardUpiQr.classList.toggle('selected', flow === 'qr');
+        if (cardUpiLink) cardUpiLink.classList.toggle('selected', flow === 'link');
 
         if (btnText) {
             if (flow === 'qr') {
                 btnText.textContent = 'OPEN LIVE UPI QR (' + totalFormatted + ')';
+            } else if (flow === 'link') {
+                btnText.textContent = 'OPEN RAZORPAY WEB LINK (' + totalFormatted + ')';
             } else {
                 btnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI APP';
             }
@@ -1079,6 +1228,59 @@ document.addEventListener('DOMContentLoaded', function() {
     flowRadios.forEach(r => {
         r.addEventListener('change', updateSelectedCard);
     });
+
+    // Alternative Web Modal controls & Real-Time Status Polling
+    const upiWebModal = document.getElementById('upiWebModal');
+    const closeWebModalBtn = document.getElementById('closeWebModalBtn');
+    const cancelWebModalBtn = document.getElementById('cancelWebModalBtn');
+    let webPollInterval = null;
+
+    function stopWebPolling() {
+        if (webPollInterval) {
+            clearInterval(webPollInterval);
+            webPollInterval = null;
+        }
+    }
+
+    function closeWebModal() {
+        stopWebPolling();
+        if (upiWebModal) upiWebModal.classList.add('d-none');
+        resetButton();
+    }
+
+    if (closeWebModalBtn) closeWebModalBtn.addEventListener('click', closeWebModal);
+    if (cancelWebModalBtn) cancelWebModalBtn.addEventListener('click', closeWebModal);
+    if (upiWebModal) {
+        upiWebModal.addEventListener('click', function(e) {
+            if (e.target === upiWebModal) closeWebModal();
+        });
+    }
+
+    function startWebPolling(orderId) {
+        stopWebPolling();
+        webPollInterval = setInterval(async function() {
+            try {
+                const res = await fetch(`/checkout/status/${orderId}/`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!res.ok) return;
+                const statusData = await res.json();
+                if (statusData.status === 'completed') {
+                    stopWebPolling();
+                    const waitingDiv = document.getElementById('webStatusWaiting');
+                    const successDiv = document.getElementById('webStatusSuccess');
+                    if (waitingDiv) waitingDiv.classList.add('d-none');
+                    if (successDiv) successDiv.classList.remove('d-none');
+
+                    setTimeout(function() {
+                        window.location.href = statusData.redirect_url || `/profile/?order_placed=true&order_id=${orderId}`;
+                    }, 600);
+                }
+            } catch (err) {
+                // Background network retry
+            }
+        }, 2500);
+    }
 
     function getSelectedMethod() {
         return 'upi';
@@ -1175,13 +1377,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Verify Razorpay SDK is loaded
-        if (typeof Razorpay === 'undefined') {
+        // Verify Razorpay SDK is loaded (only required for popup flows: app & qr)
+        if (selectedFlow !== 'link' && typeof Razorpay === 'undefined') {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading Gateway...';
             var sdkReady = await loadRazorpaySdk();
             if (!sdkReady || typeof Razorpay === 'undefined') {
-                showError("Payment gateway took too long to load. Please check your internet connection and refresh.");
+                showError("Payment gateway took too long to load. You can switch to 'Razorpay Web Link & QR (Alternative)' above to continue.");
                 resetButton();
                 return;
             }
@@ -1191,7 +1393,9 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.innerHTML = selectedFlow === 'qr'
             ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Live UPI QR...'
-            : '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...';
+            : (selectedFlow === 'link'
+                ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Razorpay Web Page...'
+                : '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure UPI Gateway...');
 
         const formData = new FormData();
         formData.append('full_name', fullName);
@@ -1224,8 +1428,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (!data.razorpay_order_id) {
+            if (!data.razorpay_order_id && !data.payment_link_url) {
                 showError("Payment gateway initialization failed. Please contact support.");
+                resetButton();
+                return;
+            }
+
+            // FLOW 3: RAZORPAY WEB PAYMENT LINK & BROWSER QR (ALTERNATIVE)
+            if (selectedFlow === 'link') {
+                const webModal = document.getElementById('upiWebModal');
+                const qrImg = document.getElementById('webQrImage');
+                const qrSpinner = document.getElementById('webQrLoadingSpinner');
+                const orderNumEl = document.getElementById('webOrderNumber');
+                const orderTotEl = document.getElementById('webOrderTotal');
+                const directLink = document.getElementById('webDirectPayLink');
+                const waitingDiv = document.getElementById('webStatusWaiting');
+                const successDiv = document.getElementById('webStatusSuccess');
+
+                if (orderNumEl) orderNumEl.textContent = 'Order #' + data.db_order_id;
+                if (orderTotEl) orderTotEl.textContent = '₹' + ((data.amount || getCurrentTotal() * 100) / 100).toFixed(2);
+                if (waitingDiv) waitingDiv.classList.remove('d-none');
+                if (successDiv) successDiv.classList.add('d-none');
+
+                if (directLink) {
+                    if (data.payment_link_url) {
+                        directLink.href = data.payment_link_url;
+                        directLink.classList.remove('d-none');
+                    } else {
+                        directLink.classList.add('d-none');
+                    }
+                }
+
+                if (qrImg && data.qr_code_url) {
+                    qrImg.classList.add('d-none');
+                    if (qrSpinner) qrSpinner.classList.remove('d-none');
+                    qrImg.onload = function() {
+                        if (qrSpinner) qrSpinner.classList.add('d-none');
+                        qrImg.classList.remove('d-none');
+                    };
+                    qrImg.src = data.qr_code_url;
+                }
+
+                // Show modal
+                if (webModal) webModal.classList.remove('d-none');
+
+                // Start real-time polling to detect payment capture
+                startWebPolling(data.db_order_id);
                 resetButton();
                 return;
             }
@@ -1345,7 +1593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 })
                             }).catch(() => {});
                         } catch (e) {}
-                        showError("Payment popup was closed before completion. You can click 'PAY VIA UPI' again to complete your order.");
+                        showError("Payment popup was closed. Don't have a UPI app on this phone? Select 'Scan QR Code on Screen' or 'Razorpay Web Link & QR (Alternative)' above!");
                         resetButton();
                     }
                 }
@@ -1366,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                     }).catch(() => {});
                 } catch (e) {}
-                showError("Payment Failed: " + (resp?.error?.description || "Transaction could not be completed. Please try again."));
+                showError("Payment Failed: " + (resp?.error?.description || "Transaction could not be completed.") + " You can also try 'Razorpay Web Link & QR (Alternative)' above.");
                 resetButton();
             });
             rzp.open();
