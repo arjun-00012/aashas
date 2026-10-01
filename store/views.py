@@ -1389,24 +1389,28 @@ def payment_verify(request):
                         if pay_info.get('status') == 'authorized':
                             client.payment.capture(rzp_pay_id, pay_info.get('amount'))
                 except Exception as cap_err:
-                    import logging
-                    logging.getLogger(__name__).warning(f"Razorpay capture fallback failed: {cap_err}. Initiating auto-refund...")
-                    try:
-                        refund_res = client.payment.refund(rzp_pay_id, {
-                            'notes': {'reason': f"Auto-refund: Capture failed ({str(cap_err)[:100]})"}
-                        })
-                        order.payment_status = 'Refunded'
-                        order.razorpay_payment_id = rzp_pay_id
-                        order.razorpay_refund_id = refund_res.get('id')
-                        order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
-                        order.refund_notes = f"Auto-refunded: Gateway failed to capture payment ({cap_err})"
-                        order.save(update_fields=['payment_status', 'razorpay_payment_id', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
-                        return JsonResponse({
-                            'status': 'failed',
-                            'message': 'Payment could not be captured by Razorpay. The amount has been automatically refunded back to your account.'
-                        }, status=400)
-                    except Exception as ref_err:
-                        logging.getLogger(__name__).error(f"Auto-refund failed: {ref_err}")
+                    err_str = str(cap_err).lower()
+                    if 'already paid' in err_str or 'already captured' in err_str:
+                        pass
+                    else:
+                        import logging
+                        logging.getLogger(__name__).warning(f"Razorpay capture fallback failed: {cap_err}. Initiating auto-refund...")
+                        try:
+                            refund_res = client.payment.refund(rzp_pay_id, {
+                                'notes': {'reason': f"Auto-refund: Capture failed ({str(cap_err)[:100]})"}
+                            })
+                            order.payment_status = 'Refunded'
+                            order.razorpay_payment_id = rzp_pay_id
+                            order.razorpay_refund_id = refund_res.get('id')
+                            order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                            order.refund_notes = f"Auto-refunded: Gateway failed to capture payment ({cap_err})"
+                            order.save(update_fields=['payment_status', 'razorpay_payment_id', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                            return JsonResponse({
+                                'status': 'failed',
+                                'message': 'Payment could not be captured by Razorpay. The amount has been automatically refunded back to your account.'
+                            }, status=400)
+                        except Exception as ref_err:
+                            logging.getLogger(__name__).error(f"Auto-refund failed: {ref_err}")
 
             # Idempotency guard: prevent duplicate inventory deduction if already verified
             if order.payment_status == 'Completed':
@@ -1501,25 +1505,29 @@ def razorpay_webhook(request):
                         client.payment.capture(rzp_pay_id, pay_amt)
                         captured_successfully = True
                     except Exception as cap_err:
-                        import logging
-                        logging.getLogger(__name__).warning(f"Razorpay webhook auto-capture failed: {cap_err}. Initiating automatic refund...")
-                        captured_successfully = False
-                        # Per user requirement: refund amount to user when payment occurred and razorpay didn't capture it
-                        try:
-                            refund_res = client.payment.refund(rzp_pay_id, {
-                                'notes': {
-                                    'reason': f"Auto-refund: Gateway capture failed ({str(cap_err)[:100]})",
-                                    'order_id': str(order.id) if order else ''
-                                }
-                            })
-                            if order:
-                                order.payment_status = 'Refunded'
-                                order.razorpay_refund_id = refund_res.get('id')
-                                order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
-                                order.refund_notes = f"Auto-refunded: Gateway failed to capture authorized payment ({str(cap_err)[:150]})"
-                                order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
-                        except Exception as ref_err:
-                            logging.getLogger(__name__).error(f"Failed to auto-refund uncaptured payment {rzp_pay_id}: {ref_err}")
+                        err_str = str(cap_err).lower()
+                        if 'already paid' in err_str or 'already captured' in err_str:
+                            captured_successfully = True
+                        else:
+                            import logging
+                            logging.getLogger(__name__).warning(f"Razorpay webhook auto-capture failed: {cap_err}. Initiating automatic refund...")
+                            captured_successfully = False
+                            # Per user requirement: refund amount to user when payment occurred and razorpay didn't capture it
+                            try:
+                                refund_res = client.payment.refund(rzp_pay_id, {
+                                    'notes': {
+                                        'reason': f"Auto-refund: Gateway capture failed ({str(cap_err)[:100]})",
+                                        'order_id': str(order.id) if order else ''
+                                    }
+                                })
+                                if order:
+                                    order.payment_status = 'Refunded'
+                                    order.razorpay_refund_id = refund_res.get('id')
+                                    order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                                    order.refund_notes = f"Auto-refunded: Gateway failed to capture authorized payment ({str(cap_err)[:150]})"
+                                    order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                            except Exception as ref_err:
+                                logging.getLogger(__name__).error(f"Failed to auto-refund uncaptured payment {rzp_pay_id}: {ref_err}")
 
             # 2. PAYMENT CAPTURED / ORDER PAID (or authorized & captured successfully)
             # Confirm order as successful (Completed) and place/fulfill it
@@ -1830,18 +1838,22 @@ def reconcile_razorpay_orders(limit=50):
                     client.payment.capture(rzp_pay_id, pay.get('amount'))
                     status = 'captured'
                 except Exception as cap_err:
-                    try:
-                        refund_res = client.payment.refund(rzp_pay_id, {
-                            'notes': {'reason': f"Auto-refund: Reconciler capture failed ({cap_err})"}
-                        })
-                        if order and order.payment_status != 'Refunded':
-                            order.payment_status = 'Refunded'
-                            order.razorpay_refund_id = refund_res.get('id')
-                            order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
-                            order.refund_notes = f"Auto-refunded during sync: Gateway failed to capture ({cap_err})"
-                            order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
-                    except Exception:
-                        pass
+                    err_str = str(cap_err).lower()
+                    if 'already paid' in err_str or 'already captured' in err_str:
+                        status = 'captured'
+                    else:
+                        try:
+                            refund_res = client.payment.refund(rzp_pay_id, {
+                                'notes': {'reason': f"Auto-refund: Reconciler capture failed ({cap_err})"}
+                            })
+                            if order and order.payment_status != 'Refunded':
+                                order.payment_status = 'Refunded'
+                                order.razorpay_refund_id = refund_res.get('id')
+                                order.refund_amount = Decimal(str(refund_res.get('amount', 0))) / Decimal('100')
+                                order.refund_notes = f"Auto-refunded during sync: Gateway failed to capture ({cap_err})"
+                                order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
+                        except Exception:
+                            pass
 
             if status == 'captured':
                 if order and order.payment_status != 'Completed':
