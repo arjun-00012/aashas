@@ -512,6 +512,15 @@
                 
                 <div class="col-12 col-lg-7">
                     
+                    <!-- In-App Browser Notice (Instagram / Facebook / WhatsApp) -->
+                    <div id="inAppBrowserAlert" class="alert alert-warning py-2.5 px-3 small rounded-3 mb-3 d-none align-items-center justify-content-between" style="border-left: 4px solid #f59e0b; background-color: #fffbeb;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill text-warning fs-5 flex-shrink-0"></i>
+                            <span style="font-size: 0.76rem; color: #92400e;"><strong>Instagram Notice:</strong> If UPI apps (Google Pay/PhonePe) do not open automatically, tap <strong>⋮</strong> at top right and choose <strong>"Open in Chrome / Safari"</strong> or pay via Cards/QR.</span>
+                        </div>
+                        <button type="button" class="btn-close btn-sm ms-2" onclick="document.getElementById('inAppBrowserAlert').classList.add('d-none'); document.getElementById('inAppBrowserAlert').classList.remove('d-flex');" aria-label="Close"></button>
+                    </div>
+
                     <div class="chk-card mb-3">
                         <div class="chk-card-title">
                             <span>1. Delivery Details</span>
@@ -671,11 +680,35 @@
                         </div>
 
                         <button type="button" id="payButton" class="btn-pay-now mt-3">
-                            <i class="bi bi-lock-fill"></i>
-                            <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI</span>
+                            <i class="bi bi-shield-lock-fill"></i>
+                            <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI / CARD</span>
                         </button>
 
                         <div id="checkoutAlert" class="alert alert-danger d-none mt-2.5 py-2 px-3 small rounded-3" role="alert"></div>
+
+                        <!-- Payment in progress / App switch status box -->
+                        <div id="paymentStatusBox" class="d-none mt-3 p-3 rounded-3 text-center border bg-light">
+                            <div id="paymentStatusSpinner" class="spinner-border spinner-border-sm text-dark mb-2" role="status"></div>
+                            <div id="paymentStatusText" class="fw-semibold text-dark small mb-1">Checking payment status...</div>
+                            <div id="paymentStatusSub" class="text-muted" style="font-size: 0.73rem;">If you completed payment in your UPI app, please wait while we confirm your order.</div>
+                            <div class="mt-2.5 d-flex gap-2 justify-content-center">
+                                <button type="button" id="btnManualStatusCheck" class="btn btn-sm btn-dark rounded-pill px-3 py-1" style="font-size: 0.75rem;">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Check Status Now
+                                </button>
+                                <button type="button" id="btnRetryPayment" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" style="font-size: 0.75rem;">
+                                    Try Again
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Alternative Direct Payment Link & QR Code -->
+                        <div id="paymentAlternativeBox" class="d-none mt-2.5 p-2.5 rounded-3 border bg-white text-center">
+                            <div class="small fw-semibold text-dark mb-1"><i class="bi bi-qr-code-scan me-1 text-primary"></i> Having trouble with UPI app popup?</div>
+                            <div class="text-muted small mb-2" style="font-size: 0.72rem;">You can scan our secure live Razorpay QR code or pay on the direct web page:</div>
+                            <a id="paymentLinkBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                <i class="bi bi-box-arrow-up-right me-1"></i> Open Direct Razorpay Payment Page &amp; QR
+                            </a>
+                        </div>
 
                         <div class="text-center mt-2.5">
                             <small class="text-muted" style="font-size: 0.72rem;">
@@ -816,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
         const pBtnText = document.getElementById('payButtonText');
         if (pBtnText) {
-            pBtnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI';
+            pBtnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI / CARD';
         }
     }
 
@@ -1049,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (btn) {
             btn.disabled = false;
             btn.className = 'btn-pay-now mt-3';
-            btn.innerHTML = '<i class="bi bi-lock-fill"></i> <span id="payButtonText">PAY ₹' + getCurrentTotal().toFixed(2) + ' VIA UPI</span>';
+            btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> <span id="payButtonText">PAY ₹' + getCurrentTotal().toFixed(2) + ' VIA UPI / CARD</span>';
         }
     }
 
@@ -1188,6 +1221,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            // Store order ID and start status polling
+            currentPollingOrderId = data.db_order_id;
+            startPolling(data.db_order_id);
+
+            // Configure payment link button if available
+            if (data.payment_link_url) {
+                const linkBtn = document.getElementById('paymentLinkBtn');
+                if (linkBtn) linkBtn.href = data.payment_link_url;
+            }
+
             const options = {
                 key: data.razorpay_key,
                 amount: data.amount,
@@ -1213,19 +1256,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: {
                         blocks: {
                             upi: {
-                                name: "Pay via UPI",
+                                name: "Pay via UPI (GPay, PhonePe, Paytm, QR)",
                                 instruments: [
                                     { method: "upi" }
                                 ]
+                            },
+                            cards_netbanking: {
+                                name: "Cards, Net Banking & Wallets",
+                                instruments: [
+                                    { method: "card" },
+                                    { method: "netbanking" },
+                                    { method: "wallet" }
+                                ]
                             }
                         },
-                        sequence: ["block.upi"],
+                        sequence: ["block.upi", "block.cards_netbanking"],
                         preferences: {
                             show_default_blocks: true
                         }
                     }
                 },
                 handler: async function (response) {
+                    stopPolling();
                     if (btn) {
                         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying Payment...';
                     }
@@ -1248,24 +1300,37 @@ document.addEventListener('DOMContentLoaded', function() {
                         const verifyData = await verifyRes.json();
 
                         if (verifyRes.ok && verifyData.status === 'success') {
-                            if (btn) {
-                                btn.className = 'btn btn-success py-2.5 w-100 rounded-pill fw-bold text-uppercase';
-                                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Payment Confirmed!';
-                            }
-                            setTimeout(() => {
-                                window.location.href = verifyData.redirect_url || "{% url 'profile' %}?order_placed=true&order_id=" + data.db_order_id;
-                            }, 500);
+                            showPaymentSuccess(data.db_order_id, verifyData.redirect_url);
                         } else {
                             showError("Payment verification issue: " + (verifyData.message || "Please contact support with Payment ID " + response.razorpay_payment_id));
                             resetButton();
                         }
                     } catch (err) {
-                        showError("Failed to reach server for payment confirmation. If amount was debited, your order will be reconciled automatically. Contact +91 82814 51481.");
-                        resetButton();
+                        const wasCompleted = await checkOrderStatus(data.db_order_id);
+                        if (!wasCompleted) {
+                            showError("Failed to reach server for payment confirmation. If amount was debited, your order will be reconciled automatically. Contact +91 82814 51481.");
+                            resetButton();
+                        }
                     }
                 },
                 modal: {
                     ondismiss: function() {
+                        // Check if payment was completed while switching apps
+                        if (currentPollingOrderId) {
+                            checkOrderStatus(currentPollingOrderId);
+                        }
+
+                        // Show payment status box with friendly status & retry
+                        const stBox = document.getElementById('paymentStatusBox');
+                        if (stBox) stBox.classList.remove('d-none');
+
+                        // Show alternative direct payment link if available
+                        if (data.payment_link_url) {
+                            const altBox = document.getElementById('paymentAlternativeBox');
+                            if (altBox) altBox.classList.remove('d-none');
+                        }
+
+                        // Record dismissal note gently without permanently failing
                         try {
                             fetch("{% url 'checkout_payment_failed' %}", {
                                 method: 'POST',
@@ -1277,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 })
                             }).catch(() => {});
                         } catch (e) {}
-                        showError("Payment was cancelled or closed. You can tap 'Pay via UPI' whenever you are ready.");
+
                         resetButton();
                     }
                 }
@@ -1298,7 +1363,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                     }).catch(() => {});
                 } catch (e) {}
-                showError("Payment Failed: " + (resp?.error?.description || "Transaction could not be completed.") + " Please try again with your UPI app.");
+                const errMsg = resp?.error?.description || "Transaction could not be completed.";
+                showError("Payment Failed: " + errMsg + " Please try again with your UPI app or choose Cards / Net Banking.");
+                
+                if (data.payment_link_url) {
+                    const altBox = document.getElementById('paymentAlternativeBox');
+                    if (altBox) altBox.classList.remove('d-none');
+                }
                 resetButton();
             });
             rzp.open();
@@ -1308,6 +1379,127 @@ document.addEventListener('DOMContentLoaded', function() {
             resetButton();
         }
     }
+
+    // Real-Time Polling & Status Handlers
+    let currentPollingOrderId = null;
+    let pollInterval = null;
+    let pollTimeout = null;
+
+    function stopPolling() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+        if (pollTimeout) {
+            clearTimeout(pollTimeout);
+            pollTimeout = null;
+        }
+    }
+
+    function showPaymentSuccess(orderId, redirectUrl) {
+        stopPolling();
+        if (btn) {
+            btn.className = 'btn btn-success py-2.5 w-100 rounded-pill fw-bold text-uppercase';
+            btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Payment Confirmed!';
+        }
+        const stBox = document.getElementById('paymentStatusBox');
+        if (stBox) {
+            stBox.className = 'mt-3 p-3 rounded-3 text-center border border-success bg-success bg-opacity-10 text-success';
+            stBox.innerHTML = '<i class="bi bi-check-circle-fill fs-4 d-block mb-1"></i><strong>Payment Verified!</strong> Redirecting to order confirmation...';
+            stBox.classList.remove('d-none');
+        }
+        const altBox = document.getElementById('paymentAlternativeBox');
+        if (altBox) altBox.classList.add('d-none');
+        setTimeout(() => {
+            window.location.href = redirectUrl || "{% url 'profile' %}?order_placed=true&order_id=" + orderId;
+        }, 500);
+    }
+
+    async function checkOrderStatus(orderId, isManual = false) {
+        if (!orderId) return false;
+        try {
+            const res = await fetch("/checkout/status/" + orderId + "/", {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (res.ok) {
+                const stData = await res.json();
+                if (stData.status === 'completed') {
+                    showPaymentSuccess(orderId, stData.redirect_url);
+                    return true;
+                } else if (isManual) {
+                    const pSub = document.getElementById('paymentStatusSub');
+                    if (pSub) {
+                        pSub.textContent = "Payment not yet confirmed by gateway. If money was debited, your order will auto-reconcile in a moment.";
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn("Status check notice:", e);
+        }
+        return false;
+    }
+
+    function startPolling(orderId) {
+        stopPolling();
+        currentPollingOrderId = orderId;
+        pollInterval = setInterval(function() {
+            checkOrderStatus(orderId);
+        }, 3000);
+        pollTimeout = setTimeout(function() {
+            stopPolling();
+            const pSub = document.getElementById('paymentStatusSub');
+            if (pSub) {
+                pSub.textContent = "Still waiting for confirmation? You can tap 'Check Status Now' or try paying again.";
+            }
+            const pSpin = document.getElementById('paymentStatusSpinner');
+            if (pSpin) pSpin.classList.add('d-none');
+        }, 120000);
+    }
+
+    // Check status when user switches back from UPI app to browser
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && currentPollingOrderId) {
+            checkOrderStatus(currentPollingOrderId);
+        }
+    });
+    window.addEventListener('focus', function() {
+        if (currentPollingOrderId) {
+            checkOrderStatus(currentPollingOrderId);
+        }
+    });
+
+    const manualCheckBtn = document.getElementById('btnManualStatusCheck');
+    if (manualCheckBtn) {
+        manualCheckBtn.addEventListener('click', function() {
+            if (currentPollingOrderId) {
+                const pSpin = document.getElementById('paymentStatusSpinner');
+                if (pSpin) pSpin.classList.remove('d-none');
+                checkOrderStatus(currentPollingOrderId, true);
+            }
+        });
+    }
+
+    const retryBtn = document.getElementById('btnRetryPayment');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', function() {
+            const stBox = document.getElementById('paymentStatusBox');
+            if (stBox) stBox.classList.add('d-none');
+            resetButton();
+            if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
+    // In-App Browser detection (Instagram, Facebook, WhatsApp)
+    function detectInAppBrowser() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+        const isInApp = /Instagram|FBAN|FBAV|WhatsApp|Line|Snapchat/i.test(ua);
+        const inAppBox = document.getElementById('inAppBrowserAlert');
+        if (isInApp && inAppBox) {
+            inAppBox.classList.remove('d-none');
+            inAppBox.classList.add('d-flex');
+        }
+    }
+    detectInAppBrowser();
 
     // Attach event listeners to button and form
     if (btn) btn.addEventListener('click', handleCheckoutSubmit);

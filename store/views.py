@@ -1603,7 +1603,9 @@ def checkout_payment_failed(request):
                 order = Order.objects.filter(razorpay_order_id=data.get('razorpay_order_id')).first()
 
             if order and order.payment_status != 'Completed':
-                order.payment_status = 'Failed'
+                is_mere_dismissal = ('popup closed' in reason.lower() or 'dismiss' in reason.lower()) and not error_code and not error_desc
+                if not is_mere_dismissal:
+                    order.payment_status = 'Failed'
                 failure_note = f"Gateway Notice: {reason}"
                 if error_code:
                     failure_note += f" | Code: {error_code}"
@@ -1621,10 +1623,10 @@ def checkout_payment_failed(request):
 @csrf_exempt
 def checkout_order_status(request, order_id):
     """
-    Real-time status check for on-screen UPI QR code payments.
-    When a customer scans the QR code from another phone and completes payment,
+    Real-time status check for on-screen UPI QR code payments and mobile app-switch flows.
+    When a customer scans QR or switches to GPay/PhonePe to pay,
     this endpoint detects when the payment is captured in Razorpay,
-    auto-confirms the order, decrements inventory stock, and returns redirect_url.
+    auto-confirms the order, decrements inventory stock, clears cart, and returns redirect_url.
     """
     try:
         order = Order.objects.filter(id=int(order_id)).first()
@@ -1638,7 +1640,7 @@ def checkout_order_status(request, order_id):
                 'redirect_url': f"/profile/?order_placed=true&order_id={order.id}"
             })
 
-        if order.payment_status == 'Pending':
+        if order.payment_status in ('Pending', 'Failed'):
             client = get_razorpay_client()
             captured_payment_id = None
 
@@ -1682,6 +1684,14 @@ def checkout_order_status(request, order_id):
                     if item.product:
                         item.product.stock = max(0, item.product.stock - item.quantity)
                         item.product.save(update_fields=['stock'])
+
+                # Clear cart for user and session
+                if order.user:
+                    CartItem.objects.filter(user=order.user).delete()
+                if request.user.is_authenticated:
+                    CartItem.objects.filter(user=request.user).delete()
+                request.session['cart'] = {}
+                request.session.modified = True
 
                 return JsonResponse({
                     'status': 'completed',
@@ -1803,6 +1813,14 @@ def reconcile_razorpay_orders(limit=50):
                     order = Order.objects.filter(id=int(db_order_id)).first()
                 except (ValueError, TypeError):
                     pass
+            if not order and pay.get('description'):
+                import re
+                desc_match = re.search(r'Order #(\d+)', pay.get('description', ''))
+                if desc_match:
+                    try:
+                        order = Order.objects.filter(id=int(desc_match.group(1))).first()
+                    except Exception:
+                        pass
             if not order and rzp_pay_id:
                 order = Order.objects.filter(razorpay_payment_id=rzp_pay_id).first()
 
