@@ -1927,17 +1927,23 @@ def adminpp_orders(request):
     if end_date:
         base_orders = base_orders.filter(created_at__date__lte=end_date)
 
-    paid_count = base_orders.filter(payment_status='Completed').count()
+    DISPATCHED_STATUSES = ['Dispatched', 'In Transit', 'Out for Delivery', 'Delivered']
+
+    ready_count = base_orders.filter(payment_status='Completed').exclude(shipping_status__in=DISPATCHED_STATUSES).count()
+    dispatched_count = base_orders.filter(payment_status='Completed', shipping_status__in=DISPATCHED_STATUSES).count()
     incomplete_count = base_orders.exclude(payment_status='Completed').count()
     all_count = base_orders.count()
+    paid_count = ready_count  # Keep paid_count matching ready-to-dispatch count for backward compatibility
 
-    if payment_filter == 'incomplete':
+    if payment_filter == 'dispatched':
+        orders = base_orders.filter(payment_status='Completed', shipping_status__in=DISPATCHED_STATUSES).order_by('-created_at')
+    elif payment_filter == 'incomplete':
         orders = base_orders.exclude(payment_status='Completed').order_by('-created_at')
     elif payment_filter == 'all':
         orders = base_orders.order_by('-created_at')
     else:
         payment_filter = 'paid'
-        orders = base_orders.filter(payment_status='Completed').order_by('-created_at')
+        orders = base_orders.filter(payment_status='Completed').exclude(shipping_status__in=DISPATCHED_STATUSES).order_by('-created_at')
 
     if export_excel == 'true':
         wb = openpyxl.Workbook()
@@ -2012,7 +2018,9 @@ def adminpp_orders(request):
     return render(request, 'adminpp_orders.html', {
         'orders': orders,
         'payment_filter': payment_filter,
-        'paid_count': paid_count,
+        'ready_count': ready_count,
+        'paid_count': ready_count,
+        'dispatched_count': dispatched_count,
         'incomplete_count': incomplete_count,
         'all_count': all_count,
         'categories': Category.objects.all(),
@@ -2023,6 +2031,54 @@ def adminpp_orders(request):
         'is_postgres': is_postgres,
         'rzp_live_payments': rzp_live_payments,
         'rzp_key_id': settings.RAZORPAY_KEY_ID,
+    })
+
+@staff_required
+def adminpp_order_detail(request, order_id):
+    order = get_object_or_404(Order.objects.prefetch_related('items__product__category'), id=order_id)
+    items = order.items.select_related('product', 'product__category').all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'quick_dispatch':
+            if order.payment_status != 'Completed':
+                messages.error(request, f"Cannot dispatch Order #{order.id}: Payment has not been captured (Status: {order.payment_status}).")
+            else:
+                order.shipping_status = 'Dispatched'
+                if not order.carrier:
+                    order.carrier = 'India Post (Speed Post)'
+                if not order.tracking_notes:
+                    order.tracking_notes = 'Dispatched from Kozhikode Boutique via India Post'
+                order.tracking_updated_at = timezone.now()
+                order.save(update_fields=['shipping_status', 'carrier', 'tracking_notes', 'tracking_updated_at'])
+                messages.success(request, f"✓ Order #{order.id} marked as DISPATCHED! It is now in the Dispatched section.")
+            return redirect('adminpp_order_detail', order_id=order.id)
+
+        elif action == 'update_tracking':
+            tracking_id = request.POST.get('tracking_id', '').strip()
+            carrier = request.POST.get('carrier', 'India Post (Speed Post)').strip() or 'India Post (Speed Post)'
+            shipping_status = request.POST.get('shipping_status', 'Dispatched').strip() or 'Dispatched'
+            tracking_notes = request.POST.get('tracking_notes', '').strip()
+
+            order.tracking_id = tracking_id
+            order.carrier = carrier
+            order.shipping_status = shipping_status
+            order.tracking_notes = tracking_notes
+            order.tracking_updated_at = timezone.now()
+            order.save(update_fields=['tracking_id', 'carrier', 'shipping_status', 'tracking_notes', 'tracking_updated_at'])
+
+            if shipping_status in ['Dispatched', 'In Transit', 'Out for Delivery', 'Delivered']:
+                messages.success(request, f"✓ Order #{order.id} tracking updated to {tracking_id} ({carrier})! Status: {order.get_shipping_status_display()} (Moved to Dispatched section).")
+            else:
+                messages.success(request, f"✓ Order #{order.id} tracking details updated.")
+            return redirect('adminpp_order_detail', order_id=order.id)
+
+    items_subtotal = sum([item.price * item.quantity for item in items])
+
+    return render(request, 'adminpp_order_detail.html', {
+        'order': order,
+        'items': items,
+        'items_subtotal': items_subtotal,
     })
 
 @staff_required

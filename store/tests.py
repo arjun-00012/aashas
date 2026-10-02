@@ -1476,6 +1476,76 @@ class AdminOrdersPaymentFilterAndFailureTests(TestCase):
         self.paid_order.refresh_from_db()
         self.assertEqual(self.paid_order.shipping_status, 'Dispatched')
 
+    def test_dispatched_section_tab(self):
+        """Dispatched tab only shows orders that are completed and have dispatched status."""
+        self.client.login(username='admin_user', password='Password123!')
+        
+        dispatched_order = Order.objects.create(
+            full_name="Kavya Nair",
+            phone_number="9876543299",
+            shipping_address="Kozhikode, Kerala",
+            total_price=1200.00,
+            payment_status='Completed',
+            razorpay_payment_id='pay_captured_888',
+            shipping_status='Dispatched',
+            tracking_id='ET998877665IN',
+            carrier='India Post (Speed Post)'
+        )
+        OrderItem.objects.create(order=dispatched_order, product=self.product, price=1200.00, quantity=1)
+
+        # Check default 'paid' view does NOT include dispatched order
+        res_paid = self.client.get(reverse('adminpp_orders'))
+        self.assertEqual(res_paid.status_code, 200)
+        self.assertIn(self.paid_order, res_paid.context['orders'])
+        self.assertNotIn(dispatched_order, res_paid.context['orders'])
+        self.assertEqual(res_paid.context['dispatched_count'], 1)
+
+        # Check '?payment=dispatched' view includes dispatched order and excludes pending/ready
+        res_disp = self.client.get(reverse('adminpp_orders') + '?payment=dispatched')
+        self.assertEqual(res_disp.status_code, 200)
+        self.assertIn(dispatched_order, res_disp.context['orders'])
+        self.assertNotIn(self.paid_order, res_disp.context['orders'])
+        self.assertNotIn(self.pending_order, res_disp.context['orders'])
+
+    def test_order_detail_view_and_dispatch_action(self):
+        """Staff can view full order details page and mark order as dispatched."""
+        self.client.login(username='admin_user', password='Password123!')
+        url = reverse('adminpp_order_detail', args=[self.paid_order.id])
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Order #')
+        self.assertContains(res, 'Akshay Kumar')
+        self.assertContains(res, 'Silver Figaro Chain')
+
+        # Post quick_dispatch from order detail page
+        post_res = self.client.post(url, {'action': 'quick_dispatch'}, follow=True)
+        self.assertEqual(post_res.status_code, 200)
+        self.paid_order.refresh_from_db()
+        self.assertEqual(self.paid_order.shipping_status, 'Dispatched')
+
+        # Now verify that self.paid_order has moved out of ready-to-dispatch queue
+        res_paid = self.client.get(reverse('adminpp_orders'))
+        self.assertNotIn(self.paid_order, res_paid.context['orders'])
+        res_disp = self.client.get(reverse('adminpp_orders') + '?payment=dispatched')
+        self.assertIn(self.paid_order, res_disp.context['orders'])
+
+    def test_order_detail_view_update_tracking(self):
+        """Staff can update tracking info from order detail page."""
+        self.client.login(username='admin_user', password='Password123!')
+        url = reverse('adminpp_order_detail', args=[self.paid_order.id])
+        post_res = self.client.post(url, {
+            'action': 'update_tracking',
+            'tracking_id': 'SP123456789IN',
+            'carrier': 'India Post (Speed Post)',
+            'shipping_status': 'Dispatched',
+            'tracking_notes': 'Handed over at Karuvissery Post Office'
+        }, follow=True)
+        self.assertEqual(post_res.status_code, 200)
+        self.paid_order.refresh_from_db()
+        self.assertEqual(self.paid_order.tracking_id, 'SP123456789IN')
+        self.assertEqual(self.paid_order.shipping_status, 'Dispatched')
+        self.assertEqual(self.paid_order.tracking_notes, 'Handed over at Karuvissery Post Office')
+
     def test_checkout_payment_failed_endpoint(self):
         """checkout_payment_failed endpoint marks order as Failed with notes."""
         payload = {

@@ -1,0 +1,765 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Order #{{ order.id }} Details & Dispatch | ASHAS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #FAF8F5;
+            --bg-surface: #FFFFFF;
+            --bg-surface-elevated: #F5F2ED;
+            --text-primary: #171614;
+            --text-secondary: #635F59;
+            --text-muted: #8C867E;
+            --border-subtle: rgba(28, 25, 23, 0.08);
+            --border-highlight: rgba(28, 25, 23, 0.16);
+            --shadow-card: 0 10px 28px -6px rgba(28, 25, 23, 0.05), 0 4px 10px -2px rgba(28, 25, 23, 0.02);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-top-navbar {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .admin-nav-tabs-bar {
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 7px 0;
+            width: 100%;
+        }
+
+        .admin-nav-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+            border: 1px solid rgba(28, 25, 23, 0.08);
+            background: #FFFFFF;
+        }
+
+        .admin-nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-elevated);
+        }
+
+        .admin-nav-tab.active {
+            background-color: #171614 !important;
+            color: #FFFFFF !important;
+            border-color: #171614 !important;
+            box-shadow: 0 2px 6px rgba(23, 22, 20, 0.15);
+        }
+
+        .card-admin {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .btn-obsidian {
+            background-color: #171614 !important;
+            border-color: #171614 !important;
+            color: #FFFFFF !important;
+        }
+        .btn-obsidian:hover {
+            background-color: #2b2824 !important;
+            border-color: #2b2824 !important;
+            color: #FFFFFF !important;
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366 !important;
+            border-color: #25D366 !important;
+            color: #FFFFFF !important;
+        }
+        .btn-whatsapp:hover {
+            background-color: #1eb956 !important;
+            border-color: #1eb956 !important;
+            color: #FFFFFF !important;
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bg-surface-elevated) !important;
+            border-color: var(--border-subtle) !important;
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #FFFFFF !important;
+            border-color: var(--text-primary) !important;
+            box-shadow: 0 0 0 2px rgba(23, 22, 20, 0.12);
+        }
+
+        .label-box {
+            background: #FAF8F5;
+            border: 1px dashed rgba(28, 25, 23, 0.25);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        @media print {
+            .no-print, .admin-top-navbar, .btn, .breadcrumb, form {
+                display: none !important;
+            }
+            body {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+            }
+            .card-admin {
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                margin-bottom: 20px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Admin Navbar -->
+<header class="admin-top-navbar no-print">
+    <div class="container-fluid px-2 px-sm-3 px-md-4" style="max-width: 1400px;">
+        <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'adminpp_dashboard' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none text-dark">
+                    <span class="badge rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="background-color: #171614; width: 28px; height: 28px;">
+                        <span style="color: #FACC15; font-size: 0.95rem; font-weight: 900; line-height: 1;">A</span>
+                    </span>
+                    <strong style="font-family: 'Outfit', sans-serif; font-size: 1.05rem; letter-spacing: 0.04em;">ASHAS</strong>
+                    <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill d-none d-sm-inline" style="font-size: 0.68rem; font-weight: 600;">ADMIN</span>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'home' %}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
+                    <i class="bi bi-shop"></i> <span class="d-none d-sm-inline">View Store</span>
+                </a>
+                <a href="{% url 'adminpp_orders' %}" class="btn btn-dark btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.8rem; background: #171614;">
+                    <i class="bi bi-arrow-left"></i> <span>All Orders</span>
+                </a>
+            </div>
+        </div>
+
+        <nav class="admin-nav-tabs-bar" aria-label="Admin Sections">
+            <a href="{% url 'adminpp_dashboard' %}" class="admin-nav-tab" title="Store Overview & Quick Actions">
+                <i class="bi bi-grid-1x2"></i>
+                <span>Overview</span>
+            </a>
+            <a href="{% url 'adminpp_orders' %}" class="admin-nav-tab active" title="Orders & Consignments">
+                <i class="bi bi-box-seam"></i>
+                <span>Orders &amp; Consignments</span>
+            </a>
+            <a href="{% url 'category_add' %}" class="admin-nav-tab" title="Manage Categories">
+                <i class="bi bi-folder-plus"></i>
+                <span>Categories</span>
+            </a>
+            <a href="{% url 'product_add' %}" class="admin-nav-tab" title="Manage Products">
+                <i class="bi bi-plus-circle"></i>
+                <span>Products</span>
+            </a>
+        </nav>
+    </div>
+</header>
+
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width: 1400px;">
+
+    <!-- Breadcrumb & Back Link -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 no-print">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{% url 'adminpp_dashboard' %}" class="text-decoration-none text-secondary">Admin</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'adminpp_orders' %}" class="text-decoration-none text-secondary">Orders</a></li>
+                {% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
+                <li class="breadcrumb-item"><a href="{% url 'adminpp_orders' %}?payment=dispatched" class="text-decoration-none text-primary fw-medium">Dispatched Section</a></li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'adminpp_orders' %}?payment=paid" class="text-decoration-none text-success fw-medium">Ready to Dispatch</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Order #{{ order.id }}</li>
+            </ol>
+        </nav>
+        <div>
+            <a href="{% url 'adminpp_orders' %}{% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}?payment=dispatched{% else %}?payment=paid{% endif %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5">
+                <i class="bi bi-arrow-left"></i> <span>Back to {% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}Dispatched Orders{% else %}Ready to Dispatch{% endif %}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="mb-3 no-print">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show rounded-3 py-2.5 px-3 mb-2 shadow-sm d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Top Order Header Card -->
+    <div class="card-admin p-3 p-md-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                    <span class="badge bg-dark rounded-pill px-3 py-1.5 fs-6 fw-bold">Order #{{ order.id }}</span>
+                    {% if order.payment_status == 'Completed' %}
+                        <span class="badge bg-success text-white rounded-pill px-3 py-1.5 fw-bold shadow-sm d-inline-flex align-items-center gap-1" style="background-color: #15803d !important;">
+                            <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
+                        </span>
+                    {% elif order.payment_status == 'Refunded' %}
+                        <span class="badge bg-secondary text-white rounded-pill px-3 py-1.5 fw-bold">
+                            <i class="bi bi-arrow-counterclockwise"></i> Auto-Refunded
+                        </span>
+                    {% elif order.payment_status == 'Failed' %}
+                        <span class="badge bg-danger text-white rounded-pill px-3 py-1.5 fw-bold">
+                            <i class="bi bi-x-circle-fill"></i> ❌ Failed Payment
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-1.5 fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i> ⚠️ UNPAID / PENDING
+                        </span>
+                    {% endif %}
+
+                    {% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
+                        <span class="badge bg-primary rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1" style="background-color: #0284c7 !important;">
+                            <i class="bi bi-truck"></i> Dispatched via {{ order.carrier|default:'Post Office' }}
+                        </span>
+                        <span class="badge bg-light text-primary border rounded-pill px-2.5 py-1 small">
+                            <i class="bi bi-folder-check me-1"></i>In Dispatched Section
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-hourglass-split text-warning"></i> Ready to Dispatch (Not Dispatched)
+                        </span>
+                        <span class="badge bg-light text-success border rounded-pill px-2.5 py-1 small">
+                            <i class="bi bi-inbox me-1"></i>In Ready to Dispatch Section
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="text-secondary small mt-1">
+                    Placed on <strong>{{ order.created_at|date:"l, d F Y, h:i A" }}</strong> • Customer: <strong class="text-dark">{{ order.full_name }}</strong>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions -->
+            <div class="d-flex align-items-center gap-2 flex-wrap no-print">
+                {% if order.payment_status == 'Completed' and order.shipping_status not in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
+                <form method="POST" action="{% url 'adminpp_order_detail' order.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="quick_dispatch">
+                    <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3 py-2 fw-bold text-dark shadow-sm d-inline-flex align-items-center gap-1.5">
+                        <i class="bi bi-truck fs-6"></i> <span>1-Click Mark Dispatched</span>
+                    </button>
+                </form>
+                {% endif %}
+
+                <button type="button" onclick="window.print()" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1.5">
+                    <i class="bi bi-printer"></i> <span>Print Dispatch Slip</span>
+                </button>
+
+                <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-3 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-1.5">
+                    <i class="bi bi-whatsapp"></i> <span>WhatsApp Buyer</span>
+                </a>
+
+                <form method="POST" action="{% url 'adminpp_order_delete' order.id %}" class="d-inline" onsubmit="return confirm('⚠️ WARNING: Are you sure you want to permanently delete Order #{{ order.id }} ({{ order.full_name }})?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1" title="Delete Order">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Status Alert Banner -->
+        <div class="mt-3 pt-3 border-top" style="border-color: var(--border-subtle) !important;">
+            {% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
+            <div class="alert alert-info border border-info border-opacity-25 rounded-3 py-2.5 px-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-info bg-opacity-10 text-dark small">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-truck text-primary fs-5 flex-shrink-0"></i>
+                    <div>
+                        <strong>Order Dispatched!</strong> This order has been dispatched via <strong>{{ order.carrier|default:'India Post' }}</strong>{% if order.tracking_id %} (Consignment ID: <code>{{ order.tracking_id }}</code>){% endif %}. It is categorized under the <strong>Dispatched Orders</strong> section.
+                    </div>
+                </div>
+                <a href="{% url 'adminpp_orders' %}?payment=dispatched" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-semibold text-nowrap no-print">
+                    View in Dispatched Section →
+                </a>
+            </div>
+            {% elif order.payment_status == 'Completed' %}
+            <div class="alert alert-success border border-success border-opacity-25 rounded-3 py-2.5 px-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-success bg-opacity-10 text-dark small">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill text-success fs-5 flex-shrink-0"></i>
+                    <div>
+                        <strong>Payment Captured &amp; Ready for Dispatch:</strong> This order is in the <strong>✓ Paid &amp; Ready to Dispatch</strong> section. Pack the items and click <strong>Mark as Dispatched</strong> or enter tracking details below to move it to the <strong>Dispatched Orders</strong> section.
+                    </div>
+                </div>
+                <a href="{% url 'adminpp_orders' %}?payment=paid" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1 fw-semibold text-nowrap no-print">
+                    View in Ready Queue →
+                </a>
+            </div>
+            {% else %}
+            <div class="alert alert-warning border border-warning border-opacity-50 rounded-3 py-2.5 px-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-warning bg-opacity-10 text-dark small">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
+                    <div>
+                        <strong>Checkout Incomplete / Unpaid:</strong> Payment was not captured by Razorpay. Dispatch is locked to prevent shipping unpaid parcels. Use WhatsApp follow-up to recover the order.
+                    </div>
+                </div>
+                <a href="{% url 'adminpp_reconcile_order' order.id %}" class="btn btn-outline-warning text-dark btn-sm rounded-pill px-3 py-1 fw-semibold text-nowrap no-print">
+                    <i class="bi bi-arrow-repeat me-1"></i> Check Razorpay
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="row g-4">
+        <!-- Left Column: Purchased Items & Shipping Address -->
+        <div class="col-lg-7">
+
+            <!-- Card 1: Purchased Items -->
+            <div class="card-admin p-3 p-md-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bag-check fs-5 text-dark"></i>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Purchased Items &amp; Packing Codes</h3>
+                    </div>
+                    <span class="badge bg-dark rounded-pill px-2.5 py-1">{{ items|length }} Item{% if items|length != 1 %}s{% endif %}</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="font-size: 0.72rem; text-transform: uppercase;">Product</th>
+                                <th style="font-size: 0.72rem; text-transform: uppercase;">SKU / Code</th>
+                                <th style="font-size: 0.72rem; text-transform: uppercase;" class="text-center">Price</th>
+                                <th style="font-size: 0.72rem; text-transform: uppercase;" class="text-center">Qty</th>
+                                <th style="font-size: 0.72rem; text-transform: uppercase;" class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2.5">
+                                        {% if item.product and item.product.display_image %}
+                                        <a href="{% url 'product_detail' item.product.id %}" target="_blank" title="View product in store">
+                                            <img src="{{ item.product.display_image }}" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item.product.name }}">
+                                        </a>
+                                        {% else %}
+                                        <div class="rounded d-flex align-items-center justify-content-center bg-light text-secondary border" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            {% if item.product %}
+                                            <a href="{% url 'product_detail' item.product.id %}" target="_blank" class="fw-semibold text-dark text-decoration-none d-block small">
+                                                {{ item.product.name }}
+                                            </a>
+                                            {% if item.product.category %}
+                                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">{{ item.product.category.name }}</span>
+                                            {% endif %}
+                                            {% else %}
+                                            <span class="text-muted small">Archived Item</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark rounded-pill px-2.5 py-1 text-white fw-bold" style="font-size: 0.75rem;" title="Shipping / Shelf Code">
+                                        #{{ item.product.admin_code|default:item.product.id }}
+                                    </span>
+                                </td>
+                                <td class="text-center text-secondary small">₹{{ item.price }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-2.5 py-1 fw-bold">x{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end fw-bold text-dark">₹{{ item.subtotal }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted small">No items recorded in this order.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="border-top">
+                            <tr>
+                                <td colspan="4" class="text-end text-secondary small pt-3">Items Subtotal:</td>
+                                <td class="text-end fw-semibold text-dark pt-3">₹{{ items_subtotal }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end text-secondary small">
+                                    Shipping Fee:
+                                    <span class="badge {% if order.delivery_region == 'outside_kerala' %}bg-dark text-white{% else %}bg-success bg-opacity-10 text-success border border-success border-opacity-25{% endif %} rounded-pill ms-1" style="font-size: 0.65rem;">
+                                        {% if order.delivery_region == 'outside_kerala' %}Outside Kerala{% else %}Inside Kerala{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-semibold text-dark">₹{{ order.shipping_fee|default:"0.00" }}</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td colspan="4" class="text-end fw-bold text-dark fs-6 pt-2">GRAND TOTAL PAID:</td>
+                                <td class="text-end fw-bold text-dark fs-5 pt-2 text-success">₹{{ order.total_price }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Card 2: Delivery & Shipping Address -->
+            <div class="card-admin p-3 p-md-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt fs-5 text-dark"></i>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Delivery Address &amp; Consignment Label</h3>
+                    </div>
+                    {% if order.pincode %}
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 fw-bold">
+                        <i class="bi bi-pin-map-fill me-1"></i>PIN: {{ order.pincode }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block small text-uppercase fw-bold" style="font-size: 0.7rem;">Recipient Name</span>
+                        <div class="fw-bold text-dark fs-6">{{ order.full_name }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block small text-uppercase fw-bold" style="font-size: 0.7rem;">Contact Numbers</span>
+                        <div class="d-flex flex-wrap gap-2 mt-0.5">
+                            {% if order.phone_number %}
+                            <a href="tel:{{ order.phone_number }}" class="badge bg-light text-dark border px-2.5 py-1 text-decoration-none d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-telephone text-success"></i> {{ order.phone_number }}
+                            </a>
+                            {% endif %}
+                            {% if order.phone_number_2 %}
+                            <a href="tel:{{ order.phone_number_2 }}" class="badge bg-light text-dark border px-2.5 py-1 text-decoration-none d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-telephone-plus text-primary"></i> {{ order.phone_number_2 }} (Alt)
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <span class="text-muted d-block small text-uppercase fw-bold" style="font-size: 0.7rem;">Delivery Address</span>
+                        <div class="text-dark fw-medium mt-0.5">{{ order.shipping_address }}</div>
+                        {% if order.landmark %}
+                        <div class="small text-secondary mt-1">
+                            <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold me-1"><i class="bi bi-geo-fill"></i> Landmark</span> {{ order.landmark }}
+                        </div>
+                        {% endif %}
+                        <div class="small text-muted mt-1">
+                            {{ order.display_district }}{% if order.state %}, {{ order.state }}{% endif %} - PIN: <strong>{{ order.pincode|default:'Not provided' }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ready to Copy India Post Label -->
+                <div class="mt-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="small fw-bold text-dark text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-postcard text-secondary me-1"></i> India Post Speed Post Label (Ready to Paste)
+                        </span>
+                        <button type="button" class="btn btn-outline-dark btn-sm rounded-pill py-0.5 px-3 copy-label-btn" data-label="{{ order.formatted_shipping_label|escape }}" title="Copy entire label">
+                            <i class="bi bi-clipboard"></i> <span>Copy Label</span>
+                        </button>
+                    </div>
+                    <div class="label-box" id="shippingLabelText">{{ order.formatted_shipping_label }}</div>
+                </div>
+            </div>
+
+            <!-- Card 3: Customer Details & Account Info -->
+            <div class="card-admin p-3 p-md-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-circle fs-5 text-dark"></i>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Customer &amp; Communication</h3>
+                    </div>
+                    <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1 small">
+                        {% if order.user %}Registered Customer{% else %}Guest Buyer{% endif %}
+                    </span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-bold text-dark fs-6">{{ order.full_name }}</div>
+                        <div class="text-secondary small">
+                            {% if order.user %}Account: <strong>{{ order.user.username }}</strong> ({{ order.user.email|default:'No email' }}){% else %}Guest Checkout{% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="tel:{{ order.phone_number }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-telephone text-success"></i> <span>Call</span>
+                        </a>
+                        <a href="{{ order.whatsapp_notification_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm rounded-pill px-3 py-1.5 fw-semibold shadow-sm d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-whatsapp"></i> <span>WhatsApp Chat</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Consignment Tracking, Dispatch Controls & Payment -->
+        <div class="col-lg-5">
+
+            <!-- Card 1: Consignment Tracking & Dispatch Update Form -->
+            <div class="card-admin p-3 p-md-4 mb-4" style="border-top: 4px solid #171614;">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-truck fs-5 text-dark"></i>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Post Office Consignment &amp; Dispatch</h3>
+                    </div>
+                    {% if order.shipping_status in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
+                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 small fw-bold">Dispatched</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small fw-bold">Pending Dispatch</span>
+                    {% endif %}
+                </div>
+
+                <form method="POST" action="{% url 'adminpp_order_detail' order.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_tracking">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1">
+                            <i class="bi bi-upc-scan me-1"></i>INDIA POST CONSIGNMENT / TRACKING ID
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-barcode text-dark"></i></span>
+                            <input type="text" name="tracking_id" id="detailTrackingInput" class="form-control fw-bold" placeholder="e.g. ET123456789IN" value="{{ order.tracking_id|default:'' }}" style="text-transform: uppercase;">
+                        </div>
+                        <small class="text-muted" style="font-size: 0.72rem;">Enter the Speed Post barcode consignment number from India Post receipt.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1">POSTAL SERVICE / CARRIER</label>
+                        <select name="carrier" id="detailCarrierInput" class="form-select">
+                            <option value="India Post (Speed Post)" {% if order.carrier == 'India Post (Speed Post)' or not order.carrier %}selected{% endif %}>India Post (Speed Post)</option>
+                            <option value="India Post (Registered Post)" {% if order.carrier == 'India Post (Registered Post)' %}selected{% endif %}>India Post (Registered Post)</option>
+                            <option value="India Post (Parcel)" {% if order.carrier == 'India Post (Parcel)' %}selected{% endif %}>India Post (Standard Parcel)</option>
+                            <option value="Professional Couriers" {% if order.carrier == 'Professional Couriers' %}selected{% endif %}>Professional Couriers</option>
+                            <option value="DTDC" {% if order.carrier == 'DTDC' %}selected{% endif %}>DTDC</option>
+                            <option value="Blue Dart" {% if order.carrier == 'Blue Dart' %}selected{% endif %}>Blue Dart</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1">SHIPPING STATUS</label>
+                        <select name="shipping_status" id="detailStatusInput" class="form-select">
+                            <option value="Processing" {% if order.shipping_status == 'Processing' %}selected{% endif %}>Processing / Packed (In Ready Queue)</option>
+                            <option value="Dispatched" {% if order.shipping_status == 'Dispatched' or not order.shipping_status %}selected{% endif %}>Dispatched via Post Office (Moves to Dispatched Queue)</option>
+                            <option value="In Transit" {% if order.shipping_status == 'In Transit' %}selected{% endif %}>In Transit (In Dispatched Queue)</option>
+                            <option value="Out for Delivery" {% if order.shipping_status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery (In Dispatched Queue)</option>
+                            <option value="Delivered" {% if order.shipping_status == 'Delivered' %}selected{% endif %}>Delivered (In Dispatched Queue)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1">DISPATCH / POST OFFICE NOTES (OPTIONAL)</label>
+                        <input type="text" name="tracking_notes" id="detailNotesInput" class="form-control" placeholder="e.g. Booked at Karuvissery Post Office, Kozhikode" value="{{ order.tracking_notes|default:'' }}">
+                    </div>
+
+                    <!-- Live WhatsApp Preview Box -->
+                    <div class="p-3 rounded-3 bg-light border mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-1.5">
+                            <span class="small fw-bold text-dark"><i class="bi bi-whatsapp text-success me-1"></i> WhatsApp Message Preview</span>
+                            <span class="badge bg-success text-white rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">1-Click Send</span>
+                        </div>
+                        <p class="text-secondary small mb-2 fst-italic" id="detailWhatsappPreview" style="font-size: 0.72rem; white-space: pre-line; max-height: 85px; overflow-y: auto; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                            Generating WhatsApp tracking preview...
+                        </p>
+                        <a href="{{ order.whatsapp_notification_url }}" id="detailLiveWhatsappBtn" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-sm w-100 rounded-pill fw-semibold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5">
+                            <i class="bi bi-whatsapp"></i> <span>Send WhatsApp Notification Now</span>
+                        </a>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-obsidian btn-sm rounded-pill px-4 py-2 fw-bold flex-grow-1 shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5">
+                            <i class="bi bi-check2-circle"></i> <span>Save &amp; Update Tracking</span>
+                        </button>
+                        {% if order.tracking_id %}
+                        <a href="{{ order.tracking_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1" title="Open India Post Consignment Portal">
+                            <i class="bi bi-box-arrow-up-right"></i> <span class="d-none d-sm-inline">India Post Portal</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            <!-- Card 2: Razorpay Payment & Verification -->
+            <div class="card-admin p-3 p-md-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-credit-card-2-front fs-5 text-dark"></i>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Razorpay Gateway Details</h3>
+                    </div>
+                    {% if order.payment_status == 'Completed' %}
+                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small">Captured</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small">{{ order.payment_status }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Payment Status</span>
+                    <strong class="text-dark fs-6">{{ order.payment_status }}</strong>
+                </div>
+
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Razorpay Payment ID</span>
+                    {% if order.razorpay_payment_id %}
+                    <code class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small fw-bold border border-success border-opacity-25 d-inline-block">{{ order.razorpay_payment_id }}</code>
+                    <a href="https://dashboard.razorpay.com/app/payments/{{ order.razorpay_payment_id }}" target="_blank" rel="noopener noreferrer" class="ms-2 small text-primary text-decoration-none">
+                        View in Gateway <i class="bi bi-box-arrow-up-right" style="font-size: 0.65rem;"></i>
+                    </a>
+                    {% else %}
+                    <span class="text-muted small">No payment ID captured</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Razorpay Order ID</span>
+                    {% if order.razorpay_order_id %}
+                    <code class="text-dark bg-light px-2 py-1 rounded small border d-inline-block">{{ order.razorpay_order_id }}</code>
+                    {% else %}
+                    <span class="text-muted small">None</span>
+                    {% endif %}
+                </div>
+
+                {% if order.payment_status != 'Completed' %}
+                <div class="pt-2 border-top">
+                    <a href="{% url 'adminpp_reconcile_order' order.id %}" class="btn btn-outline-primary btn-sm rounded-pill w-100 py-1.5 fw-semibold d-inline-flex align-items-center justify-content-center gap-1.5">
+                        <i class="bi bi-arrow-repeat"></i> <span>Re-check Razorpay API for Captured Payment</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const customerPhone = "{{ order.phone_number|default:'' }}";
+    const customerName = "{{ order.full_name|escapejs }}";
+    const orderId = "{{ order.id }}";
+
+    const trackingInput = document.getElementById('detailTrackingInput');
+    const carrierInput = document.getElementById('detailCarrierInput');
+    const statusInput = document.getElementById('detailStatusInput');
+    const whatsappPreview = document.getElementById('detailWhatsappPreview');
+    const liveWhatsappBtn = document.getElementById('detailLiveWhatsappBtn');
+
+    function updateWhatsapp() {
+        if (!customerPhone) {
+            whatsappPreview.textContent = "Customer phone number not available.";
+            liveWhatsappBtn.classList.add('disabled');
+            return;
+        }
+
+        let digits = customerPhone.replace(/\D/g, '');
+        if (digits.length === 10) {
+            digits = '91' + digits;
+        }
+
+        const tracking = trackingInput.value.trim() || 'Will be updated shortly';
+        const carrier = carrierInput.value.trim() || 'India Post (Speed Post)';
+        const status = statusInput.options[statusInput.selectedIndex].text;
+
+        const msg = `Hello ${customerName},\n\nYour ASHAS order #${orderId} has an update!\n📦 Carrier: ${carrier}\n🏷️ Tracking ID: ${tracking}\n🚚 Status: ${status}\n\nTrack your parcel on India Post:\nhttps://www.indiapost.gov.in/_layouts/15/dpt.cept.tracking/trackconsignment.aspx\n\nThank you for choosing ASHAS!\nBoutique Helpline: +91 82814 51481`;
+
+        whatsappPreview.textContent = msg;
+        liveWhatsappBtn.href = `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
+        liveWhatsappBtn.classList.remove('disabled');
+    }
+
+    if (trackingInput && carrierInput && statusInput) {
+        trackingInput.addEventListener('input', updateWhatsapp);
+        carrierInput.addEventListener('change', updateWhatsapp);
+        statusInput.addEventListener('change', updateWhatsapp);
+        updateWhatsapp();
+    }
+
+    // Copy shipping label button feedback
+    document.querySelectorAll('.copy-label-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const textToCopy = this.getAttribute('data-label');
+            if (!textToCopy) return;
+
+            const origHtml = this.innerHTML;
+            const handleSuccess = () => {
+                this.innerHTML = '<i class="bi bi-check2 text-success"></i> Copied!';
+                setTimeout(() => { this.innerHTML = origHtml; }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(handleSuccess).catch(() => {
+                    fallbackCopy(textToCopy, handleSuccess);
+                });
+            } else {
+                fallbackCopy(textToCopy, handleSuccess);
+            }
+        });
+    });
+
+    function fallbackCopy(text, callback) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+            document.execCommand('copy');
+            if (callback) callback();
+        } catch (e) {
+            console.error('Copy failed', e);
+        }
+        document.body.removeChild(temp);
+    }
+});
+</script>
+</body>
+</html>

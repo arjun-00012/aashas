@@ -56,6 +56,8 @@ urlpatterns = [
 
     path('adminpp/', views.adminpp_dashboard, name='adminpp_dashboard'),
     path('adminpp/orders/', views.adminpp_orders, name='adminpp_orders'),
+    path('adminpp/order/<int:order_id>/', views.adminpp_order_detail, name='adminpp_order_detail'),
+    path('adminpp/orders/<int:order_id>/', views.adminpp_order_detail, name='adminpp_order_detail_alt'),
     path('adminpp/order/delete/<int:order_id>/', views.adminpp_order_delete, name='adminpp_order_delete'),
     path('adminpp/orders/clear-all/', views.adminpp_clear_all_orders, name='adminpp_clear_all_orders'),
     path('adminpp/order/update-tracking/<int:order_id>/', views.adminpp_update_tracking, name='adminpp_update_tracking'),

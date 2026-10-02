@@ -300,6 +300,12 @@
             color: #FFFFFF !important;
             box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);
         }
+        .order-filter-pill.active-dispatched {
+            background: #0284c7 !important;
+            border-color: #0284c7 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
         .order-filter-pill.active-incomplete {
             background: #d97706 !important;
             border-color: #d97706 !important;
@@ -323,6 +329,7 @@
             background: rgba(0, 0, 0, 0.08);
         }
         .order-filter-pill.active-paid .pill-count,
+        .order-filter-pill.active-dispatched .pill-count,
         .order-filter-pill.active-incomplete .pill-count,
         .order-filter-pill.active-all .pill-count {
             background: rgba(255, 255, 255, 0.28);
@@ -528,39 +535,64 @@
             </div>
         </div>
 
-        <!-- Order Classification Filter Tabs -->
+        <!-- Order Classification Filter Tabs (4 Sections) -->
         <div class="orders-filter-tabs">
             <a href="?payment=paid{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
                class="order-filter-pill {% if payment_filter == 'paid' %}active-paid{% endif %}"
-               title="Show only confirmed orders where payment was captured in Razorpay">
+               id="tab-pill-paid"
+               title="Show only confirmed orders waiting to be packed and dispatched">
                 <i class="bi bi-patch-check-fill"></i>
                 <span>✓ Paid &amp; Ready to Dispatch</span>
-                <span class="pill-count">{{ paid_count }}</span>
+                <span class="pill-count" id="pill-count-paid">{{ ready_count }}</span>
+            </a>
+
+            <a href="?payment=dispatched{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="order-filter-pill {% if payment_filter == 'dispatched' %}active-dispatched{% endif %}"
+               id="tab-pill-dispatched"
+               title="Show orders already dispatched via Post Office / Courier">
+                <i class="bi bi-truck"></i>
+                <span>🚚 Dispatched Orders</span>
+                <span class="pill-count" id="pill-count-dispatched">{{ dispatched_count }}</span>
             </a>
 
             <a href="?payment=incomplete{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
                class="order-filter-pill {% if payment_filter == 'incomplete' %}active-incomplete{% endif %}"
+               id="tab-pill-incomplete"
                title="Show abandoned checkouts & failed payments to follow up on WhatsApp">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span>⚠️ Incomplete / Unpaid Checkouts</span>
-                <span class="pill-count">{{ incomplete_count }}</span>
+                <span class="pill-count" id="pill-count-incomplete">{{ incomplete_count }}</span>
             </a>
 
             <a href="?payment=all{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
                class="order-filter-pill {% if payment_filter == 'all' %}active-all{% endif %}"
+               id="tab-pill-all"
                title="View all order records">
                 <i class="bi bi-collection"></i>
-                <span>All Orders</span>
-                <span class="pill-count">{{ all_count }}</span>
+                <span>🗂 All Orders</span>
+                <span class="pill-count" id="pill-count-all">{{ all_count }}</span>
             </a>
         </div>
 
         {% if payment_filter == 'paid' %}
-        <div class="alert alert-success border border-success border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center gap-2.5 small bg-success bg-opacity-10 text-dark">
-            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
-            <div>
-                <strong>Safe Dispatch List:</strong> Showing <strong>{{ orders|length }}</strong> paid orders where payment was captured in Razorpay. Every order here is safe to pack and dispatch.
+        <div class="alert alert-success border border-success border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2.5 small bg-success bg-opacity-10 text-dark">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+                <div>
+                    <strong>Safe Dispatch Queue:</strong> Showing <strong>{{ orders|length }}</strong> paid orders waiting to be packed and dispatched. Only orders <strong>not yet dispatched</strong> appear here. Once you click <em>Mark Dispatched</em>, the order automatically moves to the <strong>Dispatched Orders</strong> section.
+                </div>
             </div>
+            <span class="badge bg-success text-white rounded-pill px-2.5 py-1">Ready to Pack</span>
+        </div>
+        {% elif payment_filter == 'dispatched' %}
+        <div class="alert alert-primary border border-primary border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2.5 small bg-primary bg-opacity-10 text-dark">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-truck text-primary fs-5 flex-shrink-0"></i>
+                <div>
+                    <strong>Dispatched Orders ({{ orders|length }}):</strong> These orders have already been dispatched via India Post or Courier. Consignment tracking numbers and post office dispatch records are stored here.
+                </div>
+            </div>
+            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1">Dispatched</span>
         </div>
         {% elif payment_filter == 'incomplete' %}
         <div class="alert alert-warning border border-warning border-opacity-50 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-start gap-2.5 small bg-warning bg-opacity-10 text-dark">
@@ -570,6 +602,13 @@
                 <div class="mt-1 fw-medium text-secondary">
                     💡 <strong>Action Tip:</strong> Click <strong>WhatsApp Follow Up</strong> on any buyer below to send a friendly message offering direct UPI payment assistance and recover the sale!
                 </div>
+            </div>
+        </div>
+        {% elif payment_filter == 'all' %}
+        <div class="alert alert-secondary border border-secondary border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center gap-2.5 small bg-light text-dark">
+            <i class="bi bi-collection text-secondary fs-5 flex-shrink-0"></i>
+            <div>
+                <strong>All Orders Archive:</strong> Showing all <strong>{{ orders|length }}</strong> order records across every payment and dispatch status. Click on any order to view its full details.
             </div>
         </div>
         {% endif %}
@@ -589,7 +628,9 @@
             <div class="p-3 mb-3 rounded-3 border bg-white shadow-sm order-card-item" id="order-card-{{ order.id }}" style="border-color: var(--border-subtle) !important;">
                 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-dark rounded-pill px-2 py-1 fw-bold">#{{ order.id }}</span>
+                        <a href="{% url 'adminpp_order_detail' order.id %}" class="badge bg-dark rounded-pill px-2.5 py-1 fw-bold text-decoration-none text-white d-inline-flex align-items-center gap-1 shadow-sm" title="View Full Order Details in New Page">
+                            #{{ order.id }} <i class="bi bi-box-arrow-up-right" style="font-size: 0.6rem;"></i>
+                        </a>
                         {% if order.payment_status == 'Completed' %}
                             <span class="badge bg-success text-white rounded-pill px-2.5 py-1 fw-bold shadow-sm d-inline-flex align-items-center gap-1" style="font-size: 0.72rem; background-color: #15803d !important;">
                                 <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
@@ -612,7 +653,9 @@
                 </div>
 
                 <div class="mb-2">
-                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ order.full_name }}</div>
+                    <a href="{% url 'adminpp_order_detail' order.id %}" class="fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.95rem;" title="View Order #{{ order.id }} details">
+                        {{ order.full_name }} <i class="bi bi-chevron-right text-muted small" style="font-size: 0.72rem;"></i>
+                    </a>
                     {% if order.phone_number or order.phone_number_2 %}
                     <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
                         {% if order.phone_number %}
@@ -750,6 +793,9 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 pt-1">
+                        <a href="{% url 'adminpp_order_detail' order.id %}" class="btn btn-dark btn-sm rounded-pill px-3 py-1 flex-grow-1 text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-semibold">
+                            <i class="bi bi-eye"></i> <span>View Order</span>
+                        </a>
                         <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 py-1 fw-bold text-dark quick-dispatch-btn flex-grow-1 shadow-sm d-inline-flex align-items-center justify-content-center gap-1"
                             data-order-id="{{ order.id }}"
                             data-url="{% url 'adminpp_quick_dispatch' order.id %}"
@@ -796,6 +842,9 @@
                         {% endif %}
                     </p>
                     <div class="d-flex flex-wrap gap-2 pt-1">
+                        <a href="{% url 'adminpp_order_detail' order.id %}" class="btn btn-dark btn-sm rounded-pill px-3 py-1.5 flex-grow-1 text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-semibold">
+                            <i class="bi bi-eye"></i> <span>View Order</span>
+                        </a>
                         <a href="{% url 'adminpp_reconcile_order' order.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 flex-grow-1 text-center d-inline-flex align-items-center justify-content-center gap-1 shadow-sm fw-semibold" title="Check Razorpay if customer already paid">
                             <i class="bi bi-arrow-repeat"></i> Check Razorpay
                         </a>
@@ -813,8 +862,11 @@
             <div class="text-center py-5 text-secondary small">
                 <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
                 {% if payment_filter == 'paid' %}
-                    No paid orders found matching the specified parameters.<br>
-                    <span class="text-muted">When customers complete checkout and payment is captured in Razorpay, their orders will appear here ready to dispatch.</span>
+                    No pending orders waiting for dispatch!<br>
+                    <span class="text-muted">When customers complete checkout, their orders will appear here ready to pack and dispatch.</span>
+                {% elif payment_filter == 'dispatched' %}
+                    No dispatched orders found!<br>
+                    <span class="text-muted">When you mark orders as dispatched or update tracking, they will be archived here.</span>
                 {% elif payment_filter == 'incomplete' %}
                     No incomplete or unpaid checkouts found!<br>
                     <span class="text-muted">All customer checkout attempts were completed successfully.</span>
@@ -843,7 +895,9 @@
                     {% for order in orders %}
                     <tr id="order-row-{{ order.id }}">
                         <td class="text-nowrap">
-                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1 fw-bold mb-1 d-block" style="border-color: var(--border-subtle) !important;">#{{ order.id }}</span>
+                            <a href="{% url 'adminpp_order_detail' order.id %}" class="badge bg-dark rounded-pill px-2.5 py-1 fw-bold mb-1 d-inline-flex align-items-center gap-1 text-decoration-none text-white shadow-sm" title="Click to view full order details in new page">
+                                #{{ order.id }} <i class="bi bi-box-arrow-up-right" style="font-size: 0.62rem;"></i>
+                            </a>
                             <small class="text-muted d-block" style="font-size: 0.72rem;">{{ order.created_at|date:"d M Y, H:i" }}</small>
                             {% if order.payment_status == 'Completed' %}
                                 <span class="badge bg-success text-white rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.68rem; background-color: #15803d !important;">
@@ -876,7 +930,11 @@
                             {% endif %}
                         </td>
 
-                        <td class="fw-semibold text-dark text-nowrap">{{ order.full_name }}</td>
+                        <td class="fw-semibold text-dark text-nowrap">
+                            <a href="{% url 'adminpp_order_detail' order.id %}" class="text-dark text-decoration-none fw-bold d-inline-flex align-items-center gap-1" title="View Order #{{ order.id }} details">
+                                {{ order.full_name }} <i class="bi bi-chevron-right text-muted small" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </td>
 
                         <td class="text-secondary text-nowrap">
                             {% if order.phone_number or order.phone_number_2 %}
@@ -1010,6 +1068,10 @@
 
                         <td class="text-nowrap text-end">
                             <div class="d-flex align-items-center justify-content-end gap-1.5 flex-wrap">
+                                <a href="{% url 'adminpp_order_detail' order.id %}" class="btn btn-dark btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold" title="View Full Order Details & Dispatch in New Page">
+                                    <i class="bi bi-eye"></i> <span>View Order</span>
+                                </a>
+
                                 {% if order.payment_status == 'Completed' %}
                                     <button type="button" class="btn btn-warning btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 quick-dispatch-btn shadow-sm fw-bold text-dark"
                                         data-order-id="{{ order.id }}"
@@ -1070,8 +1132,11 @@
                         <td colspan="8" class="text-center py-5 text-secondary small">
                             <i class="bi bi-inbox fs-3 d-block mb-2 text-muted"></i>
                             {% if payment_filter == 'paid' %}
-                                No paid orders found matching the specified parameters.<br>
-                                <span class="text-muted">When customers complete checkout and payment is captured in Razorpay, their orders will appear here ready to dispatch.</span>
+                                No pending orders waiting for dispatch!<br>
+                                <span class="text-muted">When customers complete checkout, their orders will appear here ready to pack and dispatch.</span>
+                            {% elif payment_filter == 'dispatched' %}
+                                No dispatched orders found!<br>
+                                <span class="text-muted">When you mark orders as dispatched or update tracking, they will be archived here.</span>
                             {% elif payment_filter == 'incomplete' %}
                                 No incomplete or unpaid checkouts found!<br>
                                 <span class="text-muted">All customer checkout attempts were completed successfully.</span>
@@ -1287,81 +1352,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (res.ok) {
                 const data = await res.json();
+                const currentFilter = new URLSearchParams(window.location.search).get('payment') || 'paid';
+                const isDispatched = ['Dispatched', 'In Transit', 'Out for Delivery', 'Delivered'].includes(data.shipping_status);
 
-                // 1. Update Desktop Table Row in place
-                const row = document.getElementById(`order-row-${activeOrderId}`);
-                if (row) {
-                    const rowTracking = row.querySelector('.row-tracking-id');
-                    if (rowTracking) {
-                        rowTracking.innerHTML = `<code class="text-dark bg-light px-2 py-0.5 rounded fw-bold border" style="font-size: 0.8rem;">${data.tracking_id}</code>`;
+                if (currentFilter === 'paid' && isDispatched) {
+                    const row = document.getElementById(`order-row-${activeOrderId}`);
+                    if (row) {
+                        row.style.transition = 'all 0.35s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(25px)';
+                        setTimeout(() => {
+                            row.remove();
+                            checkEmptyOrdersList();
+                        }, 350);
                     }
-                    const rowCarrier = row.querySelector('.row-carrier');
-                    if (rowCarrier) rowCarrier.textContent = `(${data.carrier})`;
+                    const card = document.getElementById(`order-card-${activeOrderId}`);
+                    if (card) {
+                        card.style.transition = 'all 0.35s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(25px)';
+                        setTimeout(() => {
+                            card.remove();
+                            checkEmptyOrdersList();
+                        }, 350);
+                    }
+                    updateTabCounts(-1, 1);
+                } else {
+                    // 1. Update Desktop Table Row in place
+                    const row = document.getElementById(`order-row-${activeOrderId}`);
+                    if (row) {
+                        const rowTracking = row.querySelector('.row-tracking-id');
+                        if (rowTracking) {
+                            rowTracking.innerHTML = `<code class="text-dark bg-light px-2 py-0.5 rounded fw-bold border" style="font-size: 0.8rem;">${data.tracking_id}</code>`;
+                        }
+                        const rowCarrier = row.querySelector('.row-carrier');
+                        if (rowCarrier) rowCarrier.textContent = `(${data.carrier})`;
 
-                    const rowStatus = row.querySelector('.row-status-badge');
-                    if (rowStatus) {
-                        let badgeClass = 'bg-secondary';
-                        let iconClass = 'bi-clock-history';
-                        if (data.shipping_status === 'Delivered') { badgeClass = 'bg-success'; iconClass = 'bi-check2-all'; }
-                        else if (data.shipping_status === 'Out for Delivery') { badgeClass = 'bg-info text-dark'; iconClass = 'bi-bicycle'; }
-                        else if (data.shipping_status === 'In Transit') { badgeClass = 'bg-primary'; iconClass = 'bi-send'; }
-                        else if (data.shipping_status === 'Dispatched') { badgeClass = 'bg-warning text-dark'; iconClass = 'bi-box-seam'; }
-                        rowStatus.innerHTML = `<span class="badge ${badgeClass} rounded-pill tracking-badge"><i class="bi ${iconClass} me-1"></i>${data.shipping_status_display}</span>`;
+                        const rowStatus = row.querySelector('.row-status-badge');
+                        if (rowStatus) {
+                            let badgeClass = 'bg-secondary';
+                            let iconClass = 'bi-clock-history';
+                            if (data.shipping_status === 'Delivered') { badgeClass = 'bg-success'; iconClass = 'bi-check2-all'; }
+                            else if (data.shipping_status === 'Out for Delivery') { badgeClass = 'bg-info text-dark'; iconClass = 'bi-bicycle'; }
+                            else if (data.shipping_status === 'In Transit') { badgeClass = 'bg-primary'; iconClass = 'bi-send'; }
+                            else if (data.shipping_status === 'Dispatched') { badgeClass = 'bg-warning text-dark'; iconClass = 'bi-box-seam'; }
+                            rowStatus.innerHTML = `<span class="badge ${badgeClass} rounded-pill tracking-badge"><i class="bi ${iconClass} me-1"></i>${data.shipping_status_display}</span>`;
+                        }
+
+                        const rowNotes = row.querySelector('.row-notes');
+                        if (rowNotes && data.tracking_notes) {
+                            rowNotes.innerHTML = `<i class="bi bi-pin-map me-1"></i>${data.tracking_notes}`;
+                        }
+
+                        const rowWhatsapp = row.querySelector('.row-whatsapp-link');
+                        if (rowWhatsapp && data.whatsapp_url) {
+                            rowWhatsapp.href = data.whatsapp_url;
+                        }
+
+                        // Update data attributes on the open button
+                        const openBtn = row.querySelector('.open-tracking-modal-btn');
+                        if (openBtn) {
+                            openBtn.setAttribute('data-tracking-id', data.tracking_id);
+                            openBtn.setAttribute('data-carrier', data.carrier);
+                            openBtn.setAttribute('data-status', data.shipping_status);
+                            openBtn.setAttribute('data-notes', data.tracking_notes || '');
+                            openBtn.setAttribute('data-whatsapp', data.whatsapp_url);
+                        }
                     }
 
-                    const rowNotes = row.querySelector('.row-notes');
-                    if (rowNotes && data.tracking_notes) {
-                        rowNotes.innerHTML = `<i class="bi bi-pin-map me-1"></i>${data.tracking_notes}`;
-                    }
+                    // 2. Update Mobile Card in place
+                    const card = document.getElementById(`order-card-${activeOrderId}`);
+                    if (card) {
+                        const cardTracking = card.querySelector('.card-tracking-id');
+                        if (cardTracking) {
+                            cardTracking.innerHTML = `<code class="text-dark bg-white border px-2 py-1 rounded small fw-bold">${data.tracking_id}</code>`;
+                        }
+                        const cardCarrier = card.querySelector('.card-carrier');
+                        if (cardCarrier) cardCarrier.textContent = `(${data.carrier})`;
 
-                    const rowWhatsapp = row.querySelector('.row-whatsapp-link');
-                    if (rowWhatsapp && data.whatsapp_url) {
-                        rowWhatsapp.href = data.whatsapp_url;
-                    }
+                        const cardStatus = card.querySelector('.card-status-badge');
+                        if (cardStatus) {
+                            let badgeClass = 'bg-secondary';
+                            if (data.shipping_status === 'Delivered') badgeClass = 'bg-success';
+                            else if (data.shipping_status === 'Out for Delivery') badgeClass = 'bg-info text-dark';
+                            else if (data.shipping_status === 'In Transit') badgeClass = 'bg-primary';
+                            else if (data.shipping_status === 'Dispatched') badgeClass = 'bg-warning text-dark';
+                            cardStatus.innerHTML = `<span class="badge ${badgeClass} rounded-pill small">${data.shipping_status_display}</span>`;
+                        }
 
-                    // Update data attributes on the open button
-                    const openBtn = row.querySelector('.open-tracking-modal-btn');
-                    if (openBtn) {
-                        openBtn.setAttribute('data-tracking-id', data.tracking_id);
-                        openBtn.setAttribute('data-carrier', data.carrier);
-                        openBtn.setAttribute('data-status', data.shipping_status);
-                        openBtn.setAttribute('data-notes', data.tracking_notes || '');
-                        openBtn.setAttribute('data-whatsapp', data.whatsapp_url);
-                    }
-                }
+                        const cardWhatsapp = card.querySelector('.card-whatsapp-link');
+                        if (cardWhatsapp && data.whatsapp_url) {
+                            cardWhatsapp.href = data.whatsapp_url;
+                        }
 
-                // 2. Update Mobile Card in place
-                const card = document.getElementById(`order-card-${activeOrderId}`);
-                if (card) {
-                    const cardTracking = card.querySelector('.card-tracking-id');
-                    if (cardTracking) {
-                        cardTracking.innerHTML = `<code class="text-dark bg-white border px-2 py-1 rounded small fw-bold">${data.tracking_id}</code>`;
-                    }
-                    const cardCarrier = card.querySelector('.card-carrier');
-                    if (cardCarrier) cardCarrier.textContent = `(${data.carrier})`;
-
-                    const cardStatus = card.querySelector('.card-status-badge');
-                    if (cardStatus) {
-                        let badgeClass = 'bg-secondary';
-                        if (data.shipping_status === 'Delivered') badgeClass = 'bg-success';
-                        else if (data.shipping_status === 'Out for Delivery') badgeClass = 'bg-info text-dark';
-                        else if (data.shipping_status === 'In Transit') badgeClass = 'bg-primary';
-                        else if (data.shipping_status === 'Dispatched') badgeClass = 'bg-warning text-dark';
-                        cardStatus.innerHTML = `<span class="badge ${badgeClass} rounded-pill small">${data.shipping_status_display}</span>`;
-                    }
-
-                    const cardWhatsapp = card.querySelector('.card-whatsapp-link');
-                    if (cardWhatsapp && data.whatsapp_url) {
-                        cardWhatsapp.href = data.whatsapp_url;
-                    }
-
-                    const openBtnCard = card.querySelector('.open-tracking-modal-btn');
-                    if (openBtnCard) {
-                        openBtnCard.setAttribute('data-tracking-id', data.tracking_id);
-                        openBtnCard.setAttribute('data-carrier', data.carrier);
-                        openBtnCard.setAttribute('data-status', data.shipping_status);
-                        openBtnCard.setAttribute('data-notes', data.tracking_notes || '');
-                        openBtnCard.setAttribute('data-whatsapp', data.whatsapp_url);
+                        const openBtnCard = card.querySelector('.open-tracking-modal-btn');
+                        if (openBtnCard) {
+                            openBtnCard.setAttribute('data-tracking-id', data.tracking_id);
+                            openBtnCard.setAttribute('data-carrier', data.carrier);
+                            openBtnCard.setAttribute('data-status', data.shipping_status);
+                            openBtnCard.setAttribute('data-notes', data.tracking_notes || '');
+                            openBtnCard.setAttribute('data-whatsapp', data.whatsapp_url);
+                        }
                     }
                 }
 
@@ -1369,7 +1460,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 trackingModal.hide();
                 const toastEl = document.getElementById('adminToast');
                 const toastMessage = document.getElementById('toastMessage');
-                toastMessage.innerHTML = `<i class="bi bi-check-circle-fill text-success fs-5"></i> <span>Order #${data.order_id} tracking updated to ${data.tracking_id} (${data.carrier})!</span>`;
+                if (currentFilter === 'paid' && isDispatched) {
+                    toastMessage.innerHTML = `<i class="bi bi-truck text-primary fs-5"></i> <span>Order #${data.order_id} tracking updated to ${data.tracking_id} &amp; moved to Dispatched Orders! <a href="?payment=dispatched" class="text-warning fw-bold text-decoration-none ms-1">View Dispatched →</a></span>`;
+                } else {
+                    toastMessage.innerHTML = `<i class="bi bi-check-circle-fill text-success fs-5"></i> <span>Order #${data.order_id} tracking updated to ${data.tracking_id} (${data.carrier})!</span>`;
+                }
                 const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
                 toast.show();
             } else {
@@ -1384,6 +1479,51 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSaveBtn.innerHTML = submitOrigText;
         }
     });
+
+    // Helper functions for dynamic count & list management
+    function updateTabCounts(diffReady, diffDispatched) {
+        const readyBadge = document.getElementById('pill-count-paid');
+        if (readyBadge && diffReady !== 0) {
+            const cur = parseInt(readyBadge.textContent.trim()) || 0;
+            readyBadge.textContent = Math.max(0, cur + diffReady);
+        }
+        const dispatchedBadge = document.getElementById('pill-count-dispatched');
+        if (dispatchedBadge && diffDispatched !== 0) {
+            const cur = parseInt(dispatchedBadge.textContent.trim()) || 0;
+            dispatchedBadge.textContent = Math.max(0, cur + diffDispatched);
+        }
+    }
+
+    function checkEmptyOrdersList() {
+        const desktopRows = document.querySelectorAll('tbody tr[id^="order-row-"]');
+        if (desktopRows.length === 0) {
+            const tbody = document.querySelector('table tbody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-secondary small">
+                            <i class="bi bi-patch-check fs-2 d-block mb-2 text-success"></i>
+                            <strong>All paid orders have been dispatched!</strong><br>
+                            <span class="text-muted">You can check all dispatched consignments in the <a href="?payment=dispatched" class="text-primary fw-semibold">Dispatched Orders section</a>.</span>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        const mobileCards = document.querySelectorAll('.order-card-item');
+        if (mobileCards.length === 0) {
+            const mobileContainer = document.querySelector('.d-block.d-md-none');
+            if (mobileContainer) {
+                mobileContainer.innerHTML = `
+                    <div class="text-center py-5 text-secondary small">
+                        <i class="bi bi-patch-check fs-2 d-block mb-2 text-success"></i>
+                        <strong>All paid orders have been dispatched!</strong><br>
+                        <span class="text-muted">You can view them anytime in the <a href="?payment=dispatched" class="text-primary fw-semibold">Dispatched Orders</a> tab.</span>
+                    </div>
+                `;
+            }
+        }
+    }
 
     // Handle 1-Click Quick Dispatch
     document.querySelectorAll('.quick-dispatch-btn').forEach(btn => {
@@ -1416,59 +1556,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (res.ok) {
                     const data = await res.json();
+                    const currentFilter = new URLSearchParams(window.location.search).get('payment') || 'paid';
 
-                    // Update desktop row
-                    const row = document.getElementById(`order-row-${orderId}`);
-                    if (row) {
-                        const rowStatus = row.querySelector('.row-status-badge');
-                        if (rowStatus) {
-                            rowStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill tracking-badge"><i class="bi bi-box-seam me-1"></i>${data.shipping_status_display}</span>`;
+                    if (currentFilter === 'paid') {
+                        // In "Paid & Ready to Dispatch" view, remove row and move to Dispatched
+                        const row = document.getElementById(`order-row-${orderId}`);
+                        if (row) {
+                            row.style.transition = 'all 0.35s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'translateX(25px)';
+                            setTimeout(() => {
+                                row.remove();
+                                checkEmptyOrdersList();
+                            }, 350);
                         }
-                        const rowCarrier = row.querySelector('.row-carrier');
-                        if (rowCarrier && data.carrier) rowCarrier.textContent = `(${data.carrier})`;
-
-                        const rowWhatsapp = row.querySelector('.row-whatsapp-link');
-                        if (rowWhatsapp && data.whatsapp_url) rowWhatsapp.href = data.whatsapp_url;
-
-                        const openBtn = row.querySelector('.open-tracking-modal-btn');
-                        if (openBtn) {
-                            openBtn.setAttribute('data-status', data.shipping_status);
-                            if (data.carrier) openBtn.setAttribute('data-carrier', data.carrier);
-                            if (data.whatsapp_url) openBtn.setAttribute('data-whatsapp', data.whatsapp_url);
+                        const card = document.getElementById(`order-card-${orderId}`);
+                        if (card) {
+                            card.style.transition = 'all 0.35s ease';
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateX(25px)';
+                            setTimeout(() => {
+                                card.remove();
+                                checkEmptyOrdersList();
+                            }, 350);
                         }
-                        const rowDispatchBtn = row.querySelector('.quick-dispatch-btn');
-                        if (rowDispatchBtn) rowDispatchBtn.style.display = 'none';
-                    }
+                        updateTabCounts(-1, 1);
+                    } else {
+                        // Update desktop row
+                        const row = document.getElementById(`order-row-${orderId}`);
+                        if (row) {
+                            const rowStatus = row.querySelector('.row-status-badge');
+                            if (rowStatus) {
+                                rowStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill tracking-badge"><i class="bi bi-box-seam me-1"></i>${data.shipping_status_display}</span>`;
+                            }
+                            const rowCarrier = row.querySelector('.row-carrier');
+                            if (rowCarrier && data.carrier) rowCarrier.textContent = `(${data.carrier})`;
 
-                    // Update mobile card
-                    const card = document.getElementById(`order-card-${orderId}`);
-                    if (card) {
-                        const cardStatus = card.querySelector('.card-status-badge');
-                        if (cardStatus) {
-                            cardStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill small">${data.shipping_status_display}</span>`;
+                            const rowWhatsapp = row.querySelector('.row-whatsapp-link');
+                            if (rowWhatsapp && data.whatsapp_url) rowWhatsapp.href = data.whatsapp_url;
+
+                            const openBtn = row.querySelector('.open-tracking-modal-btn');
+                            if (openBtn) {
+                                openBtn.setAttribute('data-status', data.shipping_status);
+                                if (data.carrier) openBtn.setAttribute('data-carrier', data.carrier);
+                                if (data.whatsapp_url) openBtn.setAttribute('data-whatsapp', data.whatsapp_url);
+                            }
+                            const rowDispatchBtn = row.querySelector('.quick-dispatch-btn');
+                            if (rowDispatchBtn) rowDispatchBtn.style.display = 'none';
                         }
-                        const cardCarrier = card.querySelector('.card-carrier');
-                        if (cardCarrier && data.carrier) cardCarrier.textContent = `(${data.carrier})`;
 
-                        const cardWhatsapp = card.querySelector('.card-whatsapp-link');
-                        if (cardWhatsapp && data.whatsapp_url) cardWhatsapp.href = data.whatsapp_url;
+                        // Update mobile card
+                        const card = document.getElementById(`order-card-${orderId}`);
+                        if (card) {
+                            const cardStatus = card.querySelector('.card-status-badge');
+                            if (cardStatus) {
+                                cardStatus.innerHTML = `<span class="badge bg-warning text-dark rounded-pill small">${data.shipping_status_display}</span>`;
+                            }
+                            const cardCarrier = card.querySelector('.card-carrier');
+                            if (cardCarrier && data.carrier) cardCarrier.textContent = `(${data.carrier})`;
 
-                        const openBtnCard = card.querySelector('.open-tracking-modal-btn');
-                        if (openBtnCard) {
-                            openBtnCard.setAttribute('data-status', data.shipping_status);
-                            if (data.carrier) openBtnCard.setAttribute('data-carrier', data.carrier);
-                            if (data.whatsapp_url) openBtnCard.setAttribute('data-whatsapp', data.whatsapp_url);
+                            const cardWhatsapp = card.querySelector('.card-whatsapp-link');
+                            if (cardWhatsapp && data.whatsapp_url) cardWhatsapp.href = data.whatsapp_url;
+
+                            const openBtnCard = card.querySelector('.open-tracking-modal-btn');
+                            if (openBtnCard) {
+                                openBtnCard.setAttribute('data-status', data.shipping_status);
+                                if (data.carrier) openBtnCard.setAttribute('data-carrier', data.carrier);
+                                if (data.whatsapp_url) openBtnCard.setAttribute('data-whatsapp', data.whatsapp_url);
+                            }
+                            const cardDispatchBtn = card.querySelector('.quick-dispatch-btn');
+                            if (cardDispatchBtn) cardDispatchBtn.style.display = 'none';
                         }
-                        const cardDispatchBtn = card.querySelector('.quick-dispatch-btn');
-                        if (cardDispatchBtn) cardDispatchBtn.style.display = 'none';
                     }
 
                     // Toast notification
                     const toastEl = document.getElementById('adminToast');
                     const toastMessage = document.getElementById('toastMessage');
                     if (toastEl && toastMessage) {
-                        toastMessage.innerHTML = `<i class="bi bi-truck text-warning fs-5"></i> <span>Order #${orderId} marked as <strong>Dispatched</strong>! User profile is updated.</span>`;
-                        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                        toastMessage.innerHTML = `<i class="bi bi-truck text-warning fs-5"></i> <span>Order #${orderId} marked as <strong>Dispatched</strong> and moved to Dispatched Orders! <a href="?payment=dispatched" class="text-warning fw-bold text-decoration-none ms-1">View Dispatched →</a></span>`;
+                        const toast = new bootstrap.Toast(toastEl, { delay: 4500 });
                         toast.show();
                     }
                 } else {
