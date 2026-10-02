@@ -145,7 +145,7 @@ class Category(models.Model):
 
     @property
     def display_image(self):
-        # Prioritize direct cloud link if available
+        # 1. Direct cloud link or uploaded category image
         if self.image_url:
             return self.image_url
         if self.image:
@@ -153,6 +153,24 @@ class Category(models.Model):
                 return self.image.url
             except Exception:
                 pass
+
+        # 2. Check static categories directory for seeded assets (e.g. chains.jpg, shades.jpg)
+        try:
+            from django.contrib.staticfiles import finders
+            from django.templatetags.static import static
+            if self.slug and finders.find(f'images/categories/{self.slug}.jpg'):
+                return static(f'images/categories/{self.slug}.jpg')
+        except Exception:
+            pass
+
+        # 3. Dynamic Fallback: automatically use the photo of the newest product added to this category
+        try:
+            first_product = self.products.exclude(image='', image_url__isnull=True).order_by('-created_at').first() or self.products.order_by('-created_at').first()
+            if first_product and first_product.display_image:
+                return first_product.display_image
+        except Exception:
+            pass
+
         return ''
 
     def __str__(self):

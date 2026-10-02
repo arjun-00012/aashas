@@ -277,22 +277,35 @@ def category_detail(request, slug):
             'is_all_view': True,
         })
 
-    slug_synonyms = {
-        'cooling-glass': 'shades',
-        'cooling-glasses': 'shades',
-        'sunglasses': 'shades',
-        'tribal': 'chains',
-        'tribal-jewelry': 'chains',
-        'tribal-accessories': 'chains',
-        'accessories': 'rings',
-    }
-    target_slug = slug_synonyms.get(clean_slug, clean_slug)
-    cat = Category.objects.filter(slug__iexact=target_slug).first()
+    # 1. Exact slug match in database (highest priority)
+    cat = Category.objects.filter(slug__iexact=clean_slug).first()
+
+    # 2. Check slug synonyms only if no direct category matches
     if not cat:
-        alt_slug = target_slug.rstrip('s') if target_slug.endswith('s') else f"{target_slug}s"
+        slug_synonyms = {
+            'cooling-glass': 'shades',
+            'cooling-glasses': 'shades',
+            'sunglasses': 'shades',
+            'tribal': 'chains',
+            'tribal-jewelry': 'chains',
+            'tribal-accessories': 'chains',
+            'accessories': 'rings',
+        }
+        target_slug = slug_synonyms.get(clean_slug)
+        if target_slug:
+            cat = Category.objects.filter(slug__iexact=target_slug).first()
+
+    # 3. Check singular / plural alternate forms
+    if not cat:
+        alt_slug = clean_slug.rstrip('s') if clean_slug.endswith('s') else f"{clean_slug}s"
         cat = Category.objects.filter(slug__iexact=alt_slug).first()
+
+    # 4. Check category name with hyphens converted to spaces or direct name
     if not cat:
-        cat = Category.objects.filter(name__iexact=target_slug).first()
+        cat = Category.objects.filter(name__iexact=clean_slug.replace('-', ' ')).first()
+    if not cat:
+        cat = Category.objects.filter(name__iexact=clean_slug).first()
+
     if not cat:
         raise Http404(f"Category '{slug}' not found.")
 

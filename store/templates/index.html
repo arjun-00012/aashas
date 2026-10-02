@@ -277,11 +277,24 @@
     }
 
     .category-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px 14px;
         justify-content: center;
-        align-items: start;
+        align-items: flex-start;
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .category-item-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        width: clamp(76px, 9.5vw, 110px);
+        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+        -webkit-tap-highlight-color: transparent;
     }
 
     @media (max-width: 575.98px) {
@@ -290,8 +303,10 @@
             padding: 0 0.75rem;
         }
         .category-grid {
-            grid-template-columns: repeat(4, 1fr);
             gap: 12px 6px;
+        }
+        .category-item-link {
+            width: clamp(60px, 20vw, 82px);
         }
         .category-thumb-wrapper {
             width: clamp(60px, 19vw, 80px);
@@ -311,30 +326,6 @@
             word-break: break-word;
             max-width: 100%;
         }
-    }
-
-    @media (min-width: 576px) and (max-width: 991.98px) {
-        .category-grid {
-            grid-template-columns: repeat(5, 1fr);
-            gap: 24px 16px;
-        }
-    }
-
-    @media (min-width: 992px) {
-        .category-grid {
-            grid-template-columns: repeat(9, 1fr);
-            gap: 20px 12px;
-        }
-    }
-
-    .category-item-link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: inherit;
-        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
-        -webkit-tap-highlight-color: transparent;
     }
 
     .category-item-link:hover {
@@ -1535,7 +1526,7 @@
                 {% if cat.display_image %}
                     <img src="{{ cat.display_image }}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
                 {% else %}
-                    <img src="{% static 'images/categories/' %}{{ cat.slug }}.jpg" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy" onerror="this.onerror=null; this.src='{% static 'images/ashas_badge.png' %}';">
+                    <img src="{% static 'images/ashas_badge.png' %}" alt="{{ cat.name }}" class="category-thumb-img" loading="lazy">
                 {% endif %}
             </div>
             <span class="category-label">{{ cat.name }}</span>

@@ -1806,6 +1806,103 @@ class UpiQrAndStatusPollingTests(TestCase):
         self.assertEqual(res.json()['status'], 'not_found')
 
 
+class DynamicCategoryAndProductCreationTests(TestCase):
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            username='admin_catalog',
+            email='admin_cat@ashasstore.in',
+            password='AdminPassword123!',
+            is_staff=True
+        )
+
+    def test_admin_adds_category_and_products_flow(self):
+        """
+        When admin adds a category through forms:
+        1. Category automatically renders in index page category showcase.
+        2. When products are added using that category, clicking that category leads to a
+           category page that displays the products in luxury grid just like chains and shades.
+        3. If category has no image, it dynamically falls back to the product's image on index page.
+        """
+        self.client.login(username='admin_catalog', password='AdminPassword123!')
+
+        # 1. Admin adds new category via category_add form
+        cat_response = self.client.post(reverse('category_add'), {
+            'name': 'Silver Pendants',
+            'description': 'Handcrafted gothic silver pendants and mystical amulets.'
+        })
+        self.assertRedirects(cat_response, reverse('adminpp_dashboard'))
+
+        cat = Category.objects.get(name='Silver Pendants')
+        self.assertEqual(cat.slug, 'silver-pendants')
+
+        # 2. Check homepage renders this category in category showcase automatically
+        home_resp = self.client.get(reverse('home'))
+        self.assertEqual(home_resp.status_code, 200)
+        self.assertContains(home_resp, 'Silver Pendants')
+        self.assertContains(home_resp, reverse('category_detail', kwargs={'slug': 'silver-pendants'}))
+
+        # 3. Before products added, category page loads gracefully with empty state
+        cat_resp_empty = self.client.get(reverse('category_detail', kwargs={'slug': 'silver-pendants'}))
+        self.assertEqual(cat_resp_empty.status_code, 200)
+        self.assertContains(cat_resp_empty, 'SILVER PENDANTS')
+        self.assertContains(cat_resp_empty, 'NEW ARRIVALS DROPPING SOON')
+
+        # 4. Admin adds product under this new category
+        prod_resp = self.client.post(reverse('product_add'), {
+            'category': cat.id,
+            'name': 'Obsidian Cross Pendant',
+            'admin_code': '9901',
+            'price': '1899.00',
+            'discount_price': '1499.00',
+            'stock': 8,
+            'image_url': 'https://example.com/obsidian_pendant.webp',
+            'description': 'Solid 925 sterling silver pendant with genuine volcanic obsidian stone.'
+        })
+        self.assertRedirects(prod_resp, reverse('adminpp_dashboard'))
+
+        prod = Product.objects.get(name='Obsidian Cross Pendant')
+        self.assertEqual(prod.category, cat)
+
+        # 5. Category display_image now automatically reflects the product's image
+        self.assertEqual(cat.display_image, 'https://example.com/obsidian_pendant.webp')
+
+        # 6. Index page category session automatically renders the product's image for this category
+        home_resp_updated = self.client.get(reverse('home'))
+        self.assertContains(home_resp_updated, 'https://example.com/obsidian_pendant.webp')
+        self.assertContains(home_resp_updated, 'Silver Pendants')
+
+        # 7. Category page now renders luxury-product-grid with the product just like chains/shades
+        cat_resp_products = self.client.get(reverse('category_detail', kwargs={'slug': 'silver-pendants'}))
+        self.assertEqual(cat_resp_products.status_code, 200)
+        self.assertContains(cat_resp_products, 'SILVER PENDANTS')
+        self.assertContains(cat_resp_products, 'luxury-product-grid')
+        self.assertContains(cat_resp_products, 'Obsidian Cross Pendant')
+        self.assertContains(cat_resp_products, 'RS. 1499.00')
+        self.assertContains(cat_resp_products, 'RS. 1899.00')
+        self.assertContains(cat_resp_products, '1 ITEM')
+        self.assertContains(cat_resp_products, 'https://example.com/obsidian_pendant.webp')
+        self.assertContains(cat_resp_products, 'ajax-add-to-bag')
+        self.assertContains(cat_resp_products, 'Handcrafted gothic silver pendants')
+
+    def test_synonym_does_not_hijack_direct_category(self):
+        """User-created category named 'Accessories' or 'Tribal' displays its own products, not Rings/Chains."""
+        cat_accessories = Category.objects.create(name='Accessories', slug='accessories')
+        prod = Product.objects.create(
+            category=cat_accessories,
+            name='Leather Belt Loop Accent',
+            price=499.00,
+            stock=10,
+            image_url='https://example.com/belt_loop.webp'
+        )
+
+        resp = self.client.get(reverse('category_detail', kwargs={'slug': 'accessories'}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context['category'], cat_accessories)
+        self.assertContains(resp, 'Leather Belt Loop Accent')
+        self.assertNotContains(resp, 'Wolf Head Ring')
+
+
+
 
 
 

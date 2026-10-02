@@ -154,6 +154,11 @@ class ProductForm(forms.ModelForm):
             'is_trending': 'Feature this item prominently in the homepage Trending Now section.',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'category' in self.fields:
+            self.fields['category'].queryset = Category.objects.all().order_by('name')
+
     def clean_admin_code(self):
         code = (self.cleaned_data.get('admin_code') or '').strip()
         if code:
