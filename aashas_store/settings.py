@@ -20,9 +20,10 @@ SECRET_KEY = os.environ.get(
     'django-insecure-aashas-store-secret-key-change-in-prod'
 )
 
-# Detect if running in production (Render, Railway, or DATABASE_URL provided)
+# Detect if running in production (Render, Vercel, Railway, or DATABASE_URL provided)
 IS_RENDER = 'RENDER' in os.environ or 'RENDER_EXTERNAL_HOSTNAME' in os.environ
-IS_PRODUCTION = IS_RENDER or os.environ.get('ENV') == 'production' or bool(os.environ.get('DATABASE_URL'))
+IS_VERCEL = 'VERCEL' in os.environ
+IS_PRODUCTION = IS_RENDER or IS_VERCEL or os.environ.get('ENV') == 'production' or bool(os.environ.get('DATABASE_URL'))
 
 # Default DEBUG to False in production
 if IS_PRODUCTION:
@@ -51,6 +52,7 @@ if not DEBUG or IS_PRODUCTION:
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.railway.app',
+    'https://*.vercel.app',
     'https://ashasstore.in',
     'https://www.ashasstore.in',
 ]
@@ -187,6 +189,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'store', 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_MAX_AGE = 31536000  # 1 year browser cache
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" if CLOUDINARY_CLOUD_NAME else "django.core.files.storage.FileSystemStorage",

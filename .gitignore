@@ -18,6 +18,8 @@ staticfiles/
 # Databases
 *.sqlite3
 db.sqlite3
+backup_*.json
+*.dump
 
 # OS / Editor Files
 .DS_Store

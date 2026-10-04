@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "aashas_store.wsgi:application"

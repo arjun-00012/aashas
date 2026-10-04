@@ -9,9 +9,7 @@ services:
       - www.ashasstore.in
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: aashas-db
-          property: connectionString
+        value: "postgresql://neondb_owner:npg_aymQ0eRnjJt4@ep-lingering-pine-b4lebot7-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require"
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -26,7 +24,3 @@ services:
         value: "rzp_live_Tck3w9pvGwRGOY"
       - key: RAZORPAY_KEY_SECRET
         value: "uct85ngbFuvyRgdqhGYDFdG4"
-
-databases:
-  - name: aashas-db
-    plan: free
