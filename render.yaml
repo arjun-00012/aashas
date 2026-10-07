@@ -15,11 +15,11 @@ services:
       - key: DEBUG
         value: "False"
       - key: CLOUDINARY_CLOUD_NAME
-        value: "dwk9pw2ol"
+        value: "owtliihd"
       - key: CLOUDINARY_API_KEY
-        value: "934762869273294"
+        value: "634465815929627"
       - key: CLOUDINARY_API_SECRET
-        value: "bu1cNNgmT6U29O9uPTIM2yyAqFs"
+        value: "MfP1G3e-dncWMBeKwoSoIx7IGfk"
       - key: RAZORPAY_KEY_ID
         value: "rzp_live_Tck3w9pvGwRGOY"
       - key: RAZORPAY_KEY_SECRET

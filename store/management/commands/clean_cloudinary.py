@@ -22,9 +22,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         is_delete = options['delete']
 
-        cloud_name = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'dwk9pw2ol')
-        api_key = getattr(settings, 'CLOUDINARY_API_KEY', '934762869273294')
-        api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', 'bu1cNNgmT6U29O9uPTIM2yyAqFs')
+        cloud_name = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'owtliihd')
+        api_key = getattr(settings, 'CLOUDINARY_API_KEY', '634465815929627')
+        api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', 'MfP1G3e-dncWMBeKwoSoIx7IGfk')
 
         cloudinary.config(
             cloud_name=cloud_name,
