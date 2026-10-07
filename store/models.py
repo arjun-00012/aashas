@@ -54,6 +54,25 @@ def optimize_image_file(image_field, max_dimension=1200):
         pass
 
 
+def optimize_cloudinary_url(url, quality='auto', max_width=1200):
+    """
+    Transforms Cloudinary URLs on the fly to deliver modern, ultra-efficient
+    formats (WebP/AVIF via f_auto) and perceptual quality compression (q_auto)
+    without visual degradation, slashing image bandwidth by up to 80-95%.
+    """
+    if not url or not isinstance(url, str):
+        return url
+    if 'res.cloudinary.com' in url and '/upload/' in url:
+        if '/f_auto' in url or '/q_auto' in url:
+            return url
+        params = ['f_auto', f'q_auto:{quality}' if quality != 'auto' else 'q_auto']
+        if max_width:
+            params.append(f'w_{max_width},c_limit')
+        transform_tag = ','.join(params)
+        return url.replace('/upload/', f'/upload/{transform_tag}/', 1)
+    return url
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
@@ -147,10 +166,10 @@ class Category(models.Model):
     def display_image(self):
         # 1. Direct cloud link or uploaded category image
         if self.image_url:
-            return self.image_url
+            return optimize_cloudinary_url(self.image_url)
         if self.image:
             try:
-                return self.image.url
+                return optimize_cloudinary_url(self.image.url)
             except Exception:
                 pass
 
@@ -311,14 +330,15 @@ class Product(models.Model):
         return self.discount_price if self.discount_price else self.price
 
     def _resolve_image_url(self, file_field, url_field_val):
+        url = ''
         if url_field_val:
-            return url_field_val
-        if file_field:
+            url = url_field_val
+        elif file_field:
             try:
-                return file_field.url
+                url = file_field.url
             except Exception:
                 pass
-        return ''
+        return optimize_cloudinary_url(url)
 
     @property
     def display_image(self):
