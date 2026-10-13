@@ -23,7 +23,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from .models import Category, Product, Order, OrderItem, Profile, ContactMessage, CartItem
+from .models import Category, Product, ProductSize, Order, OrderItem, Profile, ContactMessage, CartItem
 from .forms import RegistrationForm, ProfileUpdateForm, CategoryForm, ProductForm
 
 import razorpay
@@ -41,23 +41,97 @@ def get_razorpay_client():
 
 razorpay_client = get_razorpay_client()
 
+def parse_cart_key(item_key):
+    """
+    Parses '12:L' into (12, 'L') or '12' into (12, None).
+    """
+    if not item_key:
+        return None, None
+    s = str(item_key).strip()
+    if ':' in s:
+        parts = s.split(':', 1)
+        try:
+            return int(parts[0]), parts[1].strip().upper()
+        except (ValueError, TypeError):
+            return None, None
+    try:
+        return int(s), None
+    except (ValueError, TypeError):
+        return None, None
+
+
+def deduct_order_inventory(order):
+    """
+    Safely decrements inventory for all items in an order.
+    Decrements specific size variant stock if item has a size, and synchronizes product.stock.
+    """
+    for item in order.items.all():
+        if not item.product:
+            continue
+        p = item.product
+        if item.size:
+            ps = ProductSize.objects.filter(product=p, size=item.size).first()
+            if ps:
+                ps.stock = max(0, ps.stock - item.quantity)
+                ps.save(update_fields=['stock'])
+            p.sync_stock_from_sizes()
+        else:
+            p.stock = max(0, p.stock - item.quantity)
+            p.save(update_fields=['stock'])
+
+
+def restock_order_inventory(order):
+    """
+    Safely restores inventory for refunded or cancelled orders.
+    Restores specific size variant stock if item has a size, and synchronizes product.stock.
+    """
+    for item in order.items.all():
+        if not item.product:
+            continue
+        p = item.product
+        if item.size:
+            ps = ProductSize.objects.filter(product=p, size=item.size).first()
+            if ps:
+                ps.stock += item.quantity
+                ps.save(update_fields=['stock'])
+            p.sync_stock_from_sizes()
+        else:
+            p.stock += item.quantity
+            p.save(update_fields=['stock'])
+
+
 @receiver(user_logged_in)
 def handle_user_logged_in(sender, request, user, **kwargs):
     if request:
-        # Check if visitor added items to session before logging in
         guest_cart = request.session.get('cart', {})
         items = CartItem.objects.filter(user=user)
-        user_items = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        user_items = {}
+        for item in items:
+            if item.quantity > 0:
+                k = f"{item.product_id}:{item.size}" if item.size else str(item.product_id)
+                user_items[k] = item.quantity
         
         # Merge guest cart into user's DB items
         if guest_cart:
-            for pid, qty in guest_cart.items():
+            for k, qty in guest_cart.items():
                 if qty > 0:
-                    product = Product.objects.filter(id=pid).first()
-                    if product and product.stock > 0:
-                        merged_qty = min(user_items.get(pid, 0) + qty, product.stock)
-                        CartItem.objects.update_or_create(user=user, product=product, defaults={'quantity': merged_qty})
-                        user_items[pid] = merged_qty
+                    pid, size = parse_cart_key(k)
+                    if pid:
+                        product = Product.objects.filter(id=pid).first()
+                        if product:
+                            max_avail = product.stock
+                            if size and product.has_sizes:
+                                ps = ProductSize.objects.filter(product=product, size=size).first()
+                                max_avail = ps.stock if ps else 0
+                            if max_avail > 0:
+                                merged_qty = min(user_items.get(k, 0) + qty, max_avail)
+                                CartItem.objects.update_or_create(
+                                    user=user,
+                                    product=product,
+                                    size=size,
+                                    defaults={'quantity': merged_qty}
+                                )
+                                user_items[k] = merged_qty
 
         request.session['cart'] = user_items
         request.session.modified = True
@@ -70,36 +144,44 @@ def handle_user_logged_out(sender, request, user, **kwargs):
 
 def get_user_cart(request):
     """
-    Returns a dict {str(product_id): int(quantity)} strictly isolated for current user/session.
+    Returns a dict {item_key: int(quantity)} strictly isolated for current user/session.
+    item_key is either "{product_id}:{size}" (e.g. "12:L") or "{product_id}" (e.g. "12").
     If authenticated: fetches from CartItem DB model.
     If guest: uses request.session.
     """
     if request.user.is_authenticated:
         items = CartItem.objects.filter(user=request.user)
-        cart = {str(item.product_id): item.quantity for item in items if item.quantity > 0}
+        cart = {}
+        for item in items:
+            if item.quantity > 0:
+                key = f"{item.product_id}:{item.size}" if item.size else str(item.product_id)
+                cart[key] = item.quantity
         request.session['cart'] = cart
         return cart
     return request.session.get('cart', {})
 
-def sync_cart_item(request, product, quantity):
+def sync_cart_item(request, product, quantity, size=None):
     """
     Persists cart change to DB if authenticated, and keeps session up-to-date.
+    Supports size variant or standard product.
     If quantity <= 0, deletes from DB.
     """
-    pid = str(product.id)
+    size = (size or '').strip().upper() if size else None
+    key = f"{product.id}:{size}" if size else str(product.id)
     cart = request.session.get('cart', {})
     if quantity > 0:
-        cart[pid] = quantity
+        cart[key] = quantity
         if request.user.is_authenticated:
             CartItem.objects.update_or_create(
                 user=request.user,
                 product=product,
+                size=size,
                 defaults={'quantity': quantity}
             )
     else:
-        cart.pop(pid, None)
+        cart.pop(key, None)
         if request.user.is_authenticated:
-            CartItem.objects.filter(user=request.user, product=product).delete()
+            CartItem.objects.filter(user=request.user, product=product, size=size).delete()
     request.session['cart'] = cart
     request.session.modified = True
 
@@ -349,14 +431,23 @@ def product_detail(request, pk=None, slug=None):
 
 def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    if product.stock <= 0:
-        messages.error(request, f'"{product.name}" is currently sold out.')
-        return redirect('product_detail', pk=product.id)
+    size = (request.GET.get('size') or request.POST.get('size') or '').strip().upper() or None
 
-    cart = get_user_cart(request)
-    pid = str(product.id)
-    qty = max(cart.get(pid, 0), 1)
-    sync_cart_item(request, product, qty)
+    if product.has_sizes:
+        if not size:
+            messages.warning(request, f'Please select a size (XS, S, M, L, XL, XXL) for "{product.name}".')
+            return redirect('product_detail', pk=product.id)
+        ps = ProductSize.objects.filter(product=product, size=size).first()
+        if not ps or ps.stock <= 0:
+            messages.error(request, f'Size {size} of "{product.name}" is currently sold out.')
+            return redirect('product_detail', pk=product.id)
+        sync_cart_item(request, product, 1, size=size)
+    else:
+        if product.stock <= 0:
+            messages.error(request, f'"{product.name}" is currently sold out.')
+            return redirect('product_detail', pk=product.id)
+        sync_cart_item(request, product, 1)
+
     return redirect('checkout')
 
 # --- Auth Views ---
@@ -382,16 +473,23 @@ def register_view(request):
             request.session.set_expiry(0)  # Browser-close expiry by default
             request.session['_last_activity'] = timezone.now().timestamp()
             if guest_cart:
-                for pid_str, qty in guest_cart.items():
+                for k, qty in guest_cart.items():
                     try:
-                        prod = Product.objects.filter(id=int(pid_str), stock__gt=0).first()
-                        if prod and int(qty) > 0:
-                            c_item, created = CartItem.objects.get_or_create(user=user, product=prod)
-                            if created:
-                                c_item.quantity = min(int(qty), prod.stock)
-                            else:
-                                c_item.quantity = min(c_item.quantity + int(qty), prod.stock)
-                            c_item.save()
+                        pid, size = parse_cart_key(k)
+                        if pid and int(qty) > 0:
+                            prod = Product.objects.filter(id=pid, stock__gt=0).first()
+                            if prod:
+                                max_avail = prod.stock
+                                if size and prod.has_sizes:
+                                    ps = ProductSize.objects.filter(product=prod, size=size).first()
+                                    max_avail = ps.stock if ps else 0
+                                if max_avail > 0:
+                                    c_item, created = CartItem.objects.get_or_create(user=user, product=prod, size=size)
+                                    if created:
+                                        c_item.quantity = min(int(qty), max_avail)
+                                    else:
+                                        c_item.quantity = min(c_item.quantity + int(qty), max_avail)
+                                    c_item.save()
                     except Exception:
                         continue
 
@@ -786,38 +884,63 @@ def add_to_cart(request, product_id):
             return JsonResponse({'status': 'error', 'message': 'Invalid product ID.'}, status=400)
         return redirect(safe_referer(request, 'home'))
 
-    pid = str(product_id)
     product = Product.objects.filter(id=product_id).first()
-
     if not product:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
             return JsonResponse({'status': 'error', 'message': 'Product not found.'}, status=404)
         return redirect(safe_referer(request, 'home'))
 
-    # Check available inventory
-    if product.stock <= 0:
+    size = (request.GET.get('size') or request.POST.get('size') or '').strip().upper() or None
+
+    if product.has_sizes:
+        if not size:
+            msg = 'Please select a size (XS, S, M, L, XL, XXL) before adding to bag.'
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
+            messages.warning(request, msg)
+            return redirect('product_detail', pk=product.id)
+
+        ps = ProductSize.objects.filter(product=product, size=size).first()
+        if not ps or ps.stock <= 0:
+            msg = f'Size {size} of "{product.name}" is currently sold out.'
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
+            messages.error(request, msg)
+            return redirect('product_detail', pk=product.id)
+
+        max_stock = ps.stock
+        key = f"{product.id}:{size}"
+    else:
+        if product.stock <= 0:
+            msg = f'"{product.name}" is currently sold out.'
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
+            messages.error(request, msg)
+            return redirect(safe_referer(request, 'home'))
+
+        max_stock = product.stock
+        key = str(product.id)
+
+    current_qty = cart.get(key, 0)
+    if current_qty >= max_stock:
+        limit_msg = f'Only {max_stock} available in stock{" for size " + size if size else ""}.'
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
-            return JsonResponse({'status': 'error', 'message': f'"{product.name}" is currently sold out.'}, status=400)
-        messages.error(request, f'"{product.name}" is currently sold out.')
+            return JsonResponse({'status': 'error', 'message': limit_msg}, status=400)
+        messages.warning(request, limit_msg)
         return redirect(safe_referer(request, 'home'))
 
-    current_qty = cart.get(pid, 0)
-    if current_qty >= product.stock:
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
-            return JsonResponse({'status': 'error', 'message': f'Only {product.stock} available in stock.'}, status=400)
-        messages.warning(request, f'Only {product.stock} available in stock.')
-        return redirect(safe_referer(request, 'home'))
-
-    sync_cart_item(request, product, current_qty + 1)
+    sync_cart_item(request, product, current_qty + 1, size=size)
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
         total_qty = sum(get_user_cart(request).values())
+        size_label = f" (Size: {size})" if size else ""
         return JsonResponse({
             'status': 'success',
             'cart_item_count': total_qty,
             'product_id': product_id,
             'product_name': product.name,
-            'message': f"{product.name} added to your bag."
+            'size': size,
+            'message': f"{product.name}{size_label} added to your bag."
         })
     return redirect(safe_referer(request, 'home'))
 
@@ -825,41 +948,61 @@ def cart_view(request):
     cart = get_user_cart(request)
     cart_items = []
     total = 0
-    stale_pids = []
+    stale_keys = []
     stock_adjusted = False
 
-    for pid, qty in list(cart.items()):
-        try:
-            pid_int = int(pid)
-        except (ValueError, TypeError):
-            stale_pids.append(pid)
+    for item_key, qty in list(cart.items()):
+        pid, size = parse_cart_key(item_key)
+        if not pid:
+            stale_keys.append(item_key)
             continue
 
-        product = Product.objects.filter(id=pid_int).first()
-        if not product or product.stock <= 0:
-            stale_pids.append(pid)
+        product = Product.objects.filter(id=pid).first()
+        if not product:
+            stale_keys.append(item_key)
             continue
-        if qty > product.stock:
-            qty = product.stock
-            sync_cart_item(request, product, qty)
-            stock_adjusted = True
+
+        if size and product.has_sizes:
+            ps = ProductSize.objects.filter(product=product, size=size).first()
+            if not ps or ps.stock <= 0:
+                stale_keys.append(item_key)
+                continue
+            if qty > ps.stock:
+                qty = ps.stock
+                sync_cart_item(request, product, qty, size=size)
+                stock_adjusted = True
+        else:
+            if product.stock <= 0:
+                stale_keys.append(item_key)
+                continue
+            if qty > product.stock:
+                qty = product.stock
+                sync_cart_item(request, product, qty, size=None)
+                stock_adjusted = True
 
         subtotal = float(product.current_price) * qty
         total += subtotal
-        cart_items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
+        cart_items.append({
+            'product': product,
+            'quantity': qty,
+            'size': size,
+            'subtotal': subtotal,
+            'item_key': item_key
+        })
     
-    if stale_pids or stock_adjusted:
-        for pid in stale_pids:
-            try:
-                p = Product.objects.filter(id=int(pid)).first()
-            except (ValueError, TypeError):
-                p = None
-            if p:
-                sync_cart_item(request, p, 0)
+    if stale_keys or stock_adjusted:
+        for k in stale_keys:
+            pid, size = parse_cart_key(k)
+            if pid:
+                p = Product.objects.filter(id=pid).first()
+                if p:
+                    sync_cart_item(request, p, 0, size=size)
+                else:
+                    cart.pop(k, None)
+                    if request.user.is_authenticated:
+                        CartItem.objects.filter(user=request.user, product_id=pid, size=size).delete()
             else:
-                cart.pop(pid, None)
-                if request.user.is_authenticated:
-                    CartItem.objects.filter(user=request.user, product_id=pid).delete()
+                cart.pop(k, None)
         request.session['cart'] = cart
         request.session.modified = True
         if stock_adjusted:
@@ -869,24 +1012,36 @@ def cart_view(request):
 
 def update_cart(request, product_id, action):
     cart = get_user_cart(request)
-    pid = str(product_id)
+    size = (request.GET.get('size') or request.POST.get('size') or '').strip().upper() or None
     try:
         product_id_int = int(product_id)
     except (ValueError, TypeError):
         return redirect('cart')
     product = Product.objects.filter(id=product_id_int).first()
 
-    if pid in cart and product:
+    key = f"{product_id}:{size}" if size else str(product_id)
+    if key not in cart:
+        matching_keys = [k for k in cart.keys() if parse_cart_key(k)[0] == product_id_int]
+        if len(matching_keys) == 1:
+            key = matching_keys[0]
+            _, size = parse_cart_key(key)
+
+    if key in cart and product:
+        max_stock = product.stock
+        if size and product.has_sizes:
+            ps = ProductSize.objects.filter(product=product, size=size).first()
+            max_stock = ps.stock if ps else 0
+
         if action == 'increase':
-            if cart[pid] >= product.stock:
-                messages.warning(request, f'Cannot exceed available stock of {product.stock}.')
+            if cart[key] >= max_stock:
+                messages.warning(request, f'Cannot exceed available stock of {max_stock}{" for size " + size if size else ""}.')
             else:
-                sync_cart_item(request, product, cart[pid] + 1)
+                sync_cart_item(request, product, cart[key] + 1, size=size)
         elif action == 'decrease':
-            new_qty = cart[pid] - 1
-            sync_cart_item(request, product, new_qty)
+            new_qty = cart[key] - 1
+            sync_cart_item(request, product, new_qty, size=size)
         elif action == 'remove':
-            sync_cart_item(request, product, 0)
+            sync_cart_item(request, product, 0, size=size)
     return redirect('cart')
 
 # --- Shipping & Checkout Helpers ---
@@ -1002,30 +1157,53 @@ def checkout_view(request):
     
     valid_items = {}
     subtotal = 0.0
-    stale_pids = []
+    stale_keys = []
     stock_adjusted = False
 
-    for pid, qty in list(cart.items()):
+    for item_key, qty in list(cart.items()):
+        pid, size = parse_cart_key(item_key)
+        if not pid:
+            stale_keys.append(item_key)
+            continue
         product = Product.objects.filter(id=pid).first()
-        if product and product.stock > 0:
+        if not product:
+            stale_keys.append(item_key)
+            continue
+
+        if size and product.has_sizes:
+            ps = ProductSize.objects.filter(product=product, size=size).first()
+            if not ps or ps.stock <= 0:
+                stale_keys.append(item_key)
+                continue
+            if qty > ps.stock:
+                qty = ps.stock
+                sync_cart_item(request, product, qty, size=size)
+                stock_adjusted = True
+        else:
+            if product.stock <= 0:
+                stale_keys.append(item_key)
+                continue
             if qty > product.stock:
                 qty = product.stock
-                sync_cart_item(request, product, qty)
+                sync_cart_item(request, product, qty, size=None)
                 stock_adjusted = True
-            valid_items[pid] = (product, qty)
-            subtotal += float(product.current_price) * qty
-        else:
-            stale_pids.append(pid)
 
-    if stale_pids or stock_adjusted:
-        for pid in stale_pids:
-            p = Product.objects.filter(id=pid).first()
-            if p:
-                sync_cart_item(request, p, 0)
+        valid_items[item_key] = (product, qty, size)
+        subtotal += float(product.current_price) * qty
+
+    if stale_keys or stock_adjusted:
+        for k in stale_keys:
+            pid, size = parse_cart_key(k)
+            if pid:
+                p = Product.objects.filter(id=pid).first()
+                if p:
+                    sync_cart_item(request, p, 0, size=size)
+                else:
+                    cart.pop(k, None)
+                    if request.user.is_authenticated:
+                        CartItem.objects.filter(user=request.user, product_id=pid, size=size).delete()
             else:
-                cart.pop(pid, None)
-                if request.user.is_authenticated:
-                    CartItem.objects.filter(user=request.user, product_id=pid).delete()
+                cart.pop(k, None)
         request.session['cart'] = cart
         request.session.modified = True
         if stock_adjusted:
@@ -1040,13 +1218,14 @@ def checkout_view(request):
     checkout_items = []
     item_count = 0
     products_list = []
-    for pid, (product, qty) in valid_items.items():
+    for item_key, (product, qty, size) in valid_items.items():
         sub = float(product.current_price) * qty
         item_count += qty
         products_list.append(product)
         checkout_items.append({
             'product': product,
             'quantity': qty,
+            'size': size,
             'unit_price': float(product.current_price),
             'subtotal': sub
         })
@@ -1231,12 +1410,13 @@ def checkout_view(request):
             payment_status='Pending'
         )
 
-        for pid, (product, qty) in valid_items.items():
+        for item_key, (product, qty, size) in valid_items.items():
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 price=product.current_price,
-                quantity=qty
+                quantity=qty,
+                size=size
             )
 
         # Create Live Payment Link for on-screen QR payment flow
@@ -1439,11 +1619,8 @@ def payment_verify(request):
                 order.shipping_status = 'Processing'
             order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
-            # Decrement product inventory safely
-            for item in order.items.all():
-                if item.product:
-                    item.product.stock = max(0, item.product.stock - item.quantity)
-                    item.product.save(update_fields=['stock'])
+            # Decrement product inventory safely (including size variants)
+            deduct_order_inventory(order)
 
             # Clear cart items strictly for this user
             if request.user.is_authenticated:
@@ -1553,11 +1730,8 @@ def razorpay_webhook(request):
                         order.shipping_status = 'Processing'
                     order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
-                    # Decrement product inventory safely
-                    for item in order.items.all():
-                        if item.product:
-                            item.product.stock = max(0, item.product.stock - item.quantity)
-                            item.product.save(update_fields=['stock'])
+                    # Decrement product inventory safely (including size variants)
+                    deduct_order_inventory(order)
 
             # 3. PAYMENT FAILED
             elif event == 'payment.failed':
@@ -1586,12 +1760,9 @@ def razorpay_webhook(request):
                         order.refund_notes = f"Refund processed via Razorpay Webhook ({ref_id})"
                     order.save(update_fields=['payment_status', 'razorpay_refund_id', 'refund_amount', 'refund_notes'])
 
-                    # Restock inventory if previously marked completed
+                    # Restock inventory if previously marked completed (including size variants)
                     if was_completed:
-                        for item in order.items.all():
-                            if item.product:
-                                item.product.stock += item.quantity
-                                item.product.save(update_fields=['stock'])
+                        restock_order_inventory(order)
 
             return HttpResponse(status=200)
         except Exception as e:
@@ -1700,11 +1871,8 @@ def checkout_order_status(request, order_id):
                     order.shipping_status = 'Processing'
                 order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
-                # Decrement stock safely
-                for item in order.items.all():
-                    if item.product:
-                        item.product.stock = max(0, item.product.stock - item.quantity)
-                        item.product.save(update_fields=['stock'])
+                # Decrement stock safely (including size variants)
+                deduct_order_inventory(order)
 
                 # Clear cart for user and session
                 if order.user:
@@ -1876,10 +2044,7 @@ def reconcile_razorpay_orders(limit=50):
                         order.shipping_status = 'Processing'
                     order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
 
-                    for item in order.items.all():
-                        if item.product:
-                            item.product.stock = max(0, item.product.stock - item.quantity)
-                            item.product.save(update_fields=['stock'])
+                    deduct_order_inventory(order)
                     synced_orders.append(order)
 
             elif status == 'refunded':
@@ -1888,10 +2053,7 @@ def reconcile_razorpay_orders(limit=50):
                     order.payment_status = 'Refunded'
                     order.save(update_fields=['payment_status'])
                     if was_completed:
-                        for item in order.items.all():
-                            if item.product:
-                                item.product.stock += item.quantity
-                                item.product.save(update_fields=['stock'])
+                        restock_order_inventory(order)
 
         return synced_orders
     except Exception as e:
@@ -2202,10 +2364,7 @@ def adminpp_reconcile_order(request, order_id):
                 if not order.shipping_status:
                     order.shipping_status = 'Processing'
                 order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
-                for item in order.items.all():
-                    if item.product:
-                        item.product.stock = max(0, item.product.stock - item.quantity)
-                        item.product.save(update_fields=['stock'])
+                deduct_order_inventory(order)
                 msg = f"✓ Verified! Payment {found_payment.get('id')} of ₹{found_payment.get('amount')/100} was captured in Razorpay. Order #{order.id} ({order.full_name}) is now confirmed as PAID."
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
                     return JsonResponse({'status': 'success', 'order_id': order.id, 'payment_id': order.razorpay_payment_id, 'message': msg})
@@ -2293,6 +2452,8 @@ def category_delete(request, pk):
 def product_create_or_edit(request, pk=None):
     product = get_object_or_404(Product, pk=pk) if pk else None
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
+    standard_sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+
     if request.method == 'POST':
         if form.is_valid():
             try:
@@ -2308,6 +2469,31 @@ def product_create_or_edit(request, pk=None):
                             b_idx += 1
                 p.save()
                 form.save_m2m()
+
+                # Process size inventory (XS, S, M, L, XL, XXL)
+                cat_has_sizes = bool(p.category and p.category.has_sizes)
+                has_size_inputs = any(request.POST.get(f'size_stock_{s}') is not None for s in standard_sizes)
+                if cat_has_sizes or has_size_inputs:
+                    total_size_stock = 0
+                    sizes_saved = False
+                    for s in standard_sizes:
+                        val_str = request.POST.get(f'size_stock_{s}')
+                        if val_str is not None and val_str.strip() != '':
+                            try:
+                                count = max(0, int(val_str))
+                            except (ValueError, TypeError):
+                                count = 0
+                            ProductSize.objects.update_or_create(
+                                product=p,
+                                size=s,
+                                defaults={'stock': count}
+                            )
+                            total_size_stock += count
+                            sizes_saved = True
+                    if sizes_saved or p.sizes.exists():
+                        p.stock = total_size_stock
+                        p.save(update_fields=['stock'])
+
                 action_text = "updated" if pk else "created"
                 messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
                 return redirect('adminpp_dashboard')
@@ -2317,7 +2503,21 @@ def product_create_or_edit(request, pk=None):
                 messages.error(request, f"Error saving product: {str(e)}")
         else:
             messages.error(request, 'Please correct the form errors below.')
-    return render(request, 'product_form.html', {'form': form, 'product': product})
+
+    sizes_dict = {}
+    if product:
+        for ps in product.sizes.all():
+            sizes_dict[ps.size] = ps.stock
+
+    size_enabled_category_ids = list(Category.objects.filter(has_sizes=True).values_list('id', flat=True))
+
+    return render(request, 'product_form.html', {
+        'form': form,
+        'product': product,
+        'sizes_dict': sizes_dict,
+        'standard_sizes': standard_sizes,
+        'size_enabled_category_ids': size_enabled_category_ids,
+    })
 
 @staff_required
 def product_delete(request, pk):

@@ -158,6 +158,7 @@
                                         <img src="{% static 'images/ashas_badge.png' %}" alt="ASHAS" class="rounded" style="width: 30px; height: 30px; object-fit: cover;">
                                     {% endif %}
                                     <span class="text-dark fw-medium text-truncate">{% if item.product %}{{ item.product.name }}{% else %}Archived Item{% endif %}</span>
+                                    {% if item.size %}<span class="badge bg-dark text-white rounded-pill ms-1 px-1.5 py-0.5" style="font-size: 0.65rem;">Size: {{ item.size }}</span>{% endif %}
                                 </div>
                                 <span class="badge bg-dark bg-opacity-10 text-dark rounded-pill fw-bold ms-2">x{{ item.quantity }}</span>
                             </div>

@@ -479,7 +479,7 @@
                             <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
                                 <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
                             </a>
-                            <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}</small>
+                            <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}{% if item.size %} &bull; <span class="badge bg-dark rounded-pill px-1.5 py-0.5 text-white" style="font-size: 0.65rem;">Size: {{ item.size }}</span>{% endif %}</small>
                         </div>
                         <div class="text-end fw-semibold text-dark small">
                             ₹{{ item.subtotal|floatformat:2 }}
@@ -746,7 +746,7 @@
                                     <a href="{% url 'product_detail' item.product.id %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
                                         <p class="summary-item-name text-truncate mb-0">{{ item.product.name }}</p>
                                     </a>
-                                    <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}</small>
+                                    <small class="text-muted">Qty: {{ item.quantity }} &bull; ₹{{ item.unit_price|floatformat:2 }}{% if item.size %} &bull; <span class="badge bg-dark rounded-pill px-1.5 py-0.5 text-white" style="font-size: 0.65rem;">Size: {{ item.size }}</span>{% endif %}</small>
                                 </div>
                                 <div class="text-end fw-semibold text-dark small">
                                     ₹{{ item.subtotal|floatformat:2 }}

@@ -79,6 +79,11 @@ class Category(models.Model):
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
     image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Direct link to category image (optional)")
     description = models.TextField(blank=True, null=True)
+    has_sizes = models.BooleanField(
+        default=False,
+        verbose_name="Enable Sizing & Size Chart (XS - XXL)",
+        help_text="Check to enable size selection (XS, S, M, L, XL, XXL) and size chart for products in this category (e.g. Shirts, T-Shirts)"
+    )
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -372,8 +377,58 @@ class Product(models.Model):
     def photo_count(self):
         return len(self.gallery_images)
 
+    @property
+    def has_sizes(self):
+        """Returns True if category has sizes enabled or this product has size variants."""
+        if self.category and getattr(self.category, 'has_sizes', False):
+            return True
+        return self.sizes.exists()
+
+    @property
+    def available_sizes(self):
+        """Returns ordered list of size variants for this product (XS, S, M, L, XL, XXL)."""
+        size_order = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5}
+        return sorted(list(self.sizes.all()), key=lambda s: size_order.get(s.size, 99))
+
+    def sync_stock_from_sizes(self):
+        """Synchronizes overall product.stock with sum of size variant stocks if sizes exist."""
+        if self.sizes.exists():
+            total = sum(s.stock for s in self.sizes.all())
+            if self.stock != total:
+                self.stock = total
+                self.save(update_fields=['stock'])
+            return total
+        return self.stock
+
     def __str__(self):
         return self.name
+
+
+class ProductSize(models.Model):
+    SIZE_CHOICES = (
+        ('XS', 'XS - Extra Small'),
+        ('S', 'S - Small'),
+        ('M', 'M - Medium'),
+        ('L', 'L - Large'),
+        ('XL', 'XL - Extra Large'),
+        ('XXL', 'XXL - Double Large'),
+    )
+    product = models.ForeignKey(Product, related_name='sizes', on_delete=models.CASCADE)
+    size = models.CharField(max_length=10, choices=SIZE_CHOICES)
+    stock = models.PositiveIntegerField(default=0, help_text="Inventory count for this size")
+
+    class Meta:
+        unique_together = ('product', 'size')
+        ordering = ['id']
+        verbose_name = 'Product Size Variant'
+        verbose_name_plural = 'Product Size Variants'
+
+    @property
+    def is_available(self):
+        return self.stock > 0
+
+    def __str__(self):
+        return f"{self.product.name} - {self.size} ({self.stock} left)"
 
 
 class Order(models.Model):
@@ -519,13 +574,15 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=10, blank=True, null=True, help_text="Ordered size (e.g. XS, S, M, L, XL, XXL)")
 
     @property
     def subtotal(self):
         return self.price * self.quantity
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name}"
+        size_str = f" (Size: {self.size})" if self.size else ""
+        return f"{self.quantity} x {self.product.name}{size_str}"
 
 
 class ContactMessage(models.Model):
@@ -544,6 +601,7 @@ class CartItem(models.Model):
     session_key = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='in_carts')
     quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=10, blank=True, null=True, help_text="Selected size (e.g. XS, S, M, L, XL, XXL)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -552,7 +610,8 @@ class CartItem(models.Model):
 
     def __str__(self):
         owner = self.user.username if self.user else f"Guest ({self.session_key})"
-        return f"{self.quantity}x {self.product.name} ({owner})"
+        size_str = f" [{self.size}]" if self.size else ""
+        return f"{self.quantity}x {self.product.name}{size_str} ({owner})"
 
     @property
     def subtotal(self):

@@ -70,14 +70,16 @@ class ProfileUpdateForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'image', 'image_url', 'description']
+        fields = ['name', 'has_sizes', 'image', 'image_url', 'description']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Rings, Shades, Caps'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Shirts, T-Shirts, Rings, Shades'}),
+            'has_sizes': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/image.webp (Optional direct URL)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Category description...'}),
         }
         help_texts = {
+            'has_sizes': 'Enable size selection (XS, S, M, L, XL, XXL) and size chart for products in this category (e.g. Shirts, T-Shirts).',
             'image': 'Recommended: 800 × 800 px (1:1 Square). Max 5 MB. Formats: WebP, PNG, JPG.',
             'image_url': 'Direct high-res link to category icon or photo (optional fallback).',
         }

@@ -100,6 +100,7 @@
                  data-cat="{{ category.name }}"
                  data-stock="{{ product.stock }}"
                  data-image="{% if product.display_image %}{{ product.display_image }}{% else %}{% static 'images/ashas_badge.png' %}{% endif %}"
+                 data-has-sizes="{% if product.has_sizes %}true{% else %}false{% endif %}"
                  data-add-url="{% url 'add_to_cart' product.id %}">
                 
                 <a href="{% url 'product_detail' product.id %}" class="luxury-img-frame text-decoration-none" title="View {{ product.name }}" aria-label="View {{ product.name }}">
@@ -123,14 +124,20 @@
                             <i class="bi bi-eye"></i> Quick View
                         </span>
                         {% if product.stock > 0 %}
-                        <button type="button" class="luxury-add-btn ajax-add-to-bag"
-                                data-product-id="{{ product.id }}"
-                                data-product-name="{{ product.name }}"
-                                data-add-url="{% url 'add_to_cart' product.id %}"
-                                aria-label="Add {{ product.name }} to bag"
-                                onclick="event.preventDefault(); event.stopPropagation();">
-                            <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
-                        </button>
+                            {% if product.has_sizes %}
+                            <span class="luxury-add-btn" style="pointer-events: none;">
+                                <i class="bi bi-rulers"></i> <span>SELECT SIZE</span>
+                            </span>
+                            {% else %}
+                            <button type="button" class="luxury-add-btn ajax-add-to-bag"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-add-url="{% url 'add_to_cart' product.id %}"
+                                    aria-label="Add {{ product.name }} to bag"
+                                    onclick="event.preventDefault(); event.stopPropagation();">
+                                <i class="bi bi-bag-plus"></i> <span>+ ADD</span>
+                            </button>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </a>
@@ -316,8 +323,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const img = card.getAttribute('data-image') || '';
             const addUrl = card.getAttribute('data-add-url');
             const stock = parseInt(card.getAttribute('data-stock') || '1', 10);
+            const hasSizes = card.getAttribute('data-has-sizes') === 'true';
 
-            currentQvProduct = { id, name, addUrl, stock };
+            currentQvProduct = { id, name, addUrl, stock, hasSizes };
 
             if (qvBadge) qvBadge.innerText = cat.toUpperCase();
             if (qvImage) {
@@ -336,9 +344,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (stock <= 0) {
                     qvAddBagBtn.disabled = true;
                     qvAddBagBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Sold Out';
+                    qvAddBagBtn.onclick = null;
+                } else if (hasSizes) {
+                    qvAddBagBtn.disabled = false;
+                    qvAddBagBtn.innerHTML = '<i class="bi bi-rulers me-1"></i> Choose Size (XS - XXL)';
+                    qvAddBagBtn.onclick = function() { window.location.href = `/product/${id}/`; };
                 } else {
                     qvAddBagBtn.disabled = false;
                     qvAddBagBtn.innerHTML = '<i class="bi bi-bag-plus me-1"></i> Add to Bag';
+                    qvAddBagBtn.onclick = null;
                 }
             }
 

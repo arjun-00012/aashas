@@ -722,7 +722,7 @@
                                     <span class="text-dark fw-semibold text-truncate small">{{ item.product.name|default:"Archived Item" }}</span>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between text-secondary" style="font-size: 0.74rem;">
-                                    <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong></span>
+                                    <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong>{% if item.size %} &bull; Size: <strong class="text-primary">{{ item.size }}</strong>{% endif %}</span>
                                     <span class="fw-semibold text-dark">₹{{ item.price }}</span>
                                 </div>
                             </div>
@@ -995,7 +995,7 @@
                                             <span class="text-dark fw-semibold small text-truncate d-inline-block" style="max-width: 150px;" title="{{ item.product.name }}">{{ item.product.name|default:"Archived Item" }}</span>
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between text-secondary" style="font-size: 0.72rem;">
-                                            <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong></span>
+                                            <span>Qty: <strong class="text-dark">x{{ item.quantity }}</strong>{% if item.size %} &bull; Size: <strong class="text-primary">{{ item.size }}</strong>{% endif %}</span>
                                             <span class="text-dark fw-medium">₹{{ item.price }}</span>
                                         </div>
                                     </div>

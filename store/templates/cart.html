@@ -101,21 +101,26 @@
                                 <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
                                     <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
                                 </a>
-                                <small class="text-secondary d-block mt-1">{{ item.product.category.name }}</small>
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <small class="text-secondary">{{ item.product.category.name }}</small>
+                                    {% if item.size %}
+                                        <span class="badge bg-dark rounded-pill px-2 py-0.5 text-white" style="font-size: 0.68rem; letter-spacing: 0.04em;">SIZE: {{ item.size }}</span>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </td>
                     <td class="text-nowrap text-dark fw-semibold">₹{{ item.product.current_price }}</td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white" role="group">
-                            <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Decrease quantity">-</a>
+                            <a href="{% url 'update_cart' item.product.id 'decrease' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Decrease quantity">-</a>
                             <span class="btn btn-sm btn-light text-dark disabled px-3 py-1 border-0 fw-semibold bg-white">{{ item.quantity }}</span>
-                            <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Increase quantity">+</a>
+                            <a href="{% url 'update_cart' item.product.id 'increase' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn btn-sm btn-light border-0 text-dark px-2 py-1" style="background: #F4F0EB;" aria-label="Increase quantity">+</a>
                         </div>
                     </td>
                     <td class="text-nowrap fw-bold text-dark">₹{{ item.subtotal }}</td>
                     <td class="text-end">
-                        <a href="{% url 'update_cart' item.product.id 'remove' %}" class="btn-remove-cart" title="Remove item" aria-label="Remove {{ item.product.name }}">
+                        <a href="{% url 'update_cart' item.product.id 'remove' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn-remove-cart" title="Remove item" aria-label="Remove {{ item.product.name }}">
                             <i class="bi bi-trash3 fs-6"></i>
                         </a>
                     </td>
@@ -144,12 +149,15 @@
                         <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark" title="View {{ item.product.name }}">
                             <h6 class="cart-product-title text-dark">{{ item.product.name }}</h6>
                         </a>
-                        <a href="{% url 'update_cart' item.product.id 'remove' %}" class="btn-remove-cart flex-shrink-0" title="Remove item" aria-label="Remove {{ item.product.name }}">
+                        <a href="{% url 'update_cart' item.product.id 'remove' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn-remove-cart flex-shrink-0" title="Remove item" aria-label="Remove {{ item.product.name }}">
                             <i class="bi bi-trash3 fs-6"></i>
                         </a>
                     </div>
                     <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
                         <span class="badge bg-light text-secondary border rounded-pill px-2 py-0" style="font-size: 0.68rem;">{{ item.product.category.name }}</span>
+                        {% if item.size %}
+                            <span class="badge bg-dark rounded-pill px-2 py-0.5 text-white" style="font-size: 0.68rem; letter-spacing: 0.04em;">SIZE: {{ item.size }}</span>
+                        {% endif %}
                         <span class="small text-muted">₹{{ item.product.current_price }} each</span>
                     </div>
                 </div>
@@ -157,9 +165,9 @@
 
             <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25 flex-wrap gap-2">
                 <div class="btn-group btn-group-sm border border-secondary border-opacity-25 rounded-pill overflow-hidden bg-white shadow-none" role="group">
-                    <a href="{% url 'update_cart' item.product.id 'decrease' %}" class="btn btn-sm btn-light border-0 text-dark px-2 px-sm-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Decrease quantity">-</a>
+                    <a href="{% url 'update_cart' item.product.id 'decrease' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn btn-sm btn-light border-0 text-dark px-2 px-sm-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Decrease quantity">-</a>
                     <span class="btn btn-sm btn-light text-dark disabled px-2 px-sm-3 py-1 border-0 fw-semibold bg-white" style="min-width: 32px;">{{ item.quantity }}</span>
-                    <a href="{% url 'update_cart' item.product.id 'increase' %}" class="btn btn-sm btn-light border-0 text-dark px-2 px-sm-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Increase quantity">+</a>
+                    <a href="{% url 'update_cart' item.product.id 'increase' %}{% if item.size %}?size={{ item.size }}{% endif %}" class="btn btn-sm btn-light border-0 text-dark px-2 px-sm-3 py-1" style="background: #F4F0EB; min-width: 34px;" aria-label="Increase quantity">+</a>
                 </div>
                 <div class="text-end">
                     <span class="text-secondary small me-1">Subtotal:</span>

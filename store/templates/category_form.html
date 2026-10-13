@@ -206,6 +206,22 @@
                     {{ form.name }}
                 </div>
 
+                <div class="col-12">
+                    <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between" style="background: var(--bg-surface-elevated); border-color: var(--border-subtle) !important;">
+                        <div class="pe-3">
+                            <label class="form-check-label fw-bold text-dark d-block mb-1" for="{{ form.has_sizes.id_for_label }}" style="font-size: 0.9rem; cursor: pointer;">
+                                <i class="bi bi-rulers text-primary me-1"></i> Enable Size Chart & Sizing (XS - XXL)
+                            </label>
+                            <small class="text-secondary d-block" style="font-size: 0.78rem;">
+                                Turn this ON for shirts, t-shirts, and apparel. When enabled, products in this category will have individual stock counts for XS, S, M, L, XL, XXL and an interactive Size Chart on the product page.
+                            </small>
+                        </div>
+                        <div class="form-check form-switch m-0 fs-4">
+                            {{ form.has_sizes }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-12 col-md-6">
                     <label class="form-label-custom">Upload Image File</label>
                     {{ form.image }}

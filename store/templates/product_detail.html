@@ -823,6 +823,184 @@
         opacity: 0.25;
         transform: scale(0.97);
     }
+
+    /* =========================================================
+       Size Selector & Interactive Size Chart System
+       ========================================================= */
+    .pdp-size-section {
+        position: relative;
+    }
+
+    .pdp-size-title {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .pdp-size-chart-trigger {
+        color: #171614;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .pdp-size-chart-trigger:hover {
+        color: #8C867E;
+        transform: translateY(-1px);
+    }
+
+    .pdp-size-btn {
+        min-width: 52px;
+        height: 44px;
+        padding: 0 14px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(28, 25, 23, 0.16);
+        background: #FFFFFF;
+        color: #171614;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
+    }
+
+    .pdp-size-btn:hover:not(:disabled) {
+        border-color: #171614;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(28, 25, 23, 0.08);
+    }
+
+    .pdp-size-btn.active {
+        background: #171614 !important;
+        color: #FAF8F5 !important;
+        border-color: #171614 !important;
+        box-shadow: 0 4px 16px rgba(23, 22, 20, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .pdp-size-btn.sold-out,
+    .pdp-size-btn:disabled {
+        background: #F5F2ED;
+        color: #A8A29E;
+        border-color: rgba(28, 25, 23, 0.08);
+        cursor: not-allowed;
+        opacity: 0.7;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pdp-size-strike {
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        right: 10%;
+        height: 1.5px;
+        background: #DC2626;
+        transform: rotate(-25deg);
+        pointer-events: none;
+    }
+
+    .pdp-size-soldout-label {
+        position: absolute;
+        bottom: 1px;
+        font-size: 0.52rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #DC2626;
+        letter-spacing: 0.02em;
+        line-height: 1;
+    }
+
+    .pdp-size-low-tag {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #D97706;
+        color: #FFFFFF;
+        font-size: 0.52rem;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 999px;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    @keyframes shakeAnimation {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+
+    .pdp-shake {
+        animation: shakeAnimation 0.4s ease-in-out;
+    }
+
+    /* Size Chart Modal */
+    .size-chart-modal .modal-content {
+        background: #FAF8F5;
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(28, 25, 23, 0.18);
+    }
+
+    .size-chart-table {
+        background: #FFFFFF;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(28, 25, 23, 0.08);
+        margin-bottom: 0;
+    }
+
+    .size-chart-table th {
+        background: #171614;
+        color: #FAF8F5;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 10px 12px;
+        font-weight: 600;
+    }
+
+    .size-chart-table td {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        color: #171614;
+        border-color: rgba(28, 25, 23, 0.06);
+    }
+
+    .size-chart-table tr:nth-child(even) td {
+        background: #FAF8F5;
+    }
+
+    .size-chart-table tr.highlight-size td {
+        background: #FEF3C7 !important;
+        font-weight: 700;
+    }
+
+    .unit-switch-btn {
+        border: 1px solid rgba(28, 25, 23, 0.15);
+        background: #FFFFFF;
+        color: #635F59;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .unit-switch-btn.active {
+        background: #171614;
+        color: #FFFFFF;
+        border-color: #171614;
+    }
 </style>
 {% endblock %}
 
@@ -943,15 +1121,72 @@
                         </div>
                     </div>
 
+                    {% if product.has_sizes %}
+                    <!-- Size Selector & Size Chart trigger -->
+                    <div class="pdp-size-section mb-3 pb-2 border-bottom border-secondary border-opacity-10" id="pdpSizeSection">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <span class="pdp-size-title text-dark fw-bold" style="font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;">SELECT SIZE</span>
+                                <span class="pdp-selected-size-text text-secondary small ms-2 fw-semibold" id="pdpSelectedSizeText"></span>
+                            </div>
+                            <button type="button" class="pdp-size-chart-trigger btn btn-link p-0 text-decoration-none text-dark d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.74rem; letter-spacing: 0.04em;" data-bs-toggle="modal" data-bs-target="#sizeChartModal" id="pdpOpenSizeChartBtn">
+                                <i class="bi bi-rulers text-secondary"></i> <span>Size Chart</span>
+                            </button>
+                        </div>
+
+                        <!-- Size Pills -->
+                        <div class="pdp-size-pills d-flex flex-wrap gap-2" role="group" aria-label="Select Size" id="pdpSizePills">
+                            {% for s in product.available_sizes %}
+                                {% if s.stock > 0 %}
+                                    <button type="button" 
+                                            class="pdp-size-btn" 
+                                            data-size="{{ s.size }}" 
+                                            data-stock="{{ s.stock }}"
+                                            aria-label="Size {{ s.size }} - {{ s.stock }} available"
+                                            title="{{ s.size }}: {{ s.stock }} available in stock">
+                                        {{ s.size }}
+                                        {% if s.stock <= 3 %}
+                                            <span class="pdp-size-low-tag">Only {{ s.stock }}</span>
+                                        {% endif %}
+                                    </button>
+                                {% else %}
+                                    <button type="button" 
+                                            class="pdp-size-btn sold-out" 
+                                            data-size="{{ s.size }}" 
+                                            data-stock="0"
+                                            disabled
+                                            aria-label="Size {{ s.size }} - Sold Out"
+                                            title="Size {{ s.size }} is currently Sold Out">
+                                        {{ s.size }}
+                                        <span class="pdp-size-strike"></span>
+                                        <span class="pdp-size-soldout-label">Sold out</span>
+                                    </button>
+                                {% endif %}
+                            {% empty %}
+                                <span class="text-secondary small">Standard Free Size</span>
+                            {% endfor %}
+                        </div>
+
+                        <input type="hidden" id="pdpSelectedSize" name="size" value="">
+
+                        <!-- Validation alert if user clicks Add to Cart or Buy Now without selecting a size -->
+                        <div id="pdpSizeAlert" class="small text-danger d-none mt-2 d-flex align-items-center gap-1.5" style="font-size: 0.76rem; font-weight: 600;">
+                            <i class="bi bi-exclamation-circle-fill"></i> <span id="pdpSizeAlertText">Please select a size to proceed.</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="pdp-actions">
                         {% if product.stock > 0 %}
-                            <button type="button" class="pdp-btn-add-cart w-100 mb-2 ajax-add-to-bag"
+                            <button type="button" class="pdp-btn-add-cart w-100 mb-2"
+                                    id="pdpAddBagBtn"
                                     data-product-id="{{ product.id }}"
                                     data-product-name="{{ product.name }}"
+                                    data-has-sizes="{% if product.has_sizes %}true{% else %}false{% endif %}"
                                     data-add-url="{% url 'add_to_cart' product.id %}">
                                 <i class="bi bi-bag-plus"></i> ADD TO CART
                             </button>
-                            <a href="{% url 'buy_now' product.id %}" class="pdp-btn-buy-now w-100 mb-2">
+                            <a href="{% url 'buy_now' product.id %}" class="pdp-btn-buy-now w-100 mb-2" id="pdpBuyNowBtn" data-has-sizes="{% if product.has_sizes %}true{% else %}false{% endif %}" data-base-url="{% url 'buy_now' product.id %}">
                                 BUY IT NOW
                             </a>
                             <a href="https://wa.me/918281451481?text=Hello%20ASHAS%20Store%2C%20I%20would%20like%20to%20enquire%20about%20{{ product.name|urlencode }}%20(RS.%20{{ product.current_price|floatformat:2 }}).%20{{ request.build_absolute_uri|urlencode }}"
@@ -1057,6 +1292,144 @@
 
     </div>
 </div>
+
+{% if product.has_sizes %}
+<!-- SIZE GUIDE & MEASUREMENTS MODAL -->
+<div class="modal fade" id="sizeChartModal" tabindex="-1" aria-labelledby="sizeChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden; background: #FFFFFF;">
+            
+            <div class="modal-header px-4 pt-4 pb-3 border-0 d-flex justify-content-between align-items-center" style="background: #FAF8F5;">
+                <div>
+                    <span class="badge text-uppercase px-2.5 py-1 mb-1" style="background: rgba(28, 25, 23, 0.08); color: #171614; font-size: 0.7rem; letter-spacing: 0.1em; font-weight: 600;">ASHAS APPAREL</span>
+                    <h4 class="modal-title fw-bold text-dark mb-0" id="sizeChartModalLabel" style="font-family: 'Outfit', sans-serif; letter-spacing: 0.04em;">
+                        SIZE CHART &amp; FIT GUIDE
+                    </h4>
+                    <p class="text-secondary small mb-0 mt-0.5" style="font-size: 0.8rem;">Standard unisex measurements for Shirts &amp; T-Shirts</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="opacity: 0.8;"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <!-- Unit Switcher (Inches / CM) -->
+                <div class="d-flex justify-content-between align-items-center mb-3 p-2 px-3 rounded-3" style="background: #F5F3EF; border: 1px solid rgba(28, 25, 23, 0.06);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-rulers text-dark"></i>
+                        <span class="small fw-semibold text-dark" style="letter-spacing: 0.04em;">MEASUREMENT UNIT</span>
+                    </div>
+                    <div class="btn-group size-unit-toggle" role="group" aria-label="Size unit toggle">
+                        <button type="button" class="btn btn-sm btn-dark active" id="unitInchesBtn" style="font-size: 0.75rem; font-weight: 600; padding: 4px 14px; border-radius: 6px 0 0 6px;">INCHES (IN)</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark" id="unitCmBtn" style="font-size: 0.75rem; font-weight: 600; padding: 4px 14px; border-radius: 0 6px 6px 0;">CENTIMETERS (CM)</button>
+                    </div>
+                </div>
+
+                <!-- Size Table -->
+                <div class="table-responsive mb-4" style="border: 1px solid rgba(28, 25, 23, 0.1); border-radius: 12px; overflow: hidden;">
+                    <table class="table table-hover align-middle mb-0 text-center" style="font-size: 0.88rem;">
+                        <thead style="background: #171614; color: #FAF8F5;">
+                            <tr>
+                                <th scope="col" class="py-3 text-start ps-3" style="font-weight: 600; letter-spacing: 0.05em;">SIZE</th>
+                                <th scope="col" class="py-3" style="font-weight: 600; letter-spacing: 0.05em;">CHEST (AROUND)</th>
+                                <th scope="col" class="py-3" style="font-weight: 600; letter-spacing: 0.05em;">LENGTH</th>
+                                <th scope="col" class="py-3" style="font-weight: 600; letter-spacing: 0.05em;">SHOULDER</th>
+                                <th scope="col" class="py-3 text-end pe-3" style="font-weight: 600; letter-spacing: 0.05em;">SLEEVE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sizeChartTableBody">
+                            <tr class="size-row" data-size="XS">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">XS</span> Extra Small</td>
+                                <td class="size-val" data-in="36&quot;" data-cm="91 cm">36"</td>
+                                <td class="size-val" data-in="27&quot;" data-cm="68.5 cm">27"</td>
+                                <td class="size-val" data-in="16.5&quot;" data-cm="42 cm">16.5"</td>
+                                <td class="size-val text-end pe-3" data-in="8&quot;" data-cm="20.5 cm">8"</td>
+                            </tr>
+                            <tr class="size-row" data-size="S">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">S</span> Small</td>
+                                <td class="size-val" data-in="38&quot;" data-cm="96.5 cm">38"</td>
+                                <td class="size-val" data-in="28&quot;" data-cm="71 cm">28"</td>
+                                <td class="size-val" data-in="17.5&quot;" data-cm="44.5 cm">17.5"</td>
+                                <td class="size-val text-end pe-3" data-in="8.5&quot;" data-cm="21.5 cm">8.5"</td>
+                            </tr>
+                            <tr class="size-row" data-size="M">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">M</span> Medium</td>
+                                <td class="size-val" data-in="40&quot;" data-cm="101.5 cm">40"</td>
+                                <td class="size-val" data-in="29&quot;" data-cm="73.5 cm">29"</td>
+                                <td class="size-val" data-in="18.5&quot;" data-cm="47 cm">18.5"</td>
+                                <td class="size-val text-end pe-3" data-in="9&quot;" data-cm="23 cm">9"</td>
+                            </tr>
+                            <tr class="size-row" data-size="L">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">L</span> Large</td>
+                                <td class="size-val" data-in="42&quot;" data-cm="106.5 cm">42"</td>
+                                <td class="size-val" data-in="30&quot;" data-cm="76 cm">30"</td>
+                                <td class="size-val" data-in="19.5&quot;" data-cm="49.5 cm">19.5"</td>
+                                <td class="size-val text-end pe-3" data-in="9.5&quot;" data-cm="24 cm">9.5"</td>
+                            </tr>
+                            <tr class="size-row" data-size="XL">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">XL</span> Extra Large</td>
+                                <td class="size-val" data-in="44&quot;" data-cm="112 cm">44"</td>
+                                <td class="size-val" data-in="31&quot;" data-cm="78.5 cm">31"</td>
+                                <td class="size-val" data-in="20.5&quot;" data-cm="52 cm">20.5"</td>
+                                <td class="size-val text-end pe-3" data-in="10&quot;" data-cm="25.5 cm">10"</td>
+                            </tr>
+                            <tr class="size-row" data-size="XXL">
+                                <td class="text-start ps-3 fw-bold text-dark"><span class="badge bg-light text-dark border px-2 py-1">XXL</span> Double Extra Large</td>
+                                <td class="size-val" data-in="46&quot;" data-cm="117 cm">46"</td>
+                                <td class="size-val" data-in="32&quot;" data-cm="81 cm">32"</td>
+                                <td class="size-val" data-in="21.5&quot;" data-cm="54.5 cm">21.5"</td>
+                                <td class="size-val text-end pe-3" data-in="10.5&quot;" data-cm="26.5 cm">10.5"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- How to Measure Cards -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #FAF8F5; border: 1px solid rgba(28, 25, 23, 0.08);">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge rounded-circle bg-dark text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem;">1</span>
+                                <h6 class="fw-bold mb-0 text-dark small" style="letter-spacing: 0.04em;">CHEST</h6>
+                            </div>
+                            <p class="text-secondary mb-0" style="font-size: 0.78rem; line-height: 1.5;">Measure horizontally around the fullest part of your chest, keeping tape snug and level.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #FAF8F5; border: 1px solid rgba(28, 25, 23, 0.08);">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge rounded-circle bg-dark text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem;">2</span>
+                                <h6 class="fw-bold mb-0 text-dark small" style="letter-spacing: 0.04em;">LENGTH</h6>
+                            </div>
+                            <p class="text-secondary mb-0" style="font-size: 0.78rem; line-height: 1.5;">Measure vertically from highest shoulder/collar point straight down to the bottom hem.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #FAF8F5; border: 1px solid rgba(28, 25, 23, 0.08);">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge rounded-circle bg-dark text-white" style="width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem;">3</span>
+                                <h6 class="fw-bold mb-0 text-dark small" style="letter-spacing: 0.04em;">SHOULDER</h6>
+                            </div>
+                            <p class="text-secondary mb-0" style="font-size: 0.78rem; line-height: 1.5;">Measure straight across the back from one shoulder bone tip to the opposite shoulder tip.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 p-2.5 px-3 rounded-2 d-flex align-items-center gap-2" style="background: rgba(226, 186, 120, 0.15); border: 1px solid rgba(226, 186, 120, 0.35);">
+                    <i class="bi bi-info-circle text-dark"></i>
+                    <span class="text-dark" style="font-size: 0.78rem; font-weight: 500;">
+                        <strong>Styling Tip:</strong> For an oversized / drop-shoulder street silhouette, order one size up from your usual fit.
+                    </span>
+                </div>
+            </div>
+
+            <div class="modal-footer px-4 py-3 border-0" style="background: #FAF8F5;">
+                <button type="button" class="btn btn-dark w-100 py-2 fw-semibold" data-bs-dismiss="modal" style="letter-spacing: 0.06em; border-radius: 8px;">
+                    GOT IT, CHOOSE SIZE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -1280,6 +1653,134 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // =========================================================
+    // Size Selection, Validation & Size Chart Unit Switcher
+    // =========================================================
+    const sizeButtons = document.querySelectorAll('.pdp-size-btn:not(.sold-out)');
+    const selectedSizeInput = document.getElementById('pdpSelectedSize');
+    const selectedSizeLabel = document.getElementById('pdpSelectedSizeLabel');
+    const sizeAlert = document.getElementById('pdpSizeAlert');
+    const sizeAlertText = document.getElementById('pdpSizeAlertText');
+    const sizePickerBox = document.querySelector('.pdp-size-picker');
+    const pdpAddBagBtn = document.getElementById('pdpAddBagBtn');
+    const pdpBuyNowBtn = document.getElementById('pdpBuyNowBtn');
+
+    function selectSize(btn) {
+        const size = btn.getAttribute('data-size');
+        const stock = parseInt(btn.getAttribute('data-stock') || '0', 10);
+        
+        document.querySelectorAll('.pdp-size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (selectedSizeInput) selectedSizeInput.value = size;
+        if (selectedSizeLabel) selectedSizeLabel.textContent = size;
+
+        if (sizeAlert) sizeAlert.classList.add('d-none');
+        if (sizePickerBox) sizePickerBox.classList.remove('pdp-shake');
+
+        if (pdpAddBagBtn) {
+            const rawAddUrl = pdpAddBagBtn.getAttribute('data-add-url') || '';
+            const cleanAddUrl = rawAddUrl.split('?')[0];
+            pdpAddBagBtn.setAttribute('data-add-url', `${cleanAddUrl}?size=${encodeURIComponent(size)}`);
+        }
+        if (pdpBuyNowBtn) {
+            const rawBuyUrl = pdpBuyNowBtn.getAttribute('data-base-url') || pdpBuyNowBtn.getAttribute('href') || '';
+            const cleanBuyUrl = rawBuyUrl.split('?')[0];
+            pdpBuyNowBtn.setAttribute('href', `${cleanBuyUrl}?size=${encodeURIComponent(size)}`);
+        }
+    }
+
+    sizeButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            selectSize(this);
+        });
+    });
+
+    function triggerSizeAlert(msg) {
+        if (sizeAlert && sizeAlertText) {
+            sizeAlertText.textContent = msg || 'Please select a size to proceed.';
+            sizeAlert.classList.remove('d-none');
+        }
+        if (sizePickerBox) {
+            sizePickerBox.classList.remove('pdp-shake');
+            void sizePickerBox.offsetWidth;
+            sizePickerBox.classList.add('pdp-shake');
+            sizePickerBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    if (pdpAddBagBtn) {
+        pdpAddBagBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const hasSizes = this.getAttribute('data-has-sizes') === 'true';
+            const chosenSize = selectedSizeInput ? selectedSizeInput.value : '';
+
+            if (hasSizes && !chosenSize) {
+                triggerSizeAlert('Please choose a size (XS to XXL) before adding to your bag.');
+                return;
+            }
+
+            let addUrl = this.getAttribute('data-add-url');
+            if (hasSizes && chosenSize) {
+                const clean = addUrl.split('?')[0];
+                addUrl = `${clean}?size=${encodeURIComponent(chosenSize)}`;
+            }
+
+            if (window.handleAjaxAddToCart) {
+                window.handleAjaxAddToCart(this, addUrl);
+            } else {
+                window.location.href = addUrl;
+            }
+        });
+    }
+
+    if (pdpBuyNowBtn) {
+        pdpBuyNowBtn.addEventListener('click', function(e) {
+            const hasSizes = this.getAttribute('data-has-sizes') === 'true';
+            const chosenSize = selectedSizeInput ? selectedSizeInput.value : '';
+
+            if (hasSizes && !chosenSize) {
+                e.preventDefault();
+                triggerSizeAlert('Please select a size to proceed with instant checkout.');
+                return;
+            }
+
+            if (hasSizes && chosenSize) {
+                const rawUrl = this.getAttribute('data-base-url') || this.getAttribute('href');
+                const clean = rawUrl.split('?')[0];
+                this.setAttribute('href', `${clean}?size=${encodeURIComponent(chosenSize)}`);
+            }
+        });
+    }
+
+    // Modal inches/cm switcher
+    const inchesBtn = document.getElementById('unitInchesBtn');
+    const cmBtn = document.getElementById('unitCmBtn');
+    if (inchesBtn && cmBtn) {
+        inchesBtn.addEventListener('click', function() {
+            inchesBtn.classList.add('btn-dark', 'active');
+            inchesBtn.classList.remove('btn-outline-dark');
+            cmBtn.classList.add('btn-outline-dark');
+            cmBtn.classList.remove('btn-dark', 'active');
+            document.querySelectorAll('.size-val').forEach(td => {
+                const inVal = td.getAttribute('data-in');
+                if (inVal) td.innerHTML = inVal;
+            });
+        });
+
+        cmBtn.addEventListener('click', function() {
+            cmBtn.classList.add('btn-dark', 'active');
+            cmBtn.classList.remove('btn-outline-dark');
+            inchesBtn.classList.add('btn-outline-dark');
+            inchesBtn.classList.remove('btn-dark', 'active');
+            document.querySelectorAll('.size-val').forEach(td => {
+                const cmVal = td.getAttribute('data-cm');
+                if (cmVal) td.innerHTML = cmVal;
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
