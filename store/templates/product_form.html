@@ -293,113 +293,163 @@
                     </label>
                     {{ form.stock }}
                 </div>
-
-                <!-- Size Inventory Matrix Section (XS, S, M, L, XL, XXL) -->
-                <div class="col-12" id="sizeMatrixWrapper">
-                    <div class="p-3 p-sm-4 rounded-3 border" style="background: linear-gradient(135deg, #FAF8F5 0%, #F5F1EA 100%); border: 1.5px solid rgba(28, 25, 23, 0.12) !important;">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="width: 32px; height: 32px; border-radius: 8px; background: #171614; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                <!-- Size Chart & Sizing Toggle Section (Optional) -->
+                <div class="col-12">
+                    <div class="p-3 p-sm-4 rounded-3 border" style="background: var(--bg-surface); border-color: var(--border-subtle) !important;">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <span style="width: 38px; height: 38px; border-radius: 10px; background: #171614; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;">
                                     <i class="bi bi-rulers"></i>
                                 </span>
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
-                                        <h6 class="m-0 fw-bold text-dark text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.06em;">
-                                            Size Inventory & Counts (XS to XXL)
+                                        <h6 class="m-0 fw-bold text-dark text-uppercase" style="font-size: 0.88rem; letter-spacing: 0.06em;">
+                                            Size Chart &amp; Sizing
                                         </h6>
-                                        <span class="badge bg-dark rounded-pill px-2 py-0.5" id="sizeActiveCategoryBadge" style="font-size: 0.62rem;">Apparel Sizing</span>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-0.5" id="sizeChartStateBadge" style="font-size: 0.65rem;">Optional</span>
                                     </div>
-                                    <small class="text-secondary" style="font-size: 0.74rem;">
-                                        Enter count for each size. e.g. Small: 5, Large: 6. Overall stock will auto-calculate and save directly!
+                                    <small class="text-secondary d-block mt-0.5" style="font-size: 0.76rem;">
+                                        Click button to enable size options (XS to XXL) and interactive size chart modal for this product.
                                     </small>
                                 </div>
                             </div>
-                            <span class="badge bg-dark rounded-pill px-3 py-1.5" id="sizeStockTotalBadge" style="font-size: 0.75rem; letter-spacing: 0.04em;">
-                                Total Stock: <strong id="sizeStockTotalNumber">0</strong> units
-                            </span>
-                        </div>
 
-                        <div class="row g-2 g-sm-3">
-                            <!-- XS -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XS</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Extra Small</span>
-                                    <input type="number" name="size_stock_XS" id="size_stock_XS" min="0" 
-                                           value="{% if sizes_dict.XS is not None %}{{ sizes_dict.XS }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_XS" style="font-size: 0.62rem;"></span>
-                                </div>
-                            </div>
-                            <!-- S -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">S</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Small</span>
-                                    <input type="number" name="size_stock_S" id="size_stock_S" min="0" 
-                                           value="{% if sizes_dict.S is not None %}{{ sizes_dict.S }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_S" style="font-size: 0.62rem;"></span>
-                                </div>
-                            </div>
-                            <!-- M -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">M</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Medium</span>
-                                    <input type="number" name="size_stock_M" id="size_stock_M" min="0" 
-                                           value="{% if sizes_dict.M is not None %}{{ sizes_dict.M }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_M" style="font-size: 0.62rem;"></span>
-                                </div>
-                            </div>
-                            <!-- L -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">L</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Large</span>
-                                    <input type="number" name="size_stock_L" id="size_stock_L" min="0" 
-                                           value="{% if sizes_dict.L is not None %}{{ sizes_dict.L }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_L" style="font-size: 0.62rem;"></span>
-                                </div>
-                            </div>
-                            <!-- XL -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XL</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Extra Large</span>
-                                    <input type="number" name="size_stock_XL" id="size_stock_XL" min="0" 
-                                           value="{% if sizes_dict.XL is not None %}{{ sizes_dict.XL }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_XL" style="font-size: 0.62rem;"></span>
-                                </div>
-                            </div>
-                            <!-- XXL -->
-                            <div class="col-6 col-sm-4 col-md-2">
-                                <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
-                                    <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XXL</span>
-                                    <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Double Large</span>
-                                    <input type="number" name="size_stock_XXL" id="size_stock_XXL" min="0" 
-                                           value="{% if sizes_dict.XXL is not None %}{{ sizes_dict.XXL }}{% else %}0{% endif %}" 
-                                           class="form-control text-center fw-bold size-stock-input px-1" 
-                                           style="min-height: 38px; font-size: 0.95rem;">
-                                    <span class="badge size-status-badge mt-1.5 w-100" id="badge_XXL" style="font-size: 0.62rem;"></span>
+                            <div class="d-flex align-items-center gap-2 ms-auto">
+                                <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm" id="btnToggleSizeChart" style="font-size: 0.78rem; letter-spacing: 0.03em;">
+                                    <i class="bi bi-plus-circle" id="btnToggleSizeChartIcon"></i>
+                                    <span id="btnToggleSizeChartText">Enable Size Chart</span>
+                                </button>
+                                <div class="form-check form-switch m-0 d-none">
+                                    {{ form.has_size_chart }}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top border-secondary border-opacity-10 small text-secondary">
-                            <span style="font-size: 0.74rem;"><i class="bi bi-info-circle me-1"></i>Sizes with count &gt; 0 will be available to customers. When a size sells out, it automatically disables on the product page.</span>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-dark btn-sm rounded-pill py-0.5 px-2" style="font-size: 0.7rem;" id="btnFillSampleSizes">Sample Counts (S:5, L:6)</button>
-                                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 0.7rem;" id="btnResetSizes">Reset to 0</button>
+                        <!-- Size Matrix & Chart Container (shown only when enabled) -->
+                        <div class="mt-3 pt-3 border-top border-secondary border-opacity-10 d-none" id="sizeMatrixWrapper">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="small fw-semibold text-dark text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                                        <i class="bi bi-boxes me-1"></i> Size Stock Inventory
+                                    </span>
+                                    <span class="badge bg-dark rounded-pill px-2 py-0.5" id="sizeActiveCategoryBadge" style="font-size: 0.62rem;">XS - XXL</span>
+                                </div>
+                                <span class="badge bg-dark rounded-pill px-3 py-1.5" id="sizeStockTotalBadge" style="font-size: 0.75rem; letter-spacing: 0.04em;">
+                                    Total Stock: <strong id="sizeStockTotalNumber">0</strong> units
+                                </span>
                             </div>
+
+                            <div class="row g-2 g-sm-3">
+                                <!-- XS -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XS</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Extra Small</span>
+                                        <input type="number" name="size_stock_XS" id="size_stock_XS" min="0" 
+                                               value="{% if sizes_dict.XS is not None %}{{ sizes_dict.XS }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_XS" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                                <!-- S -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">S</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Small</span>
+                                        <input type="number" name="size_stock_S" id="size_stock_S" min="0" 
+                                               value="{% if sizes_dict.S is not None %}{{ sizes_dict.S }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_S" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                                <!-- M -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">M</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Medium</span>
+                                        <input type="number" name="size_stock_M" id="size_stock_M" min="0" 
+                                               value="{% if sizes_dict.M is not None %}{{ sizes_dict.M }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_M" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                                <!-- L -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">L</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Large</span>
+                                        <input type="number" name="size_stock_L" id="size_stock_L" min="0" 
+                                               value="{% if sizes_dict.L is not None %}{{ sizes_dict.L }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_L" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                                <!-- XL -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XL</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Extra Large</span>
+                                        <input type="number" name="size_stock_XL" id="size_stock_XL" min="0" 
+                                               value="{% if sizes_dict.XL is not None %}{{ sizes_dict.XL }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_XL" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                                <!-- XXL -->
+                                <div class="col-6 col-sm-4 col-md-2">
+                                    <div class="bg-white p-2.5 rounded-3 border text-center shadow-sm h-100" style="border-color: rgba(28, 25, 23, 0.1) !important;">
+                                        <span class="d-block fw-bold text-dark small text-uppercase" style="letter-spacing: 0.08em;">XXL</span>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.65rem;">Double Large</span>
+                                        <input type="number" name="size_stock_XXL" id="size_stock_XXL" min="0" 
+                                               value="{% if sizes_dict.XXL is not None %}{{ sizes_dict.XXL }}{% else %}0{% endif %}" 
+                                               class="form-control text-center fw-bold size-stock-input px-1" 
+                                               style="min-height: 38px; font-size: 0.95rem;">
+                                        <span class="badge size-status-badge mt-1.5 w-100" id="badge_XXL" style="font-size: 0.62rem;"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top border-secondary border-opacity-10 small text-secondary">
+                                <span style="font-size: 0.74rem;"><i class="bi bi-info-circle me-1"></i>Sizes with count &gt; 0 will be selectable on the product page. Overall stock syncs automatically.</span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-dark btn-sm rounded-pill py-0.5 px-2" style="font-size: 0.7rem;" id="btnFillSampleSizes">Sample Counts (S:5, L:6)</button>
+                                    <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 0.7rem;" id="btnResetSizes">Reset to 0</button>
+                                </div>
+                            </div>
+
+                            <!-- Optional Custom Size Chart Image Upload -->
+                            <div class="mt-3 pt-3 border-top border-secondary border-opacity-10">
+                                <label class="form-label-custom d-flex align-items-center justify-content-between mb-1">
+                                    <span><i class="bi bi-image me-1"></i> Custom Size Chart Diagram / Image (Optional)</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.62rem;">Optional</span>
+                                </label>
+                                <small class="text-secondary d-block mb-2" style="font-size: 0.74rem;">
+                                    If uploaded, this custom image/diagram will be displayed directly inside the Size Chart modal on the product page.
+                                </small>
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-6">
+                                        {{ form.size_chart_image }}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        {{ form.size_chart_url }}
+                                    </div>
+                                </div>
+                                {% if product and product.display_size_chart_image %}
+                                <div class="d-flex align-items-center gap-2 mt-2 p-2 rounded-2 bg-white border">
+                                    <img src="{{ product.display_size_chart_image }}" alt="Current Size Chart" style="width: 44px; height: 44px; object-fit: contain; border-radius: 6px;">
+                                    <div class="small">
+                                        <span class="fw-semibold text-dark d-block" style="font-size: 0.75rem;">Current Custom Size Chart</span>
+                                        <a href="{{ product.display_size_chart_image }}" target="_blank" class="text-primary text-decoration-none" style="font-size: 0.7rem;">View full size image <i class="bi bi-box-arrow-up-right"></i></a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -775,24 +825,99 @@
         }
 
         // ==========================================
-        // Size Inventory Matrix Handler (XS - XXL)
+        // Size Chart & Inventory Matrix Handler
         // ==========================================
         const sizeEnabledCategoryIds = {{ size_enabled_category_ids|safe|default:"[]" }};
         const standardSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
         const categorySelect = document.getElementById('id_category');
         const stockInput = document.getElementById('id_stock');
+        const stockAutoHint = document.getElementById('stockAutoHint');
         const sizeTotalEl = document.getElementById('sizeStockTotalNumber');
         const sizeCategoryBadge = document.getElementById('sizeActiveCategoryBadge');
 
+        const hasSizeChartCheckbox = document.getElementById('id_has_size_chart');
+        const btnToggleSizeChart = document.getElementById('btnToggleSizeChart');
+        const btnToggleSizeChartIcon = document.getElementById('btnToggleSizeChartIcon');
+        const btnToggleSizeChartText = document.getElementById('btnToggleSizeChartText');
+        const sizeChartStateBadge = document.getElementById('sizeChartStateBadge');
+        const sizeMatrixWrapper = document.getElementById('sizeMatrixWrapper');
+
+        function isSizeChartActive() {
+            return hasSizeChartCheckbox ? hasSizeChartCheckbox.checked : false;
+        }
+
+        function setSizeChartState(enabled, userTriggered = false) {
+            if (hasSizeChartCheckbox) {
+                hasSizeChartCheckbox.checked = enabled;
+            }
+
+            if (enabled) {
+                if (sizeMatrixWrapper) sizeMatrixWrapper.classList.remove('d-none');
+                standardSizes.forEach(s => {
+                    const inp = document.getElementById(`size_stock_${s}`);
+                    if (inp) inp.disabled = false;
+                });
+                if (btnToggleSizeChart) {
+                    btnToggleSizeChart.className = 'btn btn-sm btn-dark rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm';
+                }
+                if (btnToggleSizeChartIcon) btnToggleSizeChartIcon.className = 'bi bi-check-circle-fill text-success';
+                if (btnToggleSizeChartText) btnToggleSizeChartText.innerText = 'Size Chart Enabled';
+                if (sizeChartStateBadge) {
+                    sizeChartStateBadge.className = 'badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5';
+                    sizeChartStateBadge.innerText = 'Active on Product Page';
+                }
+                if (stockAutoHint) {
+                    stockAutoHint.innerText = 'Auto-calculated from sizes';
+                    stockAutoHint.className = 'badge bg-secondary bg-opacity-10 text-dark';
+                }
+                if (stockInput) stockInput.readOnly = true;
+                updateSizeMatrixCalculations();
+            } else {
+                if (sizeMatrixWrapper) sizeMatrixWrapper.classList.add('d-none');
+                standardSizes.forEach(s => {
+                    const inp = document.getElementById(`size_stock_${s}`);
+                    if (inp) inp.disabled = true;
+                });
+                if (btnToggleSizeChart) {
+                    btnToggleSizeChart.className = 'btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-sm';
+                }
+                if (btnToggleSizeChartIcon) btnToggleSizeChartIcon.className = 'bi bi-plus-circle';
+                if (btnToggleSizeChartText) btnToggleSizeChartText.innerText = 'Enable Size Chart';
+                if (sizeChartStateBadge) {
+                    sizeChartStateBadge.className = 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-0.5';
+                    sizeChartStateBadge.innerText = 'Optional';
+                }
+                if (stockAutoHint) {
+                    stockAutoHint.innerText = 'Manual stock quantity';
+                    stockAutoHint.className = 'badge bg-light text-muted border';
+                }
+                if (stockInput) stockInput.readOnly = false;
+            }
+        }
+
+        if (btnToggleSizeChart) {
+            btnToggleSizeChart.addEventListener('click', function(e) {
+                e.preventDefault();
+                const nextState = !isSizeChartActive();
+                setSizeChartState(nextState, true);
+            });
+        }
+
+        if (hasSizeChartCheckbox) {
+            hasSizeChartCheckbox.addEventListener('change', function() {
+                setSizeChartState(this.checked, true);
+            });
+        }
+
         function updateSizeMatrixCalculations() {
+            if (!isSizeChartActive()) return;
+
             let total = 0;
-            let hasAnyStock = false;
             standardSizes.forEach(s => {
                 const inp = document.getElementById(`size_stock_${s}`);
                 const badge = document.getElementById(`badge_${s}`);
                 const count = inp ? parseInt(inp.value) || 0 : 0;
                 total += count;
-                if (count > 0) hasAnyStock = true;
 
                 if (badge) {
                     if (count > 0) {
@@ -807,10 +932,8 @@
 
             if (sizeTotalEl) sizeTotalEl.innerText = total;
 
-            // Automatically sync with main stock input if sizes are configured
-            if (hasAnyStock || isCategorySizeEnabled()) {
-                if (stockInput) stockInput.value = total;
-            }
+            // Automatically sync with main stock input when size chart is active
+            if (stockInput) stockInput.value = total;
         }
 
         function isCategorySizeEnabled() {
@@ -820,14 +943,14 @@
         }
 
         function updateCategorySizeStatus() {
-            const isEnabled = isCategorySizeEnabled();
+            const isCategoryApparel = isCategorySizeEnabled();
             if (sizeCategoryBadge) {
-                if (isEnabled) {
-                    sizeCategoryBadge.className = 'badge bg-success text-white rounded-pill px-2 py-0.5';
-                    sizeCategoryBadge.innerText = 'Category Sizing Active';
+                if (isCategoryApparel) {
+                    sizeCategoryBadge.className = 'badge bg-dark rounded-pill px-2 py-0.5';
+                    sizeCategoryBadge.innerText = 'Apparel Sizing (XS - XXL)';
                 } else {
                     sizeCategoryBadge.className = 'badge bg-secondary bg-opacity-25 text-dark rounded-pill px-2 py-0.5';
-                    sizeCategoryBadge.innerText = 'Optional Sizing';
+                    sizeCategoryBadge.innerText = 'Custom Sizing (XS - XXL)';
                 }
             }
         }
@@ -843,7 +966,6 @@
         if (categorySelect) {
             categorySelect.addEventListener('change', function() {
                 updateCategorySizeStatus();
-                updateSizeMatrixCalculations();
             });
         }
 
@@ -869,8 +991,26 @@
             });
         }
 
+        // Before form submission, ensure inputs are enabled if size chart is active
+        const mainForm = document.querySelector('form');
+        if (mainForm) {
+            mainForm.addEventListener('submit', function() {
+                if (isSizeChartActive()) {
+                    standardSizes.forEach(s => {
+                        const inp = document.getElementById(`size_stock_${s}`);
+                        if (inp) inp.disabled = false;
+                    });
+                }
+            });
+        }
+
+        // Initialize state based on product's has_size_chart checkbox value
+        const initialActive = isSizeChartActive();
+        setSizeChartState(initialActive);
         updateCategorySizeStatus();
-        updateSizeMatrixCalculations();
+        if (initialActive) {
+            updateSizeMatrixCalculations();
+        }
 
         updateActivePhotosCounter();
     })();

@@ -32,15 +32,19 @@ class ProductSizeInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('admin_code', 'name', 'category', 'image_preview', 'photo_count_display', 'price', 'discount_price', 'stock', 'sizes_display', 'is_trending', 'created_at')
-    list_filter = ('category', 'category__has_sizes', 'is_trending', 'created_at')
+    list_display = ('admin_code', 'name', 'category', 'has_size_chart', 'image_preview', 'photo_count_display', 'price', 'discount_price', 'stock', 'sizes_display', 'is_trending', 'created_at')
+    list_filter = ('has_size_chart', 'category', 'category__has_sizes', 'is_trending', 'created_at')
     search_fields = ('admin_code', 'name', 'description')
-    list_editable = ('price', 'discount_price', 'stock')
+    list_editable = ('has_size_chart', 'price', 'discount_price', 'stock')
     inlines = [ProductSizeInline]
 
     fieldsets = (
         ('Basic Information', {
             'fields': ('admin_code', 'category', 'name', 'description', 'is_trending')
+        }),
+        ('Size Chart & Sizing', {
+            'fields': ('has_size_chart', 'size_chart_image', 'size_chart_url'),
+            'description': 'Enable size selection (XS to XXL) and interactive size chart modal for this specific product.'
         }),
         ('Photo 1 (Primary / Cover Photo)', {
             'fields': ('image', 'image_url'),

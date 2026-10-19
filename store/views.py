@@ -2471,28 +2471,27 @@ def product_create_or_edit(request, pk=None):
                 form.save_m2m()
 
                 # Process size inventory (XS, S, M, L, XL, XXL)
-                cat_has_sizes = bool(p.category and p.category.has_sizes)
-                has_size_inputs = any(request.POST.get(f'size_stock_{s}') is not None for s in standard_sizes)
-                if cat_has_sizes or has_size_inputs:
+                if p.has_size_chart:
                     total_size_stock = 0
-                    sizes_saved = False
                     for s in standard_sizes:
                         val_str = request.POST.get(f'size_stock_{s}')
+                        count = 0
                         if val_str is not None and val_str.strip() != '':
                             try:
                                 count = max(0, int(val_str))
                             except (ValueError, TypeError):
                                 count = 0
-                            ProductSize.objects.update_or_create(
-                                product=p,
-                                size=s,
-                                defaults={'stock': count}
-                            )
-                            total_size_stock += count
-                            sizes_saved = True
-                    if sizes_saved or p.sizes.exists():
-                        p.stock = total_size_stock
-                        p.save(update_fields=['stock'])
+                        ProductSize.objects.update_or_create(
+                            product=p,
+                            size=s,
+                            defaults={'stock': count}
+                        )
+                        total_size_stock += count
+                    p.stock = total_size_stock
+                    p.save(update_fields=['stock'])
+                else:
+                    # If size chart is not enabled for this product, clear any old size variants
+                    p.sizes.all().delete()
 
                 action_text = "updated" if pk else "created"
                 messages.success(request, f'Product "{p.name}" has been {action_text} successfully!')
@@ -2505,7 +2504,7 @@ def product_create_or_edit(request, pk=None):
             messages.error(request, 'Please correct the form errors below.')
 
     sizes_dict = {}
-    if product:
+    if product and product.has_size_chart:
         for ps in product.sizes.all():
             sizes_dict[ps.size] = ps.stock
 

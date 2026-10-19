@@ -119,6 +119,8 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             'category', 'name', 'admin_code',
+            'has_size_chart',
+            'size_chart_image', 'size_chart_url',
             'image', 'image_url', 
             'image_2', 'image_2_url', 
             'image_3', 'image_3_url', 
@@ -129,6 +131,9 @@ class ProductForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Wolf Ring, Noir Sunglasses'}),
             'admin_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 100, 101 (Leave blank to auto-generate)'}),
+            'has_size_chart': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch', 'id': 'id_has_size_chart'}),
+            'size_chart_image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'size_chart_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/size-chart.webp (Optional direct URL)'}),
             'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/photo-1.webp (Optional direct URL)'}),
             'image_2': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
@@ -145,6 +150,9 @@ class ProductForm(forms.ModelForm):
         }
         help_texts = {
             'admin_code': 'Internal shipping code visible ONLY to admin. Auto-assigned sequentially (100, 101, etc.) if left blank.',
+            'has_size_chart': 'Enable size selection (XS to XXL) and interactive size chart modal for this specific product.',
+            'size_chart_image': 'Optional custom size chart diagram/image to display in the Size Chart modal.',
+            'size_chart_url': 'Optional direct URL to custom size chart image.',
             'image': 'Photo 1 (Cover / Main Photo) - Recommended: 1000 × 1000 px (1:1 Square). Max 5 MB.',
             'image_url': 'Direct high-res link to Photo 1 (e.g. Cloudinary, CDN, Imgur).',
             'image_2': 'Photo 2 (Side / Angle View) - Recommended: 1:1 Square. Max 5 MB.',
@@ -212,6 +220,9 @@ class ProductForm(forms.ModelForm):
 
     def clean_image_4(self):
         return self._validate_image_field('image_4')
+
+    def clean_size_chart_image(self):
+        return self._validate_image_field('size_chart_image')
 
     def clean(self):
         cleaned_data = super().clean()

@@ -1311,6 +1311,18 @@
             </div>
 
             <div class="modal-body p-4">
+                {% if product.display_size_chart_image %}
+                <!-- Custom Size Chart Visual -->
+                <div class="mb-4 text-center p-2 rounded-3 border" style="background: #FAF8F5;">
+                    <span class="d-block text-secondary small fw-bold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.08em;">
+                        <i class="bi bi-aspect-ratio me-1"></i> Visual Fit &amp; Measurement Guide
+                    </span>
+                    <a href="{{ product.display_size_chart_image }}" target="_blank" rel="noopener noreferrer" title="Click to view full size image">
+                        <img src="{{ product.display_size_chart_image }}" alt="{{ product.name }} Size Guide" class="img-fluid rounded" style="max-height: 420px; object-fit: contain;">
+                    </a>
+                </div>
+                {% endif %}
+
                 <!-- Unit Switcher (Inches / CM) -->
                 <div class="d-flex justify-content-between align-items-center mb-3 p-2 px-3 rounded-3" style="background: #F5F3EF; border: 1px solid rgba(28, 25, 23, 0.06);">
                     <div class="d-flex align-items-center gap-2">

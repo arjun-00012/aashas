@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from store.models import Category, Product, Order, OrderItem, Profile, CartItem
+from store.models import Category, Product, Order, OrderItem, Profile, CartItem, ProductSize
 from unittest.mock import patch, MagicMock
 from store.forms import ProductForm, RegistrationForm, ProfileUpdateForm
 from store.views import safe_referer, check_cart_has_shades, check_cart_has_test_bracelet, calculate_shipping_fee, is_kerala_pincode, determine_delivery_region
@@ -1970,6 +1970,114 @@ class DynamicCategoryAndProductCreationTests(TestCase):
         self.assertEqual(resp.context['category'], cat_accessories)
         self.assertContains(resp, 'Leather Belt Loop Accent')
         self.assertNotContains(resp, 'Wolf Head Ring')
+
+
+class ProductSizeChartTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.staff_user = User.objects.create_user(
+            username='staff_admin',
+            password='Password123!',
+            is_staff=True
+        )
+        self.client.login(username='staff_admin', password='Password123!')
+        self.category = Category.objects.create(name='Apparel', slug='apparel', has_sizes=True)
+        self.jewel_category = Category.objects.create(name='Jewelry', slug='jewelry', has_sizes=False)
+
+    def test_product_created_without_size_chart(self):
+        """When adding a product with size chart disabled, no sizes are saved and product page does not display size chart."""
+        post_data = {
+            'category': self.category.id,
+            'name': 'Casual Cotton Tee',
+            'price': '799.00',
+            'stock': '15',
+            # has_size_chart is omitted/False
+        }
+        resp = self.client.post(reverse('product_add'), data=post_data, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        product = Product.objects.get(name='Casual Cotton Tee')
+        self.assertFalse(product.has_size_chart)
+        self.assertFalse(product.has_sizes)
+        self.assertEqual(product.sizes.count(), 0)
+
+        # Check product detail page: no size chart trigger, no size chart modal, no size picker
+        pdp_resp = self.client.get(reverse('product_detail', kwargs={'pk': product.id}))
+        self.assertEqual(pdp_resp.status_code, 200)
+        self.assertNotContains(pdp_resp, 'id="pdpOpenSizeChartBtn"')
+        self.assertNotContains(pdp_resp, 'id="sizeChartModal"')
+        self.assertNotContains(pdp_resp, 'id="pdpSizeSection"')
+        self.assertNotContains(pdp_resp, 'SELECT SIZE')
+
+    def test_product_created_with_size_chart(self):
+        """When adding a product with size chart enabled, sizes are saved and product page displays size chart and selector."""
+        post_data = {
+            'category': self.category.id,
+            'name': 'Gothic Oversized Hoodie',
+            'price': '1499.00',
+            'stock': '0',
+            'has_size_chart': 'on',
+            'size_stock_S': '4',
+            'size_stock_M': '6',
+            'size_stock_L': '8',
+            'size_stock_XL': '2',
+            'size_chart_url': 'https://example.com/custom_hoodie_chart.webp'
+        }
+        resp = self.client.post(reverse('product_add'), data=post_data, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        product = Product.objects.get(name='Gothic Oversized Hoodie')
+        self.assertTrue(product.has_size_chart)
+        self.assertTrue(product.has_sizes)
+        self.assertEqual(product.stock, 20)  # 4+6+8+2
+
+        # Check product detail page: size chart trigger and modal are present
+        pdp_resp = self.client.get(reverse('product_detail', kwargs={'pk': product.id}))
+        self.assertEqual(pdp_resp.status_code, 200)
+        self.assertContains(pdp_resp, 'id="pdpOpenSizeChartBtn"')
+        self.assertContains(pdp_resp, 'id="sizeChartModal"')
+        self.assertContains(pdp_resp, 'id="pdpSizeSection"')
+        self.assertContains(pdp_resp, 'SELECT SIZE')
+        self.assertContains(pdp_resp, 'https://example.com/custom_hoodie_chart.webp')
+
+    def test_disabling_size_chart_removes_it_from_product_page(self):
+        """Editing a product to disable size chart removes size variants and size chart from product page."""
+        product = Product.objects.create(
+            category=self.category,
+            name='Graphic Tee',
+            price=899.00,
+            stock=10,
+            has_size_chart=True
+        )
+        ProductSize.objects.create(product=product, size='M', stock=5)
+        ProductSize.objects.create(product=product, size='L', stock=5)
+
+        # Confirm size chart displays currently
+        resp1 = self.client.get(reverse('product_detail', kwargs={'pk': product.id}))
+        self.assertContains(resp1, 'id="pdpOpenSizeChartBtn"')
+
+        # Edit product to turn off has_size_chart
+        post_data = {
+            'category': self.category.id,
+            'name': 'Graphic Tee',
+            'price': '899.00',
+            'stock': '12',
+            # has_size_chart omitted (disabled)
+        }
+        edit_resp = self.client.post(reverse('product_edit', kwargs={'pk': product.id}), data=post_data, follow=True)
+        self.assertEqual(edit_resp.status_code, 200)
+
+        product.refresh_from_db()
+        self.assertFalse(product.has_size_chart)
+        self.assertFalse(product.has_sizes)
+        self.assertEqual(product.sizes.count(), 0)
+
+        # Product detail page must NO longer have size chart
+        resp2 = self.client.get(reverse('product_detail', kwargs={'pk': product.id}))
+        self.assertNotContains(resp2, 'id="pdpOpenSizeChartBtn"')
+        self.assertNotContains(resp2, 'id="sizeChartModal"')
+        self.assertNotContains(resp2, 'id="pdpSizeSection"')
+
 
 
 

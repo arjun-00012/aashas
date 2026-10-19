@@ -840,6 +840,11 @@
                                     <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 small" style="border-color: var(--border-subtle) !important;">
                                         {{ p.category.name }}
                                     </span>
+                                    {% if p.has_size_chart %}
+                                        <span class="badge bg-dark rounded-pill px-2 py-0.5 ms-1" style="font-size: 0.62rem;" title="Size Chart & Sizing Enabled">
+                                            <i class="bi bi-rulers"></i> Sized
+                                        </span>
+                                    {% endif %}
                                 </td>
                                 <td class="text-nowrap fw-bold text-dark">₹{{ p.current_price }}</td>
                                 <td class="text-nowrap stock-badge-container">

@@ -225,11 +225,29 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     stock = models.PositiveIntegerField(default=1)
     is_trending = models.BooleanField(default=False, db_index=True, help_text="Showcase this product in the Trending section")
+    has_size_chart = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Enable Size Chart & Sizing",
+        help_text="Check to enable size selection (XS to XXL) and interactive size chart for this product"
+    )
+    size_chart_image = models.ImageField(
+        upload_to='size_charts/',
+        blank=True,
+        null=True,
+        help_text="Optional custom size chart diagram/image"
+    )
+    size_chart_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="Direct link to custom size chart image (optional)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         # Reset image file pointers if present before saving
-        for img_field in [self.image, self.image_2, self.image_3, self.image_4]:
+        for img_field in [self.image, self.image_2, self.image_3, self.image_4, self.size_chart_image]:
             if img_field:
                 try:
                     if hasattr(img_field, 'seek'):
@@ -264,7 +282,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
         # Optimize image dimensions if uploaded locally
-        for img_field in [self.image, self.image_2, self.image_3, self.image_4]:
+        for img_field in [self.image, self.image_2, self.image_3, self.image_4, self.size_chart_image]:
             if img_field:
                 optimize_image_file(img_field, max_dimension=1200)
 
@@ -274,6 +292,7 @@ class Product(models.Model):
             (self.image_2, 'image_2_url', '_2'),
             (self.image_3, 'image_3_url', '_3'),
             (self.image_4, 'image_4_url', '_4'),
+            (self.size_chart_image, 'size_chart_url', '_size_chart'),
         ]
         updates = []
         for file_val, url_attr, suffix in image_slots:
@@ -378,15 +397,23 @@ class Product(models.Model):
         return len(self.gallery_images)
 
     @property
+    def display_size_chart_image(self):
+        """Returns optimized URL for custom size chart diagram/image if provided."""
+        return self._resolve_image_url(self.size_chart_image, self.size_chart_url)
+
+    @property
     def has_sizes(self):
-        """Returns True if category has sizes enabled or this product has size variants."""
-        if self.category and getattr(self.category, 'has_sizes', False):
-            return True
-        return self.sizes.exists()
+        """
+        Returns True only if this product specifically has size chart & sizing enabled.
+        When enabled, the product displays size selection (XS - XXL) and the interactive size chart modal.
+        """
+        return bool(self.has_size_chart)
 
     @property
     def available_sizes(self):
         """Returns ordered list of size variants for this product (XS, S, M, L, XL, XXL)."""
+        if not self.has_sizes:
+            return []
         size_order = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5}
         return sorted(list(self.sizes.all()), key=lambda s: size_order.get(s.size, 99))
 
