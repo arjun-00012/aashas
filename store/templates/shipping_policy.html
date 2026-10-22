@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shipping & Delivery Policy | ASHAS STORE Kozhikode{% endblock %}
+{% block meta_description %}Official Shipping & Delivery Policy of ASHAS STORE Kozhikode. Pan-India delivery via India Post Speed Post, dispatch timelines, shipping rates (Kerala and Rest of India), and live tracking details.{% endblock %}
+
+{% block content %}
+<div class="bg-light py-4 border-bottom border-secondary border-opacity-10">
+    <div class="container" style="max-width: 960px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Shipping &amp; Delivery Policy</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold font-outfit text-dark m-0" style="letter-spacing: 0.03em;">SHIPPING &amp; DELIVERY POLICY</h1>
+        <p class="text-secondary small mt-1 mb-0">Last updated: October 2026 • Fast, trackable dispatch across India</p>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 960px;">
+    <div class="row g-4">
+        <!-- Main Shipping Content -->
+        <div class="col-12 col-lg-8">
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-secondary border-opacity-10" style="line-height: 1.75; color: #374151;">
+
+                <div class="alert alert-light border border-secondary border-opacity-10 rounded-3 p-3 mb-4" style="background: #FAF8F5;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-truck text-dark fs-5"></i>
+                        <span class="fw-bold font-outfit text-dark small text-uppercase" style="letter-spacing: 0.05em;">Pan-India Courier &amp; India Post Delivery</span>
+                    </div>
+                    <p class="small text-secondary mb-0">
+                        All orders placed on <strong>ASHAS STORE</strong> (operated by <strong>KPONNAM PARAM BATH VISHNU</strong>) are inspected, packed securely in protective packaging, and dispatched directly from our flagship boutique in <strong>Kozhikode, Kerala</strong>.
+                    </p>
+                </div>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">1. Dispatch Timeline</h2>
+                <p>
+                    Orders are processed and handed over to our shipping carriers within <strong>24 to 48 working hours</strong> following successful payment capture. Orders placed on Sundays or gazetted public holidays are dispatched on the next business day.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">2. Estimated Delivery Timeframes</h2>
+                <div class="table-responsive my-3">
+                    <table class="table table-bordered align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="font-outfit text-dark">Destination Region</th>
+                                <th scope="col" class="font-outfit text-dark">Estimated Transit Time</th>
+                                <th scope="col" class="font-outfit text-dark">Primary Carrier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Inside Kerala</strong> (All 14 districts)</td>
+                                <td>2 to 4 Business Days</td>
+                                <td>India Post Speed Post / Express Local</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Metro &amp; Tier-1 Cities (Pan-India)</strong> (Bangalore, Chennai, Mumbai, Delhi, Hyderabad, etc.)</td>
+                                <td>3 to 5 Business Days</td>
+                                <td>India Post Speed Post / Air Express</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rest of India</strong> (All other states &amp; union territories)</td>
+                                <td>4 to 7 Business Days</td>
+                                <td>India Post Speed Post</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Remote / North-East / Island Regions</strong></td>
+                                <td>7 to 10 Business Days</td>
+                                <td>India Post Speed Post / Registered Parcel</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">3. Shipping Rates &amp; Packaging</h2>
+                <p>
+                    Shipping rates are calculated dynamically at checkout based on delivery destination and protective packaging requirements:
+                </p>
+                <ul>
+                    <li><strong>Inside Kerala (Standard):</strong> ₹55 flat for jewelry, chains, bracelets, and lightweight accessories.</li>
+                    <li><strong>Inside Kerala (With Shades/Eyewear):</strong> ₹65 flat to include specialized hard-shell shockproof packaging.</li>
+                    <li><strong>Outside Kerala / Rest of India:</strong> Flat ₹95 across all domestic pin-codes.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">4. Live Shipment Tracking</h2>
+                <p>
+                    As soon as your parcel is manifested with India Post, a unique <strong>Consignment Tracking Number</strong> (e.g., <code>EK...IN</code>) is generated. You can track your parcel in real-time through:
+                </p>
+                <ul>
+                    <li>Your registered <a href="{% url 'profile' %}" class="text-dark fw-semibold text-decoration-underline">ASHAS Account Profile</a>.</li>
+                    <li>The official India Post tracking portal at <strong>https://www.indiapost.gov.in</strong>.</li>
+                    <li>Automated WhatsApp / SMS dispatch notification sent to your registered mobile number.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">5. Address Accuracy &amp; Failed Deliveries</h2>
+                <p>
+                    Please ensure that your delivery address contains full details including flat/house number, street name, accurate 6-digit postal PIN code, and active telephone numbers.
+                </p>
+                <ul>
+                    <li>The postman or delivery executive typically makes up to 2 delivery attempts.</li>
+                    <li>If a package is returned to our boutique due to incorrect address or recipient unavailability, re-shipping charges may apply to re-dispatch the parcel.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">6. Shipping Inquiries</h2>
+                <div class="p-3 rounded-3" style="background: #F8F6F2;">
+                    <p class="mb-1"><strong>Dispatch Boutique:</strong> ASHAS CLOTHING Dispatch Hub</p>
+                    <p class="mb-1"><strong>Operating Entity:</strong> KPONNAM PARAM BATH VISHNU</p>
+                    <p class="mb-1"><strong>Location:</strong> Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010</p>
+                    <p class="mb-1"><strong>Email:</strong> <a href="mailto:support@ashasstore.in" class="text-dark">support@ashasstore.in</a></p>
+                    <p class="mb-0"><strong>Tracking Helpline:</strong> +91 82814 51481 (10:00 AM – 8:00 PM IST)</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="col-12 col-lg-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm border border-secondary border-opacity-10 sticky-lg-top" style="top: 90px;">
+                <h6 class="font-outfit fw-bold text-dark text-uppercase small mb-3" style="letter-spacing: 0.05em;">Compliance &amp; Legal</h6>
+                <ul class="list-unstyled mb-4 d-flex flex-column gap-2" style="font-size: 0.88rem;">
+                    <li><a href="{% url 'terms' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-file-text me-2"></i>Terms &amp; Conditions</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-shield-lock me-2"></i>Privacy Policy</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'refund_policy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-arrow-counterclockwise me-2"></i>Refund &amp; Cancellation</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'shipping_policy' %}" class="text-dark fw-bold text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-truck me-2"></i>Shipping &amp; Delivery</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'contact' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1"><span><i class="bi bi-envelope me-2"></i>Contact Us</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                </ul>
+
+                <div class="p-3 rounded-3 border border-secondary border-opacity-10 text-center" style="background: #FAF8F5;">
+                    <i class="bi bi-box-seam fs-3 text-dark mb-2 d-block"></i>
+                    <h6 class="fw-bold font-outfit text-dark small mb-1">Track Your Order</h6>
+                    <p class="small text-secondary mb-3" style="font-size: 0.8rem;">Check order status and copy your India Post tracking consignment ID directly.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-dark btn-sm rounded-pill w-100 py-2 fw-semibold">
+                        <i class="bi bi-person me-1"></i> View Order History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

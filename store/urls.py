@@ -71,6 +71,19 @@ urlpatterns = [
     path('adminpp/product/delete/<int:pk>/', views.product_delete, name='product_delete'),
     path('adminpp/product/toggle-trending/<int:pk>/', views.product_toggle_trending, name='product_toggle_trending'),
     path('adminpp/inquiry/delete/<int:pk>/', views.inquiry_delete, name='inquiry_delete'),
+
+    # Mandatory Legal & Compliance Pages (Razorpay, Bank & RBI Compliance)
+    path('terms/', views.terms_view, name='terms'),
+    path('terms-and-conditions/', views.terms_view, name='terms_alt'),
+    path('privacy/', views.privacy_view, name='privacy'),
+    path('privacy-policy/', views.privacy_view, name='privacy_alt'),
+    path('refund-policy/', views.refund_policy_view, name='refund_policy'),
+    path('returns-and-refunds/', views.refund_policy_view, name='refund_policy_alt'),
+    path('cancellation-policy/', views.refund_policy_view, name='cancellation_policy_alt'),
+    path('shipping-policy/', views.shipping_policy_view, name='shipping_policy'),
+    path('shipping/', views.shipping_policy_view, name='shipping_policy_alt'),
+    path('contact/', views.contact_view, name='contact'),
+    path('contact-us/', views.contact_view, name='contact_us'),
     
     path('<slug:slug>/', views.category_detail, name='category_direct'),
 ]

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy | ASHAS STORE Kozhikode{% endblock %}
+{% block meta_description %}Privacy Policy of ASHAS STORE / ASHAS CLOTHING. Learn how customer data is securely handled, 256-bit SSL encrypted, and processed in full compliance with RBI and Indian IT Act regulations.{% endblock %}
+
+{% block content %}
+<div class="bg-light py-4 border-bottom border-secondary border-opacity-10">
+    <div class="container" style="max-width: 960px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Privacy Policy</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold font-outfit text-dark m-0" style="letter-spacing: 0.03em;">PRIVACY POLICY</h1>
+        <p class="text-secondary small mt-1 mb-0">Last updated: October 2026 • Compliant with Information Technology Act, 2000 &amp; RBI PA/PG Guidelines</p>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 960px;">
+    <div class="row g-4">
+        <!-- Main Privacy Content -->
+        <div class="col-12 col-lg-8">
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-secondary border-opacity-10" style="line-height: 1.75; color: #374151;">
+
+                <div class="alert alert-light border border-secondary border-opacity-10 rounded-3 p-3 mb-4" style="background: #FAF8F5;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+                        <span class="fw-bold font-outfit text-dark small text-uppercase" style="letter-spacing: 0.05em;">Our Privacy Commitment</span>
+                    </div>
+                    <p class="small text-secondary mb-0">
+                        At <strong>ASHAS STORE</strong> (operated by <strong>KPONNAM PARAM BATH VISHNU</strong>), safeguarding your personal data and ensuring transparent privacy practices is our highest priority. We never sell, rent, or trade your data.
+                    </p>
+                </div>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">1. Information We Collect</h2>
+                <p>When you visit our Website, create an account, or complete a purchase, we may collect the following details:</p>
+                <ul>
+                    <li><strong>Contact Information:</strong> Full name, mobile phone number(s), and email address.</li>
+                    <li><strong>Shipping &amp; Delivery Details:</strong> Full postal address, nearby landmark, city, state, and postal PIN code.</li>
+                    <li><strong>Transaction Details:</strong> Order ID, purchased items, total amount paid, and Razorpay transaction reference identifiers.</li>
+                    <li><strong>Device &amp; Usage Information:</strong> IP address, device type, browser metadata, and cookie session tokens necessary for session and shopping cart management.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">2. How We Use Your Information</h2>
+                <p>We use your personal data strictly for legitimate operational purposes:</p>
+                <ul>
+                    <li>Fulfilling and packing your orders at our flagship boutique in Kozhikode, Kerala.</li>
+                    <li>Dispatching parcels with <strong>India Post Speed Post</strong> or courier partners and delivering live shipment tracking updates via WhatsApp / SMS.</li>
+                    <li>Processing secure payment authorizations and verifying transaction integrity through Razorpay.</li>
+                    <li>Responding to customer inquiries, support requests, and order reconciliation.</li>
+                    <li>Complying with statutory accounting, taxation (GST), and RBI regulatory audit requirements.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">3. Zero Card Storage &amp; Payment Security</h2>
+                <div class="p-3 rounded-3 mb-3" style="background: #FAF8F5; border: 1px solid rgba(0,0,0,0.06);">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-lock-fill text-dark"></i>
+                        <strong class="font-outfit text-dark small text-uppercase">Payment Data Security</strong>
+                    </div>
+                    <p class="small text-secondary mb-0">
+                        ASHAS STORE <strong>does not</strong> store, capture, or log your credit card numbers, debit card details, CVVs, net banking credentials, or UPI PINs on any server. 
+                    </p>
+                </div>
+                <p>
+                    All payment processing is handled through <strong>Razorpay Software Private Limited</strong>, an RBI-licensed Payment Aggregator compliant with the gold-standard <strong>PCI-DSS (Payment Card Industry Data Security Standard) Level 1</strong>. Data transmission is secured using 256-bit Transport Layer Security (TLS/SSL) encryption.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">4. Sharing of Information</h2>
+                <p>
+                    We do not monetize or distribute your personal data. Data is shared exclusively with verified service partners essential for service execution:
+                </p>
+                <ul>
+                    <li><strong>Logistics Partners:</strong> India Post / designated domestic couriers to deliver your parcels to your specified doorstep address.</li>
+                    <li><strong>Payment Aggregator:</strong> Razorpay for seamless payment gateway routing, fraud detection, and settlement reconciliation.</li>
+                    <li><strong>Legal &amp; Law Enforcement:</strong> Strictly when mandated by applicable Indian law, court order, or official governmental directive.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">5. Cookies &amp; Local Storage</h2>
+                <p>
+                    We use strictly essential cookies and CSRF security tokens to maintain your session state, authenticate logged-in profiles, and remember bag items. We do not deploy third-party intrusive tracking networks.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">6. Data Retention &amp; Rights</h2>
+                <p>
+                    We retain your order transaction records for the duration required by Indian financial and tax compliance laws. You possess the right to:
+                </p>
+                <ul>
+                    <li>Review and update your profile and shipping addresses anytime in your <a href="{% url 'profile' %}" class="text-dark fw-semibold text-decoration-underline">Profile Dashboard</a>.</li>
+                    <li>Request full erasure of non-statutory account data upon writing to our support team.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">7. Grievance Officer &amp; Privacy Desk</h2>
+                <p>
+                    In accordance with the Information Technology Act, 2000 and rules made thereunder, the contact details of the Grievance Officer are:
+                </p>
+                <div class="p-3 rounded-3" style="background: #F8F6F2;">
+                    <p class="mb-1"><strong>Officer:</strong> KPONNAM PARAM BATH VISHNU</p>
+                    <p class="mb-1"><strong>Operating Entity:</strong> ASHAS CLOTHING (ASHAS STORE)</p>
+                    <p class="mb-1"><strong>Address:</strong> Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010, India</p>
+                    <p class="mb-1"><strong>Email:</strong> <a href="mailto:support@ashasstore.in" class="text-dark">support@ashasstore.in</a></p>
+                    <p class="mb-0"><strong>Contact:</strong> +91 82814 51481</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="col-12 col-lg-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm border border-secondary border-opacity-10 sticky-lg-top" style="top: 90px;">
+                <h6 class="font-outfit fw-bold text-dark text-uppercase small mb-3" style="letter-spacing: 0.05em;">Compliance &amp; Legal</h6>
+                <ul class="list-unstyled mb-4 d-flex flex-column gap-2" style="font-size: 0.88rem;">
+                    <li><a href="{% url 'terms' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-file-text me-2"></i>Terms &amp; Conditions</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-dark fw-bold text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-shield-lock me-2"></i>Privacy Policy</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'refund_policy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-arrow-counterclockwise me-2"></i>Refund &amp; Cancellation</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'shipping_policy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-truck me-2"></i>Shipping &amp; Delivery</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'contact' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1"><span><i class="bi bi-envelope me-2"></i>Contact Us</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                </ul>
+
+                <div class="p-3 rounded-3 border border-secondary border-opacity-10 text-center" style="background: #FAF8F5;">
+                    <i class="bi bi-shield-check fs-3 text-success mb-2 d-block"></i>
+                    <h6 class="fw-bold font-outfit text-dark small mb-1">256-Bit SSL Encryption</h6>
+                    <p class="small text-secondary mb-3" style="font-size: 0.8rem;">All transactions and personal credentials are protected by bank-grade security protocols.</p>
+                    <a href="https://wa.me/918281451481" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill w-100 py-2 fw-semibold">
+                        <i class="bi bi-whatsapp me-1 text-success"></i> WhatsApp Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

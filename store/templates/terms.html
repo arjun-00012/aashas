@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms & Conditions | ASHAS STORE Kozhikode{% endblock %}
+{% block meta_description %}Official Terms and Conditions of ASHAS STORE / ASHAS CLOTHING, owned and operated by KPONNAM PARAM BATH VISHNU in Kozhikode, Kerala. Review terms for purchases, payments via Razorpay, and deliveries.{% endblock %}
+
+{% block content %}
+<div class="bg-light py-4 border-bottom border-secondary border-opacity-10">
+    <div class="container" style="max-width: 960px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Terms &amp; Conditions</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold font-outfit text-dark m-0" style="letter-spacing: 0.03em;">TERMS &amp; CONDITIONS</h1>
+        <p class="text-secondary small mt-1 mb-0">Last updated: October 2026 • Effective Date: January 1, 2024</p>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 960px;">
+    <div class="row g-4">
+        <!-- Main Terms Content -->
+        <div class="col-12 col-lg-8">
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-secondary border-opacity-10" style="line-height: 1.75; color: #374151;">
+
+                <div class="alert alert-light border border-secondary border-opacity-10 rounded-3 p-3 mb-4" style="background: #FAF8F5;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-shield-check text-success fs-5"></i>
+                        <span class="fw-bold font-outfit text-dark small text-uppercase" style="letter-spacing: 0.05em;">Authorized Legal Entity</span>
+                    </div>
+                    <p class="small text-secondary mb-0">
+                        This website (<strong>ashasstore.in</strong>) is owned, managed, and operated by <strong>KPONNAM PARAM BATH VISHNU</strong>, trading under the brand identity <strong>ASHAS CLOTHING (ASHAS STORE)</strong>, having its flagship boutique at Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010, India.
+                    </p>
+                </div>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">1. Introduction &amp; Acceptance of Terms</h2>
+                <p>
+                    By accessing, browsing, registering, or placing an order on <strong>https://ashasstore.in</strong> (the "Website" or "Store"), you ("Customer", "User", or "You") agree to be bound by these Terms and Conditions ("Terms"), our Privacy Policy, Refund &amp; Cancellation Policy, and Shipping Policy. If you do not agree with any part of these terms, please do not use our platform.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">2. Eligibility</h2>
+                <p>
+                    You represent and warrant that you are at least 18 years of age or are accessing the Website under the supervision and consent of a parent or legal guardian. In compliance with the Indian Contract Act, 1872, individuals incompetent to contract are not eligible to transact directly on the platform.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">3. Product Offerings &amp; Descriptions</h2>
+                <p>
+                    ASHAS STORE curates premium lifestyle streetwear accessories, handcrafted jewelry (including necklaces, chains, bracelets, rings), and eyewear (sunglasses, cooling glasses). 
+                </p>
+                <ul>
+                    <li>We strive to display product colors, textures, and details with absolute fidelity. However, subtle variations may occur due to photography lighting and mobile/desktop monitor calibration.</li>
+                    <li>All products are subject to stock availability. We reserve the right to discontinue or limit quantities of any item without prior notice.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">4. Pricing &amp; Currency</h2>
+                <p>
+                    All prices quoted on the Website are in <strong>Indian Rupees (INR / ₹)</strong> and are inclusive of applicable Goods and Services Tax (GST) unless explicitly noted. Applicable shipping fees are computed transparently at checkout based on destination pin-code and parcel composition. We reserve the right to modify pricing at any time prior to order confirmation.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">5. Secure Payment Processing</h2>
+                <p>
+                    All online transactions are securely encrypted using industry-standard 256-bit SSL encryption and routed through <strong>Razorpay</strong>, an RBI-authorized Payment Aggregator compliant with <strong>PCI-DSS Level 1</strong> standards.
+                </p>
+                <ul>
+                    <li>Supported payment channels include Unified Payments Interface (UPI), Credit Cards (Visa, MasterCard, RuPay), Debit Cards, and Net Banking.</li>
+                    <li>ASHAS STORE does not store, record, or process your sensitive payment instruments, card numbers, CVVs, or UPI PINs on its servers.</li>
+                    <li>In the event of an erroneous payment deduction without order generation, the debited amount is automatically refunded by the payment gateway to your source account within 5 to 7 working days.</li>
+                </ul>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">6. Order Confirmation &amp; Dispatch</h2>
+                <p>
+                    Upon successful checkout and payment capture, you will receive an automated confirmation with an Order ID. Orders are dispatched from Kozhikode, Kerala within 24 to 48 working hours via India Post Speed Post or reputed express couriers with end-to-end tracking.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">7. Cancellations &amp; Returns</h2>
+                <p>
+                    Please refer to our dedicated <a href="{% url 'refund_policy' %}" class="text-decoration-underline text-dark fw-semibold">Refund &amp; Cancellation Policy</a>. Cancellations are permitted within 2 hours of placement before dispatch. For transit damages or defective goods, replacements or refunds are processed promptly upon verified unboxing evidence submitted within 48 hours of receipt.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">8. Intellectual Property</h2>
+                <p>
+                    All content on this website, including but not limited to brand names ("ASHAS", "ASHAS CLOTHING"), logos, product photography, text, design tokens, graphics, and code, is the exclusive intellectual property of KPONNAM PARAM BATH VISHNU and is protected under the Copyright Act, 1957 and Trade Marks Act, 1999. Unauthorized copying or redistribution is strictly prohibited.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">9. Governing Law &amp; Jurisdiction</h2>
+                <p>
+                    These Terms shall be interpreted, construed, and enforced in accordance with the laws of the Republic of India. In the event of any legal dispute or claim arising out of your purchase or use of the Website, the courts of competent jurisdiction located in <strong>Kozhikode (Calicut), Kerala, India</strong> shall have exclusive jurisdiction.
+                </p>
+
+                <h2 class="h5 fw-bold font-outfit text-dark mt-4 mb-2">10. Contact &amp; Grievance Redressal</h2>
+                <p>
+                    For questions, concerns, or grievances concerning these Terms, you may reach out to our official Grievance Officer:
+                </p>
+                <div class="p-3 rounded-3" style="background: #F8F6F2;">
+                    <p class="mb-1"><strong>Grievance Officer:</strong> KPONNAM PARAM BATH VISHNU</p>
+                    <p class="mb-1"><strong>Entity:</strong> ASHAS CLOTHING</p>
+                    <p class="mb-1"><strong>Address:</strong> Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010, India</p>
+                    <p class="mb-1"><strong>Email:</strong> <a href="mailto:support@ashasstore.in" class="text-dark">support@ashasstore.in</a></p>
+                    <p class="mb-0"><strong>Phone / WhatsApp:</strong> +91 82814 51481</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="col-12 col-lg-4">
+            <div class="bg-white p-4 rounded-4 shadow-sm border border-secondary border-opacity-10 sticky-lg-top" style="top: 90px;">
+                <h6 class="font-outfit fw-bold text-dark text-uppercase small mb-3" style="letter-spacing: 0.05em;">Compliance &amp; Legal</h6>
+                <ul class="list-unstyled mb-4 d-flex flex-column gap-2" style="font-size: 0.88rem;">
+                    <li><a href="{% url 'terms' %}" class="text-dark fw-bold text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-file-text me-2"></i>Terms &amp; Conditions</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-shield-lock me-2"></i>Privacy Policy</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'refund_policy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-arrow-counterclockwise me-2"></i>Refund &amp; Cancellation</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'shipping_policy' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1 border-bottom border-light"><span><i class="bi bi-truck me-2"></i>Shipping &amp; Delivery</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                    <li><a href="{% url 'contact' %}" class="text-secondary text-decoration-none d-flex align-items-center justify-content-between py-1"><span><i class="bi bi-envelope me-2"></i>Contact Us</span><i class="bi bi-chevron-right small text-muted"></i></a></li>
+                </ul>
+
+                <div class="p-3 rounded-3 border border-secondary border-opacity-10 text-center" style="background: #FAF8F5;">
+                    <i class="bi bi-headset fs-3 text-dark mb-2 d-block"></i>
+                    <h6 class="fw-bold font-outfit text-dark small mb-1">Need Immediate Help?</h6>
+                    <p class="small text-secondary mb-3" style="font-size: 0.8rem;">Our support team in Kozhikode is available daily 10 AM – 8 PM.</p>
+                    <a href="https://wa.me/918281451481" target="_blank" rel="noopener noreferrer" class="btn btn-dark btn-sm rounded-pill w-100 py-2 fw-semibold">
+                        <i class="bi bi-whatsapp me-1 text-success"></i> Chat on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

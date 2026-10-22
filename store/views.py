@@ -267,6 +267,11 @@ def sitemap_xml_view(request):
         {'loc': 'https://ashasstore.in/bracelets/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
         {'loc': 'https://ashasstore.in/caps/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
         {'loc': 'https://ashasstore.in/belts/', 'priority': '0.85', 'changefreq': 'weekly', 'images': []},
+        {'loc': 'https://ashasstore.in/terms/', 'priority': '0.70', 'changefreq': 'monthly', 'images': []},
+        {'loc': 'https://ashasstore.in/privacy/', 'priority': '0.70', 'changefreq': 'monthly', 'images': []},
+        {'loc': 'https://ashasstore.in/refund-policy/', 'priority': '0.70', 'changefreq': 'monthly', 'images': []},
+        {'loc': 'https://ashasstore.in/shipping-policy/', 'priority': '0.70', 'changefreq': 'monthly', 'images': []},
+        {'loc': 'https://ashasstore.in/contact/', 'priority': '0.80', 'changefreq': 'monthly', 'images': []},
     ]
     for cat in Category.objects.all():
         cat_url = f'https://ashasstore.in/category/{cat.slug}/'
@@ -2561,4 +2566,21 @@ def inquiry_delete(request, pk):
     sender = inquiry.name
     inquiry.delete()
     messages.success(request, f'Customer inquiry from "{sender}" was deleted successfully.')
-    return redirect('adminpp_dashboard')
+    return redirect('adminpp_dashboard')
+
+# Mandatory Compliance & Policy Views (for Razorpay & RBI Regulatory Compliance)
+def terms_view(request):
+    return render(request, 'terms.html')
+
+def privacy_view(request):
+    return render(request, 'privacy.html')
+
+def refund_policy_view(request):
+    return render(request, 'refund_policy.html')
+
+def shipping_policy_view(request):
+    return render(request, 'shipping_policy.html')
+
+def contact_view(request):
+    return render(request, 'contact.html')
+

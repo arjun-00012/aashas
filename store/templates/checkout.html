@@ -716,8 +716,12 @@
                             </small>
                         </div>
 
-                        <div class="checkout-policy-fineprint">
-                            * Privacy &amp; Purchase Policy: All orders are final once placed. Strictly no refund, replacement, or cashback after payment completion. By proceeding with the payment, you agree to these store policies.
+                        <div class="checkout-policy-fineprint text-center mt-2" style="font-size: 0.72rem; color: #6b7280; line-height: 1.5;">
+                            By proceeding with payment, you agree to our 
+                            <a href="{% url 'terms' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Terms</a>, 
+                            <a href="{% url 'privacy' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Privacy</a>, and 
+                            <a href="{% url 'refund_policy' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Refund Policy</a>. 
+                            Replacement / refund guaranteed for transit damages or defects reported within 48 hours.
                         </div>
                     </div>
 
