@@ -115,7 +115,7 @@
   "pk": 2,
   "fields": {
     "category": 2,
-    "name": "Dark WOST Mc Stan Rimless Sunglasses",
+    "name": "Dark Noir Rimless Streetwear Shades",
     "admin_code": "101",
     "image": "products/shopping_1.webp",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014516/ashas/products/product_2.webp",
@@ -127,7 +127,7 @@
     "image_4_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1/media/products/look_1.jpg",
     "price": "400.00",
     "discount_price": "250.00",
-    "description": "",
+    "description": "Minimalist rimless tinted sunglasses with lightweight metallic temples and UV400 protective lenses for modern streetwear styling.",
     "stock": 3,
     "is_trending": true,
     "created_at": "2026-08-21T06:15:44.907Z"
@@ -138,7 +138,7 @@
   "pk": 3,
   "fields": {
     "category": 2,
-    "name": "ARZONAI Futuristic Series Wraparound Y2K Sunglasses For Men & Women | UV Protected | Full Rim Trending & Stylish Shades | Free Size (Silver-Black)",
+    "name": "ASHAS Futuristic Wraparound Y2K Shades (Silver-Black)",
     "admin_code": "102",
     "image": "products/shopping_2.webp",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014517/ashas/products/product_3.webp",
@@ -150,7 +150,7 @@
     "image_4_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1/media/products/look_7.jpg",
     "price": "250.00",
     "discount_price": "199.00",
-    "description": "",
+    "description": "Aerodynamic curved wraparound sunglasses featuring UV400 sun protection lenses, full-rim durable lightweight frame, and a futuristic streetwear silhouette.",
     "stock": 3,
     "is_trending": true,
     "created_at": "2026-08-21T06:46:28.427Z"
