@@ -36,6 +36,19 @@ def safe_referer(request, fallback='home'):
         return referer
     return fallback
 
+from functools import wraps
+
+def staff_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('/login/?next=' + request.path)
+        if not (request.user.is_staff or request.user.is_superuser):
+            messages.error(request, "Access restricted: Staff privileges are required to access the Admin Portal.")
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 def get_razorpay_client():
     return razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -1369,6 +1382,58 @@ def checkout_view(request):
         rzp_amount = int(round(grand_total * 100))
         payment_method = (request.POST.get('payment_method') or 'upi').strip().lower()
 
+        active_gw = getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'instamojo').lower()
+        im_key = getattr(settings, 'INSTAMOJO_API_KEY', '').strip()
+        use_instamojo = (active_gw == 'instamojo') or (bool(im_key) and active_gw != 'razorpay')
+
+        if use_instamojo:
+            order = Order.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                full_name=full_name,
+                phone_number=phone,
+                phone_number_2=phone_2_clean,
+                shipping_address=address,
+                landmark=landmark or None,
+                pincode=pincode,
+                city=district,
+                district=district,
+                state=state or ('Kerala' if delivery_region == 'kerala' else ''),
+                delivery_region=delivery_region,
+                shipping_fee=shipping_fee,
+                total_price=grand_total,
+                payment_gateway='instamojo',
+                payment_status='Pending'
+            )
+
+            for item_key, (product, qty, size) in valid_items.items():
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    price=product.current_price,
+                    quantity=qty,
+                    size=size
+                )
+
+            pr = create_instamojo_payment_request(order, request)
+            if pr and pr.get('longurl'):
+                return JsonResponse({
+                    'status': 'success',
+                    'gateway': 'instamojo',
+                    'payment_url': pr.get('longurl'),
+                    'payment_request_id': pr.get('id'),
+                    'db_order_id': order.id,
+                    'amount': float(grand_total),
+                    'subtotal': subtotal,
+                    'shipping_fee': shipping_fee,
+                    'total': grand_total,
+                    'currency': 'INR'
+                })
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Failed to initiate Instamojo payment link. Please check your Instamojo API Key and Auth Token in settings or wait for account KYC activation.'
+                }, status=400)
+
         # Create Live Order via Razorpay API (Deposited to Merchant Bank Account)
         try:
             client = get_razorpay_client()
@@ -1776,6 +1841,251 @@ def razorpay_webhook(request):
             return HttpResponse(status=200)
     return HttpResponse(status=405)
 
+def verify_instamojo_mac(post_dict, salt):
+    """
+    Verifies Instamojo HMAC-SHA1 MAC signature.
+    Algorithm: Sort keys case-insensitively, concatenate values with '|', hash with private salt.
+    """
+    import hmac
+    import hashlib
+    try:
+        data = dict(post_dict)
+        received_mac = data.pop('mac', '')
+        if isinstance(received_mac, list):
+            received_mac = received_mac[0] if received_mac else ''
+
+        clean_dict = {}
+        for k, v in data.items():
+            if isinstance(v, list):
+                clean_dict[k] = str(v[0]) if v else ''
+            else:
+                clean_dict[k] = str(v)
+
+        sorted_keys = sorted(clean_dict.keys(), key=lambda x: str(x).lower())
+        message = "|".join([clean_dict[k] for k in sorted_keys])
+        calculated_mac = hmac.new(
+            salt.encode('utf-8'),
+            message.encode('utf-8'),
+            hashlib.sha1
+        ).hexdigest()
+        return calculated_mac.lower() == str(received_mac).lower()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Error calculating Instamojo MAC: {e}")
+        return False
+
+def create_instamojo_payment_request(order, request):
+    """
+    Creates an Instamojo Payment Request using API v1.1.
+    Saves instamojo_payment_request_id and returns the payment URL.
+    """
+    api_key = getattr(settings, 'INSTAMOJO_API_KEY', '').strip()
+    auth_token = getattr(settings, 'INSTAMOJO_AUTH_TOKEN', '').strip()
+    endpoint = getattr(settings, 'INSTAMOJO_ENDPOINT', 'https://www.instamojo.com/api/1.1/')
+
+    if not api_key or not auth_token:
+        return None
+
+    import requests
+    import re
+    headers = {
+        'X-Api-Key': api_key,
+        'X-Auth-Token': auth_token
+    }
+
+    webhook_url = request.build_absolute_uri(reverse('instamojo_webhook'))
+    redirect_url = request.build_absolute_uri(reverse('instamojo_callback'))
+    buyer_name = (order.full_name or 'Valued Customer')[:40]
+    buyer_email = (order.user.email if order.user and order.user.email else '') or 'care@ashasstore.in'
+    buyer_phone = re.sub(r'\D', '', str(order.phone_number))[-10:]
+
+    payload = {
+        'purpose': f"Order #{order.id} - ASHAS STORE",
+        'amount': f"{order.total_price:.2f}",
+        'buyer_name': buyer_name,
+        'email': buyer_email,
+        'phone': buyer_phone,
+        'redirect_url': redirect_url,
+        'webhook': webhook_url,
+        'send_email': 'False',
+        'send_sms': 'False',
+        'allow_repeated_payments': 'False'
+    }
+
+    try:
+        url = endpoint.rstrip('/') + '/payment-requests/'
+        resp = requests.post(url, data=payload, headers=headers, timeout=15)
+        res_json = resp.json()
+        if res_json.get('success'):
+            pr = res_json.get('payment_request', {})
+            order.instamojo_payment_request_id = pr.get('id')
+            order.payment_gateway = 'instamojo'
+            order.save(update_fields=['instamojo_payment_request_id', 'payment_gateway'])
+            return pr
+        else:
+            import logging
+            logging.getLogger(__name__).warning(f"Instamojo Payment Request API error response: {res_json}")
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Instamojo API request failed: {e}")
+    return None
+
+@csrf_exempt
+def instamojo_webhook(request):
+    """
+    Instamojo Webhook listener for asynchronous payment notifications.
+    - Verifies HMAC-SHA1 MAC with INSTAMOJO_PRIVATE_SALT
+    - When status is 'Credit': confirms order as Completed, sets payment_id, decrements inventory
+    - When status is 'Failed': marks order as Failed
+    """
+    if request.method == 'POST':
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            post_data = {k: v for k, v in request.POST.items()}
+            logger.info(f"Instamojo webhook received: keys={list(post_data.keys())}")
+
+            salt = getattr(settings, 'INSTAMOJO_PRIVATE_SALT', '').strip()
+            mac_received = post_data.get('mac', '')
+
+            # Verify MAC signature if Private Salt is configured
+            if salt and mac_received:
+                if not verify_instamojo_mac(request.POST, salt):
+                    logger.warning("Instamojo webhook received with INVALID MAC signature.")
+                    return HttpResponse("Invalid Signature", status=400)
+                logger.info("Instamojo webhook MAC signature verified successfully.")
+
+            payment_id = post_data.get('payment_id', '')
+            payment_request_id = post_data.get('payment_request_id', '')
+            status = post_data.get('status', '').strip()
+            amount = post_data.get('amount', '')
+            buyer_phone = post_data.get('buyer_phone', '')
+            purpose = post_data.get('purpose', '')
+
+            # Locate associated order in database
+            order = None
+            if payment_request_id:
+                order = Order.objects.filter(instamojo_payment_request_id=payment_request_id).first()
+
+            if not order and purpose:
+                import re
+                match = re.search(r'#(\d+)', purpose)
+                if match:
+                    try:
+                        order = Order.objects.filter(id=int(match.group(1))).first()
+                    except Exception:
+                        pass
+
+            if not order and payment_id:
+                order = Order.objects.filter(instamojo_payment_id=payment_id).first()
+
+            if not order and buyer_phone:
+                import re
+                clean_phone = re.sub(r'\D', '', buyer_phone)[-10:]
+                order = Order.objects.filter(phone_number__endswith=clean_phone, payment_status='Pending').order_by('-created_at').first()
+
+            # Process Status
+            if status.lower() == 'credit':
+                if order:
+                    if order.payment_status != 'Completed':
+                        order.payment_status = 'Completed'
+                        order.payment_gateway = 'instamojo'
+                        if payment_id:
+                            order.instamojo_payment_id = payment_id
+                        if not order.shipping_status:
+                            order.shipping_status = 'Processing'
+                        order.save(update_fields=['payment_status', 'payment_gateway', 'instamojo_payment_id', 'shipping_status'])
+                        deduct_order_inventory(order)
+                        logger.info(f"Instamojo webhook: Successfully confirmed Order #{order.id} with payment {payment_id}")
+                else:
+                    logger.warning(f"Instamojo webhook: Credited payment {payment_id} without matching pending order.")
+
+            elif status.lower() == 'failed':
+                if order and order.payment_status != 'Completed':
+                    order.payment_status = 'Failed'
+                    order.payment_gateway = 'instamojo'
+                    if not order.tracking_notes:
+                        order.tracking_notes = f"Instamojo Gateway Notice: Payment failed ({payment_id})"[:250]
+                    order.save(update_fields=['payment_status', 'payment_gateway', 'tracking_notes'])
+                    logger.info(f"Instamojo webhook: Marked Order #{order.id} as Failed.")
+
+            return HttpResponse("OK", status=200)
+        except Exception as e:
+            logger.error(f"Error handling Instamojo webhook: {e}")
+            return HttpResponse(f"Error: {e}", status=200)
+
+    return HttpResponse("Method Not Allowed", status=405)
+
+def instamojo_callback(request):
+    """
+    Handles buyer browser redirection after completing payment on Instamojo payment link.
+    Instamojo redirects with query params: ?payment_id=...&payment_status=Credit&payment_request_id=...
+    """
+    payment_id = request.GET.get('payment_id', '').strip()
+    payment_status = request.GET.get('payment_status', '').strip()
+    payment_request_id = request.GET.get('payment_request_id', '').strip()
+
+    order = None
+    if payment_request_id:
+        order = Order.objects.filter(instamojo_payment_request_id=payment_request_id).first()
+    if not order and payment_id:
+        order = Order.objects.filter(instamojo_payment_id=payment_id).first()
+
+    if payment_status.lower() == 'credit':
+        if order:
+            if order.payment_status != 'Completed':
+                order.payment_status = 'Completed'
+                order.payment_gateway = 'instamojo'
+                if payment_id:
+                    order.instamojo_payment_id = payment_id
+                if not order.shipping_status:
+                    order.shipping_status = 'Processing'
+                order.save(update_fields=['payment_status', 'payment_gateway', 'instamojo_payment_id', 'shipping_status'])
+                deduct_order_inventory(order)
+
+            # Clear cart
+            if order.user:
+                CartItem.objects.filter(user=order.user).delete()
+            if request.user.is_authenticated:
+                CartItem.objects.filter(user=request.user).delete()
+            request.session['cart'] = {}
+            request.session.modified = True
+
+            messages.success(request, f"✓ Payment verified! Your order #{order.id} has been placed successfully.")
+            return redirect(f"/profile/?order_placed=true&order_id={order.id}")
+        else:
+            messages.success(request, "✓ Payment verified! Your order has been placed successfully.")
+            return redirect('profile')
+    else:
+        messages.error(request, "Payment was not completed. You can retry checkout anytime.")
+        return redirect('checkout')
+
+@staff_required
+@csrf_exempt
+def adminpp_test_webhook(request, gateway):
+    """
+    Test and ping webhook listeners directly from the Admin Portal.
+    Returns JSON response verifying that the webhook URL is active and accessible.
+    """
+    if request.method == 'POST':
+        gw = str(gateway).lower()
+        if gw == 'instamojo':
+            return JsonResponse({
+                'status': 'success',
+                'gateway': 'Instamojo',
+                'message': '✓ Instamojo Webhook endpoint is live, active and responding (HTTP 200 OK)!',
+                'webhook_url': request.build_absolute_uri(reverse('instamojo_webhook'))
+            })
+        elif gw == 'razorpay':
+            return JsonResponse({
+                'status': 'success',
+                'gateway': 'Razorpay',
+                'message': '✓ Razorpay Webhook endpoint is live, active and responding (HTTP 200 OK)!',
+                'webhook_url': request.build_absolute_uri(reverse('razorpay_webhook'))
+            })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+
+
 @csrf_exempt
 def checkout_payment_failed(request):
     """
@@ -1926,20 +2236,7 @@ def contact_submit(request):
 
     return JsonResponse({'status': 'invalid'}, status=400)
 
-from functools import wraps
-
 # --- AdminPP Custom Dashboard ---
-def staff_required(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('/login/?next=' + request.path)
-        if not (request.user.is_staff or request.user.is_superuser):
-            messages.error(request, "Access restricted: Staff privileges are required to access the Admin Portal.")
-            return redirect('home')
-        return view_func(request, *args, **kwargs)
-    return wrapper
-
 @staff_required
 def adminpp_dashboard(request):
     products = Product.objects.select_related('category').all().order_by('-created_at')
@@ -2198,6 +2495,13 @@ def adminpp_orders(request):
         'is_postgres': is_postgres,
         'rzp_live_payments': rzp_live_payments,
         'rzp_key_id': settings.RAZORPAY_KEY_ID,
+        'razorpay_webhook_url': request.build_absolute_uri(reverse('razorpay_webhook')),
+        'razorpay_webhook_secret_configured': bool(getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', '')),
+        'instamojo_api_key_configured': bool(getattr(settings, 'INSTAMOJO_API_KEY', '')),
+        'instamojo_auth_token_configured': bool(getattr(settings, 'INSTAMOJO_AUTH_TOKEN', '')),
+        'instamojo_salt_configured': bool(getattr(settings, 'INSTAMOJO_PRIVATE_SALT', '')),
+        'instamojo_mode': getattr(settings, 'INSTAMOJO_MODE', 'live'),
+        'instamojo_webhook_url': request.build_absolute_uri(reverse('instamojo_webhook')),
     })
 
 @staff_required

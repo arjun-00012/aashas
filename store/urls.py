@@ -52,7 +52,10 @@ urlpatterns = [
     path('checkout/payment-failed/', views.checkout_payment_failed, name='checkout_payment_failed'),
     path('verify-payment/', views.payment_verify, name='payment_verify'),
     path('api/razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
+    path('api/instamojo-webhook/', views.instamojo_webhook, name='instamojo_webhook'),
+    path('checkout/instamojo-callback/', views.instamojo_callback, name='instamojo_callback'),
     path('contact-submit/', views.contact_submit, name='contact_submit'),
+    path('adminpp/test-webhook/<str:gateway>/', views.adminpp_test_webhook, name='adminpp_test_webhook'),
 
     path('adminpp/', views.adminpp_dashboard, name='adminpp_dashboard'),
     path('adminpp/orders/', views.adminpp_orders, name='adminpp_orders'),

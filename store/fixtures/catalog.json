@@ -73,7 +73,7 @@
     "slug": "bracelets",
     "image": "categories/bracelets.jpg",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014515/ashas/categories/bracelets.jpg",
-    "description": "Matte obsidian stones and wrist accents."
+    "description": "Matte black beaded bracelets and streetwear wrist accents."
   }
 },
 {
@@ -84,7 +84,7 @@
     "slug": "pendants",
     "image": "",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014512/ashas/categories/chains.jpg",
-    "description": "Silver and gold luxury pendants"
+    "description": "Metallic streetwear statement pendants and neckpieces."
   }
 },
 {
@@ -288,7 +288,7 @@
     "image_4_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1/media/products/look_2.jpg",
     "price": "1499.00",
     "discount_price": "1199.00",
-    "description": "Diamond-cut sterling silver Cuban link chain with 3D prism geometric pendant.",
+    "description": "Diamond-cut stainless steel Cuban link chain with 3D prism geometric pendant.",
     "stock": 10,
     "is_trending": false,
     "created_at": "2026-09-09T10:35:33.528Z"
@@ -299,7 +299,7 @@
   "pk": 11,
   "fields": {
     "category": 7,
-    "name": "Matte Obsidian Stone Bracelet",
+    "name": "Matte Black Beaded Bracelet",
     "admin_code": "109",
     "image": "categories/bracelets.jpg",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014524/ashas/products/product_11.jpg",
@@ -311,7 +311,7 @@
     "image_4_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1/media/products/look_3.jpg",
     "price": "899.00",
     "discount_price": "699.00",
-    "description": "8mm natural volcanic obsidian beads strung on reinforced stretch cord with custom silver hardware.",
+    "description": "8mm matte black resin beads strung on high-elastic stretch cord with metallic accent hardware.",
     "stock": 10,
     "is_trending": true,
     "created_at": "2026-09-09T10:35:33.610Z"
@@ -322,7 +322,7 @@
   "pk": 15,
   "fields": {
     "category": 1,
-    "name": "Sterling Silver Dragon Ring",
+    "name": "Silver Finish Dragon Ring",
     "admin_code": "110",
     "image": "",
     "image_url": "https://res.cloudinary.com/dwk9pw2ol/image/upload/v1789014519/ashas/products/signet_ring.webp",

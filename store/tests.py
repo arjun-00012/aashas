@@ -455,7 +455,7 @@ class ShippingCalculationTests(TestCase):
         )
         self.bracelet_product = Product.objects.create(
             category=self.cat_bracelets,
-            name="Matte Obsidian Stone Bracelet",
+            name="Matte Black Beaded Bracelet",
             price=899.00,
             discount_price=699.00,
             stock=10
@@ -637,7 +637,7 @@ class CheckoutShippingIntegrationTests(TestCase):
         cat_bracelets = Category.objects.create(name="Bracelets", slug="bracelets")
         bracelet = Product.objects.create(
             category=cat_bracelets,
-            name="Matte Obsidian Stone Bracelet",
+            name="Matte Black Beaded Bracelet",
             price=899.00,
             discount_price=699.00,
             stock=5
@@ -1926,7 +1926,7 @@ class DynamicCategoryAndProductCreationTests(TestCase):
             'discount_price': '1499.00',
             'stock': 8,
             'image_url': 'https://example.com/obsidian_pendant.webp',
-            'description': 'Solid 925 sterling silver pendant with genuine volcanic obsidian stone.'
+            'description': 'Metallic pendant with black resin accent.'
         })
         self.assertRedirects(prod_resp, reverse('adminpp_dashboard'))
 

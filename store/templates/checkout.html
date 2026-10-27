@@ -704,9 +704,9 @@
                         <!-- Alternative Direct Payment Link & QR Code -->
                         <div id="paymentAlternativeBox" class="d-none mt-2.5 p-2.5 rounded-3 border bg-white text-center">
                             <div class="small fw-semibold text-dark mb-1"><i class="bi bi-qr-code-scan me-1 text-primary"></i> Having trouble with UPI app popup?</div>
-                            <div class="text-muted small mb-2" style="font-size: 0.72rem;">You can scan our secure live Razorpay QR code or pay on the direct web page:</div>
+                            <div class="text-muted small mb-2" style="font-size: 0.72rem;">You can scan our secure live QR code or pay on the direct web page:</div>
                             <a id="paymentLinkBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
-                                <i class="bi bi-box-arrow-up-right me-1"></i> Open Direct Razorpay Payment Page &amp; QR
+                                <i class="bi bi-box-arrow-up-right me-1"></i> Open Direct Payment Page &amp; QR
                             </a>
                         </div>
 
@@ -1216,6 +1216,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!res.ok || data.status === 'error') {
                 showError(data.message || "Unable to initialize order. Please try again.");
                 resetButton();
+                return;
+            }
+
+            // Instamojo Redirect Flow
+            if (data.status === 'success' && data.gateway === 'instamojo' && data.payment_url) {
+                if (btn) {
+                    btn.className = 'btn btn-dark py-2.5 w-100 rounded-pill fw-bold text-uppercase';
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Opening Secure Payment...';
+                }
+                window.location.href = data.payment_url;
                 return;
             }
 

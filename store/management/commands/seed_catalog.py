@@ -87,7 +87,7 @@ class Command(BaseCommand):
                 defaults={
                     "slug": "bracelets",
                     "image": "categories/shopping.webp",
-                    "description": "Beaded stone and wrist accents."
+                    "description": "Beaded wrist accents and streetwear bracelets."
                 }
             )
 

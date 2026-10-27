@@ -233,6 +233,14 @@ RAZORPAY_KEY_SECRET = 'uct85ngbFuvyRgdqhGYDFdG4' if (not _env_key_secret or 'You
 # Razorpay Webhook Secret (optional, used to verify webhook signatures)
 RAZORPAY_WEBHOOK_SECRET = (os.environ.get('RAZORPAY_WEBHOOK_SECRET') or '').strip()
 
+# Instamojo Credentials & Webhook Salt (Supports both Live and Test/Sandbox modes)
+INSTAMOJO_API_KEY = (os.environ.get('INSTAMOJO_API_KEY') or '').strip()
+INSTAMOJO_AUTH_TOKEN = (os.environ.get('INSTAMOJO_AUTH_TOKEN') or '').strip()
+INSTAMOJO_PRIVATE_SALT = (os.environ.get('INSTAMOJO_PRIVATE_SALT') or '').strip()
+INSTAMOJO_MODE = (os.environ.get('INSTAMOJO_MODE') or 'live').strip().lower()
+INSTAMOJO_ENDPOINT = 'https://test.instamojo.com/api/1.1/' if INSTAMOJO_MODE == 'test' else 'https://www.instamojo.com/api/1.1/'
+ACTIVE_PAYMENT_GATEWAY = (os.environ.get('ACTIVE_PAYMENT_GATEWAY') or 'instamojo').strip().lower()
+
 # Hostinger / Custom SMTP Email Configuration
 _email_user = os.environ.get('EMAIL_HOST_USER', '').strip()
 if _email_user:

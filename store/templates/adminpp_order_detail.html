@@ -626,18 +626,31 @@
                 </form>
             </div>
 
-            <!-- Card 2: Razorpay Payment & Verification -->
+            <!-- Card 2: Payment Gateway & Verification -->
             <div class="card-admin p-3 p-md-4">
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-credit-card-2-front fs-5 text-dark"></i>
-                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">Razorpay Gateway Details</h3>
+                        <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">
+                            {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}Instamojo Gateway{% else %}Razorpay Gateway{% endif %} Details
+                        </h3>
                     </div>
                     {% if order.payment_status == 'Completed' %}
-                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small">Captured</span>
+                    <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small"><i class="bi bi-check-circle-fill me-1"></i> Paid / Credited</span>
                     {% else %}
                     <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small">{{ order.payment_status }}</span>
                     {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Gateway Provider</span>
+                    <strong class="text-dark fs-6 text-capitalize">
+                        {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">Instamojo</span>
+                        {% else %}
+                            <span class="badge bg-dark text-white px-2 py-1">Razorpay</span>
+                        {% endif %}
+                    </strong>
                 </div>
 
                 <div class="mb-2">
@@ -645,6 +658,28 @@
                     <strong class="text-dark fs-6">{{ order.payment_status }}</strong>
                 </div>
 
+                {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Instamojo Payment ID</span>
+                    {% if order.instamojo_payment_id %}
+                    <code class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small fw-bold border border-success border-opacity-25 d-inline-block">{{ order.instamojo_payment_id }}</code>
+                    <a href="https://www.instamojo.com/payments/{{ order.instamojo_payment_id }}" target="_blank" rel="noopener noreferrer" class="ms-2 small text-primary text-decoration-none">
+                        View in Instamojo <i class="bi bi-box-arrow-up-right" style="font-size: 0.65rem;"></i>
+                    </a>
+                    {% else %}
+                    <span class="text-muted small">No payment ID captured yet</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Payment Request ID</span>
+                    {% if order.instamojo_payment_request_id %}
+                    <code class="text-dark bg-light px-2 py-1 rounded small border d-inline-block">{{ order.instamojo_payment_request_id }}</code>
+                    {% else %}
+                    <span class="text-muted small">None</span>
+                    {% endif %}
+                </div>
+                {% else %}
                 <div class="mb-2">
                     <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Razorpay Payment ID</span>
                     {% if order.razorpay_payment_id %}
@@ -672,6 +707,7 @@
                         <i class="bi bi-arrow-repeat"></i> <span>Re-check Razorpay API for Captured Payment</span>
                     </a>
                 </div>
+                {% endif %}
                 {% endif %}
             </div>
         </div>

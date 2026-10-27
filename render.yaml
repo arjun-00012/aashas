@@ -24,3 +24,14 @@ services:
         value: "rzp_live_Tck3w9pvGwRGOY"
       - key: RAZORPAY_KEY_SECRET
         value: "uct85ngbFuvyRgdqhGYDFdG4"
+      - key: ACTIVE_PAYMENT_GATEWAY
+        value: "instamojo"
+      - key: INSTAMOJO_API_KEY
+        value: "5b039f4b07d2dd6b38acaff1f028989f"
+      - key: INSTAMOJO_AUTH_TOKEN
+        value: "e572735f255b6bcbdf1daac3459a259"
+      - key: INSTAMOJO_PRIVATE_SALT
+        value: "2b2306dd1f7c42eab48fd26958e582c3"
+      - key: INSTAMOJO_MODE
+        value: "live"
+

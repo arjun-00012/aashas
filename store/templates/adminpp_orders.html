@@ -444,67 +444,234 @@
         </div>
     </form>
 
-    <div class="card-admin p-3 p-md-4 mb-4" style="background: linear-gradient(135deg, #FAF8F5 0%, #FFFFFF 100%); border-left: 4px solid #10b981;">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2{% if rzp_live_payments %} mb-3{% endif %}">
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success rounded-pill px-2.5 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
-                    <i class="bi bi-patch-check-fill me-1"></i> Live Gateway Active
+    <!-- Unified Payment Gateways & Webhooks Hub -->
+    <div class="card-admin p-3 p-md-4 mb-4" style="background: linear-gradient(135deg, #FAF8F5 0%, #FFFFFF 100%); border-left: 4px solid #4f46e5;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: var(--border-subtle) !important;">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge rounded-pill px-2.5 py-1 text-uppercase text-white" style="background: #4f46e5; font-size: 0.72rem; letter-spacing: 0.05em;">
+                    <i class="bi bi-link-45deg me-1"></i> Payment Gateways &amp; Webhooks Hub
                 </span>
-                <span class="fw-bold text-dark" style="font-size: 0.92rem;">Razorpay Settlement &amp; Bank Account Status</span>
+                <span class="fw-bold text-dark" style="font-size: 0.95rem;">Manage Payment Gateway Webhooks &amp; Settlement APIs</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="https://dashboard.razorpay.com/app/settlements" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
-                    <i class="bi bi-bank"></i> View Bank Settlements <i class="bi bi-box-arrow-up-right small"></i>
-                </a>
-            </div>
+            <!-- Gateway Switch Tabs -->
+            <ul class="nav nav-pills gap-1 p-1 bg-light rounded-pill border" id="gatewayPillsTab" role="tablist" style="font-size: 0.78rem;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill px-3 py-1 fw-semibold text-dark" id="pills-instamojo-tab" data-bs-toggle="pill" data-bs-target="#pills-instamojo" type="button" role="tab" aria-controls="pills-instamojo" aria-selected="true">
+                        <i class="bi bi-wallet2 text-primary me-1"></i> Instamojo
+                        {% if instamojo_api_key_configured %}
+                        <span class="badge bg-success rounded-pill ms-1" style="font-size: 0.65rem;">Active</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark rounded-pill ms-1" style="font-size: 0.65rem;">Setup</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-3 py-1 fw-semibold text-dark" id="pills-razorpay-tab" data-bs-toggle="pill" data-bs-target="#pills-razorpay" type="button" role="tab" aria-controls="pills-razorpay" aria-selected="false">
+                        <i class="bi bi-patch-check-fill text-success me-1"></i> Razorpay
+                        <span class="badge bg-success rounded-pill ms-1" style="font-size: 0.65rem;">Live</span>
+                    </button>
+                </li>
+            </ul>
         </div>
 
-        {% if rzp_live_payments %}
-        <div class="mt-3 pt-3 border-top" style="border-color: var(--border-subtle) !important;">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
-                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Recent Live Captured Payments in Razorpay (Last 5)
-                </span>
-                <span class="badge bg-secondary bg-opacity-10 text-dark rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">Live from Razorpay API</span>
+        <div class="tab-content" id="gatewayPillsTabContent">
+            <!-- TAB 1: INSTAMOJO GATEWAY & WEBHOOKS -->
+            <div class="tab-pane fade show active" id="pills-instamojo" role="tabpanel" aria-labelledby="pills-instamojo-tab">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if instamojo_api_key_configured and instamojo_auth_token_configured %}
+                        <span class="badge bg-success rounded-pill px-2.5 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-patch-check-fill me-1"></i> Instamojo API Connected
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-clock-history me-1"></i> Ready for Webhook &amp; API Setup
+                        </span>
+                        {% endif %}
+                        <span class="text-secondary small">Instamojo Webhook Listener &amp; HMAC Signature Verification</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="https://www.instamojo.com/integrations/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            <i class="bi bi-box-arrow-up-right"></i> Open Instamojo API &amp; Plugins
+                        </a>
+                        <a href="https://www.instamojo.com/payouts/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            <i class="bi bi-bank"></i> Instamojo Payouts
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Webhook URL Box -->
+                <div class="p-3 rounded-3 mb-3" style="background: rgba(79, 70, 229, 0.04); border: 1px dashed rgba(79, 70, 229, 0.35);">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-2">
+                        <div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.88rem;">
+                                <i class="bi bi-broadcast text-primary me-1"></i> Your Website's Instamojo Webhook URL:
+                            </span>
+                            <span class="text-muted small">Copy this URL and paste it into your Instamojo Dashboard (under API &amp; Plugins &gt; Webhook URL).</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold text-nowrap" onclick="copyWebhookEndpoint('{{ instamojo_webhook_url }}', this)" style="font-size: 0.78rem;">
+                                <i class="bi bi-clipboard"></i> <span>Copy Webhook URL</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold text-nowrap" onclick="testWebhookCall('instamojo', this)" style="font-size: 0.78rem;">
+                                <i class="bi bi-arrow-repeat"></i> <span>Test Endpoint</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-link-45deg"></i></span>
+                        <input type="text" class="form-control font-monospace bg-white border-start-0 text-dark fw-semibold" value="{{ instamojo_webhook_url }}" readonly id="instamojoWebhookInput">
+                    </div>
+                    <div id="instamojoTestStatus" class="mt-2 small" style="display: none;"></div>
+                </div>
+
+                <!-- Credential Status & Instruction Grid -->
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 rounded-3 bg-white border h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">API Configuration Status</div>
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span>Private API Key:</span>
+                                    {% if instamojo_api_key_configured %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-circle-fill me-1"></i>Configured</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-muted border rounded-pill px-2 py-0.5"><i class="bi bi-dash-circle me-1"></i>Not in .env</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span>Auth Token:</span>
+                                    {% if instamojo_auth_token_configured %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-circle-fill me-1"></i>Configured</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-muted border rounded-pill px-2 py-0.5"><i class="bi bi-dash-circle me-1"></i>Not in .env</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span>Private Salt (MAC):</span>
+                                    {% if instamojo_salt_configured %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-shield-check me-1"></i>Secured</span>
+                                    {% else %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-shield-exclamation me-1"></i>Optional Salt</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span>Gateway Mode:</span>
+                                    <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 text-uppercase fw-bold">{{ instamojo_mode }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <div class="p-3 rounded-3 bg-white border h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                                <i class="bi bi-info-circle-fill text-primary me-1"></i> How to Connect Instamojo (Step-by-Step)
+                            </div>
+                            <ol class="small text-secondary ps-3 mb-0" style="line-height: 1.6;">
+                                <li>In your Instamojo dashboard, click <strong>"API &amp; Plugins"</strong> on the left sidebar (Item 4 under Manage).</li>
+                                <li>Click <strong>"Generate Credentials"</strong> to generate your <code>Private API Key</code>, <code>Private Auth Token</code>, and <code>Private Salt</code>.</li>
+                                <li>Copy the <strong>Webhook URL</strong> above and paste it into Instamojo's Webhook field.</li>
+                                <li>Add the credentials to your server environment or <code>.env</code> file:
+                                    <code class="d-block bg-light p-1.5 rounded border mt-1 font-monospace text-dark" style="font-size: 0.74rem;">INSTAMOJO_API_KEY=...<br>INSTAMOJO_AUTH_TOKEN=...<br>INSTAMOJO_PRIVATE_SALT=...</code>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 0.78rem;">
-                    <thead>
-                        <tr class="text-muted border-bottom" style="border-color: var(--border-subtle) !important;">
-                            <th>Payment ID</th>
-                            <th>Amount</th>
-                            <th>Method / VPA</th>
-                            <th>Status in Gateway</th>
-                            <th>Timestamp (IST)</th>
-                            <th>Settlement Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rzp_pay in rzp_live_payments %}
-                        <tr class="border-bottom" style="border-color: rgba(0,0,0,0.03) !important;">
-                            <td><code>{{ rzp_pay.id }}</code></td>
-                            <td class="fw-bold text-dark">₹{{ rzp_pay.amount|floatformat:2 }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ rzp_pay.method|upper }}</span> <span class="text-muted ms-1">{{ rzp_pay.vpa|default:'' }}</span></td>
-                            <td>
-                                {% if rzp_pay.status == 'captured' %}
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-circle-fill me-1"></i>Captured (Credited)</span>
-                                {% else %}
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2 py-0.5">{{ rzp_pay.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-secondary">{{ rzp_pay.created_at|date:"M d, Y, h:i A"|default:"Recent" }}</td>
-                            <td>
-                                <a href="https://dashboard.razorpay.com/app/payments/{{ rzp_pay.id }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none small text-primary fw-semibold">
-                                    Track in Razorpay <i class="bi bi-box-arrow-up-right" style="font-size: 0.68rem;"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+            <!-- TAB 2: RAZORPAY GATEWAY & WEBHOOKS -->
+            <div class="tab-pane fade" id="pills-razorpay" role="tabpanel" aria-labelledby="pills-razorpay-tab">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success rounded-pill px-2.5 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-patch-check-fill me-1"></i> Live Gateway Active
+                        </span>
+                        <span class="fw-bold text-dark" style="font-size: 0.92rem;">Razorpay Settlement &amp; Bank Account Status</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="https://dashboard.razorpay.com/app/settlements" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            <i class="bi bi-bank"></i> View Bank Settlements <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                        <a href="https://dashboard.razorpay.com/app/webhooks" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold" style="font-size: 0.78rem;">
+                            <i class="bi bi-broadcast"></i> Razorpay Webhooks <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Razorpay Webhook URL Box -->
+                <div class="p-3 rounded-3 mb-3" style="background: rgba(16, 185, 129, 0.04); border: 1px dashed rgba(16, 185, 129, 0.35);">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-2">
+                        <div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.88rem;">
+                                <i class="bi bi-broadcast text-success me-1"></i> Your Website's Razorpay Webhook URL:
+                            </span>
+                            <span class="text-muted small">Configured in Razorpay Dashboard &gt; Settings &gt; Webhooks for automatic capture and refund sync.</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold text-nowrap" onclick="copyWebhookEndpoint('{{ razorpay_webhook_url }}', this)" style="font-size: 0.78rem;">
+                                <i class="bi bi-clipboard"></i> <span>Copy Webhook URL</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold text-nowrap" onclick="testWebhookCall('razorpay', this)" style="font-size: 0.78rem;">
+                                <i class="bi bi-arrow-repeat"></i> <span>Test Endpoint</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-link-45deg"></i></span>
+                        <input type="text" class="form-control font-monospace bg-white border-start-0 text-dark fw-semibold" value="{{ razorpay_webhook_url }}" readonly id="razorpayWebhookInput">
+                    </div>
+                    <div id="razorpayTestStatus" class="mt-2 small" style="display: none;"></div>
+                </div>
+
+                {% if rzp_live_payments %}
+                <div class="mt-3 pt-3 border-top" style="border-color: var(--border-subtle) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Recent Live Captured Payments in Razorpay (Last 5)
+                        </span>
+                        <span class="badge bg-secondary bg-opacity-10 text-dark rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">Live from Razorpay API</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 0.78rem;">
+                            <thead>
+                                <tr class="text-muted border-bottom" style="border-color: var(--border-subtle) !important;">
+                                    <th>Payment ID</th>
+                                    <th>Amount</th>
+                                    <th>Method / VPA</th>
+                                    <th>Status in Gateway</th>
+                                    <th>Timestamp (IST)</th>
+                                    <th>Settlement Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rzp_pay in rzp_live_payments %}
+                                <tr class="border-bottom" style="border-color: rgba(0,0,0,0.03) !important;">
+                                    <td><code>{{ rzp_pay.id }}</code></td>
+                                    <td class="fw-bold text-dark">₹{{ rzp_pay.amount|floatformat:2 }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ rzp_pay.method|upper }}</span> <span class="text-muted ms-1">{{ rzp_pay.vpa|default:'' }}</span></td>
+                                    <td>
+                                        {% if rzp_pay.status == 'captured' %}
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-circle-fill me-1"></i>Captured (Credited)</span>
+                                        {% else %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2 py-0.5">{{ rzp_pay.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-secondary">{{ rzp_pay.created_at|date:"M d, Y, h:i A"|default:"Recent" }}</td>
+                                    <td>
+                                        <a href="https://dashboard.razorpay.com/app/payments/{{ rzp_pay.id }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none small text-primary fw-semibold">
+                                            Track in Razorpay <i class="bi bi-box-arrow-up-right" style="font-size: 0.68rem;"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
-        {% endif %}
     </div>
 
     <div class="card-admin p-3 p-md-4">
@@ -1765,6 +1932,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.body.removeChild(temp);
     }
+
+    // Global Webhook Clipboard Copy Function
+    window.copyWebhookEndpoint = function(url, btn) {
+        if (!url) return;
+        const origHtml = btn.innerHTML;
+        const handleSuccess = () => {
+            btn.innerHTML = '<i class="bi bi-check2 text-success"></i> <span>Copied!</span>';
+            setTimeout(() => {
+                btn.innerHTML = origHtml;
+            }, 2500);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(handleSuccess).catch(() => fallbackCopyText(url, handleSuccess));
+        } else {
+            fallbackCopyText(url, handleSuccess);
+        }
+    };
+
+    // Global Webhook Live Test Ping Function
+    window.testWebhookCall = async function(gateway, btn) {
+        const statusBox = document.getElementById(gateway + 'TestStatus');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Testing...';
+
+        try {
+            const resp = await fetch(`/adminpp/test-webhook/${gateway}/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await resp.json();
+            if (statusBox) {
+                statusBox.style.display = 'block';
+                if (data.status === 'success') {
+                    statusBox.innerHTML = `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1.5 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> ${data.message}</span>`;
+                } else {
+                    statusBox.innerHTML = `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1.5 rounded-pill"><i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.message}</span>`;
+                }
+            }
+        } catch (err) {
+            if (statusBox) {
+                statusBox.style.display = 'block';
+                statusBox.innerHTML = `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1.5 rounded-pill"><i class="bi bi-exclamation-triangle-fill me-1"></i> Webhook endpoint ping failed: Network Error</span>`;
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    };
 });
 </script>
 </body>
