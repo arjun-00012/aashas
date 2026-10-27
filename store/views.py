@@ -2148,12 +2148,34 @@ def checkout_order_status(request, order_id):
             })
 
         if order.payment_status in ('Pending', 'Failed'):
-            client = get_razorpay_client()
             captured_payment_id = None
 
-            # Check 1: Payments linked to standard Razorpay Order ID
-            if order.razorpay_order_id and not str(order.razorpay_order_id).startswith('demo_'):
+            # Check 1: Instamojo Gateway Payment Request Status
+            if order.payment_gateway == 'instamojo' and order.instamojo_payment_request_id:
+                api_key = getattr(settings, 'INSTAMOJO_API_KEY', '').strip()
+                auth_token = getattr(settings, 'INSTAMOJO_AUTH_TOKEN', '').strip()
+                endpoint = getattr(settings, 'INSTAMOJO_ENDPOINT', 'https://www.instamojo.com/api/1.1/')
+                if api_key and auth_token:
+                    try:
+                        import requests
+                        im_url = f"{endpoint.rstrip('/')}/payment-requests/{order.instamojo_payment_request_id}/"
+                        im_resp = requests.get(im_url, headers={'X-Api-Key': api_key, 'X-Auth-Token': auth_token}, timeout=8)
+                        if im_resp.status_code == 200:
+                            im_data = im_resp.json()
+                            if im_data.get('success'):
+                                pr = im_data.get('payment_request', {})
+                                payments = pr.get('payments', [])
+                                credited_pay = next((p for p in payments if str(p.get('status', '')).lower() == 'credit'), None)
+                                if str(pr.get('status', '')).lower() == 'completed' or credited_pay:
+                                    captured_payment_id = credited_pay.get('payment_id') if credited_pay else (order.instamojo_payment_id or f"MOJO_{order.id}")
+                                    order.instamojo_payment_id = captured_payment_id
+                    except Exception:
+                        pass
+
+            # Check 2: Payments linked to standard Razorpay Order ID
+            if not captured_payment_id and order.razorpay_order_id and not str(order.razorpay_order_id).startswith('demo_'):
                 try:
+                    client = get_razorpay_client()
                     rzp_payments = client.order.payments(order.razorpay_order_id)
                     for p in rzp_payments.get('items', []):
                         if p.get('status') == 'captured':
@@ -2162,9 +2184,10 @@ def checkout_order_status(request, order_id):
                 except Exception:
                     pass
 
-            # Check 2: Payments made via the on-screen UPI QR / Payment Link
+            # Check 3: Payments made via Razorpay on-screen UPI QR / Payment Link
             if not captured_payment_id and order.razorpay_payment_link_id:
                 try:
+                    client = get_razorpay_client()
                     plink = client.payment_link.fetch(order.razorpay_payment_link_id)
                     if plink.get('status') == 'paid' or plink.get('amount_paid', 0) >= int(order.total_price * 100):
                         payments = plink.get('payments') or []
@@ -2181,10 +2204,18 @@ def checkout_order_status(request, order_id):
 
             if captured_payment_id:
                 order.payment_status = 'Completed'
-                order.razorpay_payment_id = captured_payment_id
+                if order.payment_gateway != 'instamojo':
+                    order.razorpay_payment_id = captured_payment_id
+                else:
+                    order.instamojo_payment_id = captured_payment_id
                 if not order.shipping_status:
                     order.shipping_status = 'Processing'
-                order.save(update_fields=['payment_status', 'razorpay_payment_id', 'shipping_status'])
+                update_fields = ['payment_status', 'shipping_status']
+                if order.payment_gateway == 'instamojo':
+                    update_fields.append('instamojo_payment_id')
+                else:
+                    update_fields.append('razorpay_payment_id')
+                order.save(update_fields=update_fields)
 
                 # Decrement stock safely (including size variants)
                 deduct_order_inventory(order)
