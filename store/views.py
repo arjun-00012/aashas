@@ -216,13 +216,20 @@ def ping_view(request):
         from django.conf import settings
         db_engine = settings.DATABASES['default']['ENGINE'].split('.')[-1]
         has_db_url = bool(os.environ.get('DATABASE_URL'))
-        is_postgres = 'postgres' in db_engine or has_db_url
+        is_postgres = 'postgres' in db_engine
+        order_count = 0
+        db_error = None
+        try:
+            order_count = Order.objects.count()
+        except Exception as exc:
+            db_error = str(exc)
         return JsonResponse({
-            'status': 'OK',
+            'status': 'OK' if not db_error else 'DEGRADED',
             'engine': db_engine,
             'is_postgres': is_postgres,
             'has_database_url': has_db_url,
-            'order_count': Order.objects.count(),
+            'order_count': order_count,
+            'db_error': db_error,
         })
     return HttpResponse("OK", content_type="text/plain", status=200)
 

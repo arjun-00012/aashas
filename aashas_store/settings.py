@@ -150,7 +150,22 @@ else:
 
 # Database: PostgreSQL via DATABASE_URL (Render Postgres, Neon, Supabase) with SQLite fallback
 DATABASE_URL = os.environ.get('DATABASE_URL')
+db_usable = False
 if DATABASE_URL:
+    try:
+        import psycopg2
+        # Verify connection availability with short timeout to catch quota exceeded, server unreachable, or bad credentials
+        test_conn = psycopg2.connect(DATABASE_URL, connect_timeout=3)
+        test_conn.close()
+        db_usable = True
+    except Exception as exc:
+        import logging
+        logging.getLogger('django').warning(
+            f"Configured DATABASE_URL is unavailable or quota exceeded ({exc}). Automatically falling back to SQLite storage."
+        )
+        db_usable = False
+
+if db_usable:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
