@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import tempfile
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,9 +134,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'aashas_store.wsgi.application'
 
-# Persistent Storage directory (Render Persistent Disk or local fallback)
+# Persistent Storage directory (Vercel /tmp, Render Persistent Disk, or local fallback)
 PERSISTENT_DATA_DIR = os.environ.get('RENDER_DISK_PATH') or os.environ.get('DATA_DIR')
-if PERSISTENT_DATA_DIR and os.path.exists(PERSISTENT_DATA_DIR):
+if IS_VERCEL:
+    temp_dir = Path(tempfile.gettempdir())
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    db_file = temp_dir / 'db.sqlite3'
+    if not db_file.exists() and (BASE_DIR / 'db.sqlite3').exists():
+        try:
+            import shutil
+            shutil.copy2(BASE_DIR / 'db.sqlite3', db_file)
+        except Exception:
+            pass
+    media_dir = str(temp_dir / 'media')
+    os.makedirs(media_dir, exist_ok=True)
+elif PERSISTENT_DATA_DIR and os.path.exists(PERSISTENT_DATA_DIR):
     db_file = Path(PERSISTENT_DATA_DIR) / 'db.sqlite3'
     if not db_file.exists() and (BASE_DIR / 'db.sqlite3').exists():
         try:

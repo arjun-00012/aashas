@@ -16,8 +16,6 @@ staticfiles/
 .env.*
 
 # Databases
-*.sqlite3
-db.sqlite3
 backup_*.json
 *.dump
 
