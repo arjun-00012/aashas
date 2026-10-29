@@ -63,6 +63,8 @@ def optimize_cloudinary_url(url, quality='auto', max_width=1200):
     if not url or not isinstance(url, str):
         return url
     if 'res.cloudinary.com' in url and '/upload/' in url:
+        if 'dwk9pw2ol' in url:
+            url = url.replace('dwk9pw2ol', 'owtliihd')
         if '/f_auto' in url or '/q_auto' in url:
             return url
         params = ['f_auto', f'q_auto:{quality}' if quality != 'auto' else 'q_auto']
