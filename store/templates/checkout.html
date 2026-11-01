@@ -641,36 +641,56 @@
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal" style="font-size: 0.68rem;"><i class="bi bi-shield-check text-success"></i> 0% Fee &bull; 100% Ban-Immune</span>
                         </div>
 
-                        <!-- Step A: Pay via UPI -->
+                        <!-- Step A: Pay via Google Pay / UPI -->
                         <div class="p-3 rounded-3 mb-3 border" style="background: #faf8f5;">
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.04em;">
-                                    <i class="bi bi-wallet2 text-primary me-1"></i> Step 1: Pay Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span> via UPI
+                                    <i class="bi bi-wallet2 text-primary me-1"></i> Step 1: Pay Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span> via Google Pay
                                 </span>
-                                <span class="badge bg-dark rounded-pill text-white px-2 py-0.5" style="font-size: 0.65rem;">GPay / PhonePe / Paytm</span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">
+                                    <i class="bi bi-shield-check"></i> Direct GPay App
+                                </span>
                             </div>
 
-                            <!-- UPI ID Pill with 1-Click Copy -->
-                            <div class="d-flex align-items-center justify-content-between p-2.5 rounded-3 bg-white border mb-2.5 shadow-sm" style="cursor: pointer;" onclick="copyUpiId()" title="Click to copy UPI ID">
-                                <div>
-                                    <small class="text-muted d-block" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em;">Store Official UPI ID</small>
-                                    <code id="upiVpaText" class="fw-bold text-dark fs-6">{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}</code>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-2.5 py-1 small fw-semibold" id="btnCopyUpi">
-                                    <i class="bi bi-clipboard me-1"></i> Copy UPI ID
+                            <!-- Primary: Direct Google Pay Launcher Button (Explicitly targets Google Pay app) -->
+                            <button type="button" id="btnGooglePay" onclick="openGooglePay(event)" class="btn btn-dark w-100 py-3 rounded-pill fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2 shadow-sm" style="background: #171614; font-size: 0.92rem; border: 1px solid rgba(255,255,255,0.15);">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                    <path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z" fill="#4285F4"/>
+                                    <path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.26 21.39 7.33 24 12 24z" fill="#34A853"/>
+                                    <path d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.13z" fill="#FBBC05"/>
+                                    <path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.61 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z" fill="#EA4335"/>
+                                </svg>
+                                <span>PAY Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span> WITH GOOGLE PAY</span>
+                            </button>
+
+                            <!-- Secondary Options: PhonePe, Paytm, Copy UPI -->
+                            <div class="d-flex gap-2 mb-2.5">
+                                <button type="button" onclick="openPhonePe(event)" class="btn btn-outline-dark btn-sm rounded-pill flex-fill py-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-1" style="font-size: 0.74rem;">
+                                    <i class="bi bi-wallet2 text-primary"></i> <span>PhonePe</span>
+                                </button>
+                                <button type="button" onclick="openPaytm(event)" class="btn btn-outline-dark btn-sm rounded-pill flex-fill py-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-1" style="font-size: 0.74rem;">
+                                    <i class="bi bi-phone text-info"></i> <span>Paytm</span>
+                                </button>
+                                <button type="button" onclick="copyUpiId()" class="btn btn-outline-dark btn-sm rounded-pill flex-fill py-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-1" style="font-size: 0.74rem;" id="btnCopyUpi">
+                                    <i class="bi bi-clipboard"></i> <span>Copy UPI</span>
                                 </button>
                             </div>
 
-                            <!-- Mobile Quick Pay Deep Link -->
-                            <a id="mobileUpiIntentBtn" href="upi://pay?pa={{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}&pn=ASHAS%20STORE&am={{ total|floatformat:2 }}&cu=INR&tn=Order_ASHAS" class="btn btn-dark w-100 py-2.5 rounded-pill fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2.5 shadow-sm" style="background: #171614; font-size: 0.85rem;">
-                                <i class="bi bi-phone fs-5 text-warning"></i>
-                                <span>Open UPI App to Pay Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span></span>
-                            </a>
+                            <!-- UPI ID Pill -->
+                            <div class="d-flex align-items-center justify-content-between p-2 rounded-3 bg-white border mb-2.5 shadow-sm" style="cursor: pointer;" onclick="copyUpiId()" title="Click to copy UPI ID">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em;">Official Store UPI ID</small>
+                                    <code id="upiVpaText" class="fw-bold text-dark" style="font-size: 0.88rem;">{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}</code>
+                                </div>
+                                <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </span>
+                            </div>
 
                             <!-- Dynamic UPI QR Code for Desktop or In-Store Scanning -->
                             <div class="text-center p-2 rounded bg-white border">
-                                <div class="text-muted small mb-1" style="font-size: 0.72rem;">Or scan QR code using Google Pay / PhonePe / Paytm / BHIM:</div>
-                                <img id="checkoutQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=upi%3A%2F%2Fpay%3Fpa%3D{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}%26pn%3DASHAS%20STORE%26am%3D{{ total|floatformat:2 }}%26cu%3DINR%26tn%3DOrder_ASHAS" alt="UPI QR Code" class="img-fluid rounded border shadow-sm p-1" style="width: 170px; height: 170px;">
+                                <div class="text-muted small mb-1" style="font-size: 0.72rem;">Or scan QR code using Google Pay:</div>
+                                <img id="checkoutQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=upi%3A%2F%2Fpay%3Fpa%3D{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}%26pn%3DASHAS%20STORE%26am%3D{{ total|floatformat:2 }}%26cu%3DINR%26tn%3DOrder_ASHAS" alt="UPI QR Code" class="img-fluid rounded border shadow-sm p-1" style="width: 160px; height: 160px;">
                                 <div class="text-secondary small mt-1" style="font-size: 0.7rem;">Payee: <strong>{{ upi_payee_name|default:'ASHAS STORE' }}</strong></div>
                             </div>
                         </div>
@@ -887,6 +907,62 @@ document.addEventListener('DOMContentLoaded', function() {
         return subtotal + getCurrentShippingFee();
     }
 
+    // Direct Google Pay Launcher - strictly opens Google Pay (com.google.android.apps.nbu.paisa.user) and bypasses WhatsApp
+    window.openGooglePay = function(e) {
+        if (e) e.preventDefault();
+        const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
+        const payee = encodeURIComponent("{{ upi_payee_name|default:'ASHAS STORE' }}");
+        const formatted = parseFloat(getCurrentTotal()).toFixed(2);
+        const note = encodeURIComponent("Order_ASHAS");
+
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+        if (isAndroid) {
+            // Explicit Android intent targeting Google Pay app
+            window.location.href = `intent://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+        } else if (isIOS) {
+            // iOS Google Pay URL scheme
+            window.location.href = `tez://upi/pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}`;
+            setTimeout(() => {
+                window.location.href = `upi://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}`;
+            }, 1200);
+        } else {
+            // Desktop fallback
+            window.location.href = `intent://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+        }
+    };
+
+    // Direct PhonePe Launcher
+    window.openPhonePe = function(e) {
+        if (e) e.preventDefault();
+        const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
+        const payee = encodeURIComponent("{{ upi_payee_name|default:'ASHAS STORE' }}");
+        const formatted = parseFloat(getCurrentTotal()).toFixed(2);
+        const note = encodeURIComponent("Order_ASHAS");
+        const isAndroid = /android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            window.location.href = `intent://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.phonepe.app;end;`;
+        } else {
+            window.location.href = `phonepe://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}`;
+        }
+    };
+
+    // Direct Paytm Launcher
+    window.openPaytm = function(e) {
+        if (e) e.preventDefault();
+        const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
+        const payee = encodeURIComponent("{{ upi_payee_name|default:'ASHAS STORE' }}");
+        const formatted = parseFloat(getCurrentTotal()).toFixed(2);
+        const note = encodeURIComponent("Order_ASHAS");
+        const isAndroid = /android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            window.location.href = `intent://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}#Intent;scheme=upi;package=net.one97.paytm;end;`;
+        } else {
+            window.location.href = `paytmmp://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}`;
+        }
+    };
+
     function updateUpiPayUrls(totalAmount) {
         const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
         const payee = encodeURIComponent("{{ upi_payee_name|default:'ASHAS STORE' }}");
@@ -894,9 +970,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.upi-total-text').forEach(el => el.textContent = formatted);
 
         const intentUrl = `upi://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=Order_ASHAS`;
-        const mobileBtn = document.getElementById('mobileUpiIntentBtn');
-        if (mobileBtn) mobileBtn.href = intentUrl;
-
         const qrImg = document.getElementById('checkoutQrImg');
         if (qrImg) {
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=${encodeURIComponent(intentUrl)}`;
