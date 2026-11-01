@@ -146,6 +146,23 @@
                         </span>
                     </div>
 
+                    {% if order.payment_gateway == 'upi' %}
+                    <div class="d-flex align-items-center justify-content-between p-2 mb-2.5 rounded bg-white border small flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill text-white" style="background:#6366f1; font-size:0.65rem;"><i class="bi bi-qr-code me-1"></i>Direct UPI</span>
+                            {% if order.upi_utr %}<span class="text-muted" style="font-size:0.72rem;">UTR: <strong class="text-dark">{{ order.upi_utr }}</strong></span>{% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-1.5">
+                            <a href="{% url 'order_confirmation' order.id %}" class="btn btn-outline-dark btn-sm rounded-pill py-0.5 px-2.5" style="font-size:0.72rem;">
+                                <i class="bi bi-eye me-1"></i>View Details / Proof
+                            </a>
+                            <a href="{{ order.customer_whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm rounded-pill py-0.5 px-2.5 text-white" style="font-size:0.72rem; background:#25D366; border-color:#25D366;">
+                                <i class="bi bi-whatsapp me-1"></i>Share on WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="mb-3">
                         <div class="small fw-semibold text-secondary text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Purchased Items</div>
                         <div class="d-flex flex-column gap-1">

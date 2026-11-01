@@ -1389,9 +1389,90 @@ def checkout_view(request):
         rzp_amount = int(round(grand_total * 100))
         payment_method = (request.POST.get('payment_method') or 'upi').strip().lower()
 
-        active_gw = getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'instamojo').lower()
+        active_gw = getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'upi').lower()
+
+        if active_gw == 'upi':
+            screenshot_file = request.FILES.get('payment_screenshot') or request.FILES.get('screenshot')
+            upi_utr = (request.POST.get('upi_utr') or request.POST.get('utr') or '').strip()
+
+            order = Order.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                full_name=full_name,
+                phone_number=phone,
+                phone_number_2=phone_2_clean,
+                shipping_address=address,
+                landmark=landmark or None,
+                pincode=pincode,
+                city=district,
+                district=district,
+                state=state or ('Kerala' if delivery_region == 'kerala' else ''),
+                delivery_region=delivery_region,
+                shipping_fee=shipping_fee,
+                total_price=grand_total,
+                payment_gateway='upi',
+                upi_vpa=getattr(settings, 'UPI_VPA', 'vishnuvinod3737-2@okaxis'),
+                upi_utr=upi_utr or None,
+                payment_status='Pending',
+                shipping_status='Processing'
+            )
+
+            if screenshot_file:
+                try:
+                    order.payment_screenshot = screenshot_file
+                    import cloudinary.uploader
+                    if hasattr(screenshot_file, 'seek'):
+                        screenshot_file.seek(0)
+                    c_res = cloudinary.uploader.upload(
+                        screenshot_file,
+                        folder="ashas/payment_proofs",
+                        public_id=f"order_{order.id}_payment_proof",
+                        overwrite=True
+                    )
+                    secure_url = c_res.get('secure_url')
+                    if secure_url:
+                        order.payment_screenshot_url = secure_url
+                except Exception as c_err:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Cloudinary upload failed: {c_err}")
+                order.save()
+
+            for item_key, (product, qty, size) in valid_items.items():
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    price=product.current_price,
+                    quantity=qty,
+                    size=size
+                )
+
+            deduct_order_inventory(order)
+
+            if order.user:
+                CartItem.objects.filter(user=order.user).delete()
+            if request.user.is_authenticated:
+                CartItem.objects.filter(user=request.user).delete()
+            request.session['cart'] = {}
+            request.session.modified = True
+
+            redirect_url = reverse('order_confirmation', kwargs={'order_id': order.id})
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json':
+                return JsonResponse({
+                    'status': 'success',
+                    'gateway': 'upi',
+                    'db_order_id': order.id,
+                    'order_id': order.id,
+                    'redirect_url': redirect_url,
+                    'amount': float(grand_total),
+                    'subtotal': subtotal,
+                    'shipping_fee': shipping_fee,
+                    'total': grand_total,
+                    'currency': 'INR',
+                    'message': 'Order placed successfully! Please share payment screenshot on WhatsApp.'
+                })
+            return redirect('order_confirmation', order_id=order.id)
+
         im_key = getattr(settings, 'INSTAMOJO_API_KEY', '').strip()
-        use_instamojo = (active_gw == 'instamojo') or (bool(im_key) and active_gw != 'razorpay')
+        use_instamojo = (active_gw == 'instamojo')
 
         if use_instamojo:
             order = Order.objects.create(
@@ -1580,6 +1661,10 @@ def checkout_view(request):
         'default_state': default_state or ('Kerala' if initial_region == 'kerala' else ''),
         'user_email': request.user.email if request.user.is_authenticated else '',
         'razorpay_key': settings.RAZORPAY_KEY_ID,
+        'active_gateway': getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'upi').lower(),
+        'upi_vpa': getattr(settings, 'UPI_VPA', 'vishnuvinod3737-2@okaxis'),
+        'upi_payee_name': getattr(settings, 'UPI_PAYEE_NAME', 'ASHAS STORE'),
+        'store_whatsapp_number': getattr(settings, 'STORE_WHATSAPP_NUMBER', '918281451481'),
     })
 
 @csrf_exempt
@@ -2248,6 +2333,58 @@ def checkout_order_status(request, order_id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
+def order_confirmation_view(request, order_id):
+    order = get_object_or_404(Order.objects.prefetch_related('items__product'), id=order_id)
+
+    if request.method == 'POST':
+        screenshot_file = request.FILES.get('payment_screenshot') or request.FILES.get('screenshot')
+        upi_utr = (request.POST.get('upi_utr') or request.POST.get('utr') or '').strip()
+        updated = False
+        if screenshot_file:
+            order.payment_screenshot = screenshot_file
+            try:
+                import cloudinary.uploader
+                if hasattr(screenshot_file, 'seek'):
+                    screenshot_file.seek(0)
+                c_res = cloudinary.uploader.upload(
+                    screenshot_file,
+                    folder="ashas/payment_proofs",
+                    public_id=f"order_{order.id}_payment_proof",
+                    overwrite=True
+                )
+                secure_url = c_res.get('secure_url')
+                if secure_url:
+                    order.payment_screenshot_url = secure_url
+            except Exception:
+                pass
+            updated = True
+        if upi_utr:
+            order.upi_utr = upi_utr
+            updated = True
+        if updated:
+            order.save()
+            messages.success(request, "✓ Payment proof received! Our team will verify it shortly.")
+            return redirect('order_confirmation', order_id=order.id)
+
+    items = order.items.select_related('product').all()
+    upi_vpa = getattr(settings, 'UPI_VPA', 'vishnuvinod3737-2@okaxis')
+    upi_payee_name = getattr(settings, 'UPI_PAYEE_NAME', 'ASHAS STORE')
+    store_whatsapp = getattr(settings, 'STORE_WHATSAPP_NUMBER', '918281451481')
+
+    import urllib.parse
+    upi_intent = f"upi://pay?pa={upi_vpa}&pn={urllib.parse.quote(upi_payee_name)}&am={order.total_price:.2f}&cu=INR&tn=Order_{order.id}"
+    qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data={urllib.parse.quote(upi_intent)}"
+
+    return render(request, 'order_confirmation.html', {
+        'order': order,
+        'items': items,
+        'upi_vpa': upi_vpa,
+        'upi_payee_name': upi_payee_name,
+        'store_whatsapp': store_whatsapp,
+        'upi_intent': upi_intent,
+        'qr_code_url': qr_code_url,
+    })
+
 def contact_submit(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -2434,11 +2571,14 @@ def adminpp_orders(request):
     ready_count = base_orders.filter(payment_status='Completed').exclude(shipping_status__in=DISPATCHED_STATUSES).count()
     dispatched_count = base_orders.filter(payment_status='Completed', shipping_status__in=DISPATCHED_STATUSES).count()
     incomplete_count = base_orders.exclude(payment_status='Completed').count()
+    upi_pending_count = base_orders.filter(payment_gateway='upi', payment_status='Pending').count()
     all_count = base_orders.count()
     paid_count = ready_count  # Keep paid_count matching ready-to-dispatch count for backward compatibility
 
     if payment_filter == 'dispatched':
         orders = base_orders.filter(payment_status='Completed', shipping_status__in=DISPATCHED_STATUSES).order_by('-created_at')
+    elif payment_filter == 'upi_pending':
+        orders = base_orders.filter(payment_gateway='upi', payment_status='Pending').order_by('-created_at')
     elif payment_filter == 'incomplete':
         orders = base_orders.exclude(payment_status='Completed').order_by('-created_at')
     elif payment_filter == 'all':
@@ -2524,6 +2664,7 @@ def adminpp_orders(request):
         'paid_count': ready_count,
         'dispatched_count': dispatched_count,
         'incomplete_count': incomplete_count,
+        'upi_pending_count': upi_pending_count,
         'all_count': all_count,
         'categories': Category.objects.all(),
         'selected_category': category_filter,
@@ -2549,7 +2690,16 @@ def adminpp_order_detail(request, order_id):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'quick_dispatch':
+        if action == 'verify_upi':
+            order.payment_status = 'Completed'
+            if not order.shipping_status:
+                order.shipping_status = 'Processing'
+            order.save(update_fields=['payment_status', 'shipping_status'])
+            deduct_order_inventory(order)
+            messages.success(request, f"✓ Order #{order.id} payment verified! Status updated to PAID (Captured) and ready for dispatch.")
+            return redirect('adminpp_order_detail', order_id=order.id)
+
+        elif action == 'quick_dispatch':
             if order.payment_status != 'Completed':
                 messages.error(request, f"Cannot dispatch Order #{order.id}: Payment has not been captured (Status: {order.payment_status}).")
             else:
@@ -2657,6 +2807,31 @@ def adminpp_quick_dispatch(request, order_id):
             'message': msg
         })
     messages.success(request, msg)
+    return redirect(safe_referer(request, 'adminpp_orders'))
+
+@staff_required
+def adminpp_verify_upi_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.payment_status != 'Completed':
+        order.payment_status = 'Completed'
+        if not order.shipping_status:
+            order.shipping_status = 'Processing'
+        order.save(update_fields=['payment_status', 'shipping_status'])
+        deduct_order_inventory(order)
+        msg = f"✓ Order #{order.id} payment verified! Status changed to PAID (Captured) and moved to Ready to Dispatch queue."
+        messages.success(request, msg)
+    else:
+        msg = f"Order #{order.id} is already marked as PAID."
+        messages.info(request, msg)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('format') == 'json' or request.GET.get('format') == 'json':
+        return JsonResponse({
+            'status': 'success',
+            'order_id': order.id,
+            'payment_status': order.payment_status,
+            'shipping_status': order.shipping_status,
+            'message': msg
+        })
     return redirect(safe_referer(request, 'adminpp_orders'))
 
 @staff_required
@@ -2925,4 +3100,4 @@ def shipping_policy_view(request):
 
 def contact_view(request):
     return render(request, 'contact.html')
-
+

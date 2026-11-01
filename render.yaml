@@ -20,12 +20,18 @@ services:
         value: "634465815929627"
       - key: CLOUDINARY_API_SECRET
         value: "MfP1G3e-dncWMBeKwoSoIx7IGfk"
+      - key: ACTIVE_PAYMENT_GATEWAY
+        value: "upi"
+      - key: UPI_VPA
+        value: "vishnuvinod3737-2@okaxis"
+      - key: UPI_PAYEE_NAME
+        value: "ASHAS STORE"
+      - key: STORE_WHATSAPP_NUMBER
+        value: "918281451481"
       - key: RAZORPAY_KEY_ID
         value: "rzp_live_Tck3w9pvGwRGOY"
       - key: RAZORPAY_KEY_SECRET
         value: "uct85ngbFuvyRgdqhGYDFdG4"
-      - key: ACTIVE_PAYMENT_GATEWAY
-        value: "instamojo"
       - key: INSTAMOJO_API_KEY
         value: "5b039f4b07d2dd6b38acaff1f028989f"
       - key: INSTAMOJO_AUTH_TOKEN
@@ -34,4 +40,3 @@ services:
         value: "2b2306dd1f7c42eab48fd26958e582c3"
       - key: INSTAMOJO_MODE
         value: "live"
-

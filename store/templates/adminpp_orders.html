@@ -722,6 +722,16 @@
                 <span class="pill-count" id="pill-count-dispatched">{{ dispatched_count }}</span>
             </a>
 
+            <a href="?payment=upi_pending{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="order-filter-pill {% if payment_filter == 'upi_pending' %}active-incomplete{% endif %}"
+               id="tab-pill-upi"
+               title="Orders placed with Direct UPI awaiting payment screenshot verification"
+               style="{% if upi_pending_count > 0 %}border-color: #f59e0b; background: #fffbeb;{% endif %}">
+                <i class="bi bi-qr-code-scan text-warning"></i>
+                <span>📸 UPI Proof Pending</span>
+                <span class="pill-count" id="pill-count-upi" style="{% if upi_pending_count > 0 %}background: #d97706 !important; color: #fff !important;{% endif %}">{{ upi_pending_count }}</span>
+            </a>
+
             <a href="?payment=incomplete{% if selected_category %}&category={{ selected_category }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
                class="order-filter-pill {% if payment_filter == 'incomplete' %}active-incomplete{% endif %}"
                id="tab-pill-incomplete"
@@ -740,6 +750,17 @@
                 <span class="pill-count" id="pill-count-all">{{ all_count }}</span>
             </a>
         </div>
+
+        {% if payment_filter == 'upi_pending' %}
+        <div class="alert alert-warning border border-warning rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2.5 small bg-warning bg-opacity-10 text-dark">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-qr-code-scan text-warning fs-5 flex-shrink-0"></i>
+                <div>
+                    <strong>Direct UPI Verification Queue:</strong> Showing <strong>{{ orders|length }}</strong> order(s) placed via Direct UPI (Google Pay / PhonePe). Review the attached screenshot and UTR number, then click <strong>Verify &amp; Mark Paid</strong> to confirm and move to Ready to Dispatch.
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         {% if payment_filter == 'paid' %}
         <div class="alert alert-success border border-success border-opacity-25 rounded-3 py-2.5 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2.5 small bg-success bg-opacity-10 text-dark">
@@ -1066,12 +1087,17 @@
                                 #{{ order.id }} <i class="bi bi-box-arrow-up-right" style="font-size: 0.62rem;"></i>
                             </a>
                             <small class="text-muted d-block" style="font-size: 0.72rem;">{{ order.created_at|date:"d M Y, H:i" }}</small>
+                            {% if order.payment_gateway == 'upi' %}
+                                <span class="badge rounded-pill text-white mt-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.65rem; background-color: #6366f1 !important;">
+                                    <i class="bi bi-qr-code"></i> Direct UPI
+                                </span>
+                            {% endif %}
                             {% if order.payment_status == 'Completed' %}
                                 <span class="badge bg-success text-white rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.68rem; background-color: #15803d !important;">
-                                    <i class="bi bi-patch-check-fill"></i> ✓ PAID (Captured)
+                                    <i class="bi bi-patch-check-fill"></i> ✓ PAID {% if order.payment_gateway == 'upi' %}(UPI Verified){% else %}(Captured){% endif %}
                                 </span>
                                 <div class="mt-0.5">
-                                    <code class="text-success bg-success bg-opacity-10 px-1 py-0.5 rounded border border-success border-opacity-25 d-inline-block" style="font-size: 0.65rem;">{{ order.razorpay_payment_id|default:"Captured" }}</code>
+                                    <code class="text-success bg-success bg-opacity-10 px-1 py-0.5 rounded border border-success border-opacity-25 d-inline-block" style="font-size: 0.65rem;">{{ order.upi_utr|default:order.razorpay_payment_id|default:"Captured" }}</code>
                                 </div>
                             {% elif order.payment_status == 'Refunded' %}
                                 <span class="badge bg-secondary bg-opacity-15 text-secondary border border-secondary border-opacity-50 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
@@ -1088,9 +1114,27 @@
                                 <small class="text-danger d-block mt-0.5" style="font-size: 0.65rem; max-width: 140px; word-break: break-word;">{{ order.tracking_notes }}</small>
                                 {% endif %}
                             {% else %}
+                                {% if order.payment_gateway == 'upi' %}
+                                <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                                    <i class="bi bi-clock-history text-warning"></i> Proof Verification Pending
+                                </span>
+                                {% if order.upi_utr %}
+                                <div class="mt-0.5">
+                                    <code class="text-dark bg-light px-1 py-0.5 rounded border" style="font-size: 0.65rem;">UTR: {{ order.upi_utr }}</code>
+                                </div>
+                                {% endif %}
+                                {% if order.display_payment_screenshot %}
+                                <div class="mt-1">
+                                    <a href="{{ order.display_payment_screenshot }}" target="_blank" class="badge bg-light border text-primary text-decoration-none py-1 px-2 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.68rem;" title="View payment proof in full screen">
+                                        <i class="bi bi-image"></i> View Screenshot
+                                    </a>
+                                </div>
+                                {% endif %}
+                                {% else %}
                                 <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 rounded-pill px-2 py-0.5 mt-1 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;">
                                     <i class="bi bi-exclamation-triangle-fill text-warning"></i> ⚠️ UNPAID / PENDING
                                 </span>
+                                {% endif %}
                                 {% if order.tracking_notes %}
                                 <small class="text-muted d-block mt-0.5" style="font-size: 0.65rem; max-width: 140px; word-break: break-word;">{{ order.tracking_notes }}</small>
                                 {% endif %}
@@ -1238,6 +1282,14 @@
                                 <a href="{% url 'adminpp_order_detail' order.id %}" class="btn btn-dark btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-semibold" title="View Full Order Details & Dispatch in New Page">
                                     <i class="bi bi-eye"></i> <span>View Order</span>
                                 </a>
+
+                                {% if order.payment_status != 'Completed' and order.payment_gateway == 'upi' %}
+                                    <a href="{% url 'adminpp_verify_upi_payment' order.id %}" class="btn btn-success btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm fw-bold"
+                                        onclick="return confirm('Verify incoming payment of Rs {{ order.total_price }} for Order #{{ order.id }} ({{ order.full_name }})?');"
+                                        title="Verify UPI Payment & Move to Ready to Dispatch">
+                                        <i class="bi bi-check-circle-fill"></i> <span>Verify &amp; Mark Paid</span>
+                                    </a>
+                                {% endif %}
 
                                 {% if order.payment_status == 'Completed' %}
                                     <button type="button" class="btn btn-warning btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 quick-dispatch-btn shadow-sm fw-bold text-dark"

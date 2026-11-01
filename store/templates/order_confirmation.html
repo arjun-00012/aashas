@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} Confirmation | ASHAS{% endblock %}
+
+{% block extra_head %}
+<style>
+    .order-confirm-card {
+        background: #FFFFFF;
+        border: 1px solid rgba(23, 22, 20, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    @media (min-width: 768px) {
+        .order-confirm-card {
+            padding: 36px;
+        }
+    }
+    .status-badge-pending {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+        font-weight: 600;
+    }
+    .status-badge-completed {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+        font-weight: 600;
+    }
+    .btn-whatsapp-hero {
+        background-color: #25D366;
+        color: #FFFFFF;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border: none;
+        border-radius: 9999px;
+        padding: 14px 28px;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+    .btn-whatsapp-hero:hover {
+        background-color: #1eb956;
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+    }
+    .proof-preview-box {
+        background: #faf8f5;
+        border: 2px dashed rgba(23, 22, 20, 0.15);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+    .copy-chip {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .copy-chip:hover {
+        background: #f3f4f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-md-5" style="max-width: 920px;">
+
+    <!-- Top Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+            {% if user.is_authenticated %}
+            <li class="breadcrumb-item"><a href="{% url 'profile' %}" class="text-decoration-none text-secondary">My Account</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Order #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show rounded-3 py-2.5 px-3 mb-2 shadow-sm d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="order-confirm-card mb-4 text-center">
+        <!-- Success Badge & Heading -->
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: #f0fdf4; color: #16a34a; font-size: 2.5rem;">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2 class="fw-bold text-dark font-outfit mb-1" style="letter-spacing: -0.02em;">Order Placed Successfully!</h2>
+        <p class="text-muted mb-3" style="font-size: 0.95rem;">
+            Thank you, <strong class="text-dark">{{ order.full_name }}</strong>! We have received your order <strong>#{{ order.id }}</strong>.
+        </p>
+
+        <!-- Status Pill -->
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4 {% if order.payment_status == 'Completed' %}status-badge-completed{% else %}status-badge-pending{% endif %}">
+            {% if order.payment_status == 'Completed' %}
+                <i class="bi bi-patch-check-fill text-success fs-5"></i>
+                <span>Payment Verified &bull; Order Ready for India Post Dispatch</span>
+            {% else %}
+                <i class="bi bi-hourglass-split text-warning fs-5"></i>
+                <span>Payment Verification Pending &bull; Order Confirmed</span>
+            {% endif %}
+        </div>
+
+        <!-- WhatsApp Quick Action Callout -->
+        <div class="p-3 p-md-4 rounded-3 text-start mb-4" style="background: #f7fee7; border: 1px solid #d9f99d;">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div class="min-w-0">
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2 mb-1" style="font-size: 1.05rem;">
+                        <i class="bi bi-whatsapp text-success fs-4"></i>
+                        <span>Faster Dispatch via WhatsApp</span>
+                    </div>
+                    <p class="text-secondary small mb-0" style="line-height: 1.5;">
+                        To guarantee immediate verification and same-day India Post dispatch, tap below to send your payment screenshot to our official store WhatsApp helpline (+91 82814 51481).
+                    </p>
+                </div>
+                <div class="flex-shrink-0 w-100 w-md-auto text-center">
+                    <a href="{{ order.customer_whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-hero w-100 w-md-auto">
+                        <i class="bi bi-whatsapp fs-5"></i>
+                        <span>Share on WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Proof Status & Upload Box -->
+        <div class="row g-3 text-start mb-4">
+            <div class="col-12 col-md-6">
+                <div class="proof-preview-box h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="fw-bold text-dark small text-uppercase mb-2" style="letter-spacing: 0.05em;">
+                            <i class="bi bi-qr-code-scan me-1 text-primary"></i> Direct UPI Payment Details
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between p-2 rounded bg-white border mb-2 copy-chip" onclick="navigator.clipboard.writeText('{{ upi_vpa }}'); alert('Copied UPI ID: {{ upi_vpa }}');" title="Click to copy UPI ID">
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">Store UPI ID</small>
+                                <code class="fw-bold text-dark" style="font-size: 0.88rem;">{{ upi_vpa }}</code>
+                            </div>
+                            <span class="badge bg-light text-dark border rounded-pill small py-1 px-2"><i class="bi bi-clipboard"></i> Copy</span>
+                        </div>
+                        <div class="small text-muted mb-1">
+                            Payee Name: <strong class="text-dark">{{ upi_payee_name }}</strong>
+                        </div>
+                        <div class="small text-muted mb-1">
+                            Amount Paid: <strong class="text-dark fs-6 font-outfit">₹{{ order.total_price|floatformat:2 }}</strong>
+                        </div>
+                        {% if order.upi_utr %}
+                        <div class="small text-muted mt-2">
+                            UPI Ref / UTR: <code class="text-dark bg-white px-2 py-0.5 rounded border fw-bold">{{ order.upi_utr }}</code>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if order.payment_status != 'Completed' %}
+                    <div class="mt-3 pt-2 border-top">
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">
+                            <i class="bi bi-info-circle text-primary me-1"></i> Admin verifies incoming credits every 15-30 mins during store hours (9 AM - 9 PM).
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="proof-preview-box h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="fw-bold text-dark small text-uppercase mb-2" style="letter-spacing: 0.05em;">
+                            <i class="bi bi-file-earmark-image me-1 text-success"></i> Payment Screenshot Proof
+                        </div>
+                        {% if order.display_payment_screenshot %}
+                            <div class="mb-2 text-center">
+                                <a href="{{ order.display_payment_screenshot }}" target="_blank" title="Click to view full image">
+                                    <img src="{{ order.display_payment_screenshot }}" alt="Payment Proof" class="img-fluid rounded border shadow-sm" style="max-height: 140px; object-fit: contain;">
+                                </a>
+                            </div>
+                            <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 small">
+                                <i class="bi bi-check-circle me-1"></i> Screenshot Attached Securely
+                            </div>
+                        {% else %}
+                            <p class="text-secondary small mb-2">No screenshot attached yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Upload / Update Form -->
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'order_confirmation' order.id %}" class="mt-2 pt-2 border-top">
+                        {% csrf_token %}
+                        <label class="form-label small fw-semibold text-dark mb-1" for="payment_screenshot">
+                            {% if order.display_payment_screenshot %}Update / Re-upload Proof:{% else %}Upload Payment Screenshot:{% endif %}
+                        </label>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="file" class="form-control" id="payment_screenshot" name="payment_screenshot" accept="image/*" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" name="upi_utr" value="{{ order.upi_utr|default:'' }}" placeholder="12-digit UPI UTR No. (optional)" maxlength="30">
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm rounded-pill w-100 fw-semibold" style="background: #171614;">
+                            <i class="bi bi-cloud-arrow-up me-1"></i> Save Payment Proof
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Delivery Address Card -->
+        <div class="card border rounded-3 p-3 text-start mb-4 bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.05em;">
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i> India Post Speed Post Delivery Address
+                </span>
+                <span class="badge bg-dark rounded-pill px-2.5 py-1 text-white small">{{ order.carrier|default:'India Post' }}</span>
+            </div>
+            <div class="text-dark small fw-medium mb-1">
+                <strong>{{ order.full_name }}</strong> &bull; <a href="tel:{{ order.phone_number }}" class="text-decoration-none text-dark">{{ order.phone_number }}</a>
+                {% if order.phone_number_2 %} &bull; Alt: {{ order.phone_number_2 }}{% endif %}
+            </div>
+            <div class="text-secondary small" style="line-height: 1.5;">
+                {{ order.shipping_address }}
+                {% if order.landmark %}<br><span class="badge bg-warning bg-opacity-25 text-dark" style="font-size: 0.68rem;">Near: {{ order.landmark }}</span>{% endif %}
+                <br>{{ order.display_district }}{% if order.state %}, {{ order.state }}{% endif %} - <strong class="text-dark">{{ order.pincode }}</strong>
+            </div>
+        </div>
+
+        <!-- Ordered Items Summary -->
+        <div class="card border rounded-3 text-start mb-4 overflow-hidden">
+            <div class="p-3 bg-light border-bottom fw-bold text-dark small text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="bi bi-bag-check me-1"></i> Ordered Items ({{ items|length }})
+            </div>
+            <div class="p-3">
+                {% for item in items %}
+                <div class="d-flex align-items-center justify-content-between gap-3 py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div class="d-flex align-items-center gap-3 min-w-0">
+                        {% if item.product and item.product.display_image %}
+                            <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="rounded flex-shrink-0" style="width: 48px; height: 48px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded flex-shrink-0 bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="width: 48px; height: 48px;">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        {% endif %}
+                        <div class="min-w-0">
+                            <p class="text-dark fw-semibold small mb-0 text-truncate">{{ item.product.name }}</p>
+                            <small class="text-muted">
+                                Qty: {{ item.quantity }} &bull; ₹{{ item.price|floatformat:2 }}
+                                {% if item.size %}&bull; <span class="badge bg-dark rounded-pill px-1.5 py-0.5 text-white" style="font-size: 0.65rem;">Size: {{ item.size }}</span>{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="text-end fw-bold text-dark small font-outfit">
+                        ₹{{ item.subtotal|floatformat:2 }}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="pt-3 mt-2 border-top">
+                    <div class="d-flex justify-content-between small text-secondary mb-1">
+                        <span>Items Subtotal</span>
+                        <span>₹{{ order.total_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-secondary mb-1">
+                        <span>India Post Speed Post Delivery</span>
+                        <span>{% if order.shipping_fee > 0 %}₹{{ order.shipping_fee|floatformat:2 }}{% else %}FREE{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold text-dark fs-6 pt-2 border-top font-outfit">
+                        <span>Total Paid</span>
+                        <span>₹{{ order.total_price|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2.5 pt-2">
+            <a href="{% url 'home' %}" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.88rem;">
+                <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold" style="background: #171614; font-size: 0.88rem;">
+                <i class="bi bi-person-circle me-1"></i> View My Orders
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+

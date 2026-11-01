@@ -487,7 +487,20 @@ class Order(models.Model):
     delivery_region = models.CharField(max_length=50, blank=True, null=True, default='kerala', help_text="Inside Kerala vs Outside Kerala")
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Delivery charge based on destination and products")
-    payment_gateway = models.CharField(max_length=30, default='razorpay', choices=(('razorpay', 'Razorpay'), ('instamojo', 'Instamojo')), help_text="Payment Gateway used")
+    payment_gateway = models.CharField(
+        max_length=30,
+        default='upi',
+        choices=(
+            ('upi', 'Direct UPI (GPay / PhonePe / Paytm / QR)'),
+            ('razorpay', 'Razorpay'),
+            ('instamojo', 'Instamojo'),
+        ),
+        help_text="Payment Gateway used"
+    )
+    upi_vpa = models.CharField(max_length=100, blank=True, null=True, default='vishnuvinod3737-2@okaxis', help_text="Store UPI ID / VPA")
+    upi_utr = models.CharField(max_length=100, blank=True, null=True, help_text="12-digit UPI Transaction UTR Number")
+    payment_screenshot = models.ImageField(upload_to='payment_proofs/', blank=True, null=True, help_text="Customer uploaded payment screenshot")
+    payment_screenshot_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Cloudinary link to customer payment screenshot")
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_link_id = models.CharField(max_length=100, blank=True, null=True, help_text="Razorpay Payment Link ID for QR flow")
@@ -506,6 +519,93 @@ class Order(models.Model):
     tracking_updated_at = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.payment_screenshot:
+            try:
+                if hasattr(self.payment_screenshot, 'seek'):
+                    self.payment_screenshot.seek(0)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
+        if self.payment_screenshot and not self.payment_screenshot_url:
+            try:
+                img_url = ''
+                try:
+                    img_url = str(self.payment_screenshot.url)
+                except Exception:
+                    img_url = ''
+                if img_url and img_url.startswith(('http://', 'https://')):
+                    self.payment_screenshot_url = img_url
+                    super().save(update_fields=['payment_screenshot_url'])
+                else:
+                    import os
+                    import cloudinary.uploader
+                    filepath = None
+                    try:
+                        filepath = self.payment_screenshot.path
+                    except (NotImplementedError, AttributeError, ValueError):
+                        filepath = None
+
+                    public_id_str = f"order_{self.id}_payment_proof"
+                    if filepath and os.path.exists(filepath):
+                        res = cloudinary.uploader.upload(
+                            filepath,
+                            folder="ashas/payment_proofs",
+                            public_id=public_id_str,
+                            overwrite=True
+                        )
+                        secure_url = res.get('secure_url')
+                        if secure_url:
+                            self.payment_screenshot_url = secure_url
+                            super().save(update_fields=['payment_screenshot_url'])
+                    else:
+                        try:
+                            if hasattr(self.payment_screenshot, 'file') and hasattr(self.payment_screenshot.file, 'seek'):
+                                self.payment_screenshot.file.seek(0)
+                                res = cloudinary.uploader.upload(
+                                    self.payment_screenshot.file,
+                                    folder="ashas/payment_proofs",
+                                    public_id=public_id_str,
+                                    overwrite=True
+                                )
+                                secure_url = res.get('secure_url')
+                                if secure_url:
+                                    self.payment_screenshot_url = secure_url
+                                    super().save(update_fields=['payment_screenshot_url'])
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
+    @property
+    def display_payment_screenshot(self):
+        if self.payment_screenshot_url:
+            return optimize_cloudinary_url(self.payment_screenshot_url)
+        if self.payment_screenshot:
+            try:
+                return optimize_cloudinary_url(self.payment_screenshot.url)
+            except Exception:
+                pass
+        return ''
+
+    @property
+    def customer_whatsapp_url(self):
+        """Pre-formatted WhatsApp link for customer to share payment proof with store (+91 82814 51481)"""
+        import urllib.parse
+        msg = (
+            f"Hello ASHAS STORE,\n\n"
+            f"I have placed Order #{self.id} for Rs {self.total_price:.2f} via Direct UPI (GPay/PhonePe).\n"
+            f"Recipient: {self.full_name}\n"
+            f"Phone: {self.phone_number}\n"
+        )
+        if self.upi_utr:
+            msg += f"UPI UTR / Ref ID: {self.upi_utr}\n"
+        if self.payment_screenshot_url:
+            msg += f"Payment Proof: {self.payment_screenshot_url}\n"
+        msg += "\nI am attaching the payment screenshot here as well. Please confirm and dispatch my order!"
+        return f"https://wa.me/918281451481?text={urllib.parse.quote(msg)}"
 
     @property
     def tracking_url(self):
@@ -647,4 +747,4 @@ class CartItem(models.Model):
 
     @property
     def subtotal(self):
-        return float(self.product.current_price) * self.quantity
+        return float(self.product.current_price) * self.quantity

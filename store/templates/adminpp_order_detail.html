@@ -283,6 +283,15 @@
 
             <!-- Header Quick Actions -->
             <div class="d-flex align-items-center gap-2 flex-wrap no-print">
+                {% if order.payment_status != 'Completed' and order.payment_gateway == 'upi' %}
+                <form method="POST" action="{% url 'adminpp_order_detail' order.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="verify_upi">
+                    <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 py-2 fw-bold text-white shadow-sm d-inline-flex align-items-center gap-1.5" onclick="return confirm('Verify incoming credit of Rs {{ order.total_price }} to Store UPI for Order #{{ order.id }}?');">
+                        <i class="bi bi-check-circle-fill fs-6"></i> <span>Verify &amp; Mark Paid</span>
+                    </button>
+                </form>
+                {% endif %}
                 {% if order.payment_status == 'Completed' and order.shipping_status not in 'Dispatched,In Transit,Out for Delivery,Delivered' %}
                 <form method="POST" action="{% url 'adminpp_order_detail' order.id %}" class="d-inline">
                     {% csrf_token %}
@@ -632,7 +641,13 @@
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-credit-card-2-front fs-5 text-dark"></i>
                         <h3 class="h6 m-0 fw-bold text-dark text-uppercase" style="letter-spacing: 0.05em;">
-                            {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}Instamojo Gateway{% else %}Razorpay Gateway{% endif %} Details
+                            {% if order.payment_gateway == 'upi' %}
+                                Direct UPI &amp; Proof Verification
+                            {% elif order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
+                                Instamojo Gateway Details
+                            {% else %}
+                                Razorpay Gateway Details
+                            {% endif %}
                         </h3>
                     </div>
                     {% if order.payment_status == 'Completed' %}
@@ -643,9 +658,11 @@
                 </div>
 
                 <div class="mb-2">
-                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Gateway Provider</span>
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Payment Method</span>
                     <strong class="text-dark fs-6 text-capitalize">
-                        {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
+                        {% if order.payment_gateway == 'upi' %}
+                            <span class="badge rounded-pill text-white px-2.5 py-1" style="background-color: #6366f1 !important;"><i class="bi bi-qr-code me-1"></i> Direct UPI (GPay / PhonePe / QR)</span>
+                        {% elif order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
                             <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">Instamojo</span>
                         {% else %}
                             <span class="badge bg-dark text-white px-2 py-1">Razorpay</span>
@@ -658,7 +675,48 @@
                     <strong class="text-dark fs-6">{{ order.payment_status }}</strong>
                 </div>
 
-                {% if order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
+                {% if order.payment_gateway == 'upi' %}
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Store UPI ID</span>
+                    <code class="text-dark bg-light px-2 py-1 rounded small border fw-bold d-inline-block">{{ order.upi_vpa|default:'vishnuvinod3737-2@okaxis' }}</code>
+                </div>
+
+                <div class="mb-2">
+                    <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Customer 12-Digit UTR No.</span>
+                    {% if order.upi_utr %}
+                    <code class="text-success bg-success bg-opacity-10 px-2 py-1 rounded small fw-bold border border-success border-opacity-25 d-inline-block">{{ order.upi_utr }}</code>
+                    {% else %}
+                    <span class="text-muted small">Not entered by customer</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small mb-1" style="font-size: 0.72rem; text-transform: uppercase;">Customer Payment Screenshot</span>
+                    {% if order.display_payment_screenshot %}
+                    <div class="text-center p-2 rounded border bg-light">
+                        <a href="{{ order.display_payment_screenshot }}" target="_blank" title="Click to open full image in new tab">
+                            <img src="{{ order.display_payment_screenshot }}" alt="Customer Payment Proof" class="img-fluid rounded border shadow-sm" style="max-height: 240px; object-fit: contain;">
+                        </a>
+                        <div class="small text-muted mt-1"><i class="bi bi-box-arrow-up-right me-1"></i> Tap image to view full-size</div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary py-2 small mb-0 rounded-2 text-muted">
+                        <i class="bi bi-image me-1"></i> No screenshot uploaded yet. Check store WhatsApp (+91 82814 51481).
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if order.payment_status != 'Completed' %}
+                <form method="POST" action="{% url 'adminpp_order_detail' order.id %}" class="pt-2 border-top">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="verify_upi">
+                    <button type="submit" class="btn btn-success w-100 py-2 rounded-pill fw-bold text-white shadow-sm d-flex align-items-center justify-content-center gap-2" onclick="return confirm('Verify that payment of Rs {{ order.total_price }} was credited to {{ order.upi_vpa|default:'vishnuvinod3737-2@okaxis' }}?');">
+                        <i class="bi bi-check-circle-fill fs-5"></i> <span>Verify Payment &amp; Mark as PAID</span>
+                    </button>
+                </form>
+                {% endif %}
+
+                {% elif order.payment_gateway == 'instamojo' or order.instamojo_payment_id %}
                 <div class="mb-2">
                     <span class="text-muted d-block small" style="font-size: 0.72rem; text-transform: uppercase;">Instamojo Payment ID</span>
                     {% if order.instamojo_payment_id %}

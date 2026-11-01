@@ -637,82 +637,82 @@
 
                     <div class="chk-card">
                         <div class="chk-card-title">
-                            <span>2. Payment Method</span>
-                            <span class="text-muted small fw-normal" style="font-size: 0.72rem;"><i class="bi bi-shield-check text-success"></i> 100% Secure Checkout</span>
+                            <span>2. Direct UPI Payment</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal" style="font-size: 0.68rem;"><i class="bi bi-shield-check text-success"></i> 0% Fee &bull; 100% Ban-Immune</span>
                         </div>
 
-                        <div class="payment-methods-stack">
-                            <input type="hidden" name="payment_method" id="method_upi" value="upi">
+                        <!-- Step A: Pay via UPI -->
+                        <div class="p-3 rounded-3 mb-3 border" style="background: #faf8f5;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.04em;">
+                                    <i class="bi bi-wallet2 text-primary me-1"></i> Step 1: Pay Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span> via UPI
+                                </span>
+                                <span class="badge bg-dark rounded-pill text-white px-2 py-0.5" style="font-size: 0.65rem;">GPay / PhonePe / Paytm</span>
+                            </div>
 
-                            <!-- Direct UPI (GPay, PhonePe, Paytm, BHIM, QR) -->
-                            <div class="payment-option selected" id="card_upi" style="cursor: default;">
-                                <div class="d-flex align-items-center gap-2.5 min-w-0">
-                                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 22px; height: 22px; background: #171614; color: #fff; font-size: 0.75rem;">
-                                        <i class="bi bi-check2"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <span class="payment-option-label">
-                                            Pay via UPI <span class="badge-recommended">Instant &bull; 100% Verified</span>
-                                        </span>
-                                        <span class="payment-option-sub text-truncate">Google Pay, PhonePe, Paytm, BHIM &bull; Any Bank UPI</span>
-                                    </div>
+                            <!-- UPI ID Pill with 1-Click Copy -->
+                            <div class="d-flex align-items-center justify-content-between p-2.5 rounded-3 bg-white border mb-2.5 shadow-sm" style="cursor: pointer;" onclick="copyUpiId()" title="Click to copy UPI ID">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em;">Store Official UPI ID</small>
+                                    <code id="upiVpaText" class="fw-bold text-dark fs-6">{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}</code>
                                 </div>
-                                <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-2">
-                                    <i class="bi bi-shield-fill-check text-success fs-5" title="100% Secure Payment"></i>
-                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-2.5 py-1 small fw-semibold" id="btnCopyUpi">
+                                    <i class="bi bi-clipboard me-1"></i> Copy UPI ID
+                                </button>
+                            </div>
+
+                            <!-- Mobile Quick Pay Deep Link -->
+                            <a id="mobileUpiIntentBtn" href="upi://pay?pa={{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}&pn=ASHAS%20STORE&am={{ total|floatformat:2 }}&cu=INR&tn=Order_ASHAS" class="btn btn-dark w-100 py-2.5 rounded-pill fw-bold text-uppercase d-flex align-items-center justify-content-center gap-2 mb-2.5 shadow-sm" style="background: #171614; font-size: 0.85rem;">
+                                <i class="bi bi-phone fs-5 text-warning"></i>
+                                <span>Open UPI App to Pay Rs <span class="upi-total-text">{{ total|floatformat:2 }}</span></span>
+                            </a>
+
+                            <!-- Dynamic UPI QR Code for Desktop or In-Store Scanning -->
+                            <div class="text-center p-2 rounded bg-white border">
+                                <div class="text-muted small mb-1" style="font-size: 0.72rem;">Or scan QR code using Google Pay / PhonePe / Paytm / BHIM:</div>
+                                <img id="checkoutQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=upi%3A%2F%2Fpay%3Fpa%3D{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}%26pn%3DASHAS%20STORE%26am%3D{{ total|floatformat:2 }}%26cu%3DINR%26tn%3DOrder_ASHAS" alt="UPI QR Code" class="img-fluid rounded border shadow-sm p-1" style="width: 170px; height: 170px;">
+                                <div class="text-secondary small mt-1" style="font-size: 0.7rem;">Payee: <strong>{{ upi_payee_name|default:'ASHAS STORE' }}</strong></div>
                             </div>
                         </div>
 
-                        <!-- Micro trust badges for UPI apps -->
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mt-2.5 px-1 text-muted" style="font-size: 0.72rem;">
-                            <span class="d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-check2-circle text-success"></i> Google Pay
-                            </span>
-                            <span class="d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-check2-circle text-success"></i> PhonePe
-                            </span>
-                            <span class="d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-check2-circle text-success"></i> Paytm
-                            </span>
-                            <span class="d-inline-flex align-items-center gap-1">
-                                <i class="bi bi-check2-circle text-success"></i> QR Code &bull; Any Bank
-                            </span>
+                        <!-- Step B: Upload Proof -->
+                        <div class="p-3 rounded-3 mb-3 border bg-white shadow-sm">
+                            <div class="fw-bold text-dark small text-uppercase mb-2" style="letter-spacing: 0.04em;">
+                                <i class="bi bi-file-earmark-check text-success me-1"></i> Step 2: Upload Payment Proof
+                            </div>
+
+                            <div class="mb-2.5">
+                                <label class="chk-label fw-bold" for="payment_screenshot">
+                                    Attach Payment Screenshot <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" id="payment_screenshot" name="payment_screenshot" class="form-control" accept="image/*">
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                                    Take a screenshot of the successful transfer in GPay / PhonePe and attach here.
+                                </small>
+                                <div id="screenshotPreviewWrapper" class="d-none mt-2 text-center p-2 rounded border bg-light">
+                                    <img id="screenshotPreviewImg" class="rounded border shadow-sm" style="max-height: 120px; object-fit: contain;" alt="Screenshot Preview">
+                                    <div class="small text-success mt-1 fw-semibold"><i class="bi bi-check-circle-fill"></i> Screenshot Attached Ready for Upload</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-1">
+                                <label class="chk-label" for="upi_utr">
+                                    12-Digit UPI Ref / UTR No. <span class="text-muted fw-normal" style="font-size: 0.68rem;">(Optional)</span>
+                                </label>
+                                <input type="text" id="upi_utr" name="upi_utr" class="chk-input" placeholder="e.g. 4301xxxxxxxx (From payment receipt)" maxlength="30">
+                            </div>
                         </div>
 
-                        <button type="button" id="payButton" class="btn-pay-now mt-3">
+                        <button type="button" id="payButton" class="btn-pay-now mt-2">
                             <i class="bi bi-shield-lock-fill"></i>
-                            <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} VIA UPI / CARD</span>
+                            <span id="payButtonText">SUBMIT ORDER &amp; PAYMENT PROOF</span>
                         </button>
 
                         <div id="checkoutAlert" class="alert alert-danger d-none mt-2.5 py-2 px-3 small rounded-3" role="alert"></div>
 
-                        <!-- Payment in progress / App switch status box -->
-                        <div id="paymentStatusBox" class="d-none mt-3 p-3 rounded-3 text-center border bg-light">
-                            <div id="paymentStatusSpinner" class="spinner-border spinner-border-sm text-dark mb-2" role="status"></div>
-                            <div id="paymentStatusText" class="fw-semibold text-dark small mb-1">Checking payment status...</div>
-                            <div id="paymentStatusSub" class="text-muted" style="font-size: 0.73rem;">If you completed payment in your UPI app, please wait while we confirm your order.</div>
-                            <div class="mt-2.5 d-flex gap-2 justify-content-center">
-                                <button type="button" id="btnManualStatusCheck" class="btn btn-sm btn-dark rounded-pill px-3 py-1" style="font-size: 0.75rem;">
-                                    <i class="bi bi-arrow-repeat me-1"></i> Check Status Now
-                                </button>
-                                <button type="button" id="btnRetryPayment" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" style="font-size: 0.75rem;">
-                                    Try Again
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Alternative Direct Payment Link & QR Code -->
-                        <div id="paymentAlternativeBox" class="d-none mt-2.5 p-2.5 rounded-3 border bg-white text-center">
-                            <div class="small fw-semibold text-dark mb-1"><i class="bi bi-qr-code-scan me-1 text-primary"></i> Having trouble with UPI app popup?</div>
-                            <div class="text-muted small mb-2" style="font-size: 0.72rem;">You can scan our secure live QR code or pay on the direct web page:</div>
-                            <a id="paymentLinkBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
-                                <i class="bi bi-box-arrow-up-right me-1"></i> Open Direct Payment Page &amp; QR
-                            </a>
-                        </div>
-
                         <div class="text-center mt-2.5">
                             <small class="text-muted" style="font-size: 0.72rem;">
-                                <i class="bi bi-shield-lock text-success me-1"></i> 100% Encrypted &bull; Direct Bank Settlement
+                                <i class="bi bi-shield-lock text-success me-1"></i> 100% Ban-Free &bull; Direct Google Pay &bull; Fast India Post Dispatch
                             </small>
                         </div>
 
@@ -721,7 +721,7 @@
                             <a href="{% url 'terms' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Terms</a>, 
                             <a href="{% url 'privacy' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Privacy</a>, and 
                             <a href="{% url 'refund_policy' %}" target="_blank" class="text-decoration-underline text-secondary fw-medium">Refund Policy</a>. 
-                            Replacement / refund guaranteed for transit damages or defects reported within 48 hours.
+                            India Post tracking number will be shared on your phone via SMS and WhatsApp.
                         </div>
                     </div>
 
@@ -796,6 +796,44 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Helper: Copy UPI ID
+    window.copyUpiId = function() {
+        const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(vpa).then(() => {
+                const btnCopy = document.getElementById('btnCopyUpi');
+                if (btnCopy) {
+                    btnCopy.innerHTML = '<i class="bi bi-check2 text-success me-1"></i> Copied!';
+                    setTimeout(() => {
+                        btnCopy.innerHTML = '<i class="bi bi-clipboard me-1"></i> Copy UPI ID';
+                    }, 2000);
+                }
+            }).catch(() => {
+                alert("Store UPI ID: " + vpa);
+            });
+        } else {
+            alert("Store UPI ID: " + vpa);
+        }
+    };
+
+    // Screenshot file preview listener
+    const screenshotInput = document.getElementById('payment_screenshot');
+    if (screenshotInput) {
+        screenshotInput.addEventListener('change', function() {
+            const file = this.files && this.files[0];
+            const wrapper = document.getElementById('screenshotPreviewWrapper');
+            const img = document.getElementById('screenshotPreviewImg');
+            if (file && wrapper && img) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    wrapper.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     // Form and Buttons
     const form = document.getElementById('checkoutForm');
     const btn = document.getElementById('payButton');
@@ -849,12 +887,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return subtotal + getCurrentShippingFee();
     }
 
+    function updateUpiPayUrls(totalAmount) {
+        const vpa = "{{ upi_vpa|default:'vishnuvinod3737-2@okaxis' }}";
+        const payee = encodeURIComponent("{{ upi_payee_name|default:'ASHAS STORE' }}");
+        const formatted = parseFloat(totalAmount).toFixed(2);
+        document.querySelectorAll('.upi-total-text').forEach(el => el.textContent = formatted);
+
+        const intentUrl = `upi://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=Order_ASHAS`;
+        const mobileBtn = document.getElementById('mobileUpiIntentBtn');
+        if (mobileBtn) mobileBtn.href = intentUrl;
+
+        const qrImg = document.getElementById('checkoutQrImg');
+        if (qrImg) {
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=${encodeURIComponent(intentUrl)}`;
+        }
+    }
+
     function updatePayButtonText() {
         const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
         const pBtnText = document.getElementById('payButtonText');
         if (pBtnText) {
-            pBtnText.textContent = 'PAY ' + totalFormatted + ' VIA UPI / CARD';
+            pBtnText.textContent = 'SUBMIT ORDER & PAYMENT PROOF (' + totalFormatted + ')';
         }
+        updateUpiPayUrls(getCurrentTotal());
     }
 
     function updateShippingAndTotals() {
@@ -1202,6 +1257,15 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('payment_method', 'upi');
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
+        const proofFile = document.getElementById('payment_screenshot');
+        if (proofFile && proofFile.files && proofFile.files[0]) {
+            formData.append('payment_screenshot', proofFile.files[0]);
+        }
+        const utrVal = document.getElementById('upi_utr');
+        if (utrVal && utrVal.value.trim()) {
+            formData.append('upi_utr', utrVal.value.trim());
+        }
+
         try {
             const res = await fetch("{% url 'checkout' %}", {
                 method: 'POST',
@@ -1216,6 +1280,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!res.ok || data.status === 'error') {
                 showError(data.message || "Unable to initialize order. Please try again.");
                 resetButton();
+                return;
+            }
+
+            // Direct UPI Flow
+            if (data.status === 'success' && data.gateway === 'upi' && data.redirect_url) {
+                if (btn) {
+                    btn.className = 'btn btn-success py-2.5 w-100 rounded-pill fw-bold text-uppercase';
+                    btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Order Placed! Opening Details...';
+                }
+                window.location.href = data.redirect_url;
                 return;
             }
 
