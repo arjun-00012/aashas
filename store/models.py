@@ -527,7 +527,17 @@ class Order(models.Model):
                     self.payment_screenshot.seek(0)
             except Exception:
                 pass
-        super().save(*args, **kwargs)
+        try:
+            super().save(*args, **kwargs)
+        except Exception as e:
+            err_msg = (str(type(e)) + ' ' + str(e)).lower()
+            if any(term in err_msg for term in ['cloudinary', 'name resolution', 'max retries', 'connection', 'tcpkeepalive', 'getaddrinfo']):
+                import logging
+                logging.getLogger(__name__).warning("Storage upload exception during Order save: %s. Falling back gracefully.", e)
+                self.payment_screenshot = None
+                super().save(*args, **kwargs)
+            else:
+                raise
 
         if self.payment_screenshot and not self.payment_screenshot_url:
             try:

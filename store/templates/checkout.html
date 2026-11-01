@@ -928,8 +928,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = `upi://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}`;
             }, 1200);
         } else {
-            // Desktop fallback
-            window.location.href = `intent://pay?pa=${vpa}&pn=${payee}&am=${formatted}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+            // Desktop fallback: copy UPI and scroll to QR code
+            if (typeof copyUpiId === 'function') copyUpiId();
+            const qr = document.getElementById('checkoutQrImg');
+            if (qr) qr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            alert('Store UPI ID (' + vpa + ') copied! Please scan the QR code below using Google Pay on your phone.');
         }
     };
 

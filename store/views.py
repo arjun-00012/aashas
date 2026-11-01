@@ -1434,7 +1434,13 @@ def checkout_view(request):
                 except Exception as c_err:
                     import logging
                     logging.getLogger(__name__).warning(f"Cloudinary upload failed: {c_err}")
-                order.save()
+                try:
+                    order.save()
+                except Exception as s_err:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Order save with screenshot failed: {s_err}. Saving without attachment.")
+                    order.payment_screenshot = None
+                    order.save()
 
             for item_key, (product, qty, size) in valid_items.items():
                 OrderItem.objects.create(
