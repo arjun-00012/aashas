@@ -171,14 +171,20 @@ class Category(models.Model):
 
     @property
     def display_image(self):
-        # 1. Direct cloud link or uploaded category image
-        if self.image_url:
-            return optimize_cloudinary_url(self.image_url)
-        if self.image:
+        url = self.image_url or ''
+        if not url and self.image:
             try:
-                return optimize_cloudinary_url(self.image.url)
+                url = self.image.url
             except Exception:
-                pass
+                url = ''
+
+        if url:
+            if url.startswith('/static/'):
+                return url
+            if 'cloudinary.com' in url and '/categories/' in url:
+                fn = url.split('/')[-1].split('?')[0]
+                return f"/static/images/categories/{fn}"
+            return optimize_cloudinary_url(url)
 
         # 2. Check static categories directory for seeded assets (e.g. chains.jpg, shades.jpg)
         try:
@@ -364,6 +370,20 @@ class Product(models.Model):
                 url = file_field.url
             except Exception:
                 pass
+
+        if not url:
+            return ''
+
+        # If already a local static path, return directly
+        if url.startswith('/static/'):
+            return url
+
+        # Auto-map Cloudinary product images to local static assets
+        if 'cloudinary.com' in url:
+            filename = url.split('/')[-1].split('?')[0]
+            if filename.startswith('product_'):
+                return f"/static/images/products/{filename}"
+
         return optimize_cloudinary_url(url)
 
     @property
