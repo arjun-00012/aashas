@@ -637,10 +637,45 @@
 
                     <div class="chk-card">
                         <div class="chk-card-title">
-                            <span>2. Direct UPI Payment</span>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal" style="font-size: 0.68rem;"><i class="bi bi-shield-check text-success"></i> 0% Fee &bull; 100% Ban-Immune</span>
+                            <span>2. Payment Method</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-normal" style="font-size: 0.68rem;"><i class="bi bi-shield-check text-success"></i> 100% Instant &bull; Bank Secured</span>
                         </div>
 
+                        {% if active_gateway == 'razorpay' %}
+                        <!-- Razorpay Automated Payment Option -->
+                        <div class="p-3 rounded-3 mb-3 border bg-white shadow-sm" id="card_upi">
+                            <input type="hidden" name="payment_method" value="upi">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.04em;">
+                                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Instant Automated Payment
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">
+                                    <i class="bi bi-shield-check"></i> Razorpay Secured
+                                </span>
+                            </div>
+
+                            <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.92rem;">Pay via UPI, Cards or NetBanking</div>
+                                    <small class="text-muted" style="font-size: 0.74rem;">Google Pay, PhonePe, Paytm, Any Bank UPI, Cards, NetBanking</small>
+                                </div>
+                                <i class="bi bi-shield-lock-fill text-success fs-3"></i>
+                            </div>
+
+                            <!-- Trust Badges -->
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-3 px-1 text-muted" style="font-size: 0.72rem;">
+                                <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-check2-circle text-success"></i> Google Pay</span>
+                                <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-check2-circle text-success"></i> PhonePe</span>
+                                <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-check2-circle text-success"></i> Paytm</span>
+                                <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-check2-circle text-success"></i> QR Code &bull; Any Bank</span>
+                            </div>
+
+                            <button type="button" id="payButton" class="btn-pay-now w-100 py-3 rounded-pill fw-bold text-uppercase shadow-sm" style="background: #171614; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.15); color: #fff;">
+                                <i class="bi bi-shield-lock-fill me-1"></i>
+                                <span id="payButtonText">PAY ₹{{ total|floatformat:2 }} WITH RAZORPAY</span>
+                            </button>
+                        </div>
+                        {% else %}
                         <!-- Step A: Pay via Google Pay / UPI -->
                         <div class="p-3 rounded-3 mb-3 border" style="background: #faf8f5;">
                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -727,6 +762,7 @@
                             <i class="bi bi-shield-lock-fill"></i>
                             <span id="payButtonText">SUBMIT ORDER &amp; PAYMENT PROOF</span>
                         </button>
+                        {% endif %}
 
                         <div id="checkoutAlert" class="alert alert-danger d-none mt-2.5 py-2 px-3 small rounded-3" role="alert"></div>
 
@@ -983,7 +1019,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalFormatted = '₹' + getCurrentTotal().toFixed(2);
         const pBtnText = document.getElementById('payButtonText');
         if (pBtnText) {
+            {% if active_gateway == 'razorpay' %}
+            pBtnText.textContent = 'PAY ' + totalFormatted + ' WITH RAZORPAY';
+            {% else %}
             pBtnText.textContent = 'SUBMIT ORDER & PAYMENT PROOF (' + totalFormatted + ')';
+            {% endif %}
         }
         updateUpiPayUrls(getCurrentTotal());
     }
@@ -1217,7 +1257,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (btn) {
             btn.disabled = false;
             btn.className = 'btn-pay-now mt-3';
-            btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> <span id="payButtonText">PAY ₹' + getCurrentTotal().toFixed(2) + ' VIA UPI / CARD</span>';
+            {% if active_gateway == 'razorpay' %}
+            btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> <span id="payButtonText">PAY ₹' + getCurrentTotal().toFixed(2) + ' WITH RAZORPAY</span>';
+            {% else %}
+            btn.innerHTML = '<i class="bi bi-shield-lock-fill"></i> <span id="payButtonText">SUBMIT ORDER &amp; PAYMENT PROOF</span>';
+            {% endif %}
         }
     }
 
@@ -1330,7 +1374,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('phone_number', phoneNumber);
         formData.append('phone_number_2', phoneNumber2);
         formData.append('delivery_region', finalRegion);
-        formData.append('payment_method', 'upi');
+        formData.append('payment_method', '{{ active_gateway|default:"razorpay" }}');
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
         const proofFile = document.getElementById('payment_screenshot');

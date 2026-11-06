@@ -1389,7 +1389,7 @@ def checkout_view(request):
         rzp_amount = int(round(grand_total * 100))
         payment_method = (request.POST.get('payment_method') or 'upi').strip().lower()
 
-        active_gw = getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'upi').lower()
+        active_gw = getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'razorpay').lower()
 
         if active_gw == 'upi':
             screenshot_file = request.FILES.get('payment_screenshot') or request.FILES.get('screenshot')
@@ -1667,7 +1667,7 @@ def checkout_view(request):
         'default_state': default_state or ('Kerala' if initial_region == 'kerala' else ''),
         'user_email': request.user.email if request.user.is_authenticated else '',
         'razorpay_key': settings.RAZORPAY_KEY_ID,
-        'active_gateway': getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'upi').lower(),
+        'active_gateway': getattr(settings, 'ACTIVE_PAYMENT_GATEWAY', 'razorpay').lower(),
         'upi_vpa': getattr(settings, 'UPI_VPA', 'vishnuvinod3737-2@okaxis'),
         'upi_payee_name': getattr(settings, 'UPI_PAYEE_NAME', 'ASHAS STORE'),
         'store_whatsapp_number': getattr(settings, 'STORE_WHATSAPP_NUMBER', '918281451481'),
