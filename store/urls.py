@@ -78,6 +78,8 @@ urlpatterns = [
     path('adminpp/inquiry/delete/<int:pk>/', views.inquiry_delete, name='inquiry_delete'),
 
     # Mandatory Legal & Compliance Pages (Razorpay, Bank & RBI Compliance)
+    path('about/', views.about_view, name='about'),
+    path('about-us/', views.about_view, name='about_us'),
     path('terms/', views.terms_view, name='terms'),
     path('terms-and-conditions/', views.terms_view, name='terms_alt'),
     path('privacy/', views.privacy_view, name='privacy'),

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us | ASHAS STORE Flagship Boutique Kozhikode{% endblock %}
+{% block meta_description %}Learn about ASHAS CLOTHING / ASHAS STORE Kozhikode. Premium streetwear accessories, designer shades, tribal jewelry, chains, and lifestyle fashion based in Calicut, Kerala.{% endblock %}
+
+{% block content %}
+<div class="bg-light py-4 border-bottom border-secondary border-opacity-10">
+    <div class="container" style="max-width: 1080px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">About Us</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold font-outfit text-dark m-0" style="letter-spacing: 0.03em;">ABOUT ASHAS CLOTHING</h1>
+        <p class="text-secondary small mt-1 mb-0">Crafting high-energy streetwear accessories, statement shades, and modern tribal jewellery.</p>
+    </div>
+</div>
+
+<div class="container py-5" style="max-width: 1080px;">
+    <div class="row g-4 g-lg-5">
+        <div class="col-12 col-lg-7">
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-secondary border-opacity-10 h-100">
+                <span class="badge bg-dark text-white font-outfit px-3 py-1 rounded-pill mb-3" style="letter-spacing: 0.06em;">OUR STORY</span>
+                <h2 class="h4 fw-bold font-outfit text-dark mb-3">Accessorize Your Story with ASHAS™</h2>
+                <p class="text-secondary" style="line-height: 1.8; font-size: 0.95rem;">
+                    Founded in Calicut (Kozhikode), Kerala, <strong>ASHAS CLOTHING</strong> is a boutique fashion and streetwear accessories label dedicated to individuality, edge, and contemporary urban aesthetics. From precision-crafted geometric sunglasses and retro-futuristic digital timepieces to handcrafted macramé tribal necklaces, Cuban links, and statement signet rings, every piece in our collection is curated to elevate personal style.
+                </p>
+                <p class="text-secondary" style="line-height: 1.8; font-size: 0.95rem;">
+                    We operate our flagship walk-in retail boutique in Karuvissery, Kozhikode, along with an online storefront at <strong>ashasstore.in</strong> serving fashion-forward customers across all 28 states and union territories in India with reliable, trackable India Post Speed Post delivery.
+                </p>
+
+                <div class="row g-3 mt-4 pt-3 border-top border-secondary border-opacity-10">
+                    <div class="col-sm-4 text-center p-3 rounded-3 bg-light">
+                        <i class="bi bi-shield-check text-success fs-3 d-block mb-1"></i>
+                        <strong class="d-block text-dark small font-outfit">100% Quality</strong>
+                        <span class="text-muted" style="font-size: 0.72rem;">Handpicked Materials</span>
+                    </div>
+                    <div class="col-sm-4 text-center p-3 rounded-3 bg-light">
+                        <i class="bi bi-truck text-dark fs-3 d-block mb-1"></i>
+                        <strong class="d-block text-dark small font-outfit">Pan-India Delivery</strong>
+                        <span class="text-muted" style="font-size: 0.72rem;">India Post Speed Post</span>
+                    </div>
+                    <div class="col-sm-4 text-center p-3 rounded-3 bg-light">
+                        <i class="bi bi-geo-alt-fill text-danger fs-3 d-block mb-1"></i>
+                        <strong class="d-block text-dark small font-outfit">Retail Flagship</strong>
+                        <span class="text-muted" style="font-size: 0.72rem;">Karuvissery, Calicut</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-secondary border-opacity-10 h-100">
+                <span class="badge bg-secondary bg-opacity-10 text-dark font-outfit px-3 py-1 rounded-pill mb-3" style="letter-spacing: 0.06em;">BUSINESS OVERVIEW</span>
+                <h3 class="h5 fw-bold font-outfit text-dark mb-3">Entity &amp; Operations</h3>
+
+                <ul class="list-unstyled d-flex flex-column gap-3 mb-4" style="font-size: 0.88rem;">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-building text-primary mt-1"></i>
+                        <div>
+                            <strong class="text-dark d-block">Trade Name:</strong>
+                            <span class="text-secondary">ASHAS CLOTHING / ASHAS STORE</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-person-badge text-primary mt-1"></i>
+                        <div>
+                            <strong class="text-dark d-block">Sole Proprietor:</strong>
+                            <span class="text-secondary">KPONNAM PARAM BATH VISHNU</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-geo-alt text-primary mt-1"></i>
+                        <div>
+                            <strong class="text-dark d-block">Registered &amp; Operating Boutique:</strong>
+                            <span class="text-secondary">Krishnamanam Building, Karuvissery, Kozhikode, Kerala – 673010, India</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-envelope text-primary mt-1"></i>
+                        <div>
+                            <strong class="text-dark d-block">Official Email:</strong>
+                            <a href="mailto:support@ashasstore.in" class="text-secondary text-decoration-none">support@ashasstore.in</a>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-telephone text-primary mt-1"></i>
+                        <div>
+                            <strong class="text-dark d-block">Phone / WhatsApp Support:</strong>
+                            <a href="tel:+918281451481" class="text-secondary text-decoration-none">+91 82814 51481</a>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="d-flex flex-column gap-2 pt-3 border-top border-secondary border-opacity-10">
+                    <a href="{% url 'contact' %}" class="btn btn-dark w-100 rounded-pill py-2.5 fw-semibold font-outfit">
+                        <i class="bi bi-chat-dots me-1"></i> Contact &amp; Directions
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-outline-dark w-100 rounded-pill py-2.5 fw-semibold font-outfit">
+                        <i class="bi bi-bag me-1"></i> Browse Catalog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

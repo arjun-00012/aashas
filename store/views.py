@@ -3104,6 +3104,9 @@ def refund_policy_view(request):
 def shipping_policy_view(request):
     return render(request, 'shipping_policy.html')
 
+def about_view(request):
+    return render(request, 'about.html')
+
 def contact_view(request):
     return render(request, 'contact.html')
 
