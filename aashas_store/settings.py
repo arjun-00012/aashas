@@ -267,7 +267,7 @@ INSTAMOJO_AUTH_TOKEN = (os.environ.get('INSTAMOJO_AUTH_TOKEN') or '').strip()
 INSTAMOJO_PRIVATE_SALT = (os.environ.get('INSTAMOJO_PRIVATE_SALT') or '').strip()
 INSTAMOJO_MODE = (os.environ.get('INSTAMOJO_MODE') or 'live').strip().lower()
 INSTAMOJO_ENDPOINT = 'https://test.instamojo.com/api/1.1/' if INSTAMOJO_MODE == 'test' else 'https://www.instamojo.com/api/1.1/'
-# Direct UPI Settings (0% MDR, ban-immune, Google Pay / PhonePe / Paytm / BHIM)
+# Direct UPI Settings (0% MDR, Direct Google Pay / PhonePe / Paytm / BHIM)
 UPI_VPA = (os.environ.get('UPI_VPA') or 'vishnuvinod3737-2@okaxis').strip()
 UPI_PAYEE_NAME = (os.environ.get('UPI_PAYEE_NAME') or 'ASHAS STORE').strip()
 STORE_WHATSAPP_NUMBER = (os.environ.get('STORE_WHATSAPP_NUMBER') or '918281451481').strip()
