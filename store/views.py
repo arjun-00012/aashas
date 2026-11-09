@@ -2158,6 +2158,54 @@ def instamojo_callback(request):
         messages.error(request, "Payment was not completed. You can retry checkout anytime.")
         return redirect('checkout')
 
+@csrf_exempt
+def upigateway_webhook(request):
+    """
+    UPI Gateway (upigateway.com / ekqr.in) Webhook listener for real-time automated payment credit notifications.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    if request.method in ('POST', 'GET'):
+        try:
+            data = {}
+            if request.content_type == 'application/json' and request.body:
+                try:
+                    data = json.loads(request.body.decode('utf-8'))
+                except Exception:
+                    data = {}
+            if not data:
+                data = request.POST.dict() or request.GET.dict()
+
+            logger.info(f"UPIGateway webhook received: keys={list(data.keys())}")
+            client_txn_id = data.get('client_txn_id') or data.get('order_id')
+            status = str(data.get('status') or '').lower()
+            upi_txn_id = data.get('upi_txn_id') or data.get('transaction_id') or data.get('utr') or data.get('id')
+
+            if client_txn_id:
+                clean_id = str(client_txn_id).replace('order_', '').replace('ASHAS_', '').strip()
+                order = Order.objects.filter(id=int(clean_id)).first() if clean_id.isdigit() else None
+                if order:
+                    if status in ('success', 'credit', 'completed', 'paid'):
+                        if order.payment_status != 'Completed':
+                            order.payment_status = 'Completed'
+                            order.payment_gateway = 'upi'
+                            if upi_txn_id:
+                                order.upi_utr = str(upi_txn_id)[:50]
+                            if not order.shipping_status:
+                                order.shipping_status = 'Processing'
+                            order.save(update_fields=['payment_status', 'payment_gateway', 'upi_utr', 'shipping_status'])
+                            deduct_order_inventory(order)
+                            logger.info(f"UPIGateway webhook: Order #{order.id} confirmed with UTR {upi_txn_id}")
+                        return JsonResponse({'status': True, 'message': f'Order #{order.id} marked Completed'})
+                    else:
+                        logger.warning(f"UPIGateway webhook: Order #{order.id} status was {status}")
+            return JsonResponse({'status': True, 'message': 'Webhook received'})
+        except Exception as e:
+            logger.error(f"UPIGateway webhook error: {e}")
+            return JsonResponse({'status': False, 'error': str(e)}, status=200)
+
+    return HttpResponse("Method Not Allowed", status=405)
+
 @staff_required
 @csrf_exempt
 def adminpp_test_webhook(request, gateway):
@@ -2180,6 +2228,13 @@ def adminpp_test_webhook(request, gateway):
                 'gateway': 'Razorpay',
                 'message': '✓ Razorpay Webhook endpoint is live, active and responding (HTTP 200 OK)!',
                 'webhook_url': request.build_absolute_uri(reverse('razorpay_webhook'))
+            })
+        elif gw in ('upigateway', 'upi'):
+            return JsonResponse({
+                'status': 'success',
+                'gateway': 'UPIGateway',
+                'message': '✓ UPIGateway Webhook endpoint is live, active and responding (HTTP 200 OK)!',
+                'webhook_url': request.build_absolute_uri(reverse('upigateway_webhook'))
             })
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
 

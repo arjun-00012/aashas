@@ -54,6 +54,7 @@ urlpatterns = [
     path('verify-payment/', views.payment_verify, name='payment_verify'),
     path('api/razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
     path('api/instamojo-webhook/', views.instamojo_webhook, name='instamojo_webhook'),
+    path('api/upigateway-webhook/', views.upigateway_webhook, name='upigateway_webhook'),
     path('checkout/instamojo-callback/', views.instamojo_callback, name='instamojo_callback'),
     path('contact-submit/', views.contact_submit, name='contact_submit'),
     path('adminpp/test-webhook/<str:gateway>/', views.adminpp_test_webhook, name='adminpp_test_webhook'),
