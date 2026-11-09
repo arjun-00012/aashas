@@ -271,7 +271,7 @@ INSTAMOJO_ENDPOINT = 'https://test.instamojo.com/api/1.1/' if INSTAMOJO_MODE == 
 UPI_VPA = (os.environ.get('UPI_VPA') or 'vishnuvinod3737-2@okaxis').strip()
 UPI_PAYEE_NAME = (os.environ.get('UPI_PAYEE_NAME') or 'ASHAS STORE').strip()
 STORE_WHATSAPP_NUMBER = (os.environ.get('STORE_WHATSAPP_NUMBER') or '918281451481').strip()
-ACTIVE_PAYMENT_GATEWAY = (os.environ.get('ACTIVE_PAYMENT_GATEWAY') or 'razorpay').strip().lower()
+ACTIVE_PAYMENT_GATEWAY = (os.environ.get('ACTIVE_PAYMENT_GATEWAY') or 'upi').strip().lower()
 
 # Hostinger / Custom SMTP Email Configuration
 _email_user = os.environ.get('EMAIL_HOST_USER', '').strip()

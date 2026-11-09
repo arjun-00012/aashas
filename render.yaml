@@ -21,7 +21,7 @@ services:
       - key: CLOUDINARY_API_SECRET
         value: "MfP1G3e-dncWMBeKwoSoIx7IGfk"
       - key: ACTIVE_PAYMENT_GATEWAY
-        value: "razorpay"
+        value: "upi"
       - key: UPI_VPA
         value: "vishnuvinod3737-2@okaxis"
       - key: UPI_PAYEE_NAME
