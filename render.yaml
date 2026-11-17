@@ -33,10 +33,10 @@ services:
       - key: RAZORPAY_KEY_SECRET
         value: "uct85ngbFuvyRgdqhGYDFdG4"
       - key: INSTAMOJO_API_KEY
-        value: "5b039f4b07d2dd6b38acaff1f028989f"
+        value: "deef4af53b440f0dd1e3125952885c3a"
       - key: INSTAMOJO_AUTH_TOKEN
-        value: "e572735f255b6bcbbdf1daac3459a259"
+        value: "2e29c641f6cda28d86e370dfda2a88ac"
       - key: INSTAMOJO_PRIVATE_SALT
-        value: "2b2306dd1f7c42eab48fd26958e582c3"
+        value: "8219f53f7879441782f377b2249e9984"
       - key: INSTAMOJO_MODE
         value: "live"
